@@ -1,6 +1,8 @@
-#J2C
+# j2c
 
 A small (~670 bytes mingzipped) JavaScript object to CSS compiler.
+
+Think SASS, but in JSONish syntax.
 
 Inspired by restlye.js and JSS, but smaller :-).
 
@@ -8,6 +10,8 @@ Inspired by restlye.js and JSS, but smaller :-).
 
 * Send small, compact, SASS-like data down the line
 * Simplify your asset pipeline
+* Use the full power of JavaScript to create mixins, variables and macros
+* Stop worrying about vendor prefixes
 * Good fit for virtual DOM frameworks like React or Mithril
 
 ## Usage:
