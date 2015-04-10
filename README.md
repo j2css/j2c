@@ -175,9 +175,10 @@ Supported, but documentation needed.
 
 ## API Reference
 
-* `<string>style = j2c.inline(object)`: returns a property-value list suitable for inline styles
-* `<RuleSet>rs = j2c.RuleSet([prefx])`: Creates a RuleSet object.
-* ` = 
+* `style:String = j2c.inline(props:(Object|Array|String))`: returns a property-value list suitable for inline styles
+* `rs:RuleSet = j2c.RuleSet([prefx:String])`: Creates a RuleSet object.
+* `rs:RuleSet = rs.add(rules:(Object|Array|String))`: add a series of rules to the style sheet.
+* `rs:String = rs.toString`: the stylesheet in string form.
 
 ## Limitations:
 
