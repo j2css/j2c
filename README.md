@@ -4,6 +4,12 @@ A small (~670 bytes mingzipped) JavaScript object to CSS compiler.
 
 Inspired by restlye.js and JSS, but smaller :-).
 
+## Why?
+
+* Send small, compact, SASS-like data down the line
+* Simplify your asset pipeline
+* Good fit for virtual DOM frameworks like React or Mithril
+
 ## Usage:
 
 ### For building a style sheet:
@@ -161,12 +167,18 @@ ul.my_root_class {
 
 ###CSS hacks
 
+Supported, but documentation needed.
 
+## API Reference
+
+* `<string>style = j2c.inline(object)`: returns a property-value list suitable for inline styles
+* `<RuleSet>rs = j2c.RuleSet([prefx])`: Creates a RuleSet object.
+* ` = 
 
 ## Limitations:
 
 `j2c` knows the bare minimum to output a valid stylesheet when provided with valid input. It will hapily accept invalid selectors, properties and values, and could in that case produce a broken stylesheet.
 
-I may get around to writing a validator companion, but I'm not there yet :-).
+I may get around and write a validator companion, but I'm not there yet :-).
 
 ## License: MIT
