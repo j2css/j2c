@@ -1,10 +1,10 @@
-module.exports = (function () {
+(function () {
   var
     OBJECT = "[object Object]",
     NUMBER = "[object Number]",
     STRING = "[object String]",
     ARRAY = "[object Array]",
-    type = properties.call.bind(({}).toString),
+    type = inline.call.bind(({}).toString),
     counter = 0;
 
   function vendorify(prop, buf, indent, vendors) {
@@ -45,6 +45,7 @@ module.exports = (function () {
     }
   }
 
+  /**///rules
   function RuleSet(pfx) {
     if (!(this instanceof RuleSet)) {return new RuleSet(pfx)};
     this.prefix = pfx != null ? pfx : m.prefix + (counter++);
@@ -59,9 +60,11 @@ module.exports = (function () {
   };
 
   function _add(rules, buf, pfx, indent /*var*/, k, v, t, props) {
-    props = {};
+    /**///hacks
     switch (type(rules)) {
     case OBJECT:
+    /**///hacks
+      props = {};
       for (k in rules) {
         v = rules[k];
         t = type(v);
@@ -79,12 +82,15 @@ module.exports = (function () {
           _add(v, buf, pfx + k, indent);
         }
       }
+      // fake loop to detect the presence of keys in props.
+      // breaks after the first iteration.
       for (k in props){
         buf.push(indent + pfx + "{");
         _properties(props, buf, "", indent + m.indent);
         buf.push(indent + "}");
         break;
       }
+    /**///hacks
       break;
     case ARRAY:
       rules.forEach(function (rules) {
@@ -94,23 +100,27 @@ module.exports = (function () {
     case STRING:
         buf.push(indent + pfx + "{\n" + rules + "\n" + indent  + "}");
     }
+    /**///hacks
   }
 
   Rp.toString = function () {
     return this.buf.join("\n");
   };
+  /**///rules
 
   var m = {
+    /**///rules
+    prefix:".j2c_" + (Math.random() * 1e9 | 0) + "_",
+    indent: "  ",
+    RuleSet: RuleSet,
+    /**///rules
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"],
-    unit: "px",
-    prefix:".Dimrill_" + Date.now() + "_",
-    indent: "  ",
-    RuleSet: RuleSet
+    unit: "px"
   };
 
   return m;
-})();
+})()
 
 /*
 Copyright © 2015 Pierre-Yves Gérardy
