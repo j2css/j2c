@@ -83,7 +83,6 @@ export (function () {
         }
       }
       // fake loop to detect the presence of keys in props.
-      // breaks after the first iteration.
       for (k in props){
         buf.push(indent + pfx + "{");
         _properties(props, buf, "", indent + m.indent);
