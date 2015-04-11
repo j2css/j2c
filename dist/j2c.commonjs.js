@@ -55,7 +55,7 @@ module.exports = (function () {
   var Rp = RuleSet.prototype;
 
   Rp.add = function (rules) {
-    _add(rules, this.buf, this.prefix + " ", "");
+    _add(rules, this.buf, this.prefix, "");
     return this
   };
 

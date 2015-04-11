@@ -1,4 +1,4 @@
-export (function () {
+export default (function () {
   var
     OBJECT = "[object Object]",
     NUMBER = "[object Number]",
@@ -55,7 +55,7 @@ export (function () {
   var Rp = RuleSet.prototype;
 
   Rp.add = function (rules) {
-    _add(rules, this.buf, this.prefix + " ", "");
+    _add(rules, this.buf, this.prefix, "");
     return this
   };
 

@@ -9,7 +9,7 @@ var fs = require("fs"),
     wrappers = {
         global: ";var j2c = %;",
         commonjs: "module.exports = %;",
-        es6: "export %;",
+        es6: "export default %;",
         amd: "define('j2c', function(){return %});"
     }
 

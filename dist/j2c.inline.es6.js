@@ -1,4 +1,4 @@
-export (function () {
+export default (function () {
   var
     OBJECT = "[object Object]",
     NUMBER = "[object Number]",
