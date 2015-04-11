@@ -1,6 +1,6 @@
 # j2c
 
-A small (~670 bytes mingzipped) JavaScript object to CSS compiler.
+A small JavaScript object to CSS compiler. ~680 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
