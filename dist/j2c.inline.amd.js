@@ -3,7 +3,7 @@ define('j2c', function(){return (function () {
     OBJECT = "[object Object]",
     NUMBER = "[object Number]",
     STRING = "[object String]",
-    ARRAY = "[object Array]",
+    ARRAY =  "[object Array]",
     type = inline.call.bind(({}).toString),
     counter = 0;
 

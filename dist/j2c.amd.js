@@ -3,7 +3,7 @@ define('j2c', function(){return (function () {
     OBJECT = "[object Object]",
     NUMBER = "[object Number]",
     STRING = "[object String]",
-    ARRAY = "[object Array]",
+    ARRAY =  "[object Array]",
     type = inline.call.bind(({}).toString),
     counter = 0;
 
@@ -48,22 +48,28 @@ define('j2c', function(){return (function () {
   /**///rules
   function RuleSet(pfx) {
     if (!(this instanceof RuleSet)) {return new RuleSet(pfx)};
-    this.prefix = pfx != null ? pfx : m.prefix + (counter++);
+    this.prefix = (pfx != null ? pfx : m.prefix + (counter++));
     this.buf = []
   }
   
   var Rp = RuleSet.prototype;
 
   Rp.add = function (rules) {
-    _add(rules, this.buf, this.prefix, "");
+    _add(rules, this.buf, this.prefix.split(","), "");
     return this
   };
 
+  function cross(a,b) {
+    var res = [];
+    for (var i = 0, j; i< a.length; i++) 
+      for (j = 0; j < b.length; j++)
+        res.push(a[i]+b[j]);
+    return res;
+  }
+
   function _add(rules, buf, pfx, indent /*var*/, k, v, t, props) {
-    /**///hacks
     switch (type(rules)) {
     case OBJECT:
-    /**///hacks
       props = {};
       for (k in rules) {
         v = rules[k];
@@ -79,7 +85,7 @@ define('j2c', function(){return (function () {
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, pfx + k, indent);
+          _add(v, buf, cross(pfx, k.split(",")), indent);
         }
       }
       // fake loop to detect the presence of keys in props.
@@ -89,7 +95,6 @@ define('j2c', function(){return (function () {
         buf.push(indent + "}");
         break;
       }
-    /**///hacks
       break;
     case ARRAY:
       rules.forEach(function (rules) {
@@ -97,9 +102,8 @@ define('j2c', function(){return (function () {
       })
       break;
     case STRING:
-        buf.push(indent + pfx + "{\n" + rules + "\n" + indent  + "}");
+        buf.push(indent + pfx.join(",") + "{\n" + rules + "\n" + indent  + "}");
     }
-    /**///hacks
   }
 
   Rp.toString = function () {

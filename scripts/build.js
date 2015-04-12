@@ -3,7 +3,6 @@ var fs = require("fs"),
 
     versions = {
         "j2c": source,
-        "j2c.strict": excise(source, "hacks"),
         "j2c.inline": excise(source, "rules")
     },
     wrappers = {
