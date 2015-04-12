@@ -61,70 +61,28 @@ ul.my_root_class {
 }
 ```
 
-If you don't truncate the vendors list, you'll get
+#### -$vendor-prefixes
 
-```CSS
-@media condition{
-  ul.my_root_class {
-    -o-color:red;
-    -ms-color:red;
-    -moz-color:red;
-    -webkit-color:red;
-    color:red;
-  }
-}
-ul.my_root_class  li{
-  -o-padding-left:5px;
-  -ms-padding-left:5px;
-  -moz-padding-left:5px;
-  -webkit-padding-left:5px;
-  padding-left:5px;
-  -o-padding-top:10px;
-  -ms-padding-top:10px;
-  -moz-padding-top:10px;
-  -webkit-padding-top:10px;
-  padding-top:10px;
-}
-ul.my_root_class {
-  -o-font-size:2em;
-  -ms-font-size:2em;
-  -moz-font-size:2em;
-  -webkit-font-size:2em;
-  font-size:2em;
-  -o-font-family:sans-serif;
-  -ms-font-family:sans-serif;
-  -moz-font-family:sans-serif;
-  -webkit-font-family:sans-serif;
-  font-family:sans-serif;
-}
-```
+If you don't truncate the vendors list, you'll get each property prefixed for each vendors.
 
 Most of the resulting combinations don't make any sense, and they are simply ignored by browsers. That's the price to pay for the small code size.
 
-If no root prefix is provided, `J2C` creates one.
+#### root selector
+
+If no root selector is provided, `J2C` creates one (a unique class).
 
 ```JavaScript
 r = j2c.RuleSet()
 r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per j2c instance, and `$counter` is incremented to ensure unique classes.
 ```
 
-### For building inline styles
+#### Telling selectors and properties apart.
 
-```JavaScript
-console.log(j2c.inline({
-    float:"left";
-}));
-```
-... outputs ...
-```CSS
--o-float:left;
--ms-float:left;
--moz-float:left;
--webkit-float:left;
-float:left;
-```
+`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as propertiesm and everything else as (sub-)selectors.
 
-### Overloading properties
+Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes " ul li{padding-left:10px;}". `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
+
+#### Overloading properties
 
 ```JavaScript
 r = j2c.RuleSet("ul.my_root_class")
@@ -169,9 +127,110 @@ ul.my_root_class {
 }
 ```
 
-###CSS hacks
+#### Advanced features:
 
-Supported, but documentation needed.
+Here's a `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
+
+```JavaSCript
+* Copyright 2013 Arnaud Leray
+* MIT License
+*/
+console.log(j2c.RuleSet("").add({
+  /* Border-box-sizing */
+  ".block,.blockgroup":{
+    ",:before,:after":{ // Note the initial coma.
+                        // It expands to the cross product, of
+                        // [".block", ".blockgroup"] and
+                        // ["", ":before", ":after"], thus:
+                        // [.block, .blockgroup,
+                        //  .block:before, .blockgroup:before,
+                        //  .block:after, .blockgroup:after ]
+      "box-sizing":"border-box"
+    }
+  },
+  ".blockgroup": [ // Array elements are inserted in sequence.
+    /* Clearfix */
+    "*zoom: 1", // A string literal instead of an object is treated
+                // as a list of properties. Useful for CSS hacks
+                // that would otherwise end up detected as selectors
+                // (see the previous section).
+    {
+      ":before,:after": {
+        display: "table",
+        content: '""',
+        "line-heigth": 0
+      },
+      ":after": {clear:"both"},
+
+      " > .blockgroup": {
+        /* Nested grid */
+        clear: "none",
+        float: "left",
+        margin: "0 !important"
+      },
+
+      /* ul/li compatibility */
+      "list-style-type":"none",
+      padding:0,
+      margin:0
+    }
+  ],
+  /* Default block */
+  ".block": {
+    float: "left",
+    width: "100%"
+  }
+}).toString())
+```
+
+Result:
+
+```CSS
+.block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
+  box-sizing:border-box;
+}
+.blockgroup{
+*zoom: 1
+}
+.blockgroup:before,.blockgroup:after{
+  display:table;
+  content:"";
+  line-heigth:0;
+}
+.blockgroup:after{
+  clear:both;
+}
+.blockgroup > .blockgroup{
+  clear:none;
+  float:left;
+  margin:0 !important;
+}
+.blockgroup{
+  list-style-type:none;
+  padding:0;
+  margin:0;
+}
+.block{
+  float:left;
+  width:100%;
+}
+```
+
+### For building inline styles
+
+```JavaScript
+console.log(j2c.inline({
+    float:"left";
+}));
+```
+... outputs ...
+```CSS
+-o-float:left;
+-ms-float:left;
+-moz-float:left;
+-webkit-float:left;
+float:left;
+```
 
 ## API Reference
 
