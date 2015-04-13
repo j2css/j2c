@@ -73,14 +73,16 @@ If no root selector is provided, `J2C` creates one (a unique class).
 
 ```JavaScript
 r = j2c.sheet()
-r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per j2c instance, and `$counter` is incremented to ensure unique classes.
+r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
+         // j2c instance, and `$counter` is incremented to ensure
+         // unique classes.
 ```
 
 #### Telling selectors and properties apart.
 
 `j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors.
 
-Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes " ul li{padding-left:10px;}". `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
+Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
 #### Overloading properties
 
