@@ -74,8 +74,8 @@ If no root selector is provided, `J2C` creates one (a unique class).
 ```JavaScript
 r = j2c.sheet()
 r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
-         // j2c instance, and `$counter` is incremented to ensure
-         // unique classes.
+         //     j2c instance, and `$counter` is incremented to 
+         //     ensure that these classes are unique.
 ```
 
 #### Telling selectors and properties apart.
