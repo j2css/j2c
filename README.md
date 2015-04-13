@@ -22,7 +22,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 j2c.vendors = [] // for the sake of this demo
                  // defaults to ["o", "ms", "moz", "webkit"].
 
-r = j2c.RuleSet("ul.my_root_class")
+r = j2c.sheet("ul.my_root_class")
 
 r.add({
     "@media condition": {
@@ -61,31 +61,31 @@ ul.my_root_class {
 }
 ```
 
-#### -$vendor-prefixes
+#### -vendor-prefixes
 
-If you don't truncate the vendors list, you'll get each property prefixed for each vendors.
+If you don't truncate the vendors list as I did in the example above, you'll get each property prefixed for each vendor.
 
-Most of the resulting combinations don't make any sense, and they are simply ignored by browsers. That's the price to pay for the small code size.
+Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
 
 #### root selector
 
 If no root selector is provided, `J2C` creates one (a unique class).
 
 ```JavaScript
-r = j2c.RuleSet()
+r = j2c.sheet()
 r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per j2c instance, and `$counter` is incremented to ensure unique classes.
 ```
 
 #### Telling selectors and properties apart.
 
-`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as propertiesm and everything else as (sub-)selectors.
+`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes " ul li{padding-left:10px;}". `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
 #### Overloading properties
 
 ```JavaScript
-r = j2c.RuleSet("ul.my_root_class")
+r = j2c.sheet("ul.my_root_class")
 
 r.add({
     "font-size": ["2em", "2rem"]
@@ -104,7 +104,7 @@ becomes
 Alternatively
 
 ```JavaScript
-r = j2c.RuleSet("ul.my_root_class")
+r = j2c.sheet("ul.my_root_class")
 
 r.add([
     {
@@ -135,7 +135,7 @@ Here's a `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgri
 * Copyright 2013 Arnaud Leray
 * MIT License
 */
-console.log(j2c.RuleSet("").add({
+console.log(j2c.sheet("").add({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{ // Note the initial coma.
@@ -234,10 +234,18 @@ float:left;
 
 ## API Reference
 
-* `style:String = j2c.inline(props:(Object|Array|String))`: returns a property-value list suitable for inline styles
-* `rs:RuleSet = j2c.RuleSet([prefx:String])`: Creates a RuleSet object.
-* `rs:RuleSet = rs.add(rules:(Object|Array|String))`: add a series of rules to the style sheet.
-* `rs:String = rs.toString`: the stylesheet in string form.
+`j2c` object
+
+* `j2c.inline(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
+* `j2c.sheet([root:String]) : Sheet`: Creates a Sheet object.
+* `j2c.vendors = ["o", "ms", "moz", "webkit"]` (r/w): list of vendor prefixes.
+* `j2c.unit = "px"` (r/w): the default unit. `{margin:5}` becomes `margin:5px`.
+
+
+`Sheet` methods:
+
+* `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns a `Sheet` for chaining.
+* `sheet.toString() : String`: the stylesheet in string form.
 
 ## Limitations:
 

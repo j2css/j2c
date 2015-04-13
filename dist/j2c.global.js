@@ -5,6 +5,7 @@
     STRING = "[object String]",
     ARRAY =  "[object Array]",
     type = inline.call.bind(({}).toString),
+    default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
   function vendorify(prop, buf, indent, vendors) {
@@ -17,11 +18,11 @@
 
   function inline(o) {
     var buf = [];
-    _properties(o, buf, "", "");
+    _declarations(o, buf, "", "");
     return buf.join("\n");
   }
 
-  function _properties(o, buf, pfx, indent /**/, k, t, v) {
+  function _declarations(o, buf, pfx, indent /**/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
@@ -30,11 +31,11 @@
         v.forEach(function (vv, oo) {
           oo = {};
           oo[k] = vv;
-          _properties(oo, buf, pfx, indent);
+          _declarations(oo, buf, pfx, indent);
         });
         break;
       case OBJECT:
-        _properties(v, buf, pfx + k + "-", indent);
+        _declarations(v, buf, pfx + k + "-", indent);
         break;
       default:
         vendorify(
@@ -45,34 +46,34 @@
     }
   }
 
-  /**///rules
-  function RuleSet(pfx) {
-    if (!(this instanceof RuleSet)) {return new RuleSet(pfx)};
-    this.prefix = (pfx != null ? pfx : m.prefix + (counter++));
+  /**///statements
+  function sheet(root) {return new Sheet(root);}
+  function Sheet(root) {
+    this.root = (root != null ? root : default_root + (counter++));
     this.buf = []
   }
   
-  var Rp = RuleSet.prototype;
+  var Sp = Sheet.prototype;
 
-  Rp.add = function (rules) {
-    _add(rules, this.buf, this.prefix.split(","), "");
+  Sp.add = function (statements) {
+    _add(statements, this.buf, this.root.split(","), "");
     return this
   };
 
-  function cross(a,b) {
+  function cartesian(a,b) {
     var res = [];
-    for (var i = 0, j; i< a.length; i++) 
-      for (j = 0; j < b.length; j++)
+    for (var i, j = 0; j < b.length; j++)
+      for (i = 0; i< a.length; i++) 
         res.push(a[i]+b[j]);
     return res;
   }
 
-  function _add(rules, buf, pfx, indent /*var*/, k, v, t, props) {
-    switch (type(rules)) {
+  function _add(statements, buf, pfx, indent /*var*/, k, v, t, props) {
+    switch (type(statements)) {
     case OBJECT:
       props = {};
-      for (k in rules) {
-        v = rules[k];
+      for (k in statements) {
+        v = statements[k];
         t = type(v);
         if (k[0] == "@"){
           if (t == OBJECT) {
@@ -85,38 +86,37 @@
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, cross(pfx, k.split(",")), indent);
+          _add(v, buf, cartesian(pfx, k.split(",")), indent);
         }
       }
       // fake loop to detect the presence of keys in props.
       for (k in props){
         buf.push(indent + pfx + "{");
-        _properties(props, buf, "", indent + m.indent);
+        _declarations(props, buf, "", indent + m.indent);
         buf.push(indent + "}");
         break;
       }
       break;
     case ARRAY:
-      rules.forEach(function (rules) {
-        _add(rules, buf, pfx, indent);
+      statements.forEach(function (statement) {
+        _add(statement, buf, pfx, indent);
       })
       break;
     case STRING:
-        buf.push(indent + pfx.join(",") + "{\n" + rules + "\n" + indent  + "}");
+        buf.push(indent + pfx.join(",") + "{\n" + statements + "\n" + indent  + "}");
     }
   }
 
-  Rp.toString = function () {
+  Sp.toString = function () {
     return this.buf.join("\n");
   };
-  /**///rules
+  /**///statements
 
-  var m = {
-    /**///rules
-    prefix:".j2c_" + (Math.random() * 1e9 | 0) + "_",
+  var m = { // module
+    /**///statements
     indent: "  ",
-    RuleSet: RuleSet,
-    /**///rules
+    sheet:sheet,
+    /**///statements
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"],
     unit: "px"

@@ -2,7 +2,11 @@
 * Copyright 2013 Arnaud Leray
 * MIT License
 */
-console.log(j2c.RuleSet("").add({
+var j2c = require("../dist/j2c.commonjs");
+
+j2c.vendors = [];
+
+console.log(j2c.sheet("").add({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{ // note the initial coma.
