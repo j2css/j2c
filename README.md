@@ -139,7 +139,7 @@ console.log(j2c.RuleSet("").add({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{ // Note the initial coma.
-                        // It expands to the cross product, of
+                        // It expands to the cartesian product, of
                         // [".block", ".blockgroup"] and
                         // ["", ":before", ":after"], thus:
                         // [.block, .blockgroup,

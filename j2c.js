@@ -59,10 +59,10 @@
     return this
   };
 
-  function cross(a,b) {
+  function cartesian(a,b) {
     var res = [];
-    for (var i = 0, j; i< a.length; i++) 
-      for (j = 0; j < b.length; j++)
+    for (var i, j = 0; j < b.length; j++)
+      for (i = 0; i< a.length; i++) 
         res.push(a[i]+b[j]);
     return res;
   }
@@ -85,7 +85,7 @@
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, cross(pfx, k.split(",")), indent);
+          _add(v, buf, cartesian(pfx, k.split(",")), indent);
         }
       }
       // fake loop to detect the presence of keys in props.

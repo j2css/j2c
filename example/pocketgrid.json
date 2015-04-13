@@ -2,7 +2,7 @@
 * Copyright 2013 Arnaud Leray
 * MIT License
 */
-var r = j2c.RuleSet("").add({
+console.log(j2c.RuleSet("").add({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{ // note the initial coma.
@@ -44,4 +44,4 @@ var r = j2c.RuleSet("").add({
     float: "left",
     width: "100%"
   }
-}).toString()
+}).toString())
