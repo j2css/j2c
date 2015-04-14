@@ -1,24 +1,50 @@
 var fs = require("fs"),
+    uglify = require("uglify-js"),
+    zlib = require("zlib"),
     source = fs.readFileSync("j2c.js").toString(),
 
     versions = {
         "j2c": source,
-        "j2c.inline": excise(source, "rules")
+        "j2c.inline": excise(source, "statements")
     },
     wrappers = {
-        global: ";var j2c = %;",
-        commonjs: "module.exports = %;",
-        es6: "export default %;",
-        amd: "define('j2c', function(){return %});"
+        global: {
+            source: ";var j2c = %;",
+            minify: true
+        },
+        commonjs: {
+            source: "module.exports = %;",
+            minify: false
+        },
+        es6: {
+            source: "export default %;",
+            minify: false
+        },
+        amd: {
+            source: "define('j2c', function(){return %});",
+            minify: false
+        }
     }
 
 for (name in versions) {
     var src = versions[name];
     for (wrp in wrappers) {
-        var wrapped = wrappers[wrp].replace("%", src)//,
-            // minified = uglify(wrapped);
+        var wrapped = wrappers[wrp].source.replace("%", src);
+            
         fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped)
-        // fs.writeFileSync("dist/" + name + "." + wrp + ".min.js", minified)
+        console.log(wrp, name, wrappers[wrp], wrappers[wrp].minify)
+        if (wrappers[wrp].minify) {
+            (function(){
+                var minified = uglify.minify(wrapped, {fromString: true}).code,
+                    _name = name,
+                    _wrp = wrp
+
+                fs.writeFileSync("dist/" + name + "." + wrp + ".min.js", minified)
+                zlib.gzip(minified, function(_, buf){ 
+                    console.log(_name+"."+_wrp, _ || buf.length)
+                });
+            })();
+        }
     }
 }
 

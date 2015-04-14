@@ -1,6 +1,6 @@
 # j2c
 
-A small JavaScript object to CSS compiler. ~680 bytes mingzipped.
+A small JavaScript object to CSS compiler. ~820 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
@@ -128,6 +128,10 @@ ul.my_root_class {
   font-size:2rem;
 }
 ```
+
+#### @font-face and @keyframes
+
+TODO: Docuement `Sheet.prototype.font(definitions)` and `Sheet.prototype.keyframes(name, definitions)`.
 
 #### Advanced features:
 

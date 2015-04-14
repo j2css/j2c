@@ -8,114 +8,50 @@ export default (function () {
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function vendorify(prop, buf, indent, vendors) {
-    vendors = vendors || m.vendors;
+  function _vendorify(prop, buf, vendors, indent) {
     vendors.forEach(function (v) {
       buf.push(indent + "-" + v + "-" + prop);
     })
     buf.push(indent + prop)
   }
 
+  function _O(k, v, o) {
+    o = {}
+    o[k] = v
+    return o
+  }
+
   function inline(o) {
     var buf = [];
-    _declarations(o, buf, "", "");
+    _declarations(o, buf, "", m.vendors, "");
     return buf.join("\n");
   }
 
-  function _declarations(o, buf, pfx, indent , k, t, v) {
+  function _declarations(o, buf, pfx, vendors, indent , k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
       switch (t) {
       case ARRAY:
-        v.forEach(function (vv, oo) {
-          oo = {};
-          oo[k] = vv;
-          _declarations(oo, buf, pfx, indent);
+        v.forEach(function (vv) {
+          _declarations(_O(k,vv), buf, pfx, vendors, indent);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", indent);
+        _declarations(v, buf, pfx + k + "-", vendors, indent);
         break;
       default:
-        vendorify(
+        _vendorify(
           pfx + k + ":" + (t !== NUMBER || v === 0 ? v : v + m.unit) + ";",
-          buf, indent
+          buf, vendors, indent
         );
       }
     }
   }
 
   //statements
-  function sheet(root) {return new Sheet(root);}
-  function Sheet(root) {
-    this.root = (root != null ? root : default_root + (counter++));
-    this.buf = []
-  }
-  
-  var Sp = Sheet.prototype;
-
-  Sp.add = function (statements) {
-    _add(statements, this.buf, this.root.split(","), "");
-    return this
-  };
-
-  function cartesian(a,b) {
-    var res = [];
-    for (var i, j = 0; j < b.length; j++)
-      for (i = 0; i< a.length; i++) 
-        res.push(a[i]+b[j]);
-    return res;
-  }
-
-  function _add(statements, buf, pfx, indent /*var*/, k, v, t, props) {
-    switch (type(statements)) {
-    case OBJECT:
-      props = {};
-      for (k in statements) {
-        v = statements[k];
-        t = type(v);
-        if (k[0] == "@"){
-          if (t == OBJECT) {
-            buf.push(indent + k + "{");
-            _add(v, buf, pfx, indent + m.indent);
-            buf.push(indent + "}");
-          } else {
-            buf.push(k + " " + v + ";");
-          }
-        } else if (k.match(/^[-\w]+$/)) {
-          props[k] = v;
-        } else {
-          _add(v, buf, cartesian(pfx, k.split(",")), indent);
-        }
-      }
-      // fake loop to detect the presence of keys in props.
-      for (k in props){
-        buf.push(indent + pfx + "{");
-        _declarations(props, buf, "", indent + m.indent);
-        buf.push(indent + "}");
-        break;
-      }
-      break;
-    case ARRAY:
-      statements.forEach(function (statement) {
-        _add(statement, buf, pfx, indent);
-      })
-      break;
-    case STRING:
-        buf.push(indent + pfx.join(",") + "{\n" + statements + "\n" + indent  + "}");
-    }
-  }
-
-  Sp.toString = function () {
-    return this.buf.join("\n");
-  };
-  //statements
 
   var m = { // module
-    //statements
-    indent: "  ",
-    sheet:sheet,
     //statements
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"],

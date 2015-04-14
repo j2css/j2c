@@ -8,39 +8,42 @@ export default (function () {
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function vendorify(prop, buf, indent, vendors) {
-    vendors = vendors || m.vendors;
+  function _vendorify(prop, buf, vendors, indent) {
     vendors.forEach(function (v) {
       buf.push(indent + "-" + v + "-" + prop);
     })
     buf.push(indent + prop)
   }
 
+  function _O(k, v, o) {
+    o = {}
+    o[k] = v
+    return o
+  }
+
   function inline(o) {
     var buf = [];
-    _declarations(o, buf, "", "");
+    _declarations(o, buf, "", m.vendors, "");
     return buf.join("\n");
   }
 
-  function _declarations(o, buf, pfx, indent /**/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors, indent /**/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
       switch (t) {
       case ARRAY:
-        v.forEach(function (vv, oo) {
-          oo = {};
-          oo[k] = vv;
-          _declarations(oo, buf, pfx, indent);
+        v.forEach(function (vv) {
+          _declarations(_O(k,vv), buf, pfx, vendors, indent);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", indent);
+        _declarations(v, buf, pfx + k + "-", vendors, indent);
         break;
       default:
-        vendorify(
+        _vendorify(
           pfx + k + ":" + (t !== NUMBER || v === 0 ? v : v + m.unit) + ";",
-          buf, indent
+          buf, vendors, indent
         );
       }
     }
@@ -56,7 +59,7 @@ export default (function () {
   var Sp = Sheet.prototype;
 
   Sp.add = function (statements) {
-    _add(statements, this.buf, this.root.split(","), "");
+    _add(statements, this.buf, this.root.split(","), m.vendors, "");
     return this
   };
 
@@ -68,7 +71,7 @@ export default (function () {
     return res;
   }
 
-  function _add(statements, buf, pfx, indent /*var*/, k, v, t, props) {
+  function _add(statements, buf, pfx, vendors, indent /*var*/, k, v, t, props) {
     switch (type(statements)) {
     case OBJECT:
       props = {};
@@ -78,7 +81,7 @@ export default (function () {
         if (k[0] == "@"){
           if (t == OBJECT) {
             buf.push(indent + k + "{");
-            _add(v, buf, pfx, indent + m.indent);
+            _add(v, buf, pfx, vendors, indent + m.indent);
             buf.push(indent + "}");
           } else {
             buf.push(k + " " + v + ";");
@@ -86,25 +89,41 @@ export default (function () {
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, cartesian(pfx, k.split(",")), indent);
+          _add(v, buf, cartesian(pfx, k.split(",")), vendors, indent);
         }
       }
       // fake loop to detect the presence of keys in props.
       for (k in props){
         buf.push(indent + pfx + "{");
-        _declarations(props, buf, "", indent + m.indent);
+        _declarations(props, buf, "", vendors, indent + m.indent);
         buf.push(indent + "}");
         break;
       }
       break;
     case ARRAY:
       statements.forEach(function (statement) {
-        _add(statement, buf, pfx, indent);
+        _add(statement, buf, pfx, vendors, indent);
       })
       break;
     case STRING:
         buf.push(indent + pfx.join(",") + "{\n" + statements + "\n" + indent  + "}");
     }
+  }
+
+  Sp.keyframes = function(name, frames) {
+    m.vendors.forEach(function(vendor) {
+      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, "", [vendor], "");
+    }, this)    
+    _add(_O("@keyframes " + name, frames), this.buf, "", m.vendors, "");
+    return this;
+  }
+
+  Sp.font = function(o, buf) {
+    buf = this.buf
+    buf.push("@font-face{");
+    _declarations(o, buf, "", [], m.indent);
+    buf.push("}");
+    return this
   }
 
   Sp.toString = function () {
