@@ -6,6 +6,27 @@ Think SASS, but in JSONish syntax.
 
 Inspired by restlye.js and JSS, but smaller :-).
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Why?](#why)
+- [Usage:](#usage)
+  - [For building a style sheet:](#for-building-a-style-sheet)
+    - [-vendor-prefixes](#-vendor-prefixes)
+    - [root selector](#root-selector)
+    - [Telling selectors and properties apart.](#telling-selectors-and-properties-apart)
+    - [Overloading properties](#overloading-properties)
+    - [At-rules](#at-rules)
+    - [Combining multiple selectors](#combining-multiple-selectors)
+    - [CSS Hacks](#css-hacks)
+  - [For building inline styles](#for-building-inline-styles)
+- [API Reference](#api-reference)
+- [Limitations:](#limitations)
+- [License: MIT](#license-mit)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Why?
 
 * Send small, compact, SASS-like data down the line
@@ -13,6 +34,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 * Use the full power of JavaScript to create mixins, variables and macros
 * Stop worrying about vendor prefixes
 * Good fit for virtual DOM frameworks like React or Mithril
+* I like writing compilers :-).
 
 ## Usage:
 
@@ -129,96 +151,65 @@ ul.my_root_class {
 }
 ```
 
-#### @font-face and @keyframes
+#### At-rules
 
-TODO: Docuement `Sheet.prototype.font(definitions)` and `Sheet.prototype.keyframes(name, definitions)`.
+Most At-rules are handled out of the box by `sheet.add()`. However, `@font-face` and `@keyframes` have are not covered and they are implemented respectively by `sheet.font(definitions)` and `sheet.keyframes(name, definitions)`. The latter automatically generates browser-specific `@-vendor-keyframes` blocks.
 
-#### Advanced features:
+#### Combining multiple selectors
 
-Here's a `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
+Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
 
-```JavaSCript
-* Copyright 2013 Arnaud Leray
-* MIT License
-*/
-console.log(j2c.sheet("").add({
-  /* Border-box-sizing */
+```JavaScript
+j2c.sheet("").add({
   ".block,.blockgroup":{
-    ",:before,:after":{ // Note the initial coma.
-                        // It expands to the cartesian product, of
-                        // [".block", ".blockgroup"] and
-                        // ["", ":before", ":after"], thus:
-                        // [.block, .blockgroup,
-                        //  .block:before, .blockgroup:before,
-                        //  .block:after, .blockgroup:after ]
+    ",:before,:after":{          // Notice the initial coma.
       "box-sizing":"border-box"
     }
-  },
-  ".blockgroup": [ // Array elements are inserted in sequence.
-    /* Clearfix */
-    "*zoom: 1", // A string literal instead of an object is treated
-                // as a list of properties. Useful for CSS hacks
-                // that would otherwise end up detected as selectors
-                // (see the previous section).
+  }
+}
+```
+
+Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving 
+
+```CSS
+.block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
+    box-sizing:border-box
+}
+```
+
+Mathy folks call this as a Cartesian product.
+
+#### CSS Hacks
+
+Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
+
+Here's another modified excerpt from the PocketGrid port:
+
+```JavaScript
+j2c.sheet("").add({
+  ".blockgroup": [
+    "*zoom: 1; /* hack */",
     {
-      ":before,:after": {
-        display: "table",
-        content: '""',
-        "line-heigth": 0
-      },
-      ":after": {clear:"both"},
-
-      " > .blockgroup": {
-        /* Nested grid */
-        clear: "none",
-        float: "left",
-        margin: "0 !important"
-      },
-
-      /* ul/li compatibility */
       "list-style-type":"none",
       padding:0,
       margin:0
     }
-  ],
-  /* Default block */
-  ".block": {
-    float: "left",
-    width: "100%"
-  }
-}).toString())
+  ]
+})
 ```
+
+Array elements are inserted in sequence, and string literals are treated as a list of properties, and inserted as is.
 
 Result:
 
 ```CSS
-.block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
-  box-sizing:border-box;
-}
 .blockgroup{
-*zoom: 1
-}
-.blockgroup:before,.blockgroup:after{
-  display:table;
-  content:"";
-  line-heigth:0;
-}
-.blockgroup:after{
-  clear:both;
-}
-.blockgroup > .blockgroup{
-  clear:none;
-  float:left;
-  margin:0 !important;
+*zoom: 1; /* hack */
 }
 .blockgroup{
   list-style-type:none;
   padding:0;
   margin:0;
-}
-.block{
-  float:left;
-  width:100%;
 }
 ```
 
@@ -250,7 +241,9 @@ float:left;
 
 `Sheet` methods:
 
-* `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns a `Sheet` for chaining.
+* `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns the `Sheet` for chaining.
+* `sheet.font(definitions:(Object|Array|String)) : Sheet`: creates a `@font-face` block. Returns the `Sheet` for chaining.
+* `sheet.keyframes(name:String, statements:(Object|Array|String)) : Sheet`: creates a `@keyframes` block. Returns the `Sheet` for chaining.
 * `sheet.toString() : String`: the stylesheet in string form.
 
 ## Limitations:
