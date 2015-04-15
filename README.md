@@ -6,6 +6,7 @@ Think SASS, but in JSONish syntax.
 
 Inspired by restlye.js and JSS, but smaller :-).
 
+----
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
@@ -26,6 +27,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 - [License: MIT](#license-mit)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+----
 
 ## Why?
 
