@@ -1,5 +1,6 @@
 {
     "devDependencies":{
-        "uglify-js":"*"
+        "uglify-js":"*",
+        "css":"*"
     }
 }

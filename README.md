@@ -9,22 +9,28 @@ Inspired by restlye.js and JSS, but smaller :-).
 ----
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Why?](#why)
-- [Usage:](#usage)
-  - [For building a style sheet:](#for-building-a-style-sheet)
+- [Usage](#usage)
+  - [For building a style sheet](#for-building-a-style-sheet)
     - [-vendor-prefixes](#-vendor-prefixes)
     - [root selector](#root-selector)
-    - [Telling selectors and properties apart.](#telling-selectors-and-properties-apart)
+    - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
     - [Overloading properties](#overloading-properties)
     - [At-rules](#at-rules)
     - [Combining multiple selectors](#combining-multiple-selectors)
     - [CSS Hacks](#css-hacks)
   - [For building inline styles](#for-building-inline-styles)
 - [API Reference](#api-reference)
-- [Limitations:](#limitations)
+  - [`j2c` object](#j2c-object)
+  - [`Sheet` methods](#sheet-methods)
+- [Limitations](#limitations)
+  - [Selectors and properties order](#selectors-and-properties-order)
+  - [No input validation](#no-input-validation)
 - [License: MIT](#license-mit)
+
+<small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc)*</small>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 ----
@@ -38,9 +44,9 @@ Inspired by restlye.js and JSS, but smaller :-).
 * Good fit for virtual DOM frameworks like React or Mithril
 * I like writing compilers :-).
 
-## Usage:
+## Usage
 
-### For building a style sheet:
+### For building a style sheet
 
 ```JavaScript
 j2c.vendors = [] // for the sake of this demo
@@ -102,7 +108,7 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
          //     ensure that these classes are unique.
 ```
 
-#### Telling selectors and properties apart.
+#### Telling selectors and properties apart
 
 `j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors.
 
@@ -233,7 +239,7 @@ float:left;
 
 ## API Reference
 
-`j2c` object
+### `j2c` object
 
 * `j2c.inline(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
 * `j2c.sheet([root:String]) : Sheet`: Creates a Sheet object.
@@ -241,14 +247,40 @@ float:left;
 * `j2c.unit = "px"` (r/w): the default unit. `{margin:5}` becomes `margin:5px`.
 
 
-`Sheet` methods:
+### `Sheet` methods
 
 * `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns the `Sheet` for chaining.
 * `sheet.font(definitions:(Object|Array|String)) : Sheet`: creates a `@font-face` block. Returns the `Sheet` for chaining.
 * `sheet.keyframes(name:String, statements:(Object|Array|String)) : Sheet`: creates a `@keyframes` block. Returns the `Sheet` for chaining.
 * `sheet.toString() : String`: the stylesheet in string form.
 
-## Limitations:
+## Limitations
+
+### Selectors and properties order
+
+`j2c` relies on JS objects to define selectors and properties. As a consequence, the source order cannot be guaranteed to be respected in the output. 
+
+```Javascript
+j2c(".hello").add({
+  foo:"bar",
+  baz:"qux"
+}).toString()
+```
+
+This may produce either `.hello{foo:bar;baz:qux;}` or `.hello{baz:qux;foo:bar;}`.
+
+If you need some elements to happen in order, use an array of objects.
+
+```Javascript
+j2c(".hello").add([
+  {foo:"bar"},
+  {baz:"qux"}
+]).toString()
+```
+
+This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.
+
+### No input validation
 
 `j2c` knows the bare minimum to output a valid stylesheet when provided with valid input. It will hapily accept invalid selectors, properties and values, and could in that case produce a broken stylesheet.
 
