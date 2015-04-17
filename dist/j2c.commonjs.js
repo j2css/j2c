@@ -112,9 +112,9 @@ module.exports = (function () {
 
   Sp.keyframes = function(name, frames) {
     m.vendors.forEach(function(vendor) {
-      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, "", [vendor], "");
+      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, [""], [vendor], "");
     }, this)    
-    _add(_O("@keyframes " + name, frames), this.buf, "", m.vendors, "");
+    _add(_O("@keyframes " + name, frames), this.buf, [""], m.vendors, "");
     return this;
   }
 

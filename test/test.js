@@ -26,7 +26,12 @@ function add(klass, o){
 var vendors = j2c.vendors;
 j2c.vendors = [];
 
-suite("Root class")
+
+
+///////////////////////////////
+/**/  suite("Root class")  /**/
+///////////////////////////////
+
 
 test("custom root class", function(){
     var sheet = j2c.sheet("foo")
@@ -35,9 +40,7 @@ test("custom root class", function(){
         sheet.add({foo:"bar"}).toString(),
         sheet.root + "{foo:bar}"
     )
-})
-
-
+});
 
 test("default root class", function(){
     var sheet = j2c.sheet()
@@ -46,14 +49,19 @@ test("default root class", function(){
         sheet.add({foo:"bar"}).toString(),
         sheet.root + "{foo:bar}"
     )
-})
+});
 
 test("default root class must be unique", function(){
     var sheet = j2c.sheet()
     expect(j2c.sheet().root).not.to.be(j2c.sheet().root)
-})
+});
 
-suite("Basic definitions")
+
+
+//////////////////////////////////////
+/**/  suite("Basic definitions")  /**/
+//////////////////////////////////////
+
 
 test("Simple definition", function() {
     check(
@@ -62,9 +70,7 @@ test("Simple definition", function() {
         }),
         "p{foo:bar}"
     )
-})
-
-
+});
 
 test("Composed property name", function() {
     check(
@@ -74,7 +80,7 @@ test("Composed property name", function() {
 
         "p{foo-bar:baz}"
     )
-})
+});
 
 test("Composed selector : child with a given class", function() {
     check(
@@ -84,7 +90,7 @@ test("Composed selector : child with a given class", function() {
 
         "p .foo{bar:baz}"
     )
-})
+});
 
 test("Composed selector: add a class to the root", function() {
     check(
@@ -94,11 +100,34 @@ test("Composed selector: add a class to the root", function() {
 
         "p.foo{bar:baz}"
     )
-})
+});
+
+test("Mixing definitions and sub-selectors", function() {
+    check(
+        add("p", {
+            foo:"bar",
+            " .foo":{bar:"baz"}
+        }),
+
+        "p .foo{bar:baz} p {foo:bar}"
+    )
+});
 
 
+/////////////////////////////
+/**/  suite("At rules")  /**/
+/////////////////////////////
 
-suite("At rules")
+
+before(function(){
+    // restore a few vendors to ensure that
+    // they are not prepended where they shold not.
+    j2c.vendors = ["o", "p"];
+});
+
+after(function(){
+   j2c.vendors = [];
+});
 
 test("Standard At rule with text value", function() {
     check(
@@ -108,7 +137,7 @@ test("Standard At rule with text value", function() {
 
         "@foo bar;"
     )
-})
+});
 
 test("Standard At rule with object value", function() {
     check(
@@ -116,9 +145,9 @@ test("Standard At rule with object value", function() {
             "@foo":{bar:"baz"}
         }),
 
-        "@foo {p{bar:baz}}"
+        "@foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
     )
-})
+});
 
 test("Several At rules with object value", function() {
     check(
@@ -127,11 +156,11 @@ test("Several At rules with object value", function() {
             "@foo2":{bar2:"baz2"}
         }),
         [
-            "@foo {p{bar:baz}} @foo2 {p{bar2:baz2}}",
-            "@foo2 {p{bar2:baz2}} @foo {p{bar:baz}}"
+            "@foo {p{-o-bar:baz;-p-bar:baz;bar:baz}} @foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}}",
+            "@foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}} @foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
         ]
     )
-})
+});
 
 test("Array of At rules with text values", function() {
     check(
@@ -141,12 +170,39 @@ test("Array of At rules with text values", function() {
         ]),
         "@foo bar; @foo baz;"
     )
-})
+});
 
+test("@font-face", function(){
+    var sheet = j2c.sheet("p")
+    check(
+        sheet.font({foo:"bar"}).toString(),
+        "@font-face{foo:bar}"
+    )
+});
 
+test("@keyframes", function(){
+    var sheet = j2c.sheet("p")
+    check(
+        sheet.keyframes("qux", {
+            " from":{foo:"bar"},
+            " to":{foo:"baz"}
+        }).toString(),
+        [
+            "@-o-keyframes qux{from{-o-foo:bar;foo:bar}to{-o-foo:baz;foo:baz}}" +
+            "@-p-keyframes qux{from{-p-foo:bar;foo:bar}to{-p-foo:baz;foo:baz}}" +
+            "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",
 
+            "@-o-keyframes qux{to{-o-foo:baz;foo:baz}from{-o-foo:bar;foo:bar}}" +
+            "@-p-keyframes qux{to{-p-foo:baz;foo:baz}from{-p-foo:bar;foo:bar}}" +
+            "@keyframes qux{to{-o-foo:baz;-p-foo:baz;foo:baz}from{-o-foo:bar;-p-foo:bar;foo:bar}}",
+        ]
+    )
+});
 
-suite("Units")
+//////////////////////////
+/**/  suite("Units")  /**/
+//////////////////////////
+
 
 test("Default", function() {
     check(
@@ -155,7 +211,7 @@ test("Default", function() {
         }),
         "p{foo:5px}"
     )
-})
+});
 
 test("Custom", function() {
     j2c.unit = "em"
@@ -166,5 +222,5 @@ test("Custom", function() {
         "p{foo:5em}"
     )
     j2c.unit = "px"
-})
+});
 
