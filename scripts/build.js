@@ -5,7 +5,7 @@ var fs = require("fs"),
 
     versions = {
         "j2c": source,
-        "j2c.inline": excise(source, "statements")
+        "inline/j2c": excise(source, "statements")
     },
     wrappers = {
         global: {
@@ -14,15 +14,15 @@ var fs = require("fs"),
         },
         commonjs: {
             source: "module.exports = %;",
-            minify: false
+            minify: false // No need to minify before browserification.
         },
         es6: {
             source: "export default %;",
-            minify: false
+            minify: false // ATM, uglify chokes on the export statement.
         },
         amd: {
             source: "define('j2c', function(){return %});",
-            minify: false
+            minify: true
         }
     }
 
@@ -32,7 +32,6 @@ for (name in versions) {
         var wrapped = wrappers[wrp].source.replace("%", src);
             
         fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped)
-        console.log(wrp, name, wrappers[wrp], wrappers[wrp].minify)
         if (wrappers[wrp].minify) {
             (function(){
                 var minified = uglify.minify(wrapped, {fromString: true}).code,
