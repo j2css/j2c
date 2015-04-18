@@ -28,8 +28,8 @@ j2c.vendors = [];
 
 
 
-///////////////////////////////
-/**/  suite("Root class")  /**/
+  ///////////////////////////////
+ /**/  suite("Root class")  /**/
 ///////////////////////////////
 
 
@@ -58,8 +58,8 @@ test("default root class must be unique", function(){
 
 
 
-//////////////////////////////////////
-/**/  suite("Basic definitions")  /**/
+  //////////////////////////////////////
+ /**/  suite("Basic definitions")  /**/
 //////////////////////////////////////
 
 
@@ -114,8 +114,47 @@ test("Mixing definitions and sub-selectors", function() {
 });
 
 
-/////////////////////////////
-/**/  suite("At rules")  /**/
+
+  ///////////////////////////////////////
+ /**/  suite("Strings and Arrays")  /**/
+///////////////////////////////////////
+
+test("String literal", function() {
+    check(
+        add("p", "foo:bar"),
+        "p{foo:bar}"
+    )
+});
+
+test("Array of String literals", function() {
+    check(
+        add("p", ["foo:bar", "foo:baz"]),
+        "p{foo:bar;foo:baz}"
+    )
+});
+
+
+test("Overloaded properties", function() {
+    check(
+        add("p", {
+            foo:["bar","baz"]
+        }),
+        "p{foo:bar;foo:baz}"
+    )
+});
+
+test("Overloaded sub-properties", function() {
+    check(
+        add("p", {
+            foo:[{bar:"baz"},{bar:"qux"}]
+        }),
+        "p{foo-bar:baz;foo-bar:qux}"
+    )
+});
+
+
+  /////////////////////////////
+ /**/  suite("At rules")  /**/
 /////////////////////////////
 
 
@@ -199,8 +238,8 @@ test("@keyframes", function(){
     )
 });
 
-//////////////////////////
-/**/  suite("Units")  /**/
+  //////////////////////////
+ /**/  suite("Units")  /**/
 //////////////////////////
 
 
