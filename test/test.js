@@ -128,8 +128,8 @@ test("String literal", function() {
 
 test("Array of String literals", function() {
     check(
-        add("p", ["foo:bar", "foo:baz"]),
-        "p{foo:bar;foo:baz}"
+        add("p", ["foo:bar", "baz:qux"]),
+        "p{foo:bar;baz:qux}"
     )
 });
 
