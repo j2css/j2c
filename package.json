@@ -20,7 +20,7 @@
   "homepage": "https://github.com/pygy/j2c",
   "devDependencies":{
     "uglify-js":"*",
-    "clean-css":"*",
+    "crass":"*",
     "mocha":"*",
     "expect.js":"*"
   }

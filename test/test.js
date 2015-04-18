@@ -1,12 +1,12 @@
 var j2c = require("../dist/j2c.commonjs"),
-    CleanCSS = new (require("clean-css"))(),
+    crass = require("crass"),
     expect = require("expect.js");
 
 
 function check(result, expected){
-    result = CleanCSS.minify(result).styles
+    result = crass.parse(result).optimize().toString();
     expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-        return CleanCSS.minify(s).styles;
+        return crass.parse(s).optimize().toString();
     });
     expect(expected).to.contain(result);
 }
@@ -129,8 +129,8 @@ test("String literal", function() {
 
 test("Array of String literals", function() {
     check(
-        add("p", ["foo:bar", "baz:qux"]),
-        "p{foo:bar;baz:qux}"
+        add("p", ["foo:bar", "foo:baz"]),
+        "p{foo:bar;foo:baz}"
     )
 });
 
@@ -173,32 +173,32 @@ after(function(){
 test("Standard At rule with text value", function() {
     check(
         add("p", {
-            "@foo":"bar"
+            "@import":"'bar'"
         }),
 
-        "@foo bar;"
+        "@import 'bar';"
     )
 });
 
 test("Standard At rule with object value", function() {
     check(
         add("p", {
-            "@foo":{bar:"baz"}
+            "@media foo":{bar:"baz"}
         }),
 
-        "@foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
+        "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
     )
 });
 
 test("Several At rules with object value", function() {
     check(
         add("p", {
-            "@foo":{bar:"baz"},
-            "@foo2":{bar2:"baz2"}
+            "@media foo":{bar:"baz"},
+            "@media foo2":{bar2:"baz2"}
         }),
         [
-            "@foo {p{-o-bar:baz;-p-bar:baz;bar:baz}} @foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}}",
-            "@foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}} @foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
+            "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}} @media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}}",
+            "@media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}} @media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
         ]
     )
 });
@@ -206,10 +206,10 @@ test("Several At rules with object value", function() {
 test("Array of At rules with text values", function() {
     check(
         add("p", [
-            {"@foo":"bar"},
-            {"@foo":"baz"}
+            {"@import":"'bar'"},
+            {"@import":"'baz'"}
         ]),
-        "@foo bar; @foo baz;"
+        "@import 'bar'; @import 'baz';"
     )
 });
 
