@@ -119,6 +119,7 @@ test("Mixing definitions and sub-selectors", function() {
  /**/  suite("Strings and Arrays")  /**/
 ///////////////////////////////////////
 
+
 test("String literal", function() {
     check(
         add("p", "foo:bar"),
@@ -151,6 +152,7 @@ test("Overloaded sub-properties", function() {
         "p{foo-bar:baz;foo-bar:qux}"
     )
 });
+
 
 
   /////////////////////////////
@@ -237,6 +239,8 @@ test("@keyframes", function(){
         ]
     )
 });
+
+
 
   //////////////////////////
  /**/  suite("Units")  /**/
