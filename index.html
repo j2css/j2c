@@ -2,92 +2,194 @@
 
 <style>
 @font-face {
-  font-family: 'Dosis';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Dosis Medium'), local('Dosis-Medium'), url(data:;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAARkAAAAFkdQT1PYSudjAAAEfAAAAGxHU1VCABUACgAABOgAAAAMT1MvMoqCeA4AAAI0AAAAYGNtYXAAYwCZAAAClAAAADxnYXNwAAMABwAABFgAAAAMZ2x5Zn9PVS0AAADsAAAAuGhlYWT428GxAAABzAAAADZoaGVhB5cCyQAAAhAAAAAkaG10eAV7AIQAAAIEAAAADGxvY2EAMwBcAAABxAAAAAhtYXhwAiwESAAAAaQAAAAgbmFtZRrTNq0AAALQAAABaHBvc3T/3QAaAAAEOAAAACAAAQBA//oB7wLbACIAADcRNDYzMhYVFAYjIicmIyIVERQzMj4CNzYzMhYVFAYjIiZAd2BidhQWKAIGfIWIJzQZCAMDJxYUd2Jfd9QBLXBqY0sbEx1zjv7TjhYqHhkdFBtMZWoAAAAAAQAU//oBwwLbABsAADc0NjMyFRQWMzI1ESMiJjU0MzMyFhURFAYjIiYUFRUqRT6Egg4PHbAPF3VgYnixFxIdNUKOAbsWESUQDv4XcWllAAAAAAEAAAADAGwABwAAAAAAAgABAAIAIAAAAgAD2AAAAAAAAAAAADMAXAABAAAAAQGJXP+4El8PPPUAHwPoAAAAAMqKZMYAAAAAy40Xb/95/xMEGAP7AAAACAACAAAAAAAAAWEAMAITAEACBwAUAAEAAAQD/xMAAAQ5/3n/eQQYAAEAAAAAAAAAAAAAAAAAAAADAAMByQH0AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQYDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAQAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2gLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgBDAEr//wAAAEMASv///77/uAABAAAAAAAAAAAABwBaAAMAAQQJAAEACgAAAAMAAQQJAAIADAAKAAMAAQQJAAMAegAWAAMAAQQJAAQAGACQAAMAAQQJAAUAGgCoAAMAAQQJAAYAGADCAAMAAQQJAA4ANADaAEQAbwBzAGkAcwBNAGUAZABpAHUAbQBFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtADoAIAAyADAAMQAxAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtAFYAZQByAHMAaQBvAG4AIAAxAC4AMAAwADcARABvAHMAaQBzAC0ATQBlAGQAaQB1AG0AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoAHgAsAAFsYXRuAAgABAAAAAD//wABAAAAAWtlcm4ACAAAAAEAAAABAAQAAgAAAAEACAACACIABAAAACoAKgADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAEAAgABAAEAAgABAAIAAQAAAAoACgAKAAA=) format('truetype');
+    font-family: 'Dosis';
+    font-style: normal;
+    font-weight: 500;
+    src: local('Dosis Medium'), local('Dosis-Medium'), url(data:;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAARkAAAAFkdQT1PYSudjAAAEfAAAAGxHU1VCABUACgAABOgAAAAMT1MvMoqCeA4AAAI0AAAAYGNtYXAAYwCZAAAClAAAADxnYXNwAAMABwAABFgAAAAMZ2x5Zn9PVS0AAADsAAAAuGhlYWT428GxAAABzAAAADZoaGVhB5cCyQAAAhAAAAAkaG10eAV7AIQAAAIEAAAADGxvY2EAMwBcAAABxAAAAAhtYXhwAiwESAAAAaQAAAAgbmFtZRrTNq0AAALQAAABaHBvc3T/3QAaAAAEOAAAACAAAQBA//oB7wLbACIAADcRNDYzMhYVFAYjIicmIyIVERQzMj4CNzYzMhYVFAYjIiZAd2BidhQWKAIGfIWIJzQZCAMDJxYUd2Jfd9QBLXBqY0sbEx1zjv7TjhYqHhkdFBtMZWoAAAAAAQAU//oBwwLbABsAADc0NjMyFRQWMzI1ESMiJjU0MzMyFhURFAYjIiYUFRUqRT6Egg4PHbAPF3VgYnixFxIdNUKOAbsWESUQDv4XcWllAAAAAAEAAAADAGwABwAAAAAAAgABAAIAIAAAAgAD2AAAAAAAAAAAADMAXAABAAAAAQGJXP+4El8PPPUAHwPoAAAAAMqKZMYAAAAAy40Xb/95/xMEGAP7AAAACAACAAAAAAAAAWEAMAITAEACBwAUAAEAAAQD/xMAAAQ5/3n/eQQYAAEAAAAAAAAAAAAAAAAAAAADAAMByQH0AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQYDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAQAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2gLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgBDAEr//wAAAEMASv///77/uAABAAAAAAAAAAAABwBaAAMAAQQJAAEACgAAAAMAAQQJAAIADAAKAAMAAQQJAAMAegAWAAMAAQQJAAQAGACQAAMAAQQJAAUAGgCoAAMAAQQJAAYAGADCAAMAAQQJAA4ANADaAEQAbwBzAGkAcwBNAGUAZABpAHUAbQBFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtADoAIAAyADAAMQAxAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtAFYAZQByAHMAaQBvAG4AIAAxAC4AMAAwADcARABvAHMAaQBzAC0ATQBlAGQAaQB1AG0AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoAHgAsAAFsYXRuAAgABAAAAAD//wABAAAAAWtlcm4ACAAAAAEAAAABAAQAAgAAAAEACAACACIABAAAACoAKgADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAEAAgABAAEAAgABAAIAAQAAAAoACgAKAAA=) format('truetype');
 }
 @font-face {
-  font-family: 'Dosis';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Dosis Bold'), local('Dosis-Bold'), url(data:;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype');
+    font-family: 'Dosis';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Dosis Bold'), local('Dosis-Bold'), url(data:;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype');
 }
 
-h1.hollow{
-    line-height:0.8;
-    position:relative;
-    font-family:Dosis, sans-serif;
-    font-weight:500;
-    margin:0 auto;
-    padding:0;
-    font-size:9em;
-    color:#fff;    
-    width:1.05em;
-    text-shadow: 
-         0.017em 0 0.009em #9cf, 0  0.017em 0.009em #9cf,
-        -0.017em 0 0.009em #9cf, 0 -0.017em 0.009em #9cf;
+h1{
+        line-height:0.8;
+        position:relative;
+        font-family:Dosis, sans-serif;
+        font-weight:500;
+        margin:0 auto;
+        font-size:9em;
+        color:#9cf;    
+        color:rgba(255,255,255,1);
+        width:1.05em;
+        text-shadow: 
+                 0.017em 0 0.009em #9cf, 0  0.017em 0.009em #9cf,
+                -0.017em 0 0.009em #9cf, 0 -0.017em 0.009em #9cf,
+                 0.012em 0.012em 0.009em #9cf,  0.012em -0.012em 0.009em #9cf,
+                -0.012em 0.012em 0.009em #9cf, -0.012em -0.012em 0.009em #9cf;
 }
 
-h1.hollow:before {
-    content:"J";
+h1:before {
+        content:"J";
+        position:absolute;
+        background-color:rgba(255,255,130,1);
+        display:block;
+        height:0.4em;
+        overflow:hidden;
+        color:#9cf;    
+        color:rgba(255,255,255,1);
+        margin-top:-.01em;
+        line-height:1;
+}
+
+h1 .two{
     position:absolute;
-    background-color:rgba(255,255,130,1);
-    /*background-color:rgba(255,255,20,0.5);*/
-    display:block;
-    height:0.4em;
-    overflow:hidden;
-    color:#fff;    
-    margin-top:-.01em;
-    line-height:1;
-}
-
-h1.hollow .two{
-  position:absolute;
-  font-size:0.643em;
-  font-weight:700;
-  margin-left:-0.273em;
-  color:#fff;  
-  padding-top:0.36em;
-  z-index:1;
+    font-size:0.643em;
+    font-weight:700;
+    margin-left:-0.273em;
+    padding-top:0.36em;
+    color:#24f;    
+    color:rgba(255,255,255,1);
+    z-index:1;
 }
 
 
-h1.hollow .Cee{
-  position:absolute;
-  margin-left:-0.015em;
-  color:#fff;    
-}
-
-h1.hollow .Cee:before {
-    content:"C";
+h1 .Cee{
     position:absolute;
-    background-color:rgba(255,255,130,1);
-    /*background-color:rgba(255,255,20,0.5);*/
-    display:block;
-    height:0.54em;
-    overflow:hidden;
-    color:##fff;    
-    margin-top:-.01em;
-    line-height:1;
+    margin-left:-0.015em;
+    color:#9cf;    
+    color:rgba(255,255,255,1);
+}
+
+h1 .Cee:before {
+        content:"C";
+        position:absolute;
+        background-color:rgba(255,255,130,1);
+        display:block;
+        height:0.54em;
+        overflow:hidden;
+        margin-top:-.01em;
+        line-height:1;
 }
 
 h2 {
-    font-family: sans-serif;
-    color:#357;
-    text-align:center;
+        font-family: sans-serif;
+        color:#357;
+        text-align:center;
 }
 
 header {
-    width:12em;
-    background-color:rgba(255,255,130,1);
-    padding-bottom:0.1px;
-
+        width:12em;
+        background-color:rgba(255,255,130,1);
+        padding-bottom:0.1px;
+        font-size: 2em;
 }
 </style>
+
+<script>
+
+//fake text outlie using shadows.
+function outline(w, bl, co){
+    widht = w / 1000;
+    blur = bl / 1000;
+
+    // Correct the top height for Firefox's buggy shadow renderer.
+    var top = (typeof InstallTrigger !== 'undefined') ? w / 17 * 21 : w,
+            dg = w / 1.414213; // diagonal, divide by sqrt(2)
+
+    // This one is ugly :-/
+    return [
+
+        ""  + w + "em 0 " + bl + "em " + co, "0 "  + w   + "em " + bl + "em " + co,
+        "-" + w + "em 0 " + bl + "em " + co, "0 -" + top + "em " + bl + "em " + co,
+
+        ""  + dg + "em "  + dg + "em " + bl + "em " + co,
+        "-" + dg + "em "  + dg + "em " + bl + "em " + co,
+        ""  + dg + "em -" + dg + "em " + bl + "em " + co,
+        "-" + dg + "em -" + dg + "em " + bl + "em " + co
+
+    ].join() + ";"
+}
+
+var default_color = ["#9cf", "rgba(255,255,255,1)"]
+var bg_col = "#ff8"
+var logostyle = j2c.sheet("").add({
+    " body": pocketGrid.blockgroup
+    " header": [
+        {
+            width: "12em",
+            background_color: bg_col,
+            padding_bottom: "0.1px",
+            font_size: "2em",
+
+            " h2": {
+                font_family: "sans-serif",
+                color: "#357",
+                text_align: "center",
+
+            },
+
+            " h1": {
+                line_height: 0.8,
+                postion: "relative",
+                font_family: "Dosis, sans-serif",
+                font_weight: 500,
+                margin: "0 auto",
+                font_size: "9em",
+                color: default_color,
+                width: "1.05em",
+                text_shadow: outline(17, 9, "#9cf"),
+
+                ":before": {
+                    content:'"J"'
+                },
+
+                " .two":{
+                    position: "absolute",
+                    font_size: "0.643em",
+                    font_weight: 700,
+                    margin_left: "-0.273em",
+                    padding_top: "0.36em",
+                    color: ["#24f", "rgba(255,255,255,1)"],
+                    z_index: 1;
+                },
+
+                " .Cee": {
+                    position: "absolute",
+                    margin_left: "-0.015em",
+                    color: default_color;    
+                    ":before": {
+                        content:'"C"'
+                    }
+                },
+            },
+
+
+            "h1,h1 .Cee": {
+                ":before": {
+                    position: "absolute",
+                    background_color:  bg_col,
+                    display: "block",
+                    height: "0.54em",
+                    overflow: "hidden",
+                    margin_top: "-.01em",
+                    line_height: 1
+                }
+            }
+        },
+        pocketGrid.block
+    ]
+    
+})
+
+
+</script>
+
 <header>
-    <h1 class="hollow">J<span class="two">2</span><span class="Cee">C</span></h1>
-    <h2>JavaScript to<br>CSS Compiler</h2>
+        <h1 class="hollow">J<span class="two">2</span><span class="Cee">C</span></h1>
+        <h2>JavaScript to<br>CSS Compiler</h2>
 </header>
 
 <a href="https://github.com/pygy/j2c"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
