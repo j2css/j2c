@@ -11,68 +11,79 @@
   font-weight: 700;
   src: local('Dosis Bold'), local('Dosis-Bold'), url(data:;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype');
 }
-* {
-  font-family:Dosis, sans-serif;
-  font-weight:500;
-  margin:0;
-  padding:0;
-}
 
-h1{
+h1.hollow{
+    line-height:0.8;
+    position:relative;
+    font-family:Dosis, sans-serif;
+    font-weight:500;
+    margin:0 auto;
+    padding:0;
     font-size:9em;
-    color:#822;    
-    /*background-color: #00f;*/
+    color:#fff;    
     width:1.05em;
+    text-shadow: 
+         0.017em 0 0.009em #9cf, 0  0.017em 0.009em #9cf,
+        -0.017em 0 0.009em #9cf, 0 -0.017em 0.009em #9cf;
 }
 
-h1:before {
+h1.hollow:before {
     content:"J";
     position:absolute;
-    background-color:#fff;
+    background-color:rgba(255,255,130,1);
+    /*background-color:rgba(255,255,20,0.5);*/
     display:block;
-    height:0.746em;
+    height:0.4em;
     overflow:hidden;
-    color:#400;    
-    margin-top:0.1em;
+    color:#fff;    
+    margin-top:-.01em;
+    line-height:1;
 }
 
-h1:after {
-    content:"J";
-    position:absolute;
-    display:block;
-    width:0.2em;
-    overflow:hidden;
-    color:#822;
-    top:0;
-
-}
-
-h1 .two{
+h1.hollow .two{
   position:absolute;
   font-size:0.643em;
   font-weight:700;
   margin-left:-0.273em;
-  /*color:rgba(0,255,0,0.5);*/
-  color:#822;  
-  padding-top:0.47em;
+  color:#fff;  
+  padding-top:0.36em;
   z-index:1;
 }
-h1 .Cee{
+
+
+h1.hollow .Cee{
   position:absolute;
   margin-left:-0.015em;
-  color:#400;    
+  color:#fff;    
 }
 
-h1 .Cee:before {
+h1.hollow .Cee:before {
     content:"C";
     position:absolute;
-    background-color:#fff;
+    background-color:rgba(255,255,130,1);
+    /*background-color:rgba(255,255,20,0.5);*/
     display:block;
     height:0.54em;
     overflow:hidden;
-    color:#822;    
-    margin-top:0.1em;
+    color:##fff;    
+    margin-top:-.01em;
+    line-height:1;
 }
 
+h2 {
+    font-family: sans-serif;
+    color:#357;
+    text-align:center;
+}
+
+header {
+    width:12em;
+    background-color:rgba(255,255,130,1);
+    padding-bottom:0.1px;
+
+}
 </style>
-<h1>J<span class="two">2</span><span class="Cee">C</span>
+<header>
+    <h1 class="hollow">J<span class="two">2</span><span class="Cee">C</span></h1>
+    <h2>JavaScript to<br>CSS Compiler</h2>
+</header>
