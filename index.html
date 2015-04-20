@@ -25,10 +25,10 @@ h1{
         color:rgba(255,255,255,1);
         width:1.05em;
         text-shadow: 
-                 0.017em 0 0.009em #9cf, 0  0.017em 0.009em #9cf,
-                -0.017em 0 0.009em #9cf, 0 -0.017em 0.009em #9cf,
-                 0.012em 0.012em 0.009em #9cf,  0.012em -0.012em 0.009em #9cf,
-                -0.012em 0.012em 0.009em #9cf, -0.012em -0.012em 0.009em #9cf;
+                 0.017em 0 0.004em #9cf, 0  0.017em 0.004em #9cf,
+                -0.017em 0 0.004em #9cf, 0 -0.017em 0.004em #9cf,
+                 0.012em 0.012em 0.004em #9cf,  0.012em -0.012em 0.004em #9cf,
+                -0.012em 0.012em 0.004em #9cf, -0.012em -0.012em 0.004em #9cf;
 }
 
 h1:before {
@@ -68,7 +68,7 @@ h1 .Cee:before {
         position:absolute;
         background-color:rgba(255,255,130,1);
         display:block;
-        height:0.54em;
+        height:0.40em;
         overflow:hidden;
         margin-top:-.01em;
         line-height:1;
@@ -90,14 +90,17 @@ header {
 
 <script>
 
-//fake text outlie using shadows.
+var isFF = (typeof InstallTrigger !== 'undefined'),
+    isIElt10 = (document.all && !window.atob);
+
+//fake text outline using shadows.
 function outline(w, bl, co){
     widht = w / 1000;
     blur = bl / 1000;
 
-    // Correct the top height for Firefox's buggy shadow renderer.
-    var top = (typeof InstallTrigger !== 'undefined') ? w / 17 * 21 : w,
-            dg = w / 1.414213; // diagonal, divide by sqrt(2)
+    
+    var top = isFF ? w / 17 * 20 : w, // In FF, the pseudo-outline is slightly thinner on top.
+        dg = w / 1.414213; // diagonal, divide by sqrt(2)
 
     // This one is ugly :-/
     return [
@@ -112,21 +115,27 @@ function outline(w, bl, co){
 
     ].join() + ";"
 }
-
-var default_color = ["#9cf", "rgba(255,255,255,1)"]
-var bg_col = "#ff8"
+// 
+var logo = {
+    // Since we use shadows to fake outline, use a fallback color for CSS2 browsers.
+    // IE9 supports CSS3 colors, but not text shadows, hence the last item.
+    color: ["#9cf", "rgba(255,255,255,1)", isIElt10 && "#9cf"],
+    two_color: ["#24f", "rgba(255,255,255,1)", isIElt10 && "#24f"],
+    subtitle_color: "#357"
+    bg_color: "#ff8"
+}
 var logostyle = j2c.sheet("").add({
     " body": pocketGrid.blockgroup
     " header": [
         {
             width: "12em",
-            background_color: bg_col,
-            padding_bottom: "0.1px",
+            background_color: logo.bg_col,
+            padding_bottom: "0.1px", // preven h2 bottom margin collapse.
             font_size: "2em",
 
             " h2": {
                 font_family: "sans-serif",
-                color: "#357",
+                color: logo.subtitle_color,
                 text_align: "center",
 
             },
@@ -138,7 +147,7 @@ var logostyle = j2c.sheet("").add({
                 font_weight: 500,
                 margin: "0 auto",
                 font_size: "9em",
-                color: default_color,
+                color: logo.color,
                 width: "1.05em",
                 text_shadow: outline(17, 9, "#9cf"),
 
@@ -152,14 +161,14 @@ var logostyle = j2c.sheet("").add({
                     font_weight: 700,
                     margin_left: "-0.273em",
                     padding_top: "0.36em",
-                    color: ["#24f", "rgba(255,255,255,1)"],
+                    color: logo.two_color,
                     z_index: 1;
                 },
 
                 " .Cee": {
                     position: "absolute",
                     margin_left: "-0.015em",
-                    color: default_color;    
+                    color: logo.color;
                     ":before": {
                         content:'"C"'
                     }
@@ -170,7 +179,7 @@ var logostyle = j2c.sheet("").add({
             "h1,h1 .Cee": {
                 ":before": {
                     position: "absolute",
-                    background_color:  bg_col,
+                    background_color:  logo.bg_col,
                     display: "block",
                     height: "0.54em",
                     overflow: "hidden",
