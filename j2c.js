@@ -1,7 +1,9 @@
-(function () {
+/*/-notice-/*//*
+This source file is incomplete and useless in itself.
+See the 'dist' directory for usable files.
+*//*/-notice-/*/(function () {
   var
     OBJECT = "[object Object]",
-    NUMBER = "[object Number]",
     STRING = "[object String]",
     ARRAY =  "[object Array]",
     type = inline.call.bind(({}).toString),
@@ -27,7 +29,7 @@
     return buf.join("\n");
   }
 
-  function _declarations(o, buf, pfx, vendors, indent /**/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors, indent /*var*/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
@@ -49,7 +51,7 @@
     }
   }
 
-  /**///statements
+  /*/-statements-/*/
   function sheet(root) {return new Sheet(root);}
   function Sheet(root) {
     this.root = (root != null ? root : default_root + (counter++));
@@ -129,13 +131,13 @@
   Sp.toString = function () {
     return this.buf.join("\n");
   };
-  /**///statements
+  /*/-statements-/*/
 
   var m = { // module
-    /**///statements
+    /*/-statements-/*/
     indent: "  ",
     sheet:sheet,
-    /**///statements
+    /*/-statements-/*/
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"]
   };

@@ -1,11 +1,12 @@
 var fs = require("fs"),
     uglify = require("uglify-js"),
     zlib = require("zlib"),
-    source = fs.readFileSync("j2c.js").toString(),
+    surgicate = require("surgicate"),
+    source = surgicate({path:"j2c.js"}).excise("notice").toString()
 
     versions = {
         "j2c": source,
-        "inline/j2c": excise(source, "statements")
+        "inline/j2c": surgicate({source:source}).excise("statements") + ""
     },
     wrappers = {
         global: {
@@ -21,7 +22,7 @@ var fs = require("fs"),
             minify: false // ATM, uglify chokes on the export statement.
         },
         amd: {
-            source: "define('j2c', function(){return %});",
+            source: "define('j2c', function(){return (%)});",
             minify: true
         }
     }
@@ -47,24 +48,3 @@ for (name in versions) {
     }
 }
 
-function excise(src, tag) {
-    var acc = [],
-        removing = false;
-    tag = new RegExp("^//"+tag)
-    src = src.split("/**/")
-    src.forEach(function(section){
-        if (!removing) {
-            if (section.match(tag)){
-                removing = true;
-            } else {
-                acc.push(section);
-            }
-        } else {
-            if (section.match(tag)){
-                removing = false;
-                acc.push(section);
-            } // else skip the section
-        }
-    })
-    return acc.join("");
-}

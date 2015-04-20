@@ -1,7 +1,6 @@
 module.exports = (function () {
   var
     OBJECT = "[object Object]",
-    NUMBER = "[object Number]",
     STRING = "[object String]",
     ARRAY =  "[object Array]",
     type = inline.call.bind(({}).toString),
@@ -27,7 +26,7 @@ module.exports = (function () {
     return buf.join("\n");
   }
 
-  function _declarations(o, buf, pfx, vendors, indent , k, t, v) {
+  function _declarations(o, buf, pfx, vendors, indent /*var*/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
@@ -49,10 +48,10 @@ module.exports = (function () {
     }
   }
 
-  //statements
+  
 
   var m = { // module
-    //statements
+    
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"]
   };
