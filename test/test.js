@@ -2,6 +2,75 @@ var j2c,
     crass = require("crass"),
     expect = require("expect.js");
 
+["../dist/j2c.commonjs", "../dist/j2c.commonjs.min", "../dist/inline/j2c.commonjs", "../dist/inline/j2c.commonjs.min"].forEach(function(lib){
+    j2c = require(lib)
+    function check(result, expected){
+        result = crass.parse(result).optimize().toString();
+        expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+            return crass.parse(s).optimize().toString();
+        });
+        expect(expected).to.contain(result);
+    }
+
+    function checkinline(result, expected){
+        result = "p{" + j2c.inline(result) + "}"
+        expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+            return "p{" + s + "}"
+        });
+        check(result, expected)
+    }
+
+
+    var vendors = j2c.vendors;
+    j2c.vendors = [];
+
+
+      /////////////////////////////
+     /**/  suite("Inline, ")  /**/
+    /////////////////////////////
+
+
+    test("a single property", function() {
+        checkinline(
+            {foo:"bar"},
+            "foo:bar;"
+        )
+    });
+
+    test("array of values", function() {
+        checkinline(
+            {foo:["bar", "baz"]},
+            "foo:bar;foo:baz;"
+        )
+    });
+
+    test("sub-properties", function(){
+        checkinline(
+            {foo:{bar:"baz"}},
+            "foo-bar:baz;"
+        )
+    })
+
+    test("convert underscores", function() {
+        checkinline(
+            {"f_o_o":"bar"},
+            "f-o-o:bar;"
+        )
+    });
+
+    test("CSS Hack", function() {
+        checkinline(
+            {"*foo":"bar"},
+            "*foo:bar;"
+        )
+    });
+
+
+});
+
+
+
+
 ["../dist/j2c.commonjs", "../dist/j2c.commonjs.min"].forEach(function(lib){
     j2c = require(lib)
     function check(result, expected){
@@ -55,47 +124,6 @@ var j2c,
     test("default root class must be unique", function(){
         var sheet = j2c.sheet()
         expect(j2c.sheet().root).not.to.be(j2c.sheet().root)
-    });
-
-
-      /////////////////////////////
-     /**/  suite("Inline, ")  /**/
-    /////////////////////////////
-
-
-    test("a single property", function() {
-        checkinline(
-            {foo:"bar"},
-            "foo:bar;"
-        )
-    });
-
-    test("array of values", function() {
-        checkinline(
-            {foo:["bar", "baz"]},
-            "foo:bar;foo:baz;"
-        )
-    });
-
-    test("sub-properties", function(){
-        checkinline(
-            {foo:{bar:"baz"}},
-            "foo-bar:baz;"
-        )
-    })
-
-    test("convert underscores", function() {
-        checkinline(
-            {"f_o_o":"bar"},
-            "f-o-o:bar;"
-        )
-    });
-
-    test("CSS Hack", function() {
-        checkinline(
-            {"*foo":"bar"},
-            "*foo:bar;"
-        )
     });
 
 
