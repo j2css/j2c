@@ -42,7 +42,7 @@ export default (function () {
         break;
       default:
         _vendorify(
-          pfx + k + ":" + v + ";",
+          (pfx + k).replace("_", "-") + ":" + v + ";",
           buf, vendors, indent
         );
       }

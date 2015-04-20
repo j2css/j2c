@@ -58,14 +58,20 @@ r.add({
     "@media condition": {
         color: "red"
     },
-    "font": { // properties for the main ul.my_root_class elements
+    // properties for the main ul.my_root_class elements
+    font: { 
         size: "2em",
         family: "sans-serif"
     },
-    " li": { // sub-selector for children element, notice the initial space.
+    // underscores in property names are converted to dashes.
+    background_color: "#44f", 
+
+    // sub-selector for children element, notice the mandatory initial space
+    // signifying a child element.
+    " li": { 
         padding:{
-            left:5, //defaults to px unless otherwise specfied.
-            top:10
+            left: "5px"
+            top: "10px"
         } 
     }
 })
@@ -88,6 +94,7 @@ ul.my_root_class  li{
 ul.my_root_class {
   font-size:2em;
   font-family:sans-serif;
+  background-color:#44f;
 }
 ```
 
@@ -244,7 +251,6 @@ float:left;
 * `j2c.inline(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
 * `j2c.sheet([root:String]) : Sheet`: Creates a Sheet object.
 * `j2c.vendors = ["o", "ms", "moz", "webkit"]` (r/w): list of vendor prefixes.
-* `j2c.unit = "px"` (r/w): the default unit. `{margin:5}` becomes `margin:5px`.
 
 
 ### `Sheet` methods
