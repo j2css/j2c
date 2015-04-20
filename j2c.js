@@ -6,68 +6,65 @@ See the 'dist' directory for usable files.
     OBJECT = "[object Object]",
     STRING = "[object String]",
     ARRAY =  "[object Array]",
-    type = inline.call.bind(({}).toString),
+    type = ({}).toString,
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _vendorify(prop, buf, vendors, indent) {
+  function _vendorify(prop, buf, vendors) {
     vendors.forEach(function (v) {
-      buf.push(
-        /*/-INDENT-/*/indent + /*/-INDENT-/*/
-        "-" + v + "-" + prop
-      );
+      buf.push("-" + v + "-" + prop);
     })
-    buf.push(
-      /*/-INDENT-/*/indent + /*/-INDENT-/*/
-      prop
-    )
+    buf.push(prop)
   }
 
   function _O(k, v, o) {
-    o = {}
-    o[k] = v
-    return o
+    o = {};
+    o[k] = v;
+    return o;
   }
 
   function inline(o) {
     var buf = [];
-    _declarations(o, buf, "", m.vendors, "");
-    return buf.join("" /*/-INDENT-/*/ || "\n" /*/-INDENT-/*/);
+    _declarations(o, buf, "", j2c.vendors, "");
+    return buf.join("");
   }
 
-  function _declarations(o, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors/*var*/, k, v) {
     for (k in o) {
       v = o[k];
-      t = type(v);
-      switch (t) {
+      switch (type.call(v)) {
       case ARRAY:
         v.forEach(function (vv) {
-          _declarations(_O(k,vv), buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+          _declarations(_O(k, vv), buf, pfx, vendors);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+        _declarations(v, buf, pfx + k + "-", vendors);
         break;
       default:
-        _vendorify(
-          (pfx + k).replace(/_/g, "-") + ":" + v + ";",
-          buf, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/
-        );
+        _vendorify((pfx + k).replace(/_/g, "-") + ":" + v + ";", buf, vendors);
       }
     }
   }
 
+  /*/-inline-/*/
+  return {
+    inline: inline,
+    vendors:["o", "ms", "moz", "webkit"]
+  }
+  /*/-inline-/*/
+
   /*/-statements-/*/
-  function sheet(root) {return new Sheet(root);}
+  function j2c(root) {return new Sheet(root);}
   function Sheet(root) {
     this.root = (root != null ? root : default_root + (counter++));
     this.buf = []
   }
   
-  var Sp = Sheet.prototype;
+  Sheet.prototype = Sheet;
 
-  Sp.add = function (statements) {
-    _add(statements, this.buf, this.root.split(","), m.vendors/*/-INDENT-/*/, ""/*/-INDENT-/*/);
+  Sheet.add = function (statements) {
+    _add(statements, this.buf, this.root.split(","), j2c.vendors);
     return this
   };
 
@@ -79,100 +76,67 @@ See the 'dist' directory for usable files.
     return res;
   }
 
-  function _add(statements, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, v, t, props) {
-    switch (type(statements)) {
+  function _add(statements, buf, pfx, vendors/*var*/, k, v, props) {
+    switch (type.call(statements)) {
     case OBJECT:
       props = {};
       for (k in statements) {
         v = statements[k];
-        t = type(v);
         if (k[0] == "@"){
-          if (t == OBJECT) {
-            buf.push(
-              /*/-INDENT-/*/indent + /*/-INDENT-/*/
-              k + "{"
-            );
-            _add(v, buf, pfx, vendors/*/-INDENT-/*/, indent + "  "/*/-INDENT-/*/);
-            buf.push(
-              /*/-INDENT-/*/indent + /*/-INDENT-/*/
-              "}"
-            );
+          if (type.call(v) == OBJECT) {
+            buf.push(k + "{");
+            _add(v, buf, pfx, vendors);
+            buf.push("}");
           } else {
             buf.push(k + " " + v + ";");
           }
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, cartesian(pfx, k.split(",")), vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+          _add(v, buf, cartesian(pfx, k.split(",")), vendors);
         }
       }
       // fake loop to detect the presence of keys in props.
       for (k in props){
-        buf.push(
-          /*/-INDENT-/*/indent + /*/-INDENT-/*/
-          pfx + "{"
-        );
-        _declarations(props, buf, "", vendors/*/-INDENT-/*/, indent + "  "/*/-INDENT-/*/);
-        buf.push(
-          /*/-INDENT-/*/indent + /*/-INDENT-/*/
-          "}"
-        );
+        buf.push(pfx + "{");
+        _declarations(props, buf, "", vendors);
+        buf.push("}");
         break;
       }
       break;
     case ARRAY:
       statements.forEach(function (statement) {
-        _add(statement, buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+        _add(statement, buf, pfx, vendors);
       })
       break;
     case STRING:
-        buf.push(
-          /*/-INDENT-/*/indent + /*/-INDENT-/*/
-          pfx.join(",") + "{" +
-          /*/-INDENT-/*/"\n" + indent + "  " + /*/-INDENT-/*/
-          statements/*/-INDENT-/*/.replace('\n', '\n' + indent + "  ")/*/-INDENT-/*/ + 
-          /*/-INDENT-/*/"\n" + indent  + /*/-INDENT-/*/
-          "}"
-        );
+        buf.push(pfx.join(",") + "{" + statements + "}");
     }
   }
 
-  Sp.keyframes = function(name, frames) {
-    m.vendors.forEach(function(vendor) {
-      _add(
-        _O("@-" + vendor + "-keyframes " + name, frames), this.buf, [""], [vendor]
-        /*/-INDENT-/*/, ""/*/-INDENT-/*/
-      );
+  Sheet.keyframes = function(name, frames) {
+    j2c.vendors.forEach(function(vendor) {
+      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, [""], [vendor]);
     }, this)    
-    _add(_O(
-      "@keyframes " + name, frames), this.buf, [""], m.vendors
-      /*/-INDENT-/*/, ""/*/-INDENT-/*/
-    );
+    _add(_O("@keyframes " + name, frames), this.buf, [""], j2c.vendors);
     return this;
   }
 
-  Sp.font = function(o, buf) {
-    buf = this.buf
-    buf.push("@font-face{");
-    _declarations(o, buf, "", [], "  ");
-    buf.push("}");
+  Sheet.font = function(o) {
+    this.buf.push("@font-face{");
+    _declarations(o, this.buf, "", []);
+    this.buf.push("}");
     return this
   }
 
-  Sp.toString = function () {
-    return this.buf.join("\n");
+  Sheet.toString = function () {
+    return this.buf.join("");
   };
+
+  j2c.inline = inline;
+  j2c.vendors = ["o", "ms", "moz", "webkit"];
+  return j2c;
   /*/-statements-/*/
-
-  var m = { // module
-    /*/-statements-/*/
-    sheet:sheet,
-    /*/-statements-/*/
-    inline: inline,
-    vendors:["o", "ms", "moz", "webkit"]
-  };
-
-  return m;
 })()
 
 /*

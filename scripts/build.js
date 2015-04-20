@@ -6,7 +6,7 @@ var fs = require("fs"),
     source = surgicate({path:"j2c.js"}).excise("notice").toString()
 
     versions = {
-        "j2c": source,
+        "j2c": surgicate({source:source}).excise("inline"),
         "inline/j2c": surgicate({source:source}).excise("statements") + ""
     },
     wrappers = {
@@ -36,7 +36,8 @@ for (name in versions) {
         fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped)
         if (wrappers[wrp].minify) {
             (function(){
-                var minified = uglify.minify(wrapped, {fromString: true}).code,
+                var minified = uglify.minify(
+                    wrapped, {fromString: true}).code,
                     _name = name,
                     _wrp = wrp
 

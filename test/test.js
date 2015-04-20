@@ -90,7 +90,7 @@ var j2c,
     }
 
     function add(klass, o){
-        return j2c.sheet(klass).add(o).toString()
+        return j2c(klass).add(o).toString()
     }
 
     var vendors = j2c.vendors;
@@ -104,7 +104,7 @@ var j2c,
 
 
     test("custom root class", function(){
-        var sheet = j2c.sheet("foo")
+        var sheet = j2c("foo")
         expect(sheet.root).to.be("foo")
         check(
             sheet.add({foo:"bar"}).toString(),
@@ -113,7 +113,7 @@ var j2c,
     });
 
     test("default root class", function(){
-        var sheet = j2c.sheet()
+        var sheet = j2c()
         expect(sheet.root[0]).to.be(".")
         check(
             sheet.add({foo:"bar"}).toString(),
@@ -122,8 +122,8 @@ var j2c,
     });
 
     test("default root class must be unique", function(){
-        var sheet = j2c.sheet()
-        expect(j2c.sheet().root).not.to.be(j2c.sheet().root)
+        var sheet = j2c()
+        expect(j2c().root).not.to.be(j2c().root)
     });
 
 
@@ -378,7 +378,7 @@ var j2c,
     });
 
     test("@font-face", function(){
-        var sheet = j2c.sheet("p")
+        var sheet = j2c("p")
         check(
             sheet.font({foo:"bar"}).toString(),
             "@font-face{foo:bar}"
@@ -386,7 +386,7 @@ var j2c,
     });
 
     test("@keyframes", function(){
-        var sheet = j2c.sheet("p")
+        var sheet = j2c("p")
         check(
             sheet.keyframes("qux", {
                 " from":{foo:"bar"},

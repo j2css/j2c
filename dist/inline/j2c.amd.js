@@ -3,66 +3,55 @@ define('j2c', function(){return (function () {
     OBJECT = "[object Object]",
     STRING = "[object String]",
     ARRAY =  "[object Array]",
-    type = inline.call.bind(({}).toString),
+    type = ({}).toString,
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _vendorify(prop, buf, vendors, indent) {
+  function _vendorify(prop, buf, vendors) {
     vendors.forEach(function (v) {
-      buf.push(
-        /*/-INDENT-/*/indent + /*/-INDENT-/*/
-        "-" + v + "-" + prop
-      );
+      buf.push("-" + v + "-" + prop);
     })
-    buf.push(
-      /*/-INDENT-/*/indent + /*/-INDENT-/*/
-      prop
-    )
+    buf.push(prop)
   }
 
   function _O(k, v, o) {
-    o = {}
-    o[k] = v
-    return o
+    o = {};
+    o[k] = v;
+    return o;
   }
 
   function inline(o) {
     var buf = [];
-    _declarations(o, buf, "", m.vendors, "");
-    return buf.join("" /*/-INDENT-/*/ || "\n" /*/-INDENT-/*/);
+    _declarations(o, buf, "", j2c.vendors, "");
+    return buf.join("");
   }
 
-  function _declarations(o, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors/*var*/, k, v) {
     for (k in o) {
       v = o[k];
-      t = type(v);
-      switch (t) {
+      switch (type.call(v)) {
       case ARRAY:
         v.forEach(function (vv) {
-          _declarations(_O(k,vv), buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+          _declarations(_O(k, vv), buf, pfx, vendors);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
+        _declarations(v, buf, pfx + k + "-", vendors);
         break;
       default:
-        _vendorify(
-          (pfx + k).replace(/_/g, "-") + ":" + v + ";",
-          buf, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/
-        );
+        _vendorify((pfx + k).replace(/_/g, "-") + ":" + v + ";", buf, vendors);
       }
     }
   }
 
-  
-
-  var m = { // module
-    
+  /*/-inline-/*/
+  return {
     inline: inline,
     vendors:["o", "ms", "moz", "webkit"]
-  };
+  }
+  /*/-inline-/*/
 
-  return m;
+  
 })()
 
 /*
