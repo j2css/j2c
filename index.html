@@ -10,7 +10,7 @@ var isFF = (typeof InstallTrigger !== 'undefined'),
 //fake text outline using shadows.
 function outline(w, bl, co){
     w = w / 1000;
-    b = bl / 1000;
+    bl = bl / 1000;
 
     
     var top = isFF ? w / 17 * 20 : w, // In FF, the pseudo-outline is slightly thinner on top.
