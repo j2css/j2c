@@ -16,7 +16,7 @@ var fs = require("fs"),
         },
         commonjs: {
             source: "module.exports = %;",
-            minify: false // No need to minify before browserification.
+            minify: true // No need to minify before browserification.
         },
         es6: {
             source: "export default %;",

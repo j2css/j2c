@@ -9,9 +9,15 @@
 
   function _vendorify(prop, buf, vendors, indent) {
     vendors.forEach(function (v) {
-      buf.push(indent + "-" + v + "-" + prop);
+      buf.push(
+        /*/-INDENT-/*/indent + /*/-INDENT-/*/
+        "-" + v + "-" + prop
+      );
     })
-    buf.push(indent + prop)
+    buf.push(
+      /*/-INDENT-/*/indent + /*/-INDENT-/*/
+      prop
+    )
   }
 
   function _O(k, v, o) {
@@ -23,26 +29,26 @@
   function inline(o) {
     var buf = [];
     _declarations(o, buf, "", m.vendors, "");
-    return buf.join("\n");
+    return buf.join("" /*/-INDENT-/*/ || "\n" /*/-INDENT-/*/);
   }
 
-  function _declarations(o, buf, pfx, vendors, indent /*var*/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
       switch (t) {
       case ARRAY:
         v.forEach(function (vv) {
-          _declarations(_O(k,vv), buf, pfx, vendors, indent);
+          _declarations(_O(k,vv), buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", vendors, indent);
+        _declarations(v, buf, pfx + k + "-", vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
         break;
       default:
         _vendorify(
           (pfx + k).replace(/_/g, "-") + ":" + v + ";",
-          buf, vendors, indent
+          buf, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/
         );
       }
     }
@@ -58,7 +64,7 @@
   var Sp = Sheet.prototype;
 
   Sp.add = function (statements) {
-    _add(statements, this.buf, this.root.split(","), m.vendors, "");
+    _add(statements, this.buf, this.root.split(","), m.vendors/*/-INDENT-/*/, ""/*/-INDENT-/*/);
     return this
   };
 
@@ -70,7 +76,7 @@
     return res;
   }
 
-  function _add(statements, buf, pfx, vendors, indent /*var*/, k, v, t, props) {
+  function _add(statements, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, v, t, props) {
     switch (type(statements)) {
     case OBJECT:
       props = {};
@@ -79,48 +85,73 @@
         t = type(v);
         if (k[0] == "@"){
           if (t == OBJECT) {
-            buf.push(indent + k + "{");
-            _add(v, buf, pfx, vendors, indent + m.indent);
-            buf.push(indent + "}");
+            buf.push(
+              /*/-INDENT-/*/indent + /*/-INDENT-/*/
+              k + "{"
+            );
+            _add(v, buf, pfx, vendors/*/-INDENT-/*/, indent + "  "/*/-INDENT-/*/);
+            buf.push(
+              /*/-INDENT-/*/indent + /*/-INDENT-/*/
+              "}"
+            );
           } else {
             buf.push(k + " " + v + ";");
           }
         } else if (k.match(/^[-\w]+$/)) {
           props[k] = v;
         } else {
-          _add(v, buf, cartesian(pfx, k.split(",")), vendors, indent);
+          _add(v, buf, cartesian(pfx, k.split(",")), vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
         }
       }
       // fake loop to detect the presence of keys in props.
       for (k in props){
-        buf.push(indent + pfx + "{");
-        _declarations(props, buf, "", vendors, indent + m.indent);
-        buf.push(indent + "}");
+        buf.push(
+          /*/-INDENT-/*/indent + /*/-INDENT-/*/
+          pfx + "{"
+        );
+        _declarations(props, buf, "", vendors/*/-INDENT-/*/, indent + "  "/*/-INDENT-/*/);
+        buf.push(
+          /*/-INDENT-/*/indent + /*/-INDENT-/*/
+          "}"
+        );
         break;
       }
       break;
     case ARRAY:
       statements.forEach(function (statement) {
-        _add(statement, buf, pfx, vendors, indent);
+        _add(statement, buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
       })
       break;
     case STRING:
-        buf.push(indent + pfx.join(",") + "{\n" + statements + "\n" + indent  + "}");
+        buf.push(
+          /*/-INDENT-/*/indent + /*/-INDENT-/*/
+          pfx.join(",") + "{" +
+          /*/-INDENT-/*/"\n" + indent + "  " + /*/-INDENT-/*/
+          statements/*/-INDENT-/*/.replace('\n', '\n' + indent + "  ")/*/-INDENT-/*/ + 
+          /*/-INDENT-/*/"\n" + indent  + /*/-INDENT-/*/
+          "}"
+        );
     }
   }
 
   Sp.keyframes = function(name, frames) {
     m.vendors.forEach(function(vendor) {
-      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, [""], [vendor], "");
+      _add(
+        _O("@-" + vendor + "-keyframes " + name, frames), this.buf, [""], [vendor]
+        /*/-INDENT-/*/, ""/*/-INDENT-/*/
+      );
     }, this)    
-    _add(_O("@keyframes " + name, frames), this.buf, [""], m.vendors, "");
+    _add(_O(
+      "@keyframes " + name, frames), this.buf, [""], m.vendors
+      /*/-INDENT-/*/, ""/*/-INDENT-/*/
+    );
     return this;
   }
 
   Sp.font = function(o, buf) {
     buf = this.buf
     buf.push("@font-face{");
-    _declarations(o, buf, "", [], m.indent);
+    _declarations(o, buf, "", [], "  ");
     buf.push("}");
     return this
   }
@@ -132,7 +163,6 @@
 
   var m = { // module
     /*/-statements-/*/
-    indent: "  ",
     sheet:sheet,
     /*/-statements-/*/
     inline: inline,

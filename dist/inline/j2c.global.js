@@ -9,9 +9,15 @@
 
   function _vendorify(prop, buf, vendors, indent) {
     vendors.forEach(function (v) {
-      buf.push(indent + "-" + v + "-" + prop);
+      buf.push(
+        /*/-INDENT-/*/indent + /*/-INDENT-/*/
+        "-" + v + "-" + prop
+      );
     })
-    buf.push(indent + prop)
+    buf.push(
+      /*/-INDENT-/*/indent + /*/-INDENT-/*/
+      prop
+    )
   }
 
   function _O(k, v, o) {
@@ -23,26 +29,26 @@
   function inline(o) {
     var buf = [];
     _declarations(o, buf, "", m.vendors, "");
-    return buf.join("\n");
+    return buf.join("" /*/-INDENT-/*/ || "\n" /*/-INDENT-/*/);
   }
 
-  function _declarations(o, buf, pfx, vendors, indent /*var*/, k, t, v) {
+  function _declarations(o, buf, pfx, vendors/*/-INDENT-/*/, indent /*/-INDENT-/*//*var*/, k, t, v) {
     for (k in o) {
       v = o[k];
       t = type(v);
       switch (t) {
       case ARRAY:
         v.forEach(function (vv) {
-          _declarations(_O(k,vv), buf, pfx, vendors, indent);
+          _declarations(_O(k,vv), buf, pfx, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
         });
         break;
       case OBJECT:
-        _declarations(v, buf, pfx + k + "-", vendors, indent);
+        _declarations(v, buf, pfx + k + "-", vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/);
         break;
       default:
         _vendorify(
           (pfx + k).replace(/_/g, "-") + ":" + v + ";",
-          buf, vendors, indent
+          buf, vendors/*/-INDENT-/*/, indent/*/-INDENT-/*/
         );
       }
     }
