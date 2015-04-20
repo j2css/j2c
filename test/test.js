@@ -72,6 +72,15 @@ test("Simple definition", function() {
     )
 });
 
+test("Convert Underscores", function() {
+    check(
+        add("p", {
+            foo_foo:"bar"
+        }),
+        "p{foo-foo:bar}"
+    )
+});
+
 test("Number values", function() {
     check(
         add("p", {
