@@ -58,9 +58,9 @@ test("default root class must be unique", function(){
 
 
 
-  //////////////////////////////////////
- /**/  suite("Basic definitions")  /**/
-//////////////////////////////////////
+  ////////////////////////////////
+ /**/  suite("Definitions")  /**/
+////////////////////////////////
 
 
 test("Simple definition", function() {
@@ -133,6 +133,70 @@ test("Mixing definitions and sub-selectors", function() {
 
 
 
+  ///////////////////////////////////////////////
+ /**/  suite("Selector Cartesian product")  /**/
+///////////////////////////////////////////////
+
+
+test("1 x 2", function() {
+    check(
+        add("p", {
+            " .foo":{
+                ":before,:after":{
+                    foo:"bar"
+                }
+            }
+        }),
+
+        "p .foo:before, p .foo:after {foo:bar}"
+    )
+});
+
+test("2 x 1", function() {
+    check(
+        add("p", {
+            " .foo, .bar":{
+                ":before":{
+                    foo:"bar"
+                }
+            }
+        }),
+
+        "p .foo:before, p .bar:before {foo:bar}"
+    )
+});
+
+test("2 x 2", function() {
+    check(
+        add("p", {
+            " .foo, .bar":{
+                ":before,:after":{
+                    foo:"bar"
+                }
+            }
+        }),
+
+        "p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}"
+    )
+});
+
+
+test("2 x 3 one of which is empty", function() {
+    check(
+        add("p", {
+            " .foo, .bar":{
+                ",:before,:after":{
+                    foo:"bar"
+                }
+            }
+        }),
+
+        "p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}"
+    )
+});
+
+
+
   ///////////////////////////////////////
  /**/  suite("Strings and Arrays")  /**/
 ///////////////////////////////////////
@@ -170,6 +234,19 @@ test("Overloaded sub-properties", function() {
         "p{foo-bar:baz;foo-bar:qux}"
     )
 });
+
+test("Nested Arrays", function(){
+    check(
+        add("p", [
+            [
+                {bar:"baz"},
+                {bar:"qux"}
+            ],
+            "bar:quux;"
+        ]),
+        "p {bar:baz;bar:qux;bar:quux}"
+    )
+})
 
 
 
