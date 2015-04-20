@@ -1,6 +1,6 @@
 # j2c
 
-A small JavaScript object to CSS compiler. ~820 bytes mingzipped.
+A small JavaScript object to CSS compiler. ~730 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
@@ -52,7 +52,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 j2c.vendors = [] // for the sake of this demo
                  // defaults to ["o", "ms", "moz", "webkit"].
 
-r = j2c.sheet("ul.my_root_class")
+r = j2c("ul.my_root_class")
 
 r.add({
     "@media condition": {
@@ -109,7 +109,7 @@ Most of the resulting combinations don't make any sense (`-moz-color` FTW), and 
 If no root selector is provided, `J2C` creates one (a unique class).
 
 ```JavaScript
-r = j2c.sheet()
+r = j2c()
 r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
          //     j2c instance, and `$counter` is incremented to 
          //     ensure that these classes are unique.
@@ -124,7 +124,7 @@ Selectors are concatenated as is, while properties are concatenated with hyphens
 #### Overloading properties
 
 ```JavaScript
-r = j2c.sheet("ul.my_root_class")
+r = j2c("ul.my_root_class")
 
 r.add({
     "font-size": ["2em", "2rem"]
@@ -143,7 +143,7 @@ becomes
 Alternatively
 
 ```JavaScript
-r = j2c.sheet("ul.my_root_class")
+r = j2c("ul.my_root_class")
 
 r.add([
     {
@@ -175,7 +175,7 @@ Most At-rules are handled out of the box by `sheet.add()`. However, `@font-face`
 Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
 
 ```JavaScript
-j2c.sheet("").add({
+j2c("").add({
   ".block,.blockgroup":{
     ",:before,:after":{          // Notice the initial coma.
       "box-sizing":"border-box"
@@ -201,7 +201,7 @@ Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z]+$/`, i
 Here's another modified excerpt from the PocketGrid port:
 
 ```JavaScript
-j2c.sheet("").add({
+j2c("").add({
   ".blockgroup": [
     "*zoom: 1; /* hack */",
     {
@@ -246,10 +246,10 @@ float:left;
 
 ## API Reference
 
-### `j2c` object
+### `j2c` and static fields
 
+* `j2c([root:String]) : Sheet`: Creates a Sheet object.
 * `j2c.inline(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
-* `j2c.sheet([root:String]) : Sheet`: Creates a Sheet object.
 * `j2c.vendors = ["o", "ms", "moz", "webkit"]` (r/w): list of vendor prefixes.
 
 
