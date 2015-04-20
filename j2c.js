@@ -44,7 +44,7 @@ See the 'dist' directory for usable files.
         break;
       default:
         _vendorify(
-          (pfx + k).replace("_", "-") + ":" + v + ";",
+          (pfx + k).replace(/_/g, "-") + ":" + v + ";",
           buf, vendors, indent
         );
       }

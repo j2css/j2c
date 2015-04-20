@@ -41,7 +41,7 @@ module.exports = (function () {
         break;
       default:
         _vendorify(
-          (pfx + k).replace("_", "-") + ":" + v + ";",
+          (pfx + k).replace(/_/g, "-") + ":" + v + ";",
           buf, vendors, indent
         );
       }

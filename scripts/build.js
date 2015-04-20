@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 var fs = require("fs"),
     uglify = require("uglify-js"),
     zlib = require("zlib"),
@@ -22,7 +23,7 @@ var fs = require("fs"),
             minify: false // ATM, uglify chokes on the export statement.
         },
         amd: {
-            source: "define('j2c', function(){return (%)});",
+            source: "define('j2c', function(){return %});",
             minify: true
         }
     }

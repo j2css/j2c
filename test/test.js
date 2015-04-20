@@ -12,7 +12,7 @@ function check(result, expected){
 }
 
 function checkinline(result, expected){
-    result = "p{" + result + "}"
+    result = "p{" + j2c.inline(result) + "}"
     expected = (expected instanceof Array ? expected : [expected]).map(function(s){
         return "p{" + s + "}"
     });
@@ -57,13 +57,46 @@ test("default root class must be unique", function(){
 });
 
 
+  /////////////////////////////
+ /**/  suite("Inline, ")  /**/
+/////////////////////////////
 
-  ////////////////////////////////
- /**/  suite("Definitions")  /**/
-////////////////////////////////
+
+test("a single property", function() {
+    checkinline(
+        {foo:"bar"},
+        "foo:bar;"
+    )
+});
+
+test("array of values", function() {
+    checkinline(
+        {foo:["bar", "baz"]},
+        "foo:bar;foo:baz;"
+    )
+});
+
+test("convert underscores", function() {
+    checkinline(
+        {"f_o_o":"bar"},
+        "f-o-o:bar;"
+    )
+});
+
+test("CSS Hack", function() {
+    checkinline(
+        {"*foo":"bar"},
+        "*foo:bar;"
+    )
+});
 
 
-test("Simple definition", function() {
+  //////////////////////////////////
+ /**/  suite("Definitions, ")  /**/
+//////////////////////////////////
+
+
+test("basic", function() {
     check(
         add("p", {
             foo:"bar"
@@ -72,7 +105,7 @@ test("Simple definition", function() {
     )
 });
 
-test("Convert Underscores", function() {
+test("convert underscores", function() {
     check(
         add("p", {
             foo_foo:"bar"
@@ -81,7 +114,7 @@ test("Convert Underscores", function() {
     )
 });
 
-test("Number values", function() {
+test("number values", function() {
     check(
         add("p", {
             foo:5
@@ -90,7 +123,7 @@ test("Number values", function() {
     )
 });
 
-test("Composed property name", function() {
+test("composed property name", function() {
     check(
         add("p", {
             foo:{bar:"baz"}
@@ -100,7 +133,7 @@ test("Composed property name", function() {
     )
 });
 
-test("Composed selector : child with a given class", function() {
+test("composed selector : child with a given class", function() {
     check(
         add("p", {
             " .foo":{bar:"baz"}
@@ -110,7 +143,7 @@ test("Composed selector : child with a given class", function() {
     )
 });
 
-test("Composed selector: add a class to the root", function() {
+test("composed selector: add a class to the root", function() {
     check(
         add("p", {
             ".foo":{bar:"baz"}
@@ -120,7 +153,7 @@ test("Composed selector: add a class to the root", function() {
     )
 });
 
-test("Mixing definitions and sub-selectors", function() {
+test("mixing definitions and sub-selectors", function() {
     check(
         add("p", {
             foo:"bar",
@@ -134,7 +167,7 @@ test("Mixing definitions and sub-selectors", function() {
 
 
   ///////////////////////////////////////////////
- /**/  suite("Selector Cartesian product")  /**/
+ /**/  suite("Selector Cartesian product, ")  /**/
 ///////////////////////////////////////////////
 
 
@@ -198,7 +231,7 @@ test("2 x 3 one of which is empty", function() {
 
 
   ///////////////////////////////////////
- /**/  suite("Strings and Arrays")  /**/
+ /**/  suite("Strings and Arrays, ")  /**/
 ///////////////////////////////////////
 
 
@@ -217,7 +250,7 @@ test("Array of String literals", function() {
 });
 
 
-test("Overloaded properties", function() {
+test("overloaded properties", function() {
     check(
         add("p", {
             foo:["bar","baz"]
@@ -226,7 +259,7 @@ test("Overloaded properties", function() {
     )
 });
 
-test("Overloaded sub-properties", function() {
+test("overloaded sub-properties", function() {
     check(
         add("p", {
             foo:[{bar:"baz"},{bar:"qux"}]
@@ -235,7 +268,7 @@ test("Overloaded sub-properties", function() {
     )
 });
 
-test("Nested Arrays", function(){
+test("nested Arrays", function(){
     check(
         add("p", [
             [
@@ -250,9 +283,9 @@ test("Nested Arrays", function(){
 
 
 
-  /////////////////////////////
- /**/  suite("At rules")  /**/
-/////////////////////////////
+  ///////////////////////////////
+ /**/  suite("At rules, ")  /**/
+///////////////////////////////
 
 
 before(function(){
@@ -265,7 +298,7 @@ after(function(){
    j2c.vendors = [];
 });
 
-test("Standard At rule with text value", function() {
+test("standard At rule with text value", function() {
     check(
         add("p", {
             "@import":"'bar'"
@@ -275,7 +308,7 @@ test("Standard At rule with text value", function() {
     )
 });
 
-test("Standard At rule with object value", function() {
+test("standard At rule with object value", function() {
     check(
         add("p", {
             "@media foo":{bar:"baz"}
@@ -285,7 +318,7 @@ test("Standard At rule with object value", function() {
     )
 });
 
-test("Several At rules with object value", function() {
+test("several At rules with object value", function() {
     check(
         add("p", {
             "@media foo":{bar:"baz"},
