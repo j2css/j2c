@@ -76,6 +76,13 @@ test("array of values", function() {
     )
 });
 
+test("sub-properties", function(){
+    checkinline(
+        {foo:{bar:"baz"}},
+        "foo-bar:baz;"
+    )
+})
+
 test("convert underscores", function() {
     checkinline(
         {"f_o_o":"bar"},
