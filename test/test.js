@@ -72,6 +72,15 @@ test("Simple definition", function() {
     )
 });
 
+test("Number values", function() {
+    check(
+        add("p", {
+            foo:5
+        }),
+        "p{foo:5}"
+    )
+});
+
 test("Composed property name", function() {
     check(
         add("p", {
@@ -241,29 +250,4 @@ test("@keyframes", function(){
 });
 
 
-
-  //////////////////////////
- /**/  suite("Units")  /**/
-//////////////////////////
-
-
-test("Default", function() {
-    check(
-        add("p", {
-            foo:5
-        }),
-        "p{foo:5px}"
-    )
-});
-
-test("Custom", function() {
-    j2c.unit = "em"
-    check(
-        add("p", {
-            foo:5
-        }),
-        "p{foo:5em}"
-    )
-    j2c.unit = "px"
-});
 

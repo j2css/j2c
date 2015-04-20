@@ -42,7 +42,7 @@ define('j2c', function(){return (function () {
         break;
       default:
         _vendorify(
-          pfx + k + ":" + (t !== NUMBER || v === 0 ? v : v + m.unit) + ";",
+          pfx + k + ":" + v + ";",
           buf, vendors, indent
         );
       }
@@ -54,8 +54,7 @@ define('j2c', function(){return (function () {
   var m = { // module
     //statements
     inline: inline,
-    vendors:["o", "ms", "moz", "webkit"],
-    unit: "px"
+    vendors:["o", "ms", "moz", "webkit"]
   };
 
   return m;

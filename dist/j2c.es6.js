@@ -42,7 +42,7 @@ export default (function () {
         break;
       default:
         _vendorify(
-          pfx + k + ":" + (t !== NUMBER || v === 0 ? v : v + m.unit) + ";",
+          pfx + k + ":" + v + ";",
           buf, vendors, indent
         );
       }
@@ -137,8 +137,7 @@ export default (function () {
     sheet:sheet,
     /**///statements
     inline: inline,
-    vendors:["o", "ms", "moz", "webkit"],
-    unit: "px"
+    vendors:["o", "ms", "moz", "webkit"]
   };
 
   return m;
