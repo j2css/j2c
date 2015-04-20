@@ -1,21 +1,10 @@
-/*! PocketGrid 1.1.0
-* Copyright 2013 Arnaud Leray
-* MIT License
-*/
-var j2c = require("../dist/j2c.commonjs");
+// If you wanted to turn PockeGrid into a mixin, you could use this:
 
-j2c.vendors = [];
-
-// here's a straight port.
-
-console.log(j2c.sheet("").add({
-  /* Border-box-sizing */
-  ".block,.blockgroup":{
-    ",:before,:after":{
+var pocketgrid = {
+  blockgroup: [
+    ",:before,:after":{ //note the initial coma
       "box-sizing":"border-box"
-    }
-  },
-  ".blockgroup": [
+    },
     /* Clearfix */
     "*zoom: 1",
     {
@@ -39,10 +28,11 @@ console.log(j2c.sheet("").add({
       }
     }
   ],
-  /* Default block */
-  ".block": {
+  block: {
+    ",:before,:after":{ //note the initial coma
+      "box-sizing":"border-box"
+    },
     float: "left",
     width: "100%"
   }
-}).toString())
-
+}
