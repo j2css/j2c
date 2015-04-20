@@ -37,11 +37,11 @@ var logo = {
     // IE9 supports CSS3 colors, but not text shadows, hence the last item.
     color: ["#9cf", "rgba(255,255,255,1)", isIElt10 && "#9cf"],
     two_color: ["#24f", "rgba(255,255,255,1)", isIElt10 && "#24f"],
-    subtitle_color: "#357"
+    subtitle_color: "#357",
     bg_color: "#ff8"
 }
 var logostyle = j2c.sheet("").add({
-    " body": pocketGrid.blockgroup
+    " body": pocketGrid.blockgroup,
     " header": [
         {
             width: "12em",
@@ -78,17 +78,17 @@ var logostyle = j2c.sheet("").add({
                     margin_left: "-0.273em",
                     padding_top: "0.36em",
                     color: logo.two_color,
-                    z_index: 1;
+                    z_index: 1
                 },
 
                 " .Cee": {
                     position: "absolute",
                     margin_left: "-0.015em",
-                    color: logo.color;
+                    color: logo.color,
                     ":before": {
                         content:'"C"'
                     }
-                },
+                }
             },
 
 
