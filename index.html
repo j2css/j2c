@@ -117,7 +117,8 @@ function outline(w, bl, co){
 }
 // 
 var logo = {
-    // Since we use shadows to fake outline, use a fallback color for CSS2 browsers.
+    // Since we use shadows to fake the outline, use a fallback color for 
+    // CSS2 browsers.
     // IE9 supports CSS3 colors, but not text shadows, hence the last item.
     color: ["#9cf", "rgba(255,255,255,1)", isIElt10 && "#9cf"],
     two_color: ["#24f", "rgba(255,255,255,1)", isIElt10 && "#24f"],
