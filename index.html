@@ -14,7 +14,7 @@ function outline(w, bl, co){
 
     
     var top = isFF ? w / 17 * 20 : w, // In FF, the pseudo-outline is slightly thinner on top.
-        dg = w / 1.414213; // diagonal, divide by sqrt(2)
+        dg = (""+w / 1.414213).slice(0,7); // diagonal, divide by sqrt(2)
 
     // This one is ugly :-/
     return [
