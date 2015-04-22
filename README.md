@@ -13,6 +13,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 
 - [Why?](#why)
   - [But, seriously...](#but-seriously)
+- [Installation](#installation)
 - [Usage](#usage)
   - [For building a style sheet](#for-building-a-style-sheet)
     - [-vendor-prefixes](#-vendor-prefixes)
@@ -29,6 +30,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 - [Limitations](#limitations)
   - [Selectors and properties order](#selectors-and-properties-order)
   - [No input validation](#no-input-validation)
+  - [No pretty printing](#no-pretty-printing)
 - [License: MIT](#license-mit)
 
 <small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc), then tweaked a bit.*</small>
