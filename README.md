@@ -117,13 +117,14 @@ If you don't truncate the vendors list as I did in the example above, you'll get
 
 Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
 
-Alternatively, you can specify the prfixes by hand using the "/" operator:
+Alternatively, you can specify the prefixes by hand using the "/" operator where needed:
 
 ```JavaScript
 j2c.vendors = []
 j2c("p").add({
   // Notice the trailing slash, required for the unprefixed property.
-  "-o/-ms/-moz/-webkit/": {foo: "bar"} 
+  "-o/-ms/-moz/-webkit/": {foo: "bar"},
+  hello: "world"
 }).toString()
 ```
 
@@ -136,6 +137,7 @@ p {
   -moz-foo:bar;
   -webkit-foo:bar;
   foo:bar;
+  hello:world;
 }
 ```
 
