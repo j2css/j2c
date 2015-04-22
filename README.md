@@ -53,6 +53,14 @@ Whether or not this is useful as a general CSS replacement remains to be seen.
 
 For that use case, it trades off file size down the line for time lost because the rendering is blocked by executing JS. Benchmarks, especially on underpowered devices are yet to be performed.
 
+## Installation
+
+```Bash
+$ npm install j2c
+```
+
+Please send a PR if you want to see it inclueded in other package systems.
+
 ## Usage
 
 ### For building a style sheet
