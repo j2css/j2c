@@ -243,14 +243,14 @@ Mathy folks call this as a Cartesian product.
 
 #### CSS Hacks
 
-Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
+Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
 
 Here's another modified excerpt from the PocketGrid port:
 
 ```JavaScript
 j2c("").add({
   ".blockgroup": [
-    "*zoom: 1; /* hack */",
+    "*zoom: 1; /* hackety hackery */",
     {
       "list-style-type":"none",
       padding:0,
