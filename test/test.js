@@ -100,13 +100,20 @@ var j2c,
         )
     });
 
+    test("Prefixes by hand", function() {
+        checkinline(
+            {"-o/-p/":{foo:"bar"}},
+            "-o-foo:bar;-p-foo:bar;foo:bar;"
+        )
+    });
+
     test("CSS Hack", function() {
         checkinline(
             {"*foo":"bar"},
             "*foo:bar;"
         )
     });
-    
+
       //////////////////////////////////////
      /**/  suite("Inline prefixes, ")  /**/
     //////////////////////////////////////
