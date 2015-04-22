@@ -7,7 +7,6 @@ export default (function () {
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-
   function _O(k, v, o) {
     o = {};
     o[k] = v;

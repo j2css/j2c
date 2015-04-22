@@ -7,7 +7,6 @@ export default (function () {
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-
   function _O(k, v, o) {
     o = {};
     o[k] = v;
@@ -82,7 +81,7 @@ export default (function () {
           } else {
             buf.push(k + " " + v + ";");
           }
-        } else if (k.match(/^[-\w]+$/)) {
+        } else if (k.match(/^[-\w\/]+$/)) {
           props[k] = v;
         } else {
           _add(v, buf, cartesian(pfx, k.split(",")), vendors);

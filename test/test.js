@@ -25,6 +25,7 @@ var j2c,
     j2c.vendors = [];
 
 
+
       /////////////////////////////
      /**/  suite("Inline, ")  /**/
     /////////////////////////////
@@ -114,9 +115,11 @@ var j2c,
         )
     });
 
-      //////////////////////////////////////
-     /**/  suite("Inline prefixes, ")  /**/
-    //////////////////////////////////////
+
+
+      ///////////////////////////////////////////
+     /**/  suite("Inline auto prefixes, ")  /**/
+    ///////////////////////////////////////////
 
     before(function() {j2c.vendors = ["o", "p"]})
     after(function() {j2c.vendors = []})
@@ -189,6 +192,7 @@ var j2c,
     });
 
 
+
       //////////////////////////////////
      /**/  suite("Definitions, ")  /**/
     //////////////////////////////////
@@ -248,6 +252,16 @@ var j2c,
             }),
 
             "p.foo{bar:baz}"
+        )
+    });
+
+    test("manual vendor prefixes", function() {
+        check(
+            add("p", {
+                "-o/-ms/-moz/-webkit/": {foo: "bar"}
+            }),
+
+            "p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}"
         )
     });
 

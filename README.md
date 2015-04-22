@@ -117,6 +117,28 @@ If you don't truncate the vendors list as I did in the example above, you'll get
 
 Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
 
+Alternatively, you can specify the prfixes by hand using the "/" operator:
+
+```JavaScript
+j2c.vendors = []
+j2c("p").add({
+  // Notice the trailing slash, required for the unprefixed property.
+  "-o/-ms/-moz/-webkit/": {foo: "bar"} 
+}).toString()
+```
+
+Compiles to
+
+```CSS
+p {
+  -o-foo:bar;
+  -ms-foo:bar;
+  -moz-foo:bar;
+  -webkit-foo:bar;
+  foo:bar;
+}
+```
+
 #### root selector
 
 If no root selector is provided, `J2C` creates one (a unique class).
@@ -130,7 +152,7 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
 
 #### Telling selectors and properties apart
 
-`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors. Once it has switched to "properties" mode, it will stick to that, which allows the `border: {"left/right": {border: "2px"}}` seen above.
+`j2c` considers that object keys matching `/^[-_0-9A-Za-z\/]+$/` as properties, and everything else as (sub-)selectors.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 

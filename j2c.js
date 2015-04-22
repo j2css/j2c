@@ -89,7 +89,7 @@ See the 'dist' directory for usable files.
           } else {
             buf.push(k + " " + v + ";");
           }
-        } else if (k.match(/^[-\w]+$/)) {
+        } else if (k.match(/^[-\w\/]+$/)) {
           props[k] = v;
         } else {
           _add(v, buf, cartesian(pfx, k.split(",")), vendors);
