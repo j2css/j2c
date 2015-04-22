@@ -405,6 +405,6 @@ I may get around and write a validator companion, but I'm not there yet :-).
 
 ### No pretty printing
 
-For debugging purposes, I recommend that you pipe `j2c`'s  output through a [be](https://github.com/mattbasta/crass)-[au](https://github.com/beautify-web/js-beautify)-[ti](https://github.com/senchalabs/cssbeautify)-[fier](http://csstidy.sourceforge.net/)
+For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be](https://github.com/mattbasta/crass) [au](https://github.com/beautify-web/js-beautify) [ti](https://github.com/senchalabs/cssbeautify) [fier](http://csstidy.sourceforge.net/)] of your choice.
 
 ## License: MIT
