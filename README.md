@@ -127,7 +127,7 @@ If you don't truncate the vendors list as I did in the example above, you'll get
 
 Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
 
-Alternatively, you can specify the prefixes by hand using the "/" operator where needed:
+Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
 
 ```JavaScript
 j2c.vendors = []
@@ -225,7 +225,7 @@ Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arna
 j2c("").add({
   ".block,.blockgroup":{
     ",:before,:after":{          // Notice the initial coma.
-      "box-sizing":"border-box"
+      box_sizing:"border-box"
     }
   }
 }
@@ -235,7 +235,7 @@ Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `["
 
 ```CSS
 .block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
-    box-sizing:border-box
+    box-sizing:border-box;
 }
 ```
 
@@ -287,7 +287,7 @@ j2c.inline({
   background_image: "url(bg.png)",
   border: {
     color: ["#33e", "rgba(64,64,255,0.8)"],
-    "top/left": {width: "1px"},
+    top$left: {width: "1px"},
   }
   color: ,
   font: {
@@ -341,20 +341,20 @@ margin-left-color:red;
 margin-left-width:2px;
 ```
 
-Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor.
+Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor, then unprefixed.
 
 ```JavaScript
 console.log(j2c.inline({
-    float:"left";
+    foo:"bar";
 }));
 ```
 ... outputs ...
 ```CSS
--o-float:left;
--ms-float:left;
--moz-float:left;
--webkit-float:left;
-float:left;
+-o-foo:bar;
+-ms-foo:bar;
+-moz-foo:bar;
+-webkit-foo:bar;
+foo:bar;
 ```
 
 ## API Reference
