@@ -7,12 +7,6 @@ module.exports = (function () {
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _vendorify(prop, buf, vendors) {
-    vendors.forEach(function (v) {
-      buf.push("-" + v + "-" + prop);
-    })
-    buf.push(prop)
-  }
 
   function _O(k, v, o) {
     o = {};
@@ -42,7 +36,11 @@ module.exports = (function () {
       }
       break;
     default:
-      _vendorify((pfx && (pfx).replace(/_/g, "-") + ":") + o + ";", buf, vendors);
+      o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
+      vendors.forEach(function (v) {
+        buf.push("-" + v + "-" + o);
+      })
+      buf.push(o)
     }
   }
 

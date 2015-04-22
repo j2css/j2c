@@ -1,6 +1,6 @@
 # j2c
 
-JavaScript object to CSS compiler. ~730 bytes mingzipped.
+JavaScript object to CSS compiler. ~720 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
