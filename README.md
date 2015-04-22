@@ -49,7 +49,7 @@ Inspired by restlye.js and JSS, but smaller :-).
 
 ### But, seriously...
 
-This is mostly intended as a client-side helper to generate styles for Virtual DOM (React, Mithril, Mercury...) components.
+This is mostly intended as a client-side helper to generate styles for Virtual DOM components (React, Mithril, Mercury...).
 
 Whether or not this is useful as a general CSS replacement remains to be seen.
 
@@ -92,8 +92,8 @@ r.add({
             left: "5px"
             top: "10px"
         },
-        // convenient shortcut.
-        border: {"left/right": {width: 2px}}
+        // convenient $hortcut.
+        border: {left$right: {width: 2px}}
     }
 })
 
@@ -132,8 +132,8 @@ Alternatively, you can specify the prefixes by hand using the "/" operator where
 ```JavaScript
 j2c.vendors = []
 j2c("p").add({
-  // Notice the trailing slash, required for the unprefixed property.
-  "-o/-ms/-moz/-webkit/": {foo: "bar"},
+  // Notice the trailing dollar, required for the unprefixed property.
+  _o$_ms$_moz$_webkit$: {foo: "bar"},
   hello: "world"
 }).toString()
 ```
@@ -164,7 +164,7 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
 
 #### Telling selectors and properties apart
 
-`j2c` considers that object keys matching `/^[-_0-9A-Za-z\/]+$/` as properties, and everything else as (sub-)selectors.
+`j2c` considers that object keys matching `/^[-_0-9A-Za-z$]+$/` as properties, and everything else as (sub-)selectors. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 

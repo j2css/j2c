@@ -29,7 +29,7 @@ export default (function () {
     case OBJECT:
       for (k in o) {
         v = o[k];
-        k.split("/").forEach(function(k){
+        k.split("$").forEach(function(k){
           _declarations(v, buf, (pfx && pfx + "-") + k, vendors);
         });
       }

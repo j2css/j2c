@@ -29,7 +29,7 @@ define('j2c', function(){return (function () {
     case OBJECT:
       for (k in o) {
         v = o[k];
-        k.split("/").forEach(function(k){
+        k.split("$").forEach(function(k){
           _declarations(v, buf, (pfx && pfx + "-") + k, vendors);
         });
       }
@@ -81,7 +81,7 @@ define('j2c', function(){return (function () {
           } else {
             buf.push(k + " " + v + ";");
           }
-        } else if (k.match(/^[-\w\/]+$/)) {
+        } else if (k.match(/^[-\w$]+$/)) {
           props[k] = v;
         } else {
           _add(v, buf, cartesian(pfx, k.split(",")), vendors);

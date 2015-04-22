@@ -6,19 +6,18 @@ var pocketgrid = {
         "*zoom: 1",
         {
             ",:before,:after":{ //note the initial coma
-                "box-sizing":"border-box"
+                box_sizing:"border-box"
             },
             ":before,:after": {
                 display: "table",
                 content: '""',
-                "line-heigth": 0
+                line_heigth: 0
             },
             ":after": {clear:"both"},
 
             /* ul/li compatibility */
             "list-style-type":"none",
-            padding:0,
-            margin:0,
+            margin$padding:0,
 
             " > .blockgroup": {
                 /* Nested grid */

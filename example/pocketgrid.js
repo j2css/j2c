@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
 var j2c = require("../dist/j2c.commonjs");
 
 j2c.vendors = [];
@@ -30,7 +31,7 @@ console.log(j2c.sheet("").add({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{
-      "box-sizing":"border-box"
+      box_sizing:"border-box"
     }
   },
   ".blockgroup": [
@@ -40,14 +41,13 @@ console.log(j2c.sheet("").add({
       ":before,:after": {
         display: "table",
         content: '""',
-        "line-heigth": 0
+        line_heigth: 0
       },
       ":after": {clear:"both"},
 
       /* ul/li compatibility */
-      "list-style-type":"none",
-      padding:0,
-      margin:0,
+      list_style_type:"none",
+      margin$padding:0,
 
       " > .blockgroup": {
         /* Nested grid */
