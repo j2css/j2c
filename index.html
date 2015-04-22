@@ -2,7 +2,48 @@
 <title>J2C — JavaScript to CSS Compiler</title>
 
 <script src="https://cdn.rawgit.com/pygy/j2c/4a353396/dist/j2c.global.min.js"></script>
-<script src="https://cdn.rawgit.com/pygy/j2c/a521e586/example/pocketgrid.mixin.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/0.1.34/mithril.min.js"></script>
+<script>
+var pocketgrid = {
+    blockgroup: [
+        /* Clearfix */
+        "*zoom: 1",
+        {
+            ":before,:after": {
+                display: "table",
+                content: '""',
+                line_heigth: 0
+            },
+            ":after": {clear:"both"},
+
+            //note the initial coma in the sub-selector list
+            ",:before,:after":{
+                box_sizing:"border-box"
+            },
+
+            /* ul/li compatibility */
+            list_style_type:"none",
+            padding:0,
+            margin:0,
+
+            " > .blockgroup": {
+                /* Nested grid */
+                clear: "none",
+                float: "left",
+                margin: "0 !important"
+            }
+        }
+    ],
+    block: {
+        ",:before,:after":{ //note the initial coma
+            box_sizing:"border-box"
+        },
+        float: "left",
+        width: "100%"
+    }
+}
+</script>
+
 <script>
 var isFF = (typeof InstallTrigger !== 'undefined'),
     isIElt10 = (document.all && !window.atob);
@@ -54,47 +95,55 @@ var logostyle = j2c("").font({
     // " body": pocketgrid.blockgroup,
     " header": [
         {
-            width: "12em",
             background_color: logo.bg_color,
-            padding_bottom: "0.1px", // preven h2 bottom margin collapse.
             font_size: "2em",
+            width: "12em",
 
             " h2, h6": {
-                font_family: "sans-serif",
                 color: logo.subtitle_color,
-                text_align: "center",
+                font_family: "sans-serif",
+                text_align: "center"
+            },
 
+            " h6": {
+                background_color:"#fff",
+                margin:0,
+                padding_top:"0.5em"
             },
 
             " h1": {
-                line_height: 0.8,
-                postion: "relative",
-                font_family: "Dosis, sans-serif",
-                font_weight: 500,
-                margin: "0 auto",
-                font_size: "9em",
                 color: logo.color,
-                width: "1.05em",
+                font:{
+                    family: "Dosis, sans-serif",
+                    size: "9em",
+                    weight: 500
+                },
+                line_height: 0.8,
+                margin: "0 auto",
+                postion: "relative",
                 text_shadow: outline(17, 9, "#9cf"),
+                width: "1.05em",
 
                 ":before": {
                     content:'"J"'
                 },
 
                 " .two":{
-                    position: "absolute",
-                    font_size: "0.643em",
-                    font_weight: 700,
+                    color: logo.two_color,
+                    font: {
+                        size: "0.643em",
+                        weight: 700
+                    },
                     margin_left: "-0.273em",
                     padding_top: "0.36em",
-                    color: logo.two_color,
+                    position: "absolute",
                     z_index: 1
                 },
 
                 " .Cee": {
-                    position: "absolute",
-                    margin_left: "-0.015em",
                     color: logo.color,
+                    margin_left: "-0.015em",
+                    position: "absolute",
                     ":before": {
                         content:'"C"'
                     }
@@ -104,13 +153,13 @@ var logostyle = j2c("").font({
 
             " h1, h1 .Cee": {
                 ":before": {
-                    position: "absolute",
                     background_color:  logo.bg_color,
                     display: "block",
                     height: "0.54em",
-                    overflow: "hidden",
+                    line_height: 1,
                     margin_top: "-.01em",
-                    line_height: 1
+                    overflow: "hidden",
+                    position: "absolute"
                 }
             }
         }
@@ -139,7 +188,7 @@ head.appendChild(style);
 <header>
         <h1 class="hollow">J<span class="two">2</span><span class="Cee">C</span></h1>
         <h2>JavaScript to<br>CSS Compiler</h2>
-        <h6>~730 bytes down the line</h6>
+        <h6>~720 bytes down the line</h6>
 </header>
 
 <a href="https://github.com/pygy/j2c"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
