@@ -93,7 +93,7 @@ r.add({
             top: "10px"
         },
         // convenient $hortcut.
-        border: {left$right: {width: 2px}}
+        border: {left$right: {width: "2px"}}
     }
 })
 
@@ -164,7 +164,7 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
 
 #### Telling selectors and properties apart
 
-`j2c` considers that object keys matching `/^[-_0-9A-Za-z$]+$/` as properties, and everything else as (sub-)selectors. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
+`j2c` considers that an object keys matching `/^[-_0-9A-Za-z$]+$/` is property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
@@ -388,7 +388,7 @@ j2c(".hello").add({
 
 This may produce either `.hello{foo:bar;baz:qux;}` or `.hello{baz:qux;foo:bar;}`.
 
-If you need some elements to happen in order, use an array of objects.
+If you need some selectors or properties to happen in order, use an array of objects.
 
 ```Javascript
 j2c(".hello").add([
