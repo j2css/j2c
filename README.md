@@ -1,6 +1,6 @@
 # j2c
 
-A small JavaScript object to CSS compiler. ~730 bytes mingzipped.
+JavaScript object to CSS compiler. ~730 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
@@ -9,9 +9,10 @@ Inspired by restlye.js and JSS, but smaller :-).
 ----
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+##Table of Contents
 
 - [Why?](#why)
+  - [But, seriously...](#but-seriously)
 - [Usage](#usage)
   - [For building a style sheet](#for-building-a-style-sheet)
     - [-vendor-prefixes](#-vendor-prefixes)
@@ -23,26 +24,34 @@ Inspired by restlye.js and JSS, but smaller :-).
     - [CSS Hacks](#css-hacks)
   - [For building inline styles](#for-building-inline-styles)
 - [API Reference](#api-reference)
-  - [`j2c` object](#j2c-object)
+  - [`j2c` and static fields](#j2c-and-static-fields)
   - [`Sheet` methods](#sheet-methods)
 - [Limitations](#limitations)
   - [Selectors and properties order](#selectors-and-properties-order)
   - [No input validation](#no-input-validation)
 - [License: MIT](#license-mit)
 
-<small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc)*</small>
-
+<small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc), then tweaked a bit.*</small>
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ----
 
 ## Why?
 
 * Send small, compact, SASS-like data down the line
 * Simplify your asset pipeline
-* Use the full power of JavaScript to create mixins, variables and macros
+* Use the full power of JavaScript for mixins, variables, macros and feature detection
 * Stop worrying about vendor prefixes
 * Good fit for virtual DOM frameworks like React or Mithril
-* I like writing compilers :-).
+* I like writing compilers :-)
+
+### But, seriously...
+
+This is mostly intended as a client-side helper to generate styles for Virtual DOM (React, Mithril, Mercury...) components.
+
+Whether or not this is useful as a general CSS replacement remains to be seen.
+
+For that use case, it trades off file size down the line for time lost because the rendering is blocked by executing JS. Benchmarks, especially on underpowered devices are yet to be performed.
 
 ## Usage
 
@@ -72,24 +81,28 @@ r.add({
         padding:{
             left: "5px"
             top: "10px"
-        } 
+        },
+        // convenient shortcut.
+        border: {"left/right": {width: 2px}}
     }
 })
 
 console.log(r.toString())
 ```
 
-Output:
+Output (beautified):
 
 ```CSS
-@media condition{
+@media condition {
   ul.my_root_class {
     color:red;
   }
 }
-ul.my_root_class  li{
+ul.my_root_class  li {
   padding-left:5px;
   padding-top:10px;
+  border-left-width:2px;
+  border-right-width:2px;
 }
 ul.my_root_class {
   font-size:2em;
@@ -117,7 +130,7 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
 
 #### Telling selectors and properties apart
 
-`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors.
+`j2c` considers that object keys matching `/^[-_0-9A-Za-z]+$/` as properties, and everything else as (sub-)selectors. Once it has switched to "properties" mode, it will stick to that, which allows the `border: {"left/right": {border: "2px"}}` seen above.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
@@ -228,7 +241,73 @@ Result:
 }
 ```
 
+You can also pass th result of `j2c.inline` which is less picky about property names.
+
 ### For building inline styles
+
+Here's an example that demonstrates most of the `j2c.inline` capabilities:
+
+```JavaScript
+j2c.vendors = []
+j2c.inline({
+  background_image: "url(bg.png)",
+  border: {
+    color: ["#33e", "rgba(64,64,255,0.8)"],
+    "top/left": {width: "1px"},
+  }
+  color: ,
+  font: {
+    size: "2em",
+    weight: 700
+  },
+  "*zoom": 1
+})
+```
+
+Result (paired items are guaranteed to appear in order):
+
+```CSS
+background-image: url(bg.png);
+
+border-color: #33e;
+border-color: rgba(64,64,255,0.8);
+
+border-top-width: 1px;
+border-left-width: 1px;
+
+font-size: 2em;
+
+font-weight: 700;
+
+*zoom: 1;
+```
+
+If order is iportant, use `Arrays`:
+
+```JavaScript
+j2c.inline([
+  "margin:0",
+  {
+    margin_left:{
+      width: "2px",
+      color: "red"
+    }
+  }
+])
+```
+
+Becomes
+
+```CSS
+margin: 0;
+
+// the above is guaranteed to occur before the next two
+
+margin-left-color:red;
+margin-left-width:2px;
+```
+
+Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor.
 
 ```JavaScript
 console.log(j2c.inline({
@@ -291,5 +370,9 @@ This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.
 `j2c` knows the bare minimum to output a valid stylesheet when provided with valid input. It will hapily accept invalid selectors, properties and values, and could in that case produce a broken stylesheet.
 
 I may get around and write a validator companion, but I'm not there yet :-).
+
+### No pretty printing
+
+For debugging purposes, I recommend that you pipe `j2c`'s  output through a [be](https://github.com/mattbasta/crass)-[au](https://github.com/beautify-web/js-beautify)-[ti](https://github.com/senchalabs/cssbeautify)-[fier](http://csstidy.sourceforge.net/)
 
 ## License: MIT

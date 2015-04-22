@@ -51,10 +51,52 @@ var j2c,
         )
     })
 
+    test("multiple sub-properties", function(){
+        checkinline(
+            {foo:{"bar/qux":"baz"}},
+            "foo-bar:baz;foo-qux:baz;"
+        )
+    })
+
+    test("multiple sub-properties with a sub-sub-property", function(){
+        checkinline(
+            {foo:{"bar/baz":{qux:"quux"}}},
+            "foo-bar-qux:quux;foo-baz-qux:quux;"
+        )
+    })
+
+    test("multiple sub-properties with two sub-sub-properties", function(){
+        checkinline(
+            {foo:{"bar/baz":{"qux/quux":"fred"}}},
+            "foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;"
+        )
+    })
+
     test("convert underscores", function() {
         checkinline(
             {"f_o_o":"bar"},
             "f-o-o:bar;"
+        )
+    });
+
+    test("String value", function() {
+        checkinline(
+            "foo:bar",
+            "foo:bar;"
+        )
+    });
+
+    test("Array of Strings values", function() {
+        checkinline(
+            ["foo:bar","foo:baz"],
+            "foo:bar;foo:baz"
+        )
+    });
+
+    test("Array of mixed values", function() {
+        checkinline(
+            ["foo:bar",{foo:"baz"}],
+            "foo:bar;foo:baz"
         )
     });
 
@@ -64,7 +106,20 @@ var j2c,
             "*foo:bar;"
         )
     });
+    
+      //////////////////////////////////////
+     /**/  suite("Inline prefixes, ")  /**/
+    //////////////////////////////////////
 
+    before(function() {j2c.vendors = ["o", "p"]})
+    after(function() {j2c.vendors = []})
+
+    test("vendor prefixes", function() {
+        checkinline(
+            ["foo:bar",{foo:"baz"}],
+            "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz"
+        )
+    });
 
 });
 

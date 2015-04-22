@@ -27,20 +27,22 @@ export default (function () {
   }
 
   function _declarations(o, buf, pfx, vendors/*var*/, k, v) {
-    for (k in o) {
-      v = o[k];
-      switch (type.call(v)) {
-      case ARRAY:
-        v.forEach(function (vv) {
-          _declarations(_O(k, vv), buf, pfx, vendors);
+    switch (type.call(o)) {
+    case ARRAY:
+      o.forEach(function (o) {
+        _declarations(o, buf, pfx, vendors);
+      });
+      break;
+    case OBJECT:
+      for (k in o) {
+        v = o[k];
+        k.split("/").forEach(function(k){
+          _declarations(v, buf, (pfx && pfx + "-") + k, vendors);
         });
-        break;
-      case OBJECT:
-        _declarations(v, buf, pfx + k + "-", vendors);
-        break;
-      default:
-        _vendorify((pfx + k).replace(/_/g, "-") + ":" + v + ";", buf, vendors);
       }
+      break;
+    default:
+      _vendorify((pfx && (pfx).replace(/_/g, "-") + ":") + o + ";", buf, vendors);
     }
   }
 
