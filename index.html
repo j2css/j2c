@@ -234,7 +234,7 @@ m.module(playground, {
                 src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/mode/css/css.min.js",
                 onload:ctrl.loadCodeMirror
             }),
-            ctrl.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
+            !ctrl.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
             m(".playground", [
                 m("ul",[
                     m("li", {
