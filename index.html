@@ -191,4 +191,85 @@ head.appendChild(style);
         <h6>~720 bytes down the line</h6>
 </header>
 
+<div id="playground"></div>
+<script>
+
+m.module(playground, {
+    controller: function() {
+        var self = this,
+            count = 0
+        self.loadCodeMirror = function() {
+            count += 1;
+            if (loadCodeMirror.count == 4) {
+                self.loaded = true;
+                m.redraw();
+            }
+        }
+        self.loaderStyle = j2c.inline({
+            align: "center",
+            display: "table-cell",
+            height: "10em",
+            vertical_align: "middle"
+        })
+        self.present = function() {
+            return "FOOOO"
+        }
+    },
+    view:function(ctrl) {
+        return [
+            m("link", {
+                rel:"stylesheet",
+                href:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css",
+                onload=ctrl.loadCodeMirror
+            })
+            m("script", {
+                src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.js",
+                onload=ctrl.loadCodeMirror
+            }),
+            m("script", {
+                src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/mode/javascript/javascript.js",
+                onload=ctrl.loadCodeMirror
+            }),
+            m("script", {
+                src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/mode/css/css.min.js",
+                onload=ctrl.loadCodeMirror
+            }),
+            loadCodeMirror.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
+            m(".playground", [
+                m("ul",[
+                    m("li", {
+                        onclick:ctrl.showCode
+                    }, "code"),
+                    m("li", {
+                        onclick:ctrl.showCSS
+                    }, "CSS")
+                ])),
+                m(".code", {
+                    config: function(elt, init){
+                        if (!init) {
+                            var JSCode = CodeMirror(elt, {
+                                value: "function myScript(){return 100;}\n",
+                                mode:  "javascript"
+                            });
+                            JSCode.on("change")
+                        }
+                    }
+                }),
+                m(".CSS", {
+                    config: function(elt, init){
+                        if (!init) {
+                            var CSSCode = CodeMirror(elt, {
+                                value: "p {\n  foo:bar;\n}\n",
+                                mode:  "css",
+                                readOnly:"nocursor"
+                            });
+                        }
+                    }
+                }),
+                m(".result", ctrl.present())
+            ]
+        ]
+    }
+})
+
 <a href="https://github.com/pygy/j2c"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
