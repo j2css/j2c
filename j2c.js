@@ -14,6 +14,8 @@ See the 'dist' directory for usable files.
     default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
+  // Helper to compensate the fact that you can't have arbitrary expressions as
+  // object literal keys.
   function _O(k, v, o) {
     o = {};
     o[k] = v;
@@ -45,6 +47,7 @@ See the 'dist' directory for usable files.
     }
   }
 
+  // j2c.inline
   function inline(o) {
     var buf = [];
     _declarations(o, buf, "", j2c.vendors);
