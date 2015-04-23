@@ -13,13 +13,8 @@
     return o;
   }
 
-  function inline(o) {
-    var buf = [];
-    _declarations(o, buf, "", j2c.vendors, "");
-    return buf.join("");
-  }
-
-  function _declarations(o, buf, pfx, vendors/*var*/, k, v) {
+  // Handles the property:value; pairs.
+  function _declarations(o, buf, pfx, vendors, /*var*/ k, v) {
     switch (type.call(o)) {
     case ARRAY:
       o.forEach(function (o) {
@@ -43,10 +38,15 @@
     }
   }
 
+  function inline(o) {
+    var buf = [];
+    _declarations(o, buf, "", j2c.vendors);
+    return buf.join("");
+  }
+
   
 
   /*/-statements-/*/
-  function j2c(root) {return new Sheet(root);}
   function Sheet(root) {
     this.root = (root != null ? root : default_root + (counter++));
     this.buf = []
@@ -59,21 +59,23 @@
     return this
   };
 
-  function cartesian(a,b) {
-    var res = [];
+  // Put the Cartesian product of a and b in res.
+  function _cartesian(a,b, res) {
     for (var i, j = 0; j < b.length; j++)
       for (i = 0; i< a.length; i++) 
         res.push(a[i]+b[j]);
     return res;
   }
 
-  function _add(statements, buf, pfx, vendors/*var*/, k, v, props) {
+  // Add rulesets and other CSS statements to the sheet.
+  function _add(statements, buf, pfx, vendors, /*var*/ k, v, defs) {
     switch (type.call(statements)) {
     case OBJECT:
-      props = {};
+      defs = {};
       for (k in statements) {
         v = statements[k];
         if (k[0] == "@"){
+          // Handle At-rules
           if (type.call(v) == OBJECT) {
             buf.push(k + "{");
             _add(v, buf, pfx, vendors);
@@ -82,15 +84,17 @@
             buf.push(k + " " + v + ";");
           }
         } else if (k.match(/^[-\w$]+$/)) {
-          props[k] = v;
+          // filter out definitions.
+          defs[k] = v;
         } else {
-          _add(v, buf, cartesian(pfx, k.split(",")), vendors);
+          // Handle sub-selector.
+          _add(v, buf, _cartesian(pfx, k.split(","), []), vendors);
         }
       }
-      // fake loop to detect the presence of keys in props.
-      for (k in props){
+      // fake loop to detect the presence of definitions.
+      for (k in defs){
         buf.push(pfx + "{");
-        _declarations(props, buf, "", vendors);
+        _declarations(defs, buf, "", vendors);
         buf.push("}");
         break;
       }
@@ -101,7 +105,8 @@
       })
       break;
     case STRING:
-        buf.push(pfx.join(",") + "{" + statements + "}");
+      // Treat the string as a block of definitions.
+      buf.push(pfx.join(",") + "{" + statements + "}");
     }
   }
 
@@ -120,9 +125,11 @@
     return this
   }
 
-  Sheet.toString = function () {
+  Sheet.toString = Sheet.valueOf = function () {
     return this.buf.join("");
   };
+
+  function j2c(root) {return new Sheet(root);}
 
   j2c.inline = inline;
   j2c.vendors = ["o", "ms", "moz", "webkit"];

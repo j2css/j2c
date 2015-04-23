@@ -13,13 +13,8 @@
     return o;
   }
 
-  function inline(o) {
-    var buf = [];
-    _declarations(o, buf, "", j2c.vendors, "");
-    return buf.join("");
-  }
-
-  function _declarations(o, buf, pfx, vendors/*var*/, k, v) {
+  // Handles the property:value; pairs.
+  function _declarations(o, buf, pfx, vendors, /*var*/ k, v) {
     switch (type.call(o)) {
     case ARRAY:
       o.forEach(function (o) {
@@ -41,6 +36,12 @@
       })
       buf.push(o)
     }
+  }
+
+  function inline(o) {
+    var buf = [];
+    _declarations(o, buf, "", j2c.vendors);
+    return buf.join("");
   }
 
   /*/-inline-/*/
