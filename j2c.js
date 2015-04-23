@@ -1,5 +1,9 @@
 /*/-notice-/*//*
 This source file is incomplete and useless in itself.
+
+The -statements- and -inline- sections are only preserved respectively in the main and 
+"inline" builds, and are mutually exclusive.
+
 See the 'dist' directory for usable files.
 *//*/-notice-/*/(function () {
   var

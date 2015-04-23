@@ -1,27 +1,26 @@
 # j2c
 
-JavaScript object to CSS compiler. ~720 bytes mingzipped.
+JavaScript to CSS compiler. ~720 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
-
-Inspired by restlye.js and JSS, but smaller :-).
 
 ----
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-##Table of Contents
+## Table of Contents
 
 - [Why?](#why)
   - [But, seriously...](#but-seriously)
 - [Installation](#installation)
 - [Usage](#usage)
   - [For building a style sheet](#for-building-a-style-sheet)
-    - [-vendor-prefixes](#-vendor-prefixes)
-    - [root selector](#root-selector)
     - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
     - [Overloading properties](#overloading-properties)
-    - [At-rules](#at-rules)
+    - [Combining properties](#combining-properties)
     - [Combining multiple selectors](#combining-multiple-selectors)
+    - [-vendor-prefixes](#-vendor-prefixes)
+    - [root selector](#root-selector)
+    - [At-rules](#at-rules)
     - [CSS Hacks](#css-hacks)
   - [For building inline styles](#for-building-inline-styles)
 - [API Reference](#api-reference)
@@ -121,6 +120,102 @@ ul.my_root_class {
 }
 ```
 
+#### Telling selectors and properties apart
+
+`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
+
+Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
+
+#### Overloading properties
+
+```JavaScript
+r = j2c("ul.my_root_class")
+
+r.add({
+    font_size: ["2em", "2rem"]
+})
+
+console.log(r.toString())
+```
+becomes
+```CSS
+.foo {
+  font-size:2em;
+  font-size:2rem;
+}
+```
+
+Alternatively
+
+```JavaScript
+r = j2c("ul.my_root_class")
+
+r.add([
+    {
+        "font-size": "2em"
+    },
+    {
+        "font-size": "2rem"
+    }
+])
+
+console.log(r.toString())
+```
+becomes
+```CSS
+ul.my_root_class {
+  font-size:2em;
+}
+ul.my_root_class {
+  font-size:2rem;
+}
+```
+
+#### Combining properties
+
+```JavaScript
+j2c("p").add({
+  border: {
+    left_color: "#fab",
+    right_color: "#fab"
+  }
+}
+})
+```
+
+can be shortened as
+
+```JavaScript
+j2c("p").add({
+  border: {left$right: {color: "#fab"}}
+}
+})
+```
+
+#### Combining multiple selectors
+
+Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
+
+```JavaScript
+j2c("").add({
+  ".block,.blockgroup":{
+    ",:before,:after":{          // Notice the initial coma.
+      box_sizing:"border-box"
+    }
+  }
+}
+```
+
+Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving 
+
+```CSS
+.block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
+    box-sizing:border-box;
+}
+```
+
+Mathy folks call this as a Cartesian product.
+
 #### -vendor-prefixes
 
 If you don't truncate the vendors list as I did in the example above, you'll get each property prefixed for each vendor.
@@ -162,84 +257,9 @@ r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
          //     ensure that these classes are unique.
 ```
 
-#### Telling selectors and properties apart
-
-`j2c` considers that an object keys matching `/^[-_0-9A-Za-z$]+$/` is property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
-
-Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
-
-#### Overloading properties
-
-```JavaScript
-r = j2c("ul.my_root_class")
-
-r.add({
-    "font-size": ["2em", "2rem"]
-})
-
-console.log(r.toString())
-```
-becomes
-```CSS
-.foo {
-  font-size:2em;
-  font-size:2rem;
-}
-```
-
-Alternatively
-
-```JavaScript
-r = j2c("ul.my_root_class")
-
-r.add([
-    {
-        "font-size": "2em"
-    },
-    {
-        "font-size": "2rem"
-    }
-])
-
-console.log(r.toString())
-```
-becomes
-```CSS
-ul.my_root_class {
-  font-size:2em;
-}
-ul.my_root_class {
-  font-size:2rem;
-}
-```
-
 #### At-rules
 
 Most At-rules are handled out of the box by `sheet.add()`. However, `@font-face` and `@keyframes` have are not covered and they are implemented respectively by `sheet.font(definitions)` and `sheet.keyframes(name, definitions)`. The latter automatically generates browser-specific `@-vendor-keyframes` blocks.
-
-#### Combining multiple selectors
-
-Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
-
-```JavaScript
-j2c("").add({
-  ".block,.blockgroup":{
-    ",:before,:after":{          // Notice the initial coma.
-      box_sizing:"border-box"
-    }
-  }
-}
-```
-
-Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving 
-
-```CSS
-.block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
-    box-sizing:border-box;
-}
-```
-
-Mathy folks call this as a Cartesian product.
 
 #### CSS Hacks
 
