@@ -200,7 +200,7 @@ m.module(playground, {
             count = 0
         self.loadCodeMirror = function() {
             count += 1;
-            if (loadCodeMirror.count == 4) {
+            if (count == 4) {
                 self.loaded = true;
                 m.redraw();
             }
