@@ -1,16 +1,28 @@
 var j2c, 
+    // used to normalize styles for reliable comparison.
     crass = require("crass"),
     expect = require("expect.js");
 
-["../dist/j2c.commonjs", "../dist/j2c.commonjs.min", "../dist/inline/j2c.commonjs", "../dist/inline/j2c.commonjs.min"].forEach(function(lib){
+
+function check(result, expected){
+    result = crass.parse(result).optimize().toString();
+
+    // since you can't rely on the order of JS object keys, sometimes, several "expected"
+    // values must be provided.
+    expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+        return crass.parse(s).optimize().toString();
+    });
+    expect(expected).to.contain(result);
+}
+
+
+[
+    "../dist/j2c.commonjs",
+    "../dist/j2c.commonjs.min",
+    "../dist/inline/j2c.commonjs",
+    "../dist/inline/j2c.commonjs.min"
+].forEach(function(lib){
     j2c = require(lib)
-    function check(result, expected){
-        result = crass.parse(result).optimize().toString();
-        expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-            return crass.parse(s).optimize().toString();
-        });
-        expect(expected).to.contain(result);
-    }
 
     function checkinline(result, expected){
         result = "p{" + j2c.inline(result) + "}"
@@ -138,21 +150,6 @@ var j2c,
 
 ["../dist/j2c.commonjs", "../dist/j2c.commonjs.min"].forEach(function(lib){
     j2c = require(lib)
-    function check(result, expected){
-        result = crass.parse(result).optimize().toString();
-        expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-            return crass.parse(s).optimize().toString();
-        });
-        expect(expected).to.contain(result);
-    }
-
-    function checkinline(result, expected){
-        result = "p{" + j2c.inline(result) + "}"
-        expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-            return "p{" + s + "}"
-        });
-        check(result, expected)
-    }
 
     function add(klass, o){
         return j2c(klass).add(o).toString()
