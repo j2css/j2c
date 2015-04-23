@@ -220,19 +220,19 @@ m.module(playground, {
             m("link", {
                 rel:"stylesheet",
                 href:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css",
-                onload=ctrl.loadCodeMirror
+                onload:ctrl.loadCodeMirror
             })
             m("script", {
                 src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.js",
-                onload=ctrl.loadCodeMirror
+                onload:ctrl.loadCodeMirror
             }),
             m("script", {
                 src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/mode/javascript/javascript.js",
-                onload=ctrl.loadCodeMirror
+                onload:ctrl.loadCodeMirror
             }),
             m("script", {
                 src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/mode/css/css.min.js",
-                onload=ctrl.loadCodeMirror
+                onload:ctrl.loadCodeMirror
             }),
             loadCodeMirror.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
             m(".playground", [
