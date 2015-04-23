@@ -48,7 +48,7 @@ Think SASS, but in JSONish syntax.
 
 ### But, seriously...
 
-This is mostly intended as a client-side helper to generate styles for Virtual DOM components (React, Mithril, Mercury...).
+This is mostly intended as a client-side helper to generate styles for Virtual DOM frameworks (Mithril, React, Mercury...).
 
 Whether or not this is useful as a general CSS replacement remains to be seen.
 
@@ -60,7 +60,7 @@ For that use case, it trades off file size down the line for time lost because t
 $ npm install j2c
 ```
 
-Please send a PR if you want to see it inclueded in other package systems.
+Please send a PR if you want to see it included in other package systems.
 
 ## Usage
 
@@ -122,7 +122,7 @@ ul.my_root_class {
 
 #### Telling selectors and properties apart
 
-`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
+`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is a property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
