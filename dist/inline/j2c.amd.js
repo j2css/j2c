@@ -4,9 +4,11 @@ define('j2c', function(){return (function () {
     STRING = "[object String]",
     ARRAY =  "[object Array]",
     type = ({}).toString,
-    default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
+    default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
+  // Helper to compensate the fact that you can't have arbitrary expressions as
+  // object literal keys.
   function _O(k, v, o) {
     o = {};
     o[k] = v;
@@ -38,20 +40,16 @@ define('j2c', function(){return (function () {
     }
   }
 
-  function inline(o) {
+  function j2c(o) {
     var buf = [];
     _declarations(o, buf, "", j2c.vendors);
     return buf.join("");
   }
 
-  /*/-inline-/*/
-  return {
-    inline: inline,
-    vendors:["o", "ms", "moz", "webkit"]
-  }
-  /*/-inline-/*/
 
   
+  j2c.vendors = ["o", "ms", "moz", "webkit"];
+  return j2c;
 })()
 
 /*

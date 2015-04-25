@@ -25,7 +25,7 @@ function check(result, expected){
     j2c = require(lib)
 
     function checkinline(result, expected){
-        result = "p{" + j2c.inline(result) + "}"
+        result = "p{" + j2c(result) + "}"
         expected = (expected instanceof Array ? expected : [expected]).map(function(s){
             return "p{" + s + "}"
         });
@@ -152,7 +152,7 @@ function check(result, expected){
     j2c = require(lib)
 
     function add(klass, o){
-        return j2c(klass).add(o).toString()
+        return j2c.scoped(klass).add(o).toString()
     }
 
     var vendors = j2c.vendors;
@@ -160,34 +160,67 @@ function check(result, expected){
 
 
 
-      ///////////////////////////////
-     /**/  suite("Root class")  /**/
-    ///////////////////////////////
+      //////////////////////////
+     /**/  suite("Scope, ")  /**/
+    //////////////////////////
 
 
-    test("custom root class", function(){
-        var sheet = j2c("foo")
-        expect(sheet.root).to.be("foo")
+    test("custom scope", function(){
+        var sheet = j2c.scoped("foo")
+        expect(sheet.scope).to.be("foo")
         check(
             sheet.add({foo:"bar"}).toString(),
-            sheet.root + "{foo:bar}"
+            sheet.scope + "{foo:bar}"
         )
     });
 
-    test("default root class", function(){
-        var sheet = j2c()
-        expect(sheet.root[0]).to.be(".")
+    test("default scope", function(){
+        var sheet = j2c.scoped()
+        expect(sheet.scope[0]).to.be(".")
         check(
             sheet.add({foo:"bar"}).toString(),
-            sheet.root + "{foo:bar}"
+            sheet.scope + "{foo:bar}"
         )
     });
 
-    test("default root class must be unique", function(){
-        var sheet = j2c()
-        expect(j2c().root).not.to.be(j2c().root)
+    test("default scope must be unique", function(){
+        expect(
+            j2c.scoped().scope
+        ).not.to.be(
+            j2c.scoped().scope
+        );
     });
 
+
+
+      ////////////////////////////////
+     /**/  suite("j2c.sheet, ")  /**/
+    ////////////////////////////////
+
+
+    test("empty sheet", function(){
+        var sheet = j2c.sheet();
+        expect(
+            j2c.toString.call(sheet.__proto__)
+        ).to.match(
+            // \w\(\w\) for the minified version.
+            /^function (Sheet\(scope\)|\w\(\w\))/
+        );
+        expect(sheet.scope).to.be("")
+        expect(sheet.buf.length).to.be(0)
+    })
+
+    test("direct sheet call", function(){
+        var sheet = j2c.sheet({" p":{foo:5}});
+        expect(sheet.scope).to.be("")
+        check(""+sheet, "p{foo:5}")
+    })
+
+    test("sheet.add", function(){
+        var sheet = j2c.sheet().add({" p":{foo:5}});
+        expect(sheet.scope).to.be("")
+        check(""+sheet, "p{foo:5}")
+    })
 
 
       //////////////////////////////////
@@ -451,7 +484,7 @@ function check(result, expected){
     });
 
     test("@font-face", function(){
-        var sheet = j2c("p")
+        var sheet = j2c.scoped("p")
         check(
             sheet.font({foo:"bar"}).toString(),
             "@font-face{foo:bar}"
@@ -459,7 +492,7 @@ function check(result, expected){
     });
 
     test("@keyframes", function(){
-        var sheet = j2c("p")
+        var sheet = j2c.scoped("p")
         check(
             sheet.keyframes("qux", {
                 " from":{foo:"bar"},

@@ -11,7 +11,7 @@ See the 'dist' directory for usable files.
     STRING = "[object String]",
     ARRAY =  "[object Array]",
     type = ({}).toString,
-    default_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
+    default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
   // Helper to compensate the fact that you can't have arbitrary expressions as
@@ -47,30 +47,23 @@ See the 'dist' directory for usable files.
     }
   }
 
-  // j2c.inline
-  function inline(o) {
+  function j2c(o) {
     var buf = [];
     _declarations(o, buf, "", j2c.vendors);
     return buf.join("");
   }
 
-  /*/-inline-/*/
-  return {
-    inline: inline,
-    vendors:["o", "ms", "moz", "webkit"]
-  }
-  /*/-inline-/*/
 
   /*/-statements-/*/
-  function Sheet(root) {
-    this.root = (root != null ? root : default_root + (counter++));
+  function Sheet(scope) {
+    this.scope = (scope != null ? scope : default_scope + (counter++));
     this.buf = []
   }
   
   Sheet.prototype = Sheet;
 
   Sheet.add = function (statements) {
-    _add(statements, this.buf, this.root.split(","), j2c.vendors);
+    _add(statements, this.buf, this.scope.split(","), j2c.vendors);
     return this
   };
 
@@ -144,12 +137,12 @@ See the 'dist' directory for usable files.
     return this.buf.join("");
   };
 
-  function j2c(root) {return new Sheet(root);}
+  j2c.sheet = function(s) {return new Sheet("").add(s);}
+  j2c.scoped = function(scope) {return new Sheet(scope);}
 
-  j2c.inline = inline;
+  /*/-statements-/*/
   j2c.vendors = ["o", "ms", "moz", "webkit"];
   return j2c;
-  /*/-statements-/*/
 })()
 
 /*

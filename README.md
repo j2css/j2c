@@ -70,7 +70,7 @@ Please send a PR if you want to see it included in other package systems.
 j2c.vendors = [] // for the sake of this demo
                  // defaults to ["o", "ms", "moz", "webkit"].
 
-r = j2c("ul.my_root_class")
+r = j2c.scoped("ul.my_root_class")
 
 r.add({
     "@media condition": {
@@ -129,7 +129,7 @@ Selectors are concatenated as is, while properties are concatenated with hyphens
 #### Overloading properties
 
 ```JavaScript
-r = j2c("ul.my_root_class")
+r = j2c.scoped("ul.my_root_class")
 
 r.add({
     font_size: ["2em", "2rem"]
@@ -148,7 +148,7 @@ becomes
 Alternatively
 
 ```JavaScript
-r = j2c("ul.my_root_class")
+r = j2c.scoped("ul.my_root_class")
 
 r.add([
     {
@@ -174,7 +174,7 @@ ul.my_root_class {
 #### Combining properties
 
 ```JavaScript
-j2c("p").add({
+j2c.scoped("p").add({
   border: {
     left_color: "#fab",
     right_color: "#fab"
@@ -197,7 +197,7 @@ j2c("p").add({
 Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
 
 ```JavaScript
-j2c("").add({
+j2c.scoped("").add({
   ".block,.blockgroup":{
     ",:before,:after":{          // Notice the initial coma.
       box_sizing:"border-box"
@@ -226,7 +226,7 @@ Alternatively, you can specify the prefixes by hand using the "$" operator where
 
 ```JavaScript
 j2c.vendors = []
-j2c("p").add({
+j2c.scoped("p").add({
   // Notice the trailing dollar, required for the unprefixed property.
   _o$_ms$_moz$_webkit$: {foo: "bar"},
   hello: "world"
@@ -246,13 +246,13 @@ p {
 }
 ```
 
-#### root selector
+#### Scoped sheet
 
 If no root selector is provided, `J2C` creates one (a unique class).
 
 ```JavaScript
-r = j2c()
-r.prefix // --> ".j2c_$token_$counter" where `$token` is unique per
+r = j2c.scoped()
+r.scope // --> ".j2c_$token_$counter" where `$token` is unique per
          //     j2c instance, and `$counter` is incremented to 
          //     ensure that these classes are unique.
 ```
@@ -268,7 +268,7 @@ Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, 
 Here's another modified excerpt from the PocketGrid port:
 
 ```JavaScript
-j2c("").add({
+j2c.sheet({
   ".blockgroup": [
     "*zoom: 1; /* hackety hackery */",
     {
@@ -297,13 +297,11 @@ Result:
 
 You can also pass th result of `j2c.inline` which is less picky about property names.
 
-### For building inline styles
-
-Here's an example that demonstrates most of the `j2c.inline` capabilities:
+### For inline styles
 
 ```JavaScript
 j2c.vendors = []
-j2c.inline({
+j2c({
   background_image: "url(bg.png)",
   border: {
     color: ["#33e", "rgba(64,64,255,0.8)"],
@@ -339,10 +337,10 @@ font-weight: 700;
 If order is iportant, use `Arrays`:
 
 ```JavaScript
-j2c.inline([
-  "margin:0",
+j2c([
+  "border:0",
   {
-    margin_left:{
+    border_left:{
       width: "2px",
       color: "red"
     }
@@ -353,18 +351,18 @@ j2c.inline([
 Becomes
 
 ```CSS
-margin: 0;
+border: 0;
 
 // the above is guaranteed to occur before the next two
 
-margin-left-color:red;
-margin-left-width:2px;
+border-left-color:red;
+border-left-width:2px;
 ```
 
 Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor, then unprefixed.
 
 ```JavaScript
-console.log(j2c.inline({
+console.log(j2c({
     foo:"bar";
 }));
 ```
@@ -381,17 +379,24 @@ foo:bar;
 
 ### `j2c` and static fields
 
-* `j2c([root:String]) : Sheet`: Creates a Sheet object.
-* `j2c.inline(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
+* `j2c(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
+* `j2c.scoped([root:String]) : Sheet`: Creates a Sheet object.
+* `j2c.sheet([rules]): Sheet`: Shortcut for `j2c.scoped("")[.add(rules)]`.
 * `j2c.vendors = ["o", "ms", "moz", "webkit"]` (r/w): list of vendor prefixes.
 
 
-### `Sheet` methods
+### `Sheet`
+
+#### methods
 
 * `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns the `Sheet` for chaining.
 * `sheet.font(definitions:(Object|Array|String)) : Sheet`: creates a `@font-face` block. Returns the `Sheet` for chaining.
 * `sheet.keyframes(name:String, statements:(Object|Array|String)) : Sheet`: creates a `@keyframes` block. Returns the `Sheet` for chaining.
 * `sheet.toString() : String`: the stylesheet in string form.
+
+#### Property
+
+* `sheet.scope : String` (r/w): a selector prefixed to all selectors in the sheet.
 
 ## Limitations
 
