@@ -1,17 +1,16 @@
 module.exports = (function () {
   var
-    OBJECT = "[object Object]",
-    STRING = "[object String]",
-    ARRAY =  "[object Array]",
     type = ({}).toString,
+    OBJECT = type.call({}),
+    ARRAY =  type.call([]),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
   // Helper to compensate the fact that you can't have arbitrary expressions as
   // object literal keys.
+  // Golfed implementation for maximal byte shaving :-)
   function _O(k, v, o) {
-    o = {};
-    o[k] = v;
+    (o = {})[k] = v;
     return o;
   }
 
@@ -26,12 +25,19 @@ module.exports = (function () {
     case OBJECT:
       for (k in o) {
         v = o[k];
-        k.split("$").forEach(function(k){
-          _declarations(v, buf, (pfx && pfx + "-") + k, vendors);
+        pfx = (pfx && pfx + "-")
+        if (k.indexOf("$") + 1) k.split("$").forEach(function(k){
+          _declarations(v, buf, pfx + k, vendors);
         });
+        else _declarations(v, buf, pfx + k, vendors);
       }
       break;
     default:
+      // pfx is falsy when it is "", which means that we're
+      // at the top level.
+      // `o` is then treated as a `property:value` pair.
+      // otherwise, `pfx` is the property name, and
+      // `o` is the value.
       o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
       vendors.forEach(function (v) {
         buf.push("-" + v + "-" + o);

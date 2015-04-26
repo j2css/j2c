@@ -57,12 +57,103 @@ For that use case, it trades off file size down the line for time lost because t
 ## Installation
 
 ```Bash
+# Please send a PR if you want to see it included in other package systems.
 $ npm install j2c
 ```
 
-Please send a PR if you want to see it included in other package systems.
+then
+
+```JavaScript
+var j2c = require('j2c')
+```
+
+There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` directory, as well as inline-only versions.
 
 ## Usage
+
+** NOTICE: This section needs an overhaul **
+
+`j2c` can be used to either assemble inline declarations or full style sheets.
+
+### For inline decalrations
+
+The `j2c` function walks down JS objects and builds a `property:value;` list out of it.
+
+```JavaScript
+j2c.vendors = [] 
+j2c({
+  // underscores are turned into dashes.
+  background_image: "url(bg.png)",
+  border: {
+    // sub-properties are automatically concatenated.
+    color: ["#33e", "rgba(64,64,255,0.8)"],
+    // set both `border-top-width` and `border-left-width`
+    top$left: {width: "1px"},
+  }
+  font: {
+    size: "2em",
+    weight: 700
+  },
+  "*zoom": 1
+})
+```
+
+Result:
+
+```CSS
+background-image: url(bg.png);
+
+border-color: #33e;
+border-color: rgba(64,64,255,0.8);
+
+border-top-width: 1px;
+border-left-width: 1px;
+font-size: 2em;
+font-weight: 700;
+*zoom: 1;
+```
+
+If order is important, use `Arrays`:
+
+```JavaScript
+j2c([
+  "border:1px", // at the top level, equivalent to {border:"1px"}
+  {
+    border_left:{
+      width: "2px",
+      color: "red"
+    }
+  }
+])
+```
+
+Becomes
+
+```CSS
+border: 0;
+
+// the above is guaranteed to occur before the next two
+
+border-left-color:red;
+border-left-width:2px;
+```
+
+Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor, then unprefixed.
+
+```JavaScript
+j2c.vendors = ["o", "ms", "moz", "webkit"]; // This is the default list
+console.log(j2c({
+    foo:"bar";
+}));
+```
+... outputs ...
+```CSS
+-o-foo:bar;
+-ms-foo:bar;
+-moz-foo:bar;
+-webkit-foo:bar;
+foo:bar;
+```
 
 ### For building a style sheet
 
@@ -296,84 +387,6 @@ Result:
 ```
 
 You can also pass th result of `j2c.inline` which is less picky about property names.
-
-### For inline styles
-
-```JavaScript
-j2c.vendors = []
-j2c({
-  background_image: "url(bg.png)",
-  border: {
-    color: ["#33e", "rgba(64,64,255,0.8)"],
-    top$left: {width: "1px"},
-  }
-  color: ,
-  font: {
-    size: "2em",
-    weight: 700
-  },
-  "*zoom": 1
-})
-```
-
-Result (paired items are guaranteed to appear in order):
-
-```CSS
-background-image: url(bg.png);
-
-border-color: #33e;
-border-color: rgba(64,64,255,0.8);
-
-border-top-width: 1px;
-border-left-width: 1px;
-
-font-size: 2em;
-
-font-weight: 700;
-
-*zoom: 1;
-```
-
-If order is iportant, use `Arrays`:
-
-```JavaScript
-j2c([
-  "border:0",
-  {
-    border_left:{
-      width: "2px",
-      color: "red"
-    }
-  }
-])
-```
-
-Becomes
-
-```CSS
-border: 0;
-
-// the above is guaranteed to occur before the next two
-
-border-left-color:red;
-border-left-width:2px;
-```
-
-Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor, then unprefixed.
-
-```JavaScript
-console.log(j2c({
-    foo:"bar";
-}));
-```
-... outputs ...
-```CSS
--o-foo:bar;
--ms-foo:bar;
--moz-foo:bar;
--webkit-foo:bar;
-foo:bar;
-```
 
 ## API Reference
 
