@@ -15,20 +15,20 @@ define('j2c', function(){return (function () {
   }
 
   // Handles the property:value; pairs.
-  function _declarations(o, buf, pfx, vendors, /*var*/ k, v) {
+  function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      o.forEach(function (o) {
-        _declarations(o, buf, pfx, vendors);
-      });
+      for (k in o) {
+        _declarations(o[k], buf, pfx, vendors);
+      };
       break;
     case OBJECT:
+      pfx = (pfx && pfx + "-")
       for (k in o) {
         v = o[k];
-        pfx = (pfx && pfx + "-")
-        if (k.indexOf("$") + 1) k.split("$").forEach(function(k){
-          _declarations(v, buf, pfx + k, vendors);
-        });
+        if (k.indexOf("$") + 1)
+          for (kk in k = k.split("$"))
+            _declarations(v, buf, pfx + k[kk], vendors);
         else _declarations(v, buf, pfx + k, vendors);
       }
       break;
@@ -39,9 +39,10 @@ define('j2c', function(){return (function () {
       // otherwise, `pfx` is the property name, and
       // `o` is the value.
       o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
-      vendors.forEach(function (v) {
-        buf.push("-" + v + "-" + o);
-      })
+      // vendorify
+      for (k in vendors) {
+        buf.push("-" + vendors[k] + "-" + o);
+      }
       buf.push(o)
     }
   }
@@ -66,11 +67,12 @@ define('j2c', function(){return (function () {
     return this
   };
 
-  function _cartesian(a,b) {
+  function _cartesian(a,b, i, j, res) {
+    // 0, thus falsy when neither a nor b have comas.
     if (a.indexOf(",") + b.indexOf(",") + 2) {
-      a = a.split(","), b = b.split(",")
-      for (var i, j = 0, res = []; j < b.length; j++)
-        for (i = 0; i< a.length; i++)
+      res = [], a = a.split(",")
+      for (j in b = b.split(","))
+        for (i in a)
           res.push(a[i]+b[j]);
       return res.join(",");
     }
@@ -110,9 +112,9 @@ define('j2c', function(){return (function () {
       }
       break;
     case ARRAY:
-      statements.forEach(function (statement) {
-        _add(statement, buf, pfx, vendors);
-      })
+      for (k in statements) {
+        _add(statements[k], buf, pfx, vendors);
+      }
       break;
     case "[object String]":
       // Treat the string as a block of declarations.
@@ -120,15 +122,15 @@ define('j2c', function(){return (function () {
     }
   }
 
-  Sheet.keyframes = function(name, frames) {
-    j2c.vendors.forEach(function(vendor) {
-      _add(_O("@-" + vendor + "-keyframes " + name, frames), this.buf, "", [vendor]);
-    }, this)
-    _add(_O("@keyframes " + name, frames), this.buf, "", j2c.vendors);
+  Sheet.keyframes = function (name, frames, k, vendors) {
+    for (k in vendors = j2c.vendors) {
+      _add(_O("@-" + vendors[k] + "-keyframes " + name, frames), this.buf, "", [vendors[k]]);
+    }
+    _add(_O("@keyframes " + name, frames), this.buf, "", vendors);
     return this;
   }
 
-  Sheet.font = function(o) {
+  Sheet.font = function (o) {
     this.buf.push("@font-face{");
     _declarations(o, this.buf, "", []);
     this.buf.push("}");
@@ -139,8 +141,8 @@ define('j2c', function(){return (function () {
     return this.buf.join("");
   };
 
-  j2c.sheet = function(s) {return new Sheet("").add(s);}
-  j2c.scoped = function(scope) {return new Sheet(scope);}
+  j2c.sheet = function (s) {return new Sheet("").add(s);}
+  j2c.scoped = function (scope) {return new Sheet(scope);}
 
   /*/-statements-/*/
   j2c.vendors = ["o", "ms", "moz", "webkit"];

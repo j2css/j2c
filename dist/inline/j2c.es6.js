@@ -15,20 +15,20 @@ export default (function () {
   }
 
   // Handles the property:value; pairs.
-  function _declarations(o, buf, pfx, vendors, /*var*/ k, v) {
+  function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      o.forEach(function (o) {
-        _declarations(o, buf, pfx, vendors);
-      });
+      for (k in o) {
+        _declarations(o[k], buf, pfx, vendors);
+      };
       break;
     case OBJECT:
+      pfx = (pfx && pfx + "-")
       for (k in o) {
         v = o[k];
-        pfx = (pfx && pfx + "-")
-        if (k.indexOf("$") + 1) k.split("$").forEach(function(k){
-          _declarations(v, buf, pfx + k, vendors);
-        });
+        if (k.indexOf("$") + 1)
+          for (kk in k = k.split("$"))
+            _declarations(v, buf, pfx + k[kk], vendors);
         else _declarations(v, buf, pfx + k, vendors);
       }
       break;
@@ -39,9 +39,10 @@ export default (function () {
       // otherwise, `pfx` is the property name, and
       // `o` is the value.
       o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
-      vendors.forEach(function (v) {
-        buf.push("-" + v + "-" + o);
-      })
+      // vendorify
+      for (k in vendors) {
+        buf.push("-" + vendors[k] + "-" + o);
+      }
       buf.push(o)
     }
   }
