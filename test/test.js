@@ -22,7 +22,7 @@ function check(result, expected){
     "../dist/inline/j2c.commonjs",
     "../dist/inline/j2c.commonjs.min"
 ].forEach(function(lib){
-    j2c = require(lib)
+    var j2c = require(lib)
 
     function checkinline(result, expected){
         result = "p{" + j2c(result) + "}"
@@ -149,7 +149,7 @@ function check(result, expected){
 
 
 ["../dist/j2c.commonjs", "../dist/j2c.commonjs.min"].forEach(function(lib){
-    j2c = require(lib)
+    var j2c = require(lib)
 
     function add(klass, o){
         return j2c.scoped(klass).add(o).toString()
@@ -160,9 +160,9 @@ function check(result, expected){
 
 
 
-      //////////////////////////
+      ////////////////////////////
      /**/  suite("Scope, ")  /**/
-    //////////////////////////
+    ////////////////////////////
 
 
     test("custom scope", function(){
