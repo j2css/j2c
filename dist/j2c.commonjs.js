@@ -47,9 +47,8 @@ module.exports = (function () {
     }
   }
 
-  function j2c(o) {
-    var buf = [];
-    _declarations(o, buf, "", j2c.vendors);
+  function j2c(o, buf) {
+    _declarations(o, buf = [], "", j2c.vendors);
     return buf.join("");
   }
 
