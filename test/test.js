@@ -544,6 +544,13 @@ function check(result, expected){
         )
     });
 
+    test("Nested of At rules", function() {
+        check(
+            add("p", {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}),
+            '@media screen{@media (max-width: 12cm){p{-o-size:5;-p-size:5;size:5}}p{-o-width:1000;-p-width:1000;width:1000}}'
+        )
+    });
+
     test("@font-face", function(){
         var sheet = j2c.scoped("p")
         check(
