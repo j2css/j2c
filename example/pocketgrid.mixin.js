@@ -39,7 +39,7 @@ var pocketgrid = {
 /* 
 
 PocketGrid 1.1.0 Copyright (c) 2013 Arnaud Leray
-j2c port Copyright (c) 2013 Pierre-Yves Gérardy
+j2c port Copyright (c) 2015 Pierre-Yves Gérardy
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

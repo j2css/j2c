@@ -42,7 +42,6 @@ Think SASS, but in JSONish syntax.
 * Send small, compact, SASS-like data down the line
 * Simplify your asset pipeline
 * Use the full power of JavaScript for mixins, variables, macros and feature detection
-* Stop worrying about vendor prefixes
 * Good fit for virtual DOM frameworks like React or Mithril
 * I like writing compilers :-)
 
@@ -67,11 +66,9 @@ then
 var j2c = require('j2c')
 ```
 
-There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` directory, as well as inline-only versions.
+There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` directory.
 
 ## Usage
-
-** NOTICE: This section needs an overhaul **
 
 `j2c` can be used to either assemble inline declarations or full style sheets.
 
@@ -80,7 +77,48 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 The `j2c` function walks down JS objects and builds a `property:value;` list out of it.
 
 ```JavaScript
-j2c.vendors = [] 
+j2c({
+  color:"red",
+  margin_left: {
+    width: "1px",
+    color: "purple"
+  }
+})
+```
+
+Outputs, as you could expect (white space added for readability):
+
+```CSS
+color: red;
+margin-left-color: purple;
+margin-left-width: 1px;
+```
+
+#### Mixins
+
+You can 
+
+```JavaScript
+function mixin(color) {
+  return{
+    border_color: color,
+    color: color
+  }
+}
+
+j2c([
+  mixin("red"),
+  {
+    font_size:"2em"
+  }
+])
+```
+
+```CSS
+
+```
+
+```JavaScript
 j2c({
   // underscores are turned into dashes.
   background_image: "url(bg.png)",

@@ -1,6 +1,7 @@
 module.exports = (function () {
   var
     type = ({}).toString,
+    own = ({}).hasOwnProperty,
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
@@ -14,22 +15,32 @@ module.exports = (function () {
     return o;
   }
 
+  function _cartesian(a,b, res, i, j) {
+    res = [];
+    for (j in b) if(own.call(b, j))
+      for (i in a) if(own.call(a, i))
+        res.push(a[i]+b[j]);
+    return res;
+  }
+
   // Handles the property:value; pairs.
   function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      for (k in o) {
+      for (k in o) if (own.call(o, k))
         _declarations(o[k], buf, pfx, vendors);
-      };
       break;
     case OBJECT:
-      pfx = (pfx && pfx + "-")
-      for (k in o) {
+      pfx = (pfx && pfx + "-");
+      for (k in o) if (own.call(o, k)) {
         v = o[k];
-        if (k.indexOf("$") + 1)
-          for (kk in k = k.split("$"))
+        if (k.indexOf("$") + 1) {
+          // "$" was found.
+          for (kk in k = k.split("$")) if (own.call(k, kk))
             _declarations(v, buf, pfx + k[kk], vendors);
-        else _declarations(v, buf, pfx + k, vendors);
+        } else {
+          _declarations(v, buf, pfx + k, vendors);
+        }
       }
       break;
     default:
@@ -40,10 +51,9 @@ module.exports = (function () {
       // `o` is the value.
       o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
       // vendorify
-      for (k in vendors) {
-        buf.push("-" + vendors[k] + "-" + o);
-      }
-      buf.push(o)
+      for (k in vendors) if(own.call(vendors, k))
+         buf.push("-" + vendors[k] + "-" + o);
+      buf.push(o);
     }
   }
 
@@ -54,7 +64,13 @@ module.exports = (function () {
 
 
   
-  j2c.vendors = ["o", "ms", "moz", "webkit"];
+  j2c.x = function(pfx, val) {
+    return _cartesian(
+      pfx.map(function(p){return "-"+p+"-"}).concat([""]),
+      [val]
+    );
+  };
+  j2c.vendors = [];
   return j2c;
 })()
 

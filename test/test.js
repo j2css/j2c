@@ -33,10 +33,6 @@ function check(result, expected){
     }
 
 
-    var vendors = j2c.vendors;
-    j2c.vendors = [];
-
-
 
       /////////////////////////////
      /**/  suite("Inline, ")  /**/
@@ -106,10 +102,17 @@ function check(result, expected){
         )
     });
 
-    test("Array of mixed values", function() {
+    test("Array of mixed values at the root", function() {
         checkinline(
             ["foo:bar",{foo:"baz"}],
             "foo:bar;foo:baz"
+        )
+    });
+
+    test("Array of mixed value and sub-property", function() {
+        checkinline(
+            {foo:["bar", {baz:"qux"}]},
+            "foo:bar;foo-baz:qux"
         )
     });
 
@@ -120,10 +123,17 @@ function check(result, expected){
         )
     });
 
-    test("CSS Hack", function() {
+    test("CSS *Hack", function() {
         checkinline(
             {"*foo":"bar"},
             "*foo:bar;"
+        )
+    });
+
+    test("CSS _Hack", function() {
+        checkinline(
+            ["_foo:bar",{_baz:"qux"}],
+            "_foo:bar;-baz:qux;"
         )
     });
 
@@ -143,6 +153,23 @@ function check(result, expected){
         )
     });
 
+      ////////////////////////////
+     /**/  suite("j2c.x, ")  /**/
+    ////////////////////////////
+
+    test("1 x 1", function() {
+        var prod = j2c.x(["o"], "foo")
+        expect(prod[0]).to.be("-o-foo")
+        expect(prod[1]).to.be("foo")
+    });
+
+    test("2 x 1", function() {
+        var prod = j2c.x(["o", "p"], "foo")
+        expect(prod[0]).to.be("-o-foo")
+        expect(prod[1]).to.be("-p-foo")
+        expect(prod[2]).to.be("foo")
+    });
+
 });
 
 
@@ -154,9 +181,6 @@ function check(result, expected){
     function add(klass, o){
         return j2c.scoped(klass).add(o).toString()
     }
-
-    var vendors = j2c.vendors;
-    j2c.vendors = [];
 
 
 
@@ -372,15 +396,29 @@ function check(result, expected){
 
 
 
-      ///////////////////////////////////////
+      /////////////////////////////////////////
      /**/  suite("Strings and Arrays, ")  /**/
-    ///////////////////////////////////////
+    /////////////////////////////////////////
 
 
     test("String literal", function() {
         check(
             add("p", "foo:bar"),
             "p{foo:bar}"
+        )
+    });
+
+    test("String literal with two declarations", function() {
+        check(
+            add("p", "foo:bar;baz:qux"),
+            "p {foo:bar;baz:qux}"
+        )
+    });
+
+    test("String literal starting with an underscore", function() {
+        check(
+            add("p", "_foo:bar"),
+            "p {_foo:bar}"
         )
     });
 
@@ -422,6 +460,29 @@ function check(result, expected){
             "p {bar:baz;bar:qux;bar:quux}"
         )
     })
+
+
+
+      //////////////////////////////////////////
+     /**/  suite("Sheet auto prefixes, ")  /**/
+    //////////////////////////////////////////
+
+    before(function() {j2c.vendors = ["o", "p"]})
+    after(function() {j2c.vendors = []})
+
+    test("String literal", function() {
+        check(
+            add("p", "foo:bar"),
+            "p{-o-foo:bar;-p-foo:bar;foo:bar}"
+        )
+    });
+
+    test("Array of Strings", function() {
+        check(
+            add("p", ["foo:bar", "_baz:qux"]),
+            "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
+        )
+    });
 
 
 
@@ -499,12 +560,10 @@ function check(result, expected){
                 " to":{foo:"baz"}
             }).toString(),
             [
-                "@-o-keyframes qux{from{-o-foo:bar;foo:bar}to{-o-foo:baz;foo:baz}}" +
-                "@-p-keyframes qux{from{-p-foo:bar;foo:bar}to{-p-foo:baz;foo:baz}}" +
+                "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
                 "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",
 
-                "@-o-keyframes qux{to{-o-foo:baz;foo:baz}from{-o-foo:bar;foo:bar}}" +
-                "@-p-keyframes qux{to{-p-foo:baz;foo:baz}from{-p-foo:bar;foo:bar}}" +
+                "@-webkit-keyframes qux{to{-webkit-foo:baz;foo:baz}from{-webkit-foo:bar;foo:bar}}" +
                 "@keyframes qux{to{-o-foo:baz;-p-foo:baz;foo:baz}from{-o-foo:bar;-p-foo:bar;foo:bar}}",
             ]
         )
