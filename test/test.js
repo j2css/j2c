@@ -554,18 +554,17 @@ function check(result, expected){
     test("@font-face", function(){
         var sheet = j2c.scoped("p")
         check(
-            sheet.font({foo:"bar"}).toString(),
+            add("p", {"@font-face":{foo:"bar"}}),
             "@font-face{foo:bar}"
         )
     });
 
     test("@keyframes", function(){
-        var sheet = j2c.scoped("p")
         check(
-            sheet.keyframes("qux", {
+            add("p", {"@keyframes qux": {
                 " from":{foo:"bar"},
                 " to":{foo:"baz"}
-            }).toString(),
+            }}),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
                 "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",

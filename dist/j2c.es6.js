@@ -95,9 +95,20 @@ export default (function () {
         if (k[0] == "@"){
           // Handle At-rules
           if (type.call(v) == OBJECT) {
-            buf.push(k + "{");
-            _add(v, buf, pfx, vendors);
+            if (k.match(/^@keyframes /)) {
+              _add(_O("@-webkit-" + k.slice(1), v), buf, "", ["webkit"]);              
+              buf.push(k + "{");
+              _add(v, buf, "", vendors);
+              buf.push("}");              
+          } else if (k.match(/^@font-face/)) {
+            buf.push("@font-face{");
+            _declarations(v, buf, "", []);
             buf.push("}");
+          } else {
+              buf.push(k + "{");
+              _add(v, buf, pfx, vendors);
+              buf.push("}");              
+            }
           } else {
             buf.push(k + " " + v + ";");
           }
@@ -130,19 +141,6 @@ export default (function () {
       }
     }
   }
-
-  Sheet.keyframes = function (name, frames, k) {
-    _add(_O("@-webkit-keyframes " + name, frames), this.buf, "", ["webkit"]);
-    _add(_O("@keyframes " + name, frames), this.buf, "", j2c.vendors);
-    return this;
-  };
-
-  Sheet.font = function (o) {
-    this.buf.push("@font-face{");
-    _declarations(o, this.buf, "", []);
-    this.buf.push("}");
-    return this;
-  };
 
   Sheet.toString = Sheet.valueOf = function () {
     return this.buf.join("");
