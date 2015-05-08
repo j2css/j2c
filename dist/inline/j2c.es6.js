@@ -8,12 +8,16 @@ export default (function () {
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _cartesian(a,b, res, i, j) {
+  function _cartesian(a,b, magic, res, i, j) {
     res = [];
     for (j in b) if(own.call(b, j))
       for (i in a) if(own.call(a, i))
-        res.push(a[i]+b[j]);
+        res.push(_ampersand(a[i], b[j], magic));
     return res;
+  }
+
+  function _ampersand(a, b, magic) {
+    return magic && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
   }
 
   // Handles the property:value; pairs.

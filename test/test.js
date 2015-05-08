@@ -332,9 +332,9 @@ function check(result, expected){
 
 
 
-      ///////////////////////////////////////////////
+      /////////////////////////////////////////////////
      /**/  suite("Selector Cartesian product, ")  /**/
-    ///////////////////////////////////////////////
+    /////////////////////////////////////////////////
 
 
     test("1 x 2", function() {
@@ -395,6 +395,35 @@ function check(result, expected){
     });
 
 
+
+      ////////////////////////////////
+     /**/  suite("Ampersand, ")  /**/
+    /////////////////////////////////
+
+
+    test("composed selector: add a class to the root", function() {
+        check(
+            add("p", {
+                ".foo &":{bar:"baz"}
+            }),
+
+            ".foo p{bar:baz}"
+        )
+    });
+
+    test("2 x 2", function() {
+        check(
+            add("p", {
+                " .foo, .bar":{
+                    " .baz &, .qux &":{
+                        foo:"bar"
+                    }
+                }
+            }),
+
+            ".baz p .foo,.baz p .bar,.qux p .foo,.qux p .bar {foo:bar}"
+        )
+    });
 
       /////////////////////////////////////////
      /**/  suite("Strings and Arrays, ")  /**/
