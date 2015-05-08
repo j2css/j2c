@@ -4,16 +4,9 @@
     own = ({}).hasOwnProperty,
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
+    STRING =  type.call(""),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
-
-  // Helper to compensate the fact that you can't have arbitrary expressions as
-  // object literal keys.
-  // Golfed implementation for maximal byte shaving :-)
-  function _O(k, v, o) {
-    (o = {})[k] = v;
-    return o;
-  }
 
   function _cartesian(a,b, res, i, j) {
     res = [];
@@ -32,7 +25,7 @@
       break;
     case OBJECT:
       pfx = (pfx && pfx + "-");
-      for (k in o) if (own.call(o, k)) {
+      for (k in o) {
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
@@ -82,53 +75,64 @@
     // where the `statements` variable actually holds
     // declaratons.
     decl = statements
+
     switch (type.call(statements)) {
+
     case ARRAY:
       for (k in statements) if (own.call(statements, k))
         _add(statements[k], buf, pfx, vendors);
       break;
+
     case OBJECT:
       decl = {};
       for (k in statements) {
-        if(!own.call(statements, k)) continue;
         v = statements[k];
-        if (k[0] == "@"){
-          // Handle At-rules
-          if (type.call(v) == OBJECT) {
+        if (k[0] == "@"){ // Handle At-rules
+
+          if (type.call(v) == STRING) {
+            buf.push(k + " " + v + ";");
+          } else { //(type.call(v) != STRING)
+
             if (k.match(/^@keyframes /)) {
-              _add(_O("@-webkit-" + k.slice(1), v), buf, "", ["webkit"]);              
+              // add a @-webkit-keyframes block too.
+              buf.push("@-webkit-" + k.slice(1) + "{");
+              _add(v, buf, "", ["webkit"]);
+              buf.push("}");
+
               buf.push(k + "{");
               _add(v, buf, "", vendors);
-              buf.push("}");              
-          } else if (k.match(/^@font-face/)) {
-            buf.push("@font-face{");
-            _declarations(v, buf, "", []);
-            buf.push("}");
-          } else {
+              buf.push("}");
+
+            } else if (k.match(/^@font-face/)) {
+              _add(v, buf, k, [])
+
+            } else { // default @-rule (usually @media)
               buf.push(k + "{");
               _add(v, buf, pfx, vendors);
-              buf.push("}");              
+              buf.push("}");
             }
-          } else {
-            buf.push(k + " " + v + ";");
+
           }
         } else if (k.match(/^[-\w$]+$/)) {
           // add to declarations.
           decl[k] = v;
-        } else {
-          // Handle sub-selector.
+
+        } else { // A sub-selector
           _add(v, buf,
-            ( // truthy when pfx and/or k have a coma.
-              pfx.indexOf(",") + k.indexOf(",") + 2 // truthy when pfx and/or k have a coma.
-              ? _cartesian(pfx.split(","), k.split(",")).join(",")
-              : pfx + k
-            ),
+            /* if pfx and/or k have a coma */
+              pfx.indexOf(",") + k.indexOf(",") + 2 ?
+            /* then */
+              _cartesian(pfx.split(","), k.split(",")).join(",") :
+            /* else */
+              pfx + k
+            ,
             vendors
           );
         }
       }
-      // fallthrough for handling declarations.
-    case "[object String]":
+      // fall through for handling declarations.
+
+    case STRING:
       // fake loop to detect the presence of declarations.
       // runs if decl is a non-empty string or when falling
       // through from the `Object` case, when there are
@@ -149,7 +153,7 @@
   j2c.sheet = function (s) {return new Sheet("").add(s);};
   j2c.scoped = function (scope) {return new Sheet(scope);};
   /*/-statements-/*/
-  j2c.x = function(pfx, val) {
+  j2c.prefix = function(pfx, val) {
     return _cartesian(
       pfx.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]

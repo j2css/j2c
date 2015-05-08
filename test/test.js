@@ -153,18 +153,18 @@ function check(result, expected){
         )
     });
 
-      ////////////////////////////
-     /**/  suite("j2c.x, ")  /**/
-    ////////////////////////////
+      /////////////////////////////////
+     /**/  suite("j2c.prefix, ")  /**/
+    /////////////////////////////////
 
     test("1 x 1", function() {
-        var prod = j2c.x(["o"], "foo")
+        var prod = j2c.prefix(["o"], "foo")
         expect(prod[0]).to.be("-o-foo")
         expect(prod[1]).to.be("foo")
     });
 
     test("2 x 1", function() {
-        var prod = j2c.x(["o", "p"], "foo")
+        var prod = j2c.prefix(["o", "p"], "foo")
         expect(prod[0]).to.be("-o-foo")
         expect(prod[1]).to.be("-p-foo")
         expect(prod[2]).to.be("foo")
@@ -556,6 +556,14 @@ function check(result, expected){
         check(
             add("p", {"@font-face":{foo:"bar"}}),
             "@font-face{foo:bar}"
+        )
+    });
+
+    test("@font-face two fonts", function(){
+        var sheet = j2c.scoped("p")
+        check(
+            add("p", {"@font-face":[{foo:"bar"},{foo:"baz"}]}),
+            "@font-face{foo:bar}@font-face{foo:baz}"
         )
     });
 

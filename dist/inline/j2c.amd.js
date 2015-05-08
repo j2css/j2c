@@ -4,16 +4,9 @@ define('j2c', function(){return (function () {
     own = ({}).hasOwnProperty,
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
+    STRING =  type.call(""),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
-
-  // Helper to compensate the fact that you can't have arbitrary expressions as
-  // object literal keys.
-  // Golfed implementation for maximal byte shaving :-)
-  function _O(k, v, o) {
-    (o = {})[k] = v;
-    return o;
-  }
 
   function _cartesian(a,b, res, i, j) {
     res = [];
@@ -32,7 +25,7 @@ define('j2c', function(){return (function () {
       break;
     case OBJECT:
       pfx = (pfx && pfx + "-");
-      for (k in o) if (own.call(o, k)) {
+      for (k in o) {
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
@@ -64,7 +57,7 @@ define('j2c', function(){return (function () {
 
 
   
-  j2c.x = function(pfx, val) {
+  j2c.prefix = function(pfx, val) {
     return _cartesian(
       pfx.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]

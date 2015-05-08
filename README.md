@@ -388,7 +388,36 @@ r.scope // --> ".j2c_$token_$counter" where `$token` is unique per
 
 #### At-rules
 
-Most At-rules are handled out of the box by `sheet.add()`. However, `@font-face` and `@keyframes` have are not covered and they are implemented respectively by `sheet.font(definitions)` and `sheet.keyframes(name, definitions)`. The latter automatically generates browser-specific `@-vendor-keyframes` blocks.
+`j2c` handles @-rules out of the box, including nested ones.
+
+```JavaScript
+j2c.sheet({
+  "@media screen": {
+    " p": {
+      foo:"bar",
+      "@media (orientation: landscape)": {
+        baz:"qux"
+      }
+    }
+  }
+})
+```
+
+becomes
+
+```CSS
+@media screen {
+  p {
+    foo: bar;
+  }
+  @media (orientation: landscape) {
+    p {
+      baz: qux;
+    }
+  }
+}
+```
+For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
 #### CSS Hacks
 
@@ -441,9 +470,7 @@ You can also pass th result of `j2c.inline` which is less picky about property n
 #### methods
 
 * `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns the `Sheet` for chaining.
-* `sheet.font(definitions:(Object|Array|String)) : Sheet`: creates a `@font-face` block. Returns the `Sheet` for chaining.
-* `sheet.keyframes(name:String, statements:(Object|Array|String)) : Sheet`: creates a `@keyframes` block. Returns the `Sheet` for chaining.
-* `sheet.toString() : String`: the stylesheet in string form.
+* `sheet.toString()/sheet.valueOf(): String`: the stylesheet in string form.
 
 #### Property
 
