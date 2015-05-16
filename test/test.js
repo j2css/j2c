@@ -179,41 +179,9 @@ function check(result, expected){
     var j2c = require(lib)
 
     function add(klass, o){
-        return j2c.scoped(klass).add(o).toString()
+        var sheet = {}; sheet[" "+klass] = o;
+        return j2c.sheet(sheet) + "";
     }
-
-
-
-      ////////////////////////////
-     /**/  suite("Scope, ")  /**/
-    ////////////////////////////
-
-
-    test("custom scope", function(){
-        var sheet = j2c.scoped("foo")
-        expect(sheet.scope).to.be("foo")
-        check(
-            sheet.add({foo:"bar"}).toString(),
-            sheet.scope + "{foo:bar}"
-        )
-    });
-
-    test("default scope", function(){
-        var sheet = j2c.scoped()
-        expect(sheet.scope[0]).to.be(".")
-        check(
-            sheet.add({foo:"bar"}).toString(),
-            sheet.scope + "{foo:bar}"
-        )
-    });
-
-    test("default scope must be unique", function(){
-        expect(
-            j2c.scoped().scope
-        ).not.to.be(
-            j2c.scoped().scope
-        );
-    });
 
 
 
@@ -222,28 +190,11 @@ function check(result, expected){
     ////////////////////////////////
 
 
-    test("empty sheet", function(){
-        var sheet = j2c.sheet();
-        expect(
-            j2c.toString.call(sheet.__proto__)
-        ).to.match(
-            // \w\(\w\) for the minified version.
-            /^function (Sheet\(scope\)|\w\(\w\))/
-        );
-        expect(sheet.scope).to.be("")
-        expect(sheet.buf.length).to.be(0)
-    })
-
     test("direct sheet call", function(){
-        var sheet = j2c.sheet({" p":{foo:5}});
-        expect(sheet.scope).to.be("")
-        check(""+sheet, "p{foo:5}")
-    })
-
-    test("sheet.add", function(){
-        var sheet = j2c.sheet().add({" p":{foo:5}});
-        expect(sheet.scope).to.be("")
-        check(""+sheet, "p{foo:5}")
+        check(
+            j2c.sheet({" p":{foo:5}}), 
+            "p{foo:5}"
+        )
     })
 
 
@@ -326,7 +277,7 @@ function check(result, expected){
                 " .foo":{bar:"baz"}
             }),
 
-            "p .foo{bar:baz} p {foo:bar}"
+            ["p .foo{bar:baz} p {foo:bar}", "p {foo:bar} p .foo{bar:baz}"]
         )
     });
 
@@ -573,10 +524,13 @@ function check(result, expected){
         )
     });
 
-    test("Nested of At rules", function() {
+    test("nested of At rules", function() {
         check(
             add("p", {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}),
-            '@media screen{@media (max-width: 12cm){p{-o-size:5;-p-size:5;size:5}}p{-o-width:1000;-p-width:1000;width:1000}}'
+            [
+                '@media screen{@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}p{-o-width:1000;-p-width:1000;width:1000}}',
+                '@media screen{p{-o-width:1000;-p-width:1000;width:1000}@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}}'
+                ]
         )
     });
 
@@ -611,6 +565,21 @@ function check(result, expected){
             ]
         )
     });
+
+      ////////////////////////////
+     /**/  suite("Scope, ")  /**/
+    ////////////////////////////
+
+
+    test("JSS-like API", function(){
+        var css = j2c.scoped({bit:{foo:5},bat:{bar:6}});
+        expect(css.classes).not.to.be(null);
+        expect(css.classes.bit.slice(0,5)).to.be(".j2c_");
+        expect(css.styles.indexOf(css.classes.bit+"{foo:5;}")).not.to.be(-1);
+        expect(css.styles.indexOf(css.classes.bat+"{bar:6;}")).not.to.be(-1);
+    });
+
+
 
 })
 

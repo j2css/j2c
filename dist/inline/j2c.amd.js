@@ -1,30 +1,30 @@
 define('j2c', function(){return (function () {
   var
     type = ({}).toString,
-    own = ({}).hasOwnProperty,
+    own =  ({}).hasOwnProperty,
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
-    STRING =  type.call(""),
+    STRING = type.call(""),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _cartesian(a,b, magic, res, i, j) {
+  function _cartesian(a,b, selectorP, res, i, j) {
     res = [];
     for (j in b) if(own.call(b, j))
       for (i in a) if(own.call(a, i))
-        res.push(_ampersand(a[i], b[j], magic));
+        res.push(_concat(a[i], b[j], selectorP));
     return res;
   }
 
-  function _ampersand(a, b, magic) {
-    return magic && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
+  function _concat(a, b, selectorP) {
+    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
   }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      for (k in o) if (own.call(o, k))
+      for (k = o.length;k--;)
         _declarations(o[k], buf, pfx, vendors);
       break;
     case OBJECT:
@@ -46,21 +46,21 @@ define('j2c', function(){return (function () {
       // `o` is then treated as a `property:value` pair.
       // otherwise, `pfx` is the property name, and
       // `o` is the value.
-      o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
+      buf.push(o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";");
       // vendorify
-      for (k in vendors) if(own.call(vendors, k))
+      for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
-      buf.push(o);
     }
   }
 
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
-    return buf.join("");
+    return buf.reverse().join("");
   }
 
 
   
+
   j2c.prefix = function(pfx, val) {
     return _cartesian(
       pfx.map(function(p){return "-"+p+"-"}).concat([""]),

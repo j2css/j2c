@@ -1,30 +1,30 @@
 module.exports = (function () {
   var
     type = ({}).toString,
-    own = ({}).hasOwnProperty,
+    own =  ({}).hasOwnProperty,
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
-    STRING =  type.call(""),
+    STRING = type.call(""),
     default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
     counter = 0;
 
-  function _cartesian(a,b, magic, res, i, j) {
+  function _cartesian(a,b, selectorP, res, i, j) {
     res = [];
     for (j in b) if(own.call(b, j))
       for (i in a) if(own.call(a, i))
-        res.push(_ampersand(a[i], b[j], magic));
+        res.push(_concat(a[i], b[j], selectorP));
     return res;
   }
 
-  function _ampersand(a, b, magic) {
-    return magic && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
+  function _concat(a, b, selectorP) {
+    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
   }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      for (k in o) if (own.call(o, k))
+      for (k = o.length;k--;)
         _declarations(o[k], buf, pfx, vendors);
       break;
     case OBJECT:
@@ -46,17 +46,16 @@ module.exports = (function () {
       // `o` is then treated as a `property:value` pair.
       // otherwise, `pfx` is the property name, and
       // `o` is the value.
-      o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";";
+      buf.push(o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";");
       // vendorify
-      for (k in vendors) if(own.call(vendors, k))
+      for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
-      buf.push(o);
     }
   }
 
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
-    return buf.join("");
+    return buf.reverse().join("");
   }
 
 
@@ -77,13 +76,14 @@ module.exports = (function () {
   function _add(statements, buf, pfx, vendors, /*var*/ k, v, decl) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
-    // declaratons.
+    // declaratons. This allows to process either a 
+    // string or a declarations object with the same code.
     decl = statements
 
     switch (type.call(statements)) {
 
     case ARRAY:
-      for (k in statements) if (own.call(statements, k))
+      for (k = statements.length;k--;)
         _add(statements[k], buf, pfx, vendors);
       break;
 
@@ -93,32 +93,30 @@ module.exports = (function () {
         v = statements[k];
         if (k[0] == "@"){ // Handle At-rules
 
-          if (type.call(v) == STRING) {
+          if (k.match(/^@keyframes /)) {
+            buf.push("}");
+            _add(v, buf, "", vendors);
+            buf.push(k + "{");
+
+            // add a @-webkit-keyframes block too.
+            buf.push("}");
+            _add(v, buf, "", ["webkit"]);
+            buf.push("@-webkit-" + k.slice(1) + "{");
+
+          } else if (k.match(/^@font-face/)) {
+            _add(v, buf, k, [])
+
+          } else if (type.call(v) == STRING) {
             buf.push(k + " " + v + ";");
-          } else { //(type.call(v) != STRING)
 
-            if (k.match(/^@keyframes /)) {
-              // add a @-webkit-keyframes block too.
-              buf.push("@-webkit-" + k.slice(1) + "{");
-              _add(v, buf, "", ["webkit"]);
-              buf.push("}");
-
-              buf.push(k + "{");
-              _add(v, buf, "", vendors);
-              buf.push("}");
-
-            } else if (k.match(/^@font-face/)) {
-              _add(v, buf, k, [])
-
-            } else { // default @-rule (usually @media)
-              buf.push(k + "{");
-              _add(v, buf, pfx, vendors);
-              buf.push("}");
-            }
-
+          } else { 
+            // default @-rule (usually @media)
+            buf.push("}");
+            _add(v, buf, pfx, vendors);
+            buf.push(k + "{");
           }
         } else if (k.match(/^[-\w$]+$/)) {
-          // add to declarations.
+          // It is a declaration.
           decl[k] = v;
 
         } else { // A sub-selector
@@ -128,7 +126,7 @@ module.exports = (function () {
             /* then */
               _cartesian(pfx.split(","), k.split(","), 1).join(",") :
             /* else */
-              _ampersand(pfx, k, 1)
+              _concat(pfx, k, 1)
             ,
             vendors
           );
@@ -142,21 +140,31 @@ module.exports = (function () {
       // through from the `Object` case, when there are
       // declarations.
       for (k in decl) if (own.call(decl, k)){
-        buf.push(pfx + "{");
-        _declarations(decl, buf, "", vendors);
         buf.push("}");
+        _declarations(decl, buf, "", vendors);
+        buf.push(pfx + "{");
         break;
       }
     }
   }
 
   Sheet.toString = Sheet.valueOf = function () {
-    return this.buf.join("");
+    return this.buf.reverse().join("");
   };
 
-  j2c.sheet = function (s) {return new Sheet("").add(s);};
-  j2c.scoped = function (scope) {return new Sheet(scope);};
+  j2c.sheet = function (s) {return ""+new Sheet("").add(s);};
+  j2c.scoped = function(o, k, sheet) {
+    var classes = {},
+        styles = "";
+    for (k in o) if (own.call(o, k)) {
+      sheet = new Sheet().add(o[k])
+      classes[k] = sheet.scope
+      styles += sheet
+    }
+    return {classes:classes, styles:styles}
+  }
   /*/-statements-/*/
+
   j2c.prefix = function(pfx, val) {
     return _cartesian(
       pfx.map(function(p){return "-"+p+"-"}).concat([""]),
