@@ -72,7 +72,7 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 `j2c` can be used to either assemble inline declarations, full style sheets, or scoped rules, each step building on the former.
 
-Scoped rules are especially useful for client-side frameworks, as can be seen in this mock Mithril module:
+Scoped rules are especially useful for client-side frameworks, as can be seen in this simple [Mithril](http://mithril.js.org) module:
 
 ```JavaScript
 Widget = {
