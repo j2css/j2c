@@ -1,6 +1,6 @@
 # j2c
 
-JavaScript to CSS compiler. ~870 bytes mingzipped.
+JavaScript to CSS compiler. ~810 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
@@ -72,7 +72,7 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 `j2c` can be used to either assemble inline declarations or full style sheets.
 
-### For inline decalrations
+### For inline decalrations: `j2c(declarations)`
 
 The `j2c` function walks down JS objects and builds a `property:value;` list out of it.
 
@@ -220,7 +220,26 @@ p {
 }
 ```
 
-### For building a style sheet
+To prefix values, you can use `j2c.prefix`:
+
+```JavaScript
+j2c({
+  background_image:j2c.prefix(
+    ['moz','webkit'],
+    "linear-gradient(90deg, #f00, #ff0)"
+  )
+})
+```
+
+```CSS
+background-image: -moz-linear-gradient(90deg, #f00, #ff0);
+background-image: -webkit-linear-gradient(90deg, #f00, #ff0);
+background-image: linear-gradient(90deg, #f00, #ff0);
+```
+
+There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`.
+
+### For building a style sheet: `j2c.sheet(rules)`
 
 ```JavaScript
 j2c.sheet({
@@ -379,7 +398,7 @@ You can also pass th result of `j2c.inline` which is less picky about property n
 
 Arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins).
 
-### Scoped sheet
+### Scoped sheet for components: `j2c.scoped(...)`
 
 `j2c.scoped` offers a [`JSS`](https://github.com/jsstyles/jss)-like functionality:
 
@@ -387,17 +406,20 @@ Arrays works the same way at the selector level as they do at the property/value
 var sheet = j2c.scoped({
   foo:{color:"red"},
   bar:{margin:0}
-})
-console.log(sheet.classes.foo)
-// '.j2c_994233084_0'
-console.log(sheet.classes.bar)
-//'.j2c_994233084_1'
-console.log(sheet.text)
-// '.j2c_994233084_0{color:red;}.j2c_994233084_1{margin:0;}'
+});
+
+console.log(sheet.classes);
+// { bit: '.j2c_371971407_1431849941805_0',
+//   bat: '.j2c_371971407_1431849941805_1' }
+
+// `sheet` is actually a String object, which can be used as a normal string.
+console.log(sheet+"");
+// '.j2c_371971407_1431849941805_1{bar:6;}.j2c_371971407_1431849941805_0{foo:5;}'
 ```
 
-Unique classes are automatically generated for each scope name
+Unique classes are automatically generated for each scope name. The middle part of the class names ensures that class names are unique even if several instances of `j2c` are used on the page.
 
+Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet()` functionality is available.
 
 ## Limitations
 
@@ -432,6 +454,8 @@ This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.
 I may get around and write a validator companion, but I'm not there yet :-).
 
 ### No pretty printing
+
+`j2c` puts each selector list and properties on their own lines, but doesn't indent or add other white space.
 
 For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be](https://github.com/mattbasta/crass) [au](https://github.com/beautify-web/js-beautify) [ti](https://github.com/senchalabs/cssbeautify) [fier](http://csstidy.sourceforge.net/)] of your choice.
 

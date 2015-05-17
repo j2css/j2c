@@ -575,8 +575,8 @@ function check(result, expected){
         var css = j2c.scoped({bit:{foo:5},bat:{bar:6}});
         expect(css.classes).not.to.be(null);
         expect(css.classes.bit.slice(0,5)).to.be(".j2c_");
-        expect(css.text.indexOf(css.classes.bit+"{foo:5;}")).not.to.be(-1);
-        expect(css.text.indexOf(css.classes.bat+"{bar:6;}")).not.to.be(-1);
+        expect(css.indexOf(css.classes.bit+"{\nfoo:5;\n}")).not.to.be(-1);
+        expect(css.indexOf(css.classes.bat+"{\nbar:6;\n}")).not.to.be(-1);
     });
 
 

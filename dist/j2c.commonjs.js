@@ -5,7 +5,7 @@ module.exports = (function () {
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
     STRING = type.call(""),
-    default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
+    scope_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
 
   function _cartesian(a,b, selectorP, res, i, j) {
@@ -21,7 +21,7 @@ module.exports = (function () {
   }
 
   // Handles the property:value; pairs.
-  // Note that the sheets are built upside down and reversed before being 
+  // Note that the sheets are built upside down and reversed before being
   // turned into strings.
   function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
@@ -55,24 +55,16 @@ module.exports = (function () {
     }
   }
 
+
+  function finalize(buf) {return buf.reverse().join("\n");}
+
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
-    return buf.reverse().join("");
+    return finalize(buf);
   }
 
 
   /*/-statements-/*/
-  function Sheet(scope) {
-    this.scope = (scope != null ? scope : default_scope + (counter++));
-    this.buf = [];
-  }
-
-  Sheet.prototype = Sheet;
-
-  Sheet.add = function (statements) {
-    _add(statements, this.buf, this.scope, j2c.vendors);
-    return this;
-  };
 
   // Add rulesets and other CSS statements to the sheet.
   function _add(statements, buf, prefix, vendors, /*var*/ k, v, decl) {
@@ -150,20 +142,22 @@ module.exports = (function () {
     }
   }
 
-  Sheet.valueOf = function () {
-    return this.buf.reverse().join("");
+  j2c.sheet = function (statements, buf) {
+    buf = []
+    _add(statements, buf, "", j2c.vendors);
+    return finalize(buf);
   };
 
-  j2c.sheet = function (s) {return ""+new Sheet("").add(s);};
-  j2c.scoped = function(o, k, sheet) {
+  j2c.scoped = function(statements, k) {
     var classes = {},
-        text = "";
-    for (k in o) if (own.call(o, k)) {
-      sheet = new Sheet().add(o[k])
-      classes[k] = sheet.scope
-      text += sheet
+        buf = [];
+    for (k in statements) if (own.call(statements, k)) {
+      classes[k] = scope_root + (counter++)
+      _add(statements[k], buf, classes[k], j2c.vendors);
     }
-    return {classes:classes, text:text}
+    buf = new String(finalize(buf));
+    buf.classes = classes
+    return buf
   }
   /*/-statements-/*/
 

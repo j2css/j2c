@@ -5,7 +5,7 @@
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
     STRING = type.call(""),
-    default_scope = ".j2c_" + (Math.random() * 1e9 | 0) + "_",
+    scope_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
 
   function _cartesian(a,b, selectorP, res, i, j) {
@@ -21,7 +21,7 @@
   }
 
   // Handles the property:value; pairs.
-  // Note that the sheets are built upside down and reversed before being 
+  // Note that the sheets are built upside down and reversed before being
   // turned into strings.
   function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
@@ -55,9 +55,12 @@
     }
   }
 
+
+  function finalize(buf) {return buf.reverse().join("\n");}
+
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
-    return buf.reverse().join("");
+    return finalize(buf);
   }
 
 
