@@ -3,7 +3,8 @@ This source file is incomplete and useless in itself.
 
 It is augmented for the various module systems by the build script.
 
-The -statements- section is discarded in the `inline` builds.
+The -inline- and -statements- sections are mutually exclusive, and are only 
+included in the inline and main builds, respectively.
 
 See the 'dist' directory for usable files.
 
@@ -65,6 +66,14 @@ See the 'dist' directory for usable files.
   }
 
 
+  /*/-inline-/*/
+  function j2c(o, buf) {
+    _declarations(o, buf = [], "", j2c.vendors);
+    return buf.reverse().join("\n");
+  }
+  /*/-inline-/*/
+
+  /*/-statements-/*/
   function finalize(buf) {return buf.reverse().join("\n");}
 
   function j2c(o, buf) {
@@ -72,8 +81,6 @@ See the 'dist' directory for usable files.
     return finalize(buf);
   }
 
-
-  /*/-statements-/*/
 
   // Add rulesets and other CSS statements to the sheet.
   function _add(statements, buf, prefix, vendors, /*var*/ k, v, decl) {
@@ -165,7 +172,7 @@ See the 'dist' directory for usable files.
       _add(statements[k], buf, classes[k], j2c.vendors);
     }
     buf = new String(finalize(buf));
-    buf.classes = classes
+    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
     return buf
   }
   /*/-statements-/*/

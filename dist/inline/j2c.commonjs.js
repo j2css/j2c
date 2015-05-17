@@ -56,13 +56,12 @@ module.exports = (function () {
   }
 
 
-  function finalize(buf) {return buf.reverse().join("\n");}
-
+  /*/-inline-/*/
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
-    return finalize(buf);
+    return buf.reverse().join("\n");
   }
-
+  /*/-inline-/*/
 
   
 

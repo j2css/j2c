@@ -56,6 +56,9 @@ define('j2c', function(){return (function () {
   }
 
 
+  
+
+  /*/-statements-/*/
   function finalize(buf) {return buf.reverse().join("\n");}
 
   function j2c(o, buf) {
@@ -63,8 +66,6 @@ define('j2c', function(){return (function () {
     return finalize(buf);
   }
 
-
-  /*/-statements-/*/
 
   // Add rulesets and other CSS statements to the sheet.
   function _add(statements, buf, prefix, vendors, /*var*/ k, v, decl) {
@@ -156,7 +157,7 @@ define('j2c', function(){return (function () {
       _add(statements[k], buf, classes[k], j2c.vendors);
     }
     buf = new String(finalize(buf));
-    buf.classes = classes
+    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
     return buf
   }
   /*/-statements-/*/
