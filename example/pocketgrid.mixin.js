@@ -38,7 +38,6 @@ var pocketgrid = module.export = {
 
 pocketgrid.nested = [
     pocketgrid.group,
-    pocketgrid.block[1], //no need to mix border_box in twice.
     {
         clear: "none",
         float: "left",
