@@ -175,11 +175,8 @@ Alternatively:
 
 ```JavaScript
 j2c([
-  {
-      border_color: "#33e"
-  }, {
-      border_color: "rgba(64,64,255,0.8)"
-  }
+  { border_color: "#33e"},
+  { border_color: "rgba(64,64,255,0.8)"}
 ])
 ```
 
