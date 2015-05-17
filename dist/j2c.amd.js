@@ -95,7 +95,7 @@ define('j2c', function(){return (function () {
           buf.push("@-webkit-" + k.slice(1) + "{");
 
         } else if (k.match(/^@font-face/)) {
-          _add(v, buf, k, [])
+          _add(v, buf, k, empty)
 
         } else { 
           // default @-rule (usually @media)

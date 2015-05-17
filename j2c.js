@@ -118,7 +118,7 @@ See the 'dist' directory for usable files.
           buf.push("@-webkit-" + k.slice(1) + "{");
 
         } else if (k.match(/^@font-face/)) {
-          _add(v, buf, k, [])
+          _add(v, buf, k, empty)
 
         } else { 
           // default @-rule (usually @media)
@@ -186,7 +186,7 @@ See the 'dist' directory for usable files.
       _add(statements[k], buf, "." + classes[k], vendors);
     }
     buf = new String(_finalize(buf));
-    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
+    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k];
     return buf
   }
   /*/-statements-/*/
