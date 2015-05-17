@@ -13,18 +13,18 @@ Think SASS, but in JSONish syntax.
   - [But, seriously...](#but-seriously)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [For inline decalrations](#for-inline-decalrations)
+  - [For inline decalrations: `j2c(declarations)`](#for-inline-decalrations-j2cdeclarations)
     - [Arrays](#arrays)
       - [Overloading properties](#overloading-properties)
       - [Mixins](#mixins)
     - [Vendor prefixes:](#vendor-prefixes)
-  - [For building a style sheet](#for-building-a-style-sheet)
+  - [For building a style sheet: `j2c.sheet(rules)`](#for-building-a-style-sheet-j2csheetrules)
     - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
     - [Combining multiple selectors](#combining-multiple-selectors)
     - [At-rules](#at-rules)
     - [CSS Hacks](#css-hacks)
     - [Mixins redux](#mixins-redux)
-  - [Scoped sheet](#scoped-sheet)
+  - [Scoped sheet for components: `j2c.scoped(...)`](#scoped-sheet-for-components-j2cscoped)
 - [Limitations](#limitations)
   - [Selectors and properties order](#selectors-and-properties-order)
   - [No input validation](#no-input-validation)
@@ -237,7 +237,7 @@ background-image: -webkit-linear-gradient(90deg, #f00, #ff0);
 background-image: linear-gradient(90deg, #f00, #ff0);
 ```
 
-There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`.
+There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`).
 
 ### For building a style sheet: `j2c.sheet(rules)`
 
