@@ -1,13 +1,17 @@
 // If you wanted to turn PockeGrid into a mixin, you could use this:
 
-var pocketgrid = {
-    blockgroup: [
+var border_box = {
+    ",:before,:after":{ //note the initial coma
+        box_sizing:"border-box"
+    }
+}
+
+var pocketgrid = module.export = {
+    group: [
         /* Clearfix */
         "*zoom: 1",
+        border_box,
         {
-            ",:before,:after":{ //note the initial coma
-                box_sizing:"border-box"
-            },
             ":before,:after": {
                 display: "table",
                 content: '""',
@@ -17,25 +21,30 @@ var pocketgrid = {
 
             /* ul/li compatibility */
             "list-style-type":"none",
-            margin$padding:0,
+            margin$padding:0
 
-            " > .blockgroup": {
-                /* Nested grid */
-                clear: "none",
-                float: "left",
-                margin: "0 !important"
-            }
         }
     ],
-    block: {
-        ",:before,:after":{ //note the initial coma
-            box_sizing:"border-box"
-        },
-        float: "left",
-        width: "100%"
-    }
+    block: [
+        border_box,
+        {
+            float: "left",
+            width: "100%"
+        }
+    ]
 }
 
+// 
+
+pocketgrid.nested = [
+    pocketgrid.group,
+    pocketgrid.block[1], //no need to mix border_box in twice.
+    {
+        clear: "none",
+        float: "left",
+        margin: "0 !important"
+    }
+]
 /* 
 
 PocketGrid 1.1.0 Copyright (c) 2013 Arnaud Leray
