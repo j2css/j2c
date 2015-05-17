@@ -4,17 +4,25 @@ var j2c,
     expect = require("expect.js");
 
 
+function normalize(s) { return crass.parse(s).optimize().toString() }
+
 function check(result, expected){
-    result = crass.parse(result).optimize().toString();
+    result = normalize(result);
 
     // since you can't rely on the order of JS object keys, sometimes, several "expected"
     // values must be provided.
     expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-        return crass.parse(s).optimize().toString();
+        return normalize(s)
     });
     expect(expected).to.contain(result);
 }
 
+function randStr() {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5)
+}
+function randInt() {
+    return Math.random().toString().substr(2, 3)
+}
 
 [
     "../dist/j2c.commonjs",
@@ -572,6 +580,34 @@ function check(result, expected){
         expect(css.bit).not.to.be(css.bat);
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
         expect(css.indexOf("." + css.bat + "{\nbar:6;\n}")).not.to.be(-1);
+    });
+
+
+
+      ////////////////////////////
+     /**/  suite("Order, ")  /**/
+    ////////////////////////////
+
+
+    test("declarations > subselectors > @rules", function(){
+        var total = 0
+          , prop = randStr()
+          , klass = randStr()
+          , width = randInt()
+          , o, sheet
+          ;
+        for (var i = 100; i--;){
+            o = {" p":{}}
+            o[" p"][prop] = 5
+            o[" p"]["."+klass] = {foo:6}
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+        }
+        expect(total).to.be(0);
     });
 
 

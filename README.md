@@ -339,6 +339,8 @@ becomes
 
 For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
+At rules are guarateed to be inserted after the properties and sub-selectors at a given level. This prevents nested `@media` blocks to be overridden by declarations found out of them.
+
 #### CSS Hacks
 
 Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.

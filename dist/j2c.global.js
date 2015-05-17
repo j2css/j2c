@@ -78,37 +78,40 @@
 
     case OBJECT:
       decl = {};
+      for (k in statements) if (k[0] == "@") { // Handle At-rules
+        v = statements[k];
+
+        if (type.call(v) == STRING) {
+          buf.push(k + " " + v + ";");
+
+        } else if (k.match(/^@keyframes /)) {
+          buf.push("}");
+          _add(v, buf, "", vendors);
+          buf.push(k + "{");
+
+          // add a @-webkit-keyframes block too.
+          buf.push("}");
+          _add(v, buf, "", ["webkit"]);
+          buf.push("@-webkit-" + k.slice(1) + "{");
+
+        } else if (k.match(/^@font-face/)) {
+          _add(v, buf, k, [])
+
+        } else { 
+          // default @-rule (usually @media)
+          buf.push("}");
+          _add(v, buf, prefix, vendors);
+          buf.push(k + "{");
+        }
+      }
       for (k in statements) {
         v = statements[k];
-        if (k[0] == "@"){ // Handle At-rules
-
-          if (k.match(/^@keyframes /)) {
-            buf.push("}");
-            _add(v, buf, "", vendors);
-            buf.push(k + "{");
-
-            // add a @-webkit-keyframes block too.
-            buf.push("}");
-            _add(v, buf, "", ["webkit"]);
-            buf.push("@-webkit-" + k.slice(1) + "{");
-
-          } else if (k.match(/^@font-face/)) {
-            _add(v, buf, k, [])
-
-          } else if (type.call(v) == STRING) {
-            buf.push(k + " " + v + ";");
-
-          } else { 
-            // default @-rule (usually @media)
-            buf.push("}");
-            _add(v, buf, prefix, vendors);
-            buf.push(k + "{");
-          }
-        } else if (k.match(/^[-\w$]+$/)) {
+        if (k.match(/^[-\w$]+$/)) {
           // It is a declaration.
           decl[k] = v;
 
-        } else { // A sub-selector
+        } else if (k[0] != "@") {
+          // nested sub-selectors
           _add(v, buf,
             /* if prefix and/or k have a coma */
               prefix.indexOf(",") + k.indexOf(",") + 2 ?
@@ -121,6 +124,7 @@
           );
         }
       }
+  
       // fall through for handling declarations.
 
     case STRING:
