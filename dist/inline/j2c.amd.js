@@ -1,9 +1,10 @@
 define('j2c', function(){return (function () {
   var
+    empty = [],
     type = ({}).toString,
     own =  ({}).hasOwnProperty,
     OBJECT = type.call({}),
-    ARRAY =  type.call([]),
+    ARRAY =  type.call(empty),
     STRING = type.call(""),
     scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
@@ -45,8 +46,8 @@ define('j2c', function(){return (function () {
 
 
   /*/-inline-/*/
-  function j2c(o, buf) {
-    _declarations(o, buf = [], "", j2c.vendors);
+  function j2c(o, vendors, buf) {
+    _declarations(o, buf = [], "", vendors || empty);
     return buf.reverse().join("\n");
   }
 
@@ -61,13 +62,12 @@ define('j2c', function(){return (function () {
 
   
 
-  j2c.prefix = function(prefix, val) {
+  j2c.prefix = function(val, vendors) {
     return _cartesian(
-      prefix.map(function(p){return "-"+p+"-"}).concat([""]),
+      vendors.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]
     );
   };
-  j2c.vendors = [];
   return j2c;
 })()
 

@@ -219,67 +219,6 @@ border-color:red;
 font-size:2em;'
 ```
 
-#### Vendor prefixes:
-
-If the `j2c.vendors` array isn't empty, it is used to automatically add vendor prefixes to all properties.
-
-Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
-
-
-```JavaScript
-j2c.vendors = ["moz", "webkit"];
-j2c({transition:"all 1s"})
-```
-
-```CSS
--moz-transition:all 1s;
--webkit-transition:all 1s;
-transition:all 1s;
-```
-
-Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
-
-```JavaScript
-j2c.vendors = []
-j2c({
-  // Notice the trailing dollar, required for the unprefixed property.
-  _o$_ms$_moz$_webkit$: {foo: "bar"},
-  hello: "world"
-});
-```
-
-Compiles to
-
-```CSS
-p {
-  -o-foo:bar;
-  -ms-foo:bar;
-  -moz-foo:bar;
-  -webkit-foo:bar;
-  foo:bar;
-  hello:world;
-}
-```
-
-To prefix values, you can use `j2c.prefix`:
-
-```JavaScript
-j2c({
-  background_image:j2c.prefix(
-    ['moz','webkit'],
-    "linear-gradient(90deg, #f00, #ff0)"
-  )
-})
-```
-
-```CSS
-background-image: -moz-linear-gradient(90deg, #f00, #ff0);
-background-image: -webkit-linear-gradient(90deg, #f00, #ff0);
-background-image: linear-gradient(90deg, #f00, #ff0);
-```
-
-There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`).
-
 ### For building a style sheet: `j2c.sheet(rules)`
 
 ```JavaScript
@@ -397,6 +336,7 @@ becomes
   }
 }
 ```
+
 For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
 #### CSS Hacks
@@ -463,6 +403,76 @@ Unique classes are automatically generated for each scope name. The middle part 
 
 Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet()` functionality is available.
 
+
+
+## Vendor prefixes:
+
+### Prefixing property names
+
+`j2c()` , `j2c.sheet()` and `j2c.scoped()` take a vendor prefix list as a second, optional argument. When it is present, prefixes are automatically prepended to all properties.
+
+Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
+
+
+```JavaScript
+j2c({transition:"all 1s"}, ["moz", "webkit"])
+```
+
+```CSS
+-moz-transition:all 1s;
+-webkit-transition:all 1s;
+transition:all 1s;
+```
+
+Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
+
+```JavaScript
+j2c({
+  // Notice the trailing dollar, required for the unprefixed property.
+  _o$_ms$_moz$_webkit$: {foo: "bar"},
+  hello: "world"
+});
+```
+
+Compiles to
+
+```CSS
+p {
+  -o-foo:bar;
+  -ms-foo:bar;
+  -moz-foo:bar;
+  -webkit-foo:bar;
+  foo:bar;
+  hello:world;
+}
+```
+
+### Prefixing values
+
+To prefix values, you can use `j2c.prefix`:
+
+```JavaScript
+j2c({
+  background_image:j2c.prefix(
+    "linear-gradient(90deg, #f00, #ff0)",
+    ['moz','webkit']
+  )
+})
+```
+
+```CSS
+background-image: -moz-linear-gradient(90deg, #f00, #ff0);
+background-image: -webkit-linear-gradient(90deg, #f00, #ff0);
+background-image: linear-gradient(90deg, #f00, #ff0);
+```
+
+There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`).
+
+
+### `@-webkit-keyframes`
+
+`@keyframes` blocks automatically produce their `@-webkit-keyframes` counterparts, even in the absence of a vendor list argument.
+
 ## Limitations
 
 ### Selectors and properties order
@@ -500,5 +510,13 @@ I may get around and write a validator companion, but I'm not there yet :-).
 `j2c` puts each selector list and properties on their own lines, but doesn't indent or add other white space.
 
 For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be](https://github.com/mattbasta/crass) [au](https://github.com/beautify-web/js-beautify) [ti](https://github.com/senchalabs/cssbeautify) [fier](http://csstidy.sourceforge.net/)] of your choice.
+
+### `@keyframes` names are global, even in a scoped stylesheet.
+
+It's up to you to pick distinctive names.
+
+### Vendor prefixes corner cases
+
+`j2c` doesn't provide any facility to auto-prefix a list of values. It is relevant in the context of multiple gradient backgrounds and `transition`/`transition-property` values.
 
 ## License: MIT

@@ -10,10 +10,11 @@ See the 'dist' directory for usable files.
 
 *//*/-notice-/*/(function () {
   var
+    empty = [],
     type = ({}).toString,
     own =  ({}).hasOwnProperty,
     OBJECT = type.call({}),
-    ARRAY =  type.call([]),
+    ARRAY =  type.call(empty),
     STRING = type.call(""),
     scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
@@ -55,8 +56,8 @@ See the 'dist' directory for usable files.
 
 
   /*/-inline-/*/
-  function j2c(o, buf) {
-    _declarations(o, buf = [], "", j2c.vendors);
+  function j2c(o, vendors, buf) {
+    _declarations(o, buf = [], "", vendors || empty);
     return buf.reverse().join("\n");
   }
 
@@ -161,23 +162,24 @@ See the 'dist' directory for usable files.
 
   function _finalize(buf) {return buf.reverse().join("\n");}
 
-  function j2c(o, buf) {
-    _declarations(o, buf = [], "", j2c.vendors);
+  function j2c(o, vendors, buf) {
+    _declarations(o, buf = [], "", vendors || empty);
     return _finalize(buf);
   }
 
-  j2c.sheet = function (statements, buf) {
+  j2c.sheet = function (statements, vendors, buf) {
     buf = []
-    _add(statements, buf, "", j2c.vendors);
+    _add(statements, buf, "", vendors || empty);
     return _finalize(buf);
   };
 
-  j2c.scoped = function(statements, k) {
+  j2c.scoped = function(statements, vendors, k) {
     var classes = {},
         buf = [];
+    vendors = vendors || empty;
     for (k in statements) if (own.call(statements, k)) {
       classes[k] = scope_root + (counter++)
-      _add(statements[k], buf, "." + classes[k], j2c.vendors);
+      _add(statements[k], buf, "." + classes[k], vendors);
     }
     buf = new String(_finalize(buf));
     for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
@@ -185,13 +187,12 @@ See the 'dist' directory for usable files.
   }
   /*/-statements-/*/
 
-  j2c.prefix = function(prefix, val) {
+  j2c.prefix = function(val, vendors) {
     return _cartesian(
-      prefix.map(function(p){return "-"+p+"-"}).concat([""]),
+      vendors.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]
     );
   };
-  j2c.vendors = [];
   return j2c;
 })()
 

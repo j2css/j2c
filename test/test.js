@@ -24,8 +24,8 @@ function check(result, expected){
 ].forEach(function(lib){
     var j2c = require(lib)
 
-    function checkinline(result, expected){
-        result = "p{" + j2c(result) + "}"
+    function checkinline(result, expected, vendors){
+        result = "p{" + j2c(result, vendors) + "}"
         expected = (expected instanceof Array ? expected : [expected]).map(function(s){
             return "p{" + s + "}"
         });
@@ -143,13 +143,11 @@ function check(result, expected){
      /**/  suite("Inline auto prefixes, ")  /**/
     ///////////////////////////////////////////
 
-    before(function() {j2c.vendors = ["o", "p"]})
-    after(function() {j2c.vendors = []})
-
     test("vendor prefixes", function() {
         checkinline(
             ["foo:bar",{foo:"baz"}],
-            "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz"
+            "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz",
+            ["o", "p"]
         )
     });
 
@@ -158,13 +156,13 @@ function check(result, expected){
     /////////////////////////////////
 
     test("1 x 1", function() {
-        var prod = j2c.prefix(["o"], "foo")
+        var prod = j2c.prefix("foo", ["o"])
         expect(prod[0]).to.be("-o-foo")
         expect(prod[1]).to.be("foo")
     });
 
     test("2 x 1", function() {
-        var prod = j2c.prefix(["o", "p"], "foo")
+        var prod = j2c.prefix("foo", ["o", "p"])
         expect(prod[0]).to.be("-o-foo")
         expect(prod[1]).to.be("-p-foo")
         expect(prod[2]).to.be("foo")
@@ -178,9 +176,9 @@ function check(result, expected){
 ["../dist/j2c.commonjs", "../dist/j2c.commonjs.min"].forEach(function(lib){
     var j2c = require(lib)
 
-    function add(klass, o){
+    function add(klass, o, vendors){
         var sheet = {}; sheet[" "+klass] = o;
-        return j2c.sheet(sheet) + "";
+        return j2c.sheet(sheet, vendors);
     }
 
 
@@ -447,19 +445,16 @@ function check(result, expected){
      /**/  suite("Sheet auto prefixes, ")  /**/
     //////////////////////////////////////////
 
-    before(function() {j2c.vendors = ["o", "p"]})
-    after(function() {j2c.vendors = []})
-
     test("String literal", function() {
         check(
-            add("p", "foo:bar"),
+            add("p", "foo:bar", ["o", "p"]),
             "p{-o-foo:bar;-p-foo:bar;foo:bar}"
         )
     });
 
     test("Array of Strings", function() {
         check(
-            add("p", ["foo:bar", "_baz:qux"]),
+            add("p", ["foo:bar", "_baz:qux"], ["o", "p"]),
             "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
         )
     });
@@ -485,7 +480,7 @@ function check(result, expected){
         check(
             add("p", {
                 "@import":"'bar'"
-            }),
+            }, ["o", "p"]),
 
             "@import 'bar';"
         )
@@ -495,7 +490,7 @@ function check(result, expected){
         check(
             add("p", {
                 "@media foo":{bar:"baz"}
-            }),
+            }, ["o", "p"]),
 
             "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
         )
@@ -506,7 +501,7 @@ function check(result, expected){
             add("p", {
                 "@media foo":{bar:"baz"},
                 "@media foo2":{bar2:"baz2"}
-            }),
+            }, ["o", "p"]),
             [
                 "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}} @media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}}",
                 "@media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}} @media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
@@ -519,14 +514,14 @@ function check(result, expected){
             add("p", [
                 {"@import":"'bar'"},
                 {"@import":"'baz'"}
-            ]),
+            ], ["o", "p"]),
             "@import 'bar'; @import 'baz';"
         )
     });
 
     test("nested of At rules", function() {
         check(
-            add("p", {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}),
+            add("p", {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}, ["o", "p"]),
             [
                 '@media screen{@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}p{-o-width:1000;-p-width:1000;width:1000}}',
                 '@media screen{p{-o-width:1000;-p-width:1000;width:1000}@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}}'
@@ -537,7 +532,7 @@ function check(result, expected){
     test("@font-face", function(){
         var sheet = j2c.scoped("p")
         check(
-            add("p", {"@font-face":{foo:"bar"}}),
+            add("p", {"@font-face":{foo:"bar"}}, ["o", "p"]),
             "@font-face{foo:bar}"
         )
     });
@@ -545,7 +540,7 @@ function check(result, expected){
     test("@font-face two fonts", function(){
         var sheet = j2c.scoped("p")
         check(
-            add("p", {"@font-face":[{foo:"bar"},{foo:"baz"}]}),
+            add("p", {"@font-face":[{foo:"bar"},{foo:"baz"}]}, ["o", "p"]),
             "@font-face{foo:bar}@font-face{foo:baz}"
         )
     });
@@ -555,7 +550,7 @@ function check(result, expected){
             add("p", {"@keyframes qux": {
                 " from":{foo:"bar"},
                 " to":{foo:"baz"}
-            }}),
+            }}, ["o", "p"]),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
                 "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",
@@ -571,7 +566,7 @@ function check(result, expected){
     ////////////////////////////
 
 
-    test("JSS-like API", function(){
+    test("j2c.scoped", function(){
         var css = j2c.scoped({bit:{foo:5},bat:{bar:6}});
         expect(css.bit.slice(0,4)).to.be("j2c_");
         expect(css.bit).not.to.be(css.bat);
