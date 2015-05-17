@@ -5,20 +5,8 @@ export default (function () {
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
     STRING = type.call(""),
-    scope_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
-
-  function _cartesian(a,b, selectorP, res, i, j) {
-    res = [];
-    for (j in b) if(own.call(b, j))
-      for (i in a) if(own.call(a, i))
-        res.push(_concat(a[i], b[j], selectorP));
-    return res;
-  }
-
-  function _concat(a, b, selectorP) {
-    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
-  }
 
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
@@ -59,11 +47,16 @@ export default (function () {
   
 
   /*/-statements-/*/
-  function finalize(buf) {return buf.reverse().join("\n");}
+  function _cartesian(a,b, selectorP, res, i, j) {
+    res = [];
+    for (j in b) if(own.call(b, j))
+      for (i in a) if(own.call(a, i))
+        res.push(_concat(a[i], b[j], selectorP));
+    return res;
+  }
 
-  function j2c(o, buf) {
-    _declarations(o, buf = [], "", j2c.vendors);
-    return finalize(buf);
+  function _concat(a, b, selectorP) {
+    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
   }
 
 
@@ -137,16 +130,23 @@ export default (function () {
       for (k in decl) if (own.call(decl, k)){
         buf.push("}");
         _declarations(decl, buf, "", vendors);
-        buf.push(prefix + "{");
+        buf.push((prefix || "*") + "{");
         break;
       }
     }
   }
 
+  function _finalize(buf) {return buf.reverse().join("\n");}
+
+  function j2c(o, buf) {
+    _declarations(o, buf = [], "", j2c.vendors);
+    return _finalize(buf);
+  }
+
   j2c.sheet = function (statements, buf) {
     buf = []
     _add(statements, buf, "", j2c.vendors);
-    return finalize(buf);
+    return _finalize(buf);
   };
 
   j2c.scoped = function(statements, k) {
@@ -154,9 +154,9 @@ export default (function () {
         buf = [];
     for (k in statements) if (own.call(statements, k)) {
       classes[k] = scope_root + (counter++)
-      _add(statements[k], buf, classes[k], j2c.vendors);
+      _add(statements[k], buf, "." + classes[k], j2c.vendors);
     }
-    buf = new String(finalize(buf));
+    buf = new String(_finalize(buf));
     for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
     return buf
   }

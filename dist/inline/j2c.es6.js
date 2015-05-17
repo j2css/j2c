@@ -5,20 +5,8 @@ export default (function () {
     OBJECT = type.call({}),
     ARRAY =  type.call([]),
     STRING = type.call(""),
-    scope_root = ".j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0;
-
-  function _cartesian(a,b, selectorP, res, i, j) {
-    res = [];
-    for (j in b) if(own.call(b, j))
-      for (i in a) if(own.call(a, i))
-        res.push(_concat(a[i], b[j], selectorP));
-    return res;
-  }
-
-  function _concat(a, b, selectorP) {
-    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
-  }
 
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
@@ -60,6 +48,14 @@ export default (function () {
   function j2c(o, buf) {
     _declarations(o, buf = [], "", j2c.vendors);
     return buf.reverse().join("\n");
+  }
+
+  function _cartesian(a,b, res, i, j) {
+    res = [];
+    for (j in b) if(own.call(b, j))
+      for (i in a) if(own.call(a, i))
+        res.push(a[i] + b[j]);
+    return res;
   }
   /*/-inline-/*/
 
