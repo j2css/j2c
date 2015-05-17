@@ -136,9 +136,21 @@ You can combine (sub)properties who share the same value using `$` as a separato
 
 #### Arrays
 
-The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occut in order (say, `border` before `border-left`), use an array:
+The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occur in order (say, `border` before `border-left`), use an array:
 
-`j2c([foo,bar])` is equivalent to `j2c(foo) + j2c(bar)`. 
+```JavaScript
+j2c([
+{border: "solid 1px grey"}
+{border_left: "dashed 3px green"}
+])
+```
+
+```CSS
+border: solid 1px grey;
+border-left: dashed 3px green;
+```
+
+More generally, `j2c([foo,bar])` is equivalent to `j2c(foo) + j2c(bar)`. 
 
 This enables the following techniques:
 
