@@ -70,7 +70,39 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 ## Usage
 
-`j2c` can be used to either assemble inline declarations or full style sheets.
+`j2c` can be used to either assemble inline declarations, full style sheets, or scoped rules, each step building on the former.
+
+Scoped rules are especially useful for client-side frameworks, as can be seen in this mock Mithril module:
+
+```JavaScript
+Widget = {
+  styles: j2c.scoped({
+    title: {
+      font_size: '3rem',
+      "&:before":{
+        color: "#888",
+        content: "#"
+      }
+    },
+    content: {
+      padding: '2rem',
+      margin: '0 0 0.5rem 0'
+    }
+  }),
+
+  view: function (ctrl) {
+    return m('.widget', [
+      m('style', Widget.styles)
+      m('h3', { class: Widget.styles.title }),
+      m('div', { class: Widget.styles.content })
+    ])
+  }
+}
+```
+
+Unique class names are generated automatically for `title` and `content`, and assigned to the corresponding properties of the object returned by `j2c.scoped()`.
+
+All methods take in JS objects and return strings. It's up to you to insert the result in the DOM using your favorite method.
 
 ### For inline decalrations: `j2c(declarations)`
 
