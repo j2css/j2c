@@ -21,32 +21,34 @@ define('j2c', function(){return (function () {
   }
 
   // Handles the property:value; pairs.
-  function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
+  // Note that the sheets are built upside down and reversed before being 
+  // turned into strings.
+  function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
       for (k = o.length;k--;)
-        _declarations(o[k], buf, pfx, vendors);
+        _declarations(o[k], buf, prefix, vendors);
       break;
     case OBJECT:
-      pfx = (pfx && pfx + "-");
+      prefix = (prefix && prefix + "-");
       for (k in o) {
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
           for (kk in k = k.split("$")) if (own.call(k, kk))
-            _declarations(v, buf, pfx + k[kk], vendors);
+            _declarations(v, buf, prefix + k[kk], vendors);
         } else {
-          _declarations(v, buf, pfx + k, vendors);
+          _declarations(v, buf, prefix + k, vendors);
         }
       }
       break;
     default:
-      // pfx is falsy when it is "", which means that we're
+      // prefix is falsy when it is "", which means that we're
       // at the top level.
       // `o` is then treated as a `property:value` pair.
-      // otherwise, `pfx` is the property name, and
+      // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      buf.push(o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";");
+      buf.push(o = (prefix && (prefix).replace(/_/g, "-") + ":") + o + ";");
       // vendorify
       for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
@@ -73,7 +75,7 @@ define('j2c', function(){return (function () {
   };
 
   // Add rulesets and other CSS statements to the sheet.
-  function _add(statements, buf, pfx, vendors, /*var*/ k, v, decl) {
+  function _add(statements, buf, prefix, vendors, /*var*/ k, v, decl) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a 
@@ -84,7 +86,7 @@ define('j2c', function(){return (function () {
 
     case ARRAY:
       for (k = statements.length;k--;)
-        _add(statements[k], buf, pfx, vendors);
+        _add(statements[k], buf, prefix, vendors);
       break;
 
     case OBJECT:
@@ -112,7 +114,7 @@ define('j2c', function(){return (function () {
           } else { 
             // default @-rule (usually @media)
             buf.push("}");
-            _add(v, buf, pfx, vendors);
+            _add(v, buf, prefix, vendors);
             buf.push(k + "{");
           }
         } else if (k.match(/^[-\w$]+$/)) {
@@ -121,12 +123,12 @@ define('j2c', function(){return (function () {
 
         } else { // A sub-selector
           _add(v, buf,
-            /* if pfx and/or k have a coma */
-              pfx.indexOf(",") + k.indexOf(",") + 2 ?
+            /* if prefix and/or k have a coma */
+              prefix.indexOf(",") + k.indexOf(",") + 2 ?
             /* then */
-              _cartesian(pfx.split(","), k.split(","), 1).join(",") :
+              _cartesian(prefix.split(","), k.split(","), 1).join(",") :
             /* else */
-              _concat(pfx, k, 1)
+              _concat(prefix, k, 1)
             ,
             vendors
           );
@@ -142,32 +144,32 @@ define('j2c', function(){return (function () {
       for (k in decl) if (own.call(decl, k)){
         buf.push("}");
         _declarations(decl, buf, "", vendors);
-        buf.push(pfx + "{");
+        buf.push(prefix + "{");
         break;
       }
     }
   }
 
-  Sheet.toString = Sheet.valueOf = function () {
+  Sheet.valueOf = function () {
     return this.buf.reverse().join("");
   };
 
   j2c.sheet = function (s) {return ""+new Sheet("").add(s);};
   j2c.scoped = function(o, k, sheet) {
     var classes = {},
-        styles = "";
+        text = "";
     for (k in o) if (own.call(o, k)) {
       sheet = new Sheet().add(o[k])
       classes[k] = sheet.scope
-      styles += sheet
+      text += sheet
     }
-    return {classes:classes, styles:styles}
+    return {classes:classes, text:text}
   }
   /*/-statements-/*/
 
-  j2c.prefix = function(pfx, val) {
+  j2c.prefix = function(prefix, val) {
     return _cartesian(
-      pfx.map(function(p){return "-"+p+"-"}).concat([""]),
+      prefix.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]
     );
   };

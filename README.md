@@ -1,31 +1,30 @@
 # j2c
 
-JavaScript to CSS compiler. ~760 bytes mingzipped.
+JavaScript to CSS compiler. ~870 bytes mingzipped.
 
 Think SASS, but in JSONish syntax.
 
 ----
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-## Table of Contents
+**Table of Contents**
 
 - [Why?](#why)
   - [But, seriously...](#but-seriously)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [For inline decalrations](#for-inline-decalrations)
+    - [Arrays](#arrays)
+      - [Overloading properties](#overloading-properties)
+      - [Mixins](#mixins)
+    - [Vendor prefixes:](#vendor-prefixes)
   - [For building a style sheet](#for-building-a-style-sheet)
     - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
-    - [Overloading properties](#overloading-properties)
-    - [Combining properties](#combining-properties)
     - [Combining multiple selectors](#combining-multiple-selectors)
-    - [-vendor-prefixes](#-vendor-prefixes)
-    - [root selector](#root-selector)
     - [At-rules](#at-rules)
     - [CSS Hacks](#css-hacks)
-  - [For building inline styles](#for-building-inline-styles)
-- [API Reference](#api-reference)
-  - [`j2c` and static fields](#j2c-and-static-fields)
-  - [`Sheet` methods](#sheet-methods)
+    - [Mixins redux](#mixins-redux)
+  - [Scoped sheet](#scoped-sheet)
 - [Limitations](#limitations)
   - [Selectors and properties order](#selectors-and-properties-order)
   - [No input validation](#no-input-validation)
@@ -33,6 +32,7 @@ Think SASS, but in JSONish syntax.
 - [License: MIT](#license-mit)
 
 <small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc), then tweaked a bit.*</small>
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ----
@@ -78,10 +78,12 @@ The `j2c` function walks down JS objects and builds a `property:value;` list out
 
 ```JavaScript
 j2c({
-  color:"red",
-  margin_left: {
-    width: "1px",
-    color: "purple"
+  background_color:"red",
+  border:{
+    top$left: {
+      width: "1px",
+      color: "white"
+    }
   }
 })
 ```
@@ -89,18 +91,74 @@ j2c({
 Outputs, as you could expect (white space added for readability):
 
 ```CSS
-color: red;
-margin-left-color: purple;
-margin-left-width: 1px;
+background-color: red;
+border-top-color: white;
+border-top-width: 1px;
+border-left-color: white;
+border-left-width: 1px;
 ```
 
-#### Mixins
+Underscores are automatically turned into dashes so that property names can be left unquoted in the source.
 
-You can 
+You can combine (sub)properties who share the same value using `$` as a separator. It is useful to specify vendor prefixes. Once again, it allows to leave property names unquoted.
+
+#### Arrays
+
+The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occut in order (say, `border` before `border-left`), use an array:
+
+`j2c([foo,bar])` is equivalent to `j2c(foo) + j2c(bar)`. 
+
+This enables the following techniques:
+
+##### Overloading properties
+
+If you want to overload a property by using an array at the value level
+
+```JavaScript
+j2c({
+    border_color: ["#33e", "rgba(64,64,255,0.8)"],
+})
+```
+
+becomes
+
+```CSS
+border-color:#33e;
+border-color:rgba(64,64,255,0.8);
+```
+
+Alternatively:
+
+```JavaScript
+j2c([
+  {
+      border_color: "#33e"
+  }, {
+      border_color: "rgba(64,64,255,0.8)"
+  }
+])
+```
+
+and 
+
+```JavaScript
+j2c({
+    border:[
+      {color: "#33e"},
+      {color: "rgba(64,64,255,0.8)"}
+    ]
+})
+```
+
+will give the same result.
+
+##### Mixins
+
+You can mix in properties by using a function call in an array:
 
 ```JavaScript
 function mixin(color) {
-  return{
+  return {
     border_color: color,
     color: color
   }
@@ -115,117 +173,82 @@ j2c([
 ```
 
 ```CSS
-
+'color:red;
+border-color:red;
+font-size:2em;'
 ```
 
+#### Vendor prefixes:
+
+If the `j2c.vendors` array isn't empty, it is used to automatically add vendor prefixes to all properties.
+
+Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
+
+
 ```JavaScript
+j2c.vendors = ["moz", "webkit"];
+j2c({transition:"all 1s"})
+```
+
+```CSS
+-moz-transition:all 1s;
+-webkit-transition:all 1s;
+transition:all 1s;
+```
+
+Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
+
+```JavaScript
+j2c.vendors = []
 j2c({
-  // underscores are turned into dashes.
-  background_image: "url(bg.png)",
-  border: {
-    // sub-properties are automatically concatenated.
-    color: ["#33e", "rgba(64,64,255,0.8)"],
-    // set both `border-top-width` and `border-left-width`
-    top$left: {width: "1px"},
-  }
-  font: {
-    size: "2em",
-    weight: 700
-  },
-  "*zoom": 1
-})
+  // Notice the trailing dollar, required for the unprefixed property.
+  _o$_ms$_moz$_webkit$: {foo: "bar"},
+  hello: "world"
+});
 ```
 
-Result:
+Compiles to
 
 ```CSS
-background-image: url(bg.png);
-
-border-color: #33e;
-border-color: rgba(64,64,255,0.8);
-
-border-top-width: 1px;
-border-left-width: 1px;
-font-size: 2em;
-font-weight: 700;
-*zoom: 1;
-```
-
-If order is important, use `Arrays`:
-
-```JavaScript
-j2c([
-  "border:1px", // at the top level, equivalent to {border:"1px"}
-  {
-    border_left:{
-      width: "2px",
-      color: "red"
-    }
-  }
-])
-```
-
-Becomes
-
-```CSS
-border: 0;
-
-// the above is guaranteed to occur before the next two
-
-border-left-color:red;
-border-left-width:2px;
-```
-
-Also, provided the vendors list isn't empty, each property ends up prefixed by each vendor, then unprefixed.
-
-```JavaScript
-j2c.vendors = ["o", "ms", "moz", "webkit"]; // This is the default list
-console.log(j2c({
-    foo:"bar";
-}));
-```
-... outputs ...
-```CSS
--o-foo:bar;
--ms-foo:bar;
--moz-foo:bar;
--webkit-foo:bar;
-foo:bar;
+p {
+  -o-foo:bar;
+  -ms-foo:bar;
+  -moz-foo:bar;
+  -webkit-foo:bar;
+  foo:bar;
+  hello:world;
+}
 ```
 
 ### For building a style sheet
 
 ```JavaScript
-j2c.vendors = [] // for the sake of this demo
-                 // defaults to ["o", "ms", "moz", "webkit"].
-
-r = j2c.scoped("ul.my_root_class")
-
-r.add({
-    "@media condition": {
-        color: "red"
-    },
-    // properties for the main ul.my_root_class elements
-    font: { 
-        size: "2em",
-        family: "sans-serif"
-    },
-    // underscores in property names are converted to dashes.
-    background_color: "#44f", 
-
-    // sub-selector for children element, notice the mandatory initial space
-    // signifying a child element.
-    " li": { 
-        padding:{
-            left: "5px"
-            top: "10px"
+j2c.sheet({
+    "ul.my_root_class": {
+        "@media condition": {
+            color: "red"
         },
-        // convenient $hortcut.
-        border: {left$right: {width: "2px"}}
+        // properties for the main ul.my_root_class elements
+        font: { 
+            size: "2em",
+            family: "sans-serif"
+        },
+        // underscores in property names are converted to dashes.
+        background_color: "#44f", 
+
+        // sub-selector for children element, notice the mandatory initial space
+        // signifying a child element.
+        " li": { 
+            padding:{
+                left: "5px"
+                top: "10px"
+            },
+            // convenient $hortcut.
+            border: {left$right: {width: "2px"}}
+        }
     }
 })
 
-console.log(r.toString())
 ```
 
 Output (beautified):
@@ -255,78 +278,16 @@ ul.my_root_class {
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
-#### Overloading properties
-
-```JavaScript
-r = j2c.scoped("ul.my_root_class")
-
-r.add({
-    font_size: ["2em", "2rem"]
-})
-
-console.log(r.toString())
-```
-becomes
-```CSS
-.foo {
-  font-size:2em;
-  font-size:2rem;
-}
-```
-
-Alternatively
-
-```JavaScript
-r = j2c.scoped("ul.my_root_class")
-
-r.add([
-    {
-        "font-size": "2em"
-    },
-    {
-        "font-size": "2rem"
-    }
-])
-
-console.log(r.toString())
-```
-becomes
-```CSS
-ul.my_root_class {
-  font-size:2em;
-}
-ul.my_root_class {
-  font-size:2rem;
-}
-```
-
-#### Combining properties
-
-```JavaScript
-j2c.scoped("p").add({
-  border: {
-    left_color: "#fab",
-    right_color: "#fab"
-  }
-}
-})
-```
-
-can be shortened as
-
-```JavaScript
-j2c("p").add({
-  border: {left$right: {color: "#fab"}}
-}
-})
-```
+The properties at a given selector level are guaganteed to appear in the CSS output before the ones of sub-selectors and before those present in nested @-rules.
 
 #### Combining multiple selectors
+
+TODO: refactor this section to mention the SASS-like `&` placeholder (at any arbitrary position).
 
 Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
 
 ```JavaScript
-j2c.scoped("").add({
+j2c.sheet({
   ".block,.blockgroup":{
     ",:before,:after":{          // Notice the initial coma.
       box_sizing:"border-box"
@@ -344,47 +305,6 @@ Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `["
 ```
 
 Mathy folks call this as a Cartesian product.
-
-#### -vendor-prefixes
-
-If you don't truncate the vendors list as I did in the example above, you'll get each property prefixed for each vendor.
-
-Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
-
-Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
-
-```JavaScript
-j2c.vendors = []
-j2c.scoped("p").add({
-  // Notice the trailing dollar, required for the unprefixed property.
-  _o$_ms$_moz$_webkit$: {foo: "bar"},
-  hello: "world"
-}).toString()
-```
-
-Compiles to
-
-```CSS
-p {
-  -o-foo:bar;
-  -ms-foo:bar;
-  -moz-foo:bar;
-  -webkit-foo:bar;
-  foo:bar;
-  hello:world;
-}
-```
-
-#### Scoped sheet
-
-If no root selector is provided, `J2C` creates one (a unique class).
-
-```JavaScript
-r = j2c.scoped()
-r.scope // --> ".j2c_$token_$counter" where `$token` is unique per
-         //     j2c instance, and `$counter` is incremented to 
-         //     ensure that these classes are unique.
-```
 
 #### At-rules
 
@@ -455,26 +375,29 @@ Result:
 
 You can also pass th result of `j2c.inline` which is less picky about property names.
 
-## API Reference
+#### Mixins redux
 
-### `j2c` and static fields
+Arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins).
 
-* `j2c(props:(Object|Array|String)) : String`: returns a declaration list suitable for inline styles
-* `j2c.scoped([root:String]) : Sheet`: Creates a Sheet object.
-* `j2c.sheet([rules]): Sheet`: Shortcut for `j2c.scoped("")[.add(rules)]`.
-* `j2c.vendors = ["o", "ms", "moz", "webkit"]` (r/w): list of vendor prefixes.
+### Scoped sheet
 
+`j2c.scoped` offers a [`JSS`](https://github.com/jsstyles/jss)-like functionality:
 
-### `Sheet`
+```JavaScript
+var sheet = j2c.scoped({
+  foo:{color:"red"},
+  bar:{margin:0}
+})
+console.log(sheet.classes.foo)
+// '.j2c_994233084_0'
+console.log(sheet.classes.bar)
+//'.j2c_994233084_1'
+console.log(sheet.text)
+// '.j2c_994233084_0{color:red;}.j2c_994233084_1{margin:0;}'
+```
 
-#### methods
+Unique classes are automatically generated for each scope name
 
-* `sheet.add(statements:(Object|Array|String)) : Sheet`: add a series of statements to the style sheet. Returns the `Sheet` for chaining.
-* `sheet.toString()/sheet.valueOf(): String`: the stylesheet in string form.
-
-#### Property
-
-* `sheet.scope : String` (r/w): a selector prefixed to all selectors in the sheet.
 
 ## Limitations
 

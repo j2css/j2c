@@ -21,32 +21,34 @@ export default (function () {
   }
 
   // Handles the property:value; pairs.
-  function _declarations(o, buf, pfx, vendors, /*var*/ k, v, kk) {
+  // Note that the sheets are built upside down and reversed before being 
+  // turned into strings.
+  function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
       for (k = o.length;k--;)
-        _declarations(o[k], buf, pfx, vendors);
+        _declarations(o[k], buf, prefix, vendors);
       break;
     case OBJECT:
-      pfx = (pfx && pfx + "-");
+      prefix = (prefix && prefix + "-");
       for (k in o) {
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
           for (kk in k = k.split("$")) if (own.call(k, kk))
-            _declarations(v, buf, pfx + k[kk], vendors);
+            _declarations(v, buf, prefix + k[kk], vendors);
         } else {
-          _declarations(v, buf, pfx + k, vendors);
+          _declarations(v, buf, prefix + k, vendors);
         }
       }
       break;
     default:
-      // pfx is falsy when it is "", which means that we're
+      // prefix is falsy when it is "", which means that we're
       // at the top level.
       // `o` is then treated as a `property:value` pair.
-      // otherwise, `pfx` is the property name, and
+      // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      buf.push(o = (pfx && (pfx).replace(/_/g, "-") + ":") + o + ";");
+      buf.push(o = (prefix && (prefix).replace(/_/g, "-") + ":") + o + ";");
       // vendorify
       for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
@@ -61,9 +63,9 @@ export default (function () {
 
   
 
-  j2c.prefix = function(pfx, val) {
+  j2c.prefix = function(prefix, val) {
     return _cartesian(
-      pfx.map(function(p){return "-"+p+"-"}).concat([""]),
+      prefix.map(function(p){return "-"+p+"-"}).concat([""]),
       [val]
     );
   };
