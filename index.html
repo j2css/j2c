@@ -408,25 +408,22 @@ var PGM = {
         return [
             ctrl.deps,
             !ctrl.loaded ? m("div", "Loading the editor...") :
-            m(".playground", {class: PGM.css.playground}, [
+            m(".playground."+ PGM.css.playground, [
                 m('style', PGM.css),
-                m("div", {class: PGM.css.menu}, [
-                  m("div", {
-                    class: PGM.css.arrow, 
+                m(".menu."+PGM.css.menu, [
+                  m("." + PGM.css.arrow, {
                     style: ctrl.cangoback ? "pointer:click" : "color:#888",
                     onclick: ctrl.goback
                   }, m("p", "<")),
-                  m("div", {class: PGM.css.select},
+                  m(".select." + PGM.css.select,
                     m("select", [m('option', "Inline stlyes: intro")])
                   ),
-                  m("div", {
-                    class: PGM.css.arrow, 
+                  m("."+PGM.css.arrow, {
                     style: ctrl.cangoforward ? "pointer:click" : "color:#888",
                     onclick: ctrl.goforward
                   }, m("p", ">")),
                 ]),
-                m(".code", {
-                    class: PGM.css.code,
+                m("." + PGM.css.code, {
                     config: function(elt, init){
                         if (!init) {
                             ctrl.JSCode = CodeMirror(elt, {
@@ -437,8 +434,7 @@ var PGM = {
                         }
                     }
                 }),
-                m(".CSS", {
-                    class: PGM.css.CSS,
+                m("." + PGM.css.CSS, {
                     config: function(elt, init){
                         if (!init) {
                             ctrl.CSSCode = CodeMirror(elt, {
