@@ -149,8 +149,7 @@
   }
 
   j2c.sheet = function (statements, vendors, buf) {
-    buf = []
-    _add(statements, buf, "", vendors || empty);
+    _add(statements, buf = [], "", vendors || empty);
     return _finalize(buf);
   };
 
@@ -159,12 +158,12 @@
         buf = [];
     vendors = vendors || empty;
     for (k in statements) if (own.call(statements, k)) {
-      classes[k] = scope_root + (counter++)
+      classes[k] = scope_root + (counter++);
       _add(statements[k], buf, "." + classes[k], vendors);
     }
     buf = new String(_finalize(buf));
-    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k]
-    return buf
+    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k];
+    return buf;
   }
   /*/-statements-/*/
 
