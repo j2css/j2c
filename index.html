@@ -322,25 +322,34 @@ m.module(playground, {
     controller: function() {
         var self = this,
             count = 0
-        self.loadCodeMirror = function() {
+
+        function loadDeps() {
             count += 1;
-            if (count == 4) {
+            if (count == self.deps.length) {
                 self.loaded = true;
                 m.redraw();
             }
         }
 
-        self.scripts = [
+        self.deps = [
             "codemirror.js",
-            "mode/javascript/javascript.js",
-            "mode/css/css.js"
+            "javascript.js",
+            "css.js",
+            "cssbeautify.js"
         ].map(function(script){
             return m("script", {
                 async:false,
-                src:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/"+script,
-                onload:self.loadCodeMirror
+                src:script,
+                onload:loadDeps
             })
         })
+        self.deps.unshift(
+            m("link", {
+                itemprop:"stylesheet", rel:"stylesheet",
+                href:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css",
+                onload:loadDeps
+            })
+        )
 
         self.loaderStyle = j2c({
             align: "center",
@@ -354,6 +363,7 @@ m.module(playground, {
             try{
                 res = new Function('j2c', code.getValue())(j2c)
                 if ("[object String]" !== {}.toString.call(res)) res = j2c.sheet(res);
+                res = cssbeautify(res);
                 self.css_output=res;
                 self.CSSCode.setValue(res);
             } catch (e) {
@@ -366,12 +376,7 @@ m.module(playground, {
     },
     view:function(ctrl) {
         return [
-            m("link", {
-                itemprop:"stylesheet", rel:"stylesheet",
-                href:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css",
-                onload:ctrl.loadCodeMirror
-            }),
-            ctrl.scripts,
+            ctrl.deps,
             !ctrl.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
             m(".playground", [
                 m(".code", {
