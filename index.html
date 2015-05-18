@@ -1,13 +1,26 @@
 <!doctype html>
 <title>J2C — JavaScript to CSS Compiler</title>
 
+<!--[if lte IE 8]>
+<script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
+<![endif]-->
+
 <script src="https://cdn.rawgit.com/pygy/j2c/f84075582e21af6b3c89a58afb02f37b892c42df/dist/j2c.global.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/0.2.0/mithril.js"></script>
+<script src="mithril.js"></script>
+
 <script>
+
+var border_box = {
+    ",:before,:after":{ //note the initial coma
+        box_sizing:"border-box"
+    }
+}
+
 var pocketgrid = {
-    blockgroup: [
+    group: [
         /* Clearfix */
         "*zoom: 1",
+        border_box,
         {
             ":before,:after": {
                 display: "table",
@@ -16,32 +29,29 @@ var pocketgrid = {
             },
             ":after": {clear:"both"},
 
-            //note the initial coma in the sub-selector list
-            ",:before,:after":{
-                box_sizing:"border-box"
-            },
-
             /* ul/li compatibility */
-            list_style_type:"none",
-            padding:0,
-            margin:0,
+            "list-style-type":"none",
+            margin$padding:0
 
-            " > .blockgroup": {
-                /* Nested grid */
-                clear: "none",
-                float: "left",
-                margin: "0 !important"
-            }
         }
     ],
-    block: {
-        ",:before,:after":{ //note the initial coma
-            box_sizing:"border-box"
-        },
-        float: "left",
-        width: "100%"
-    }
+    block: [
+        border_box,
+        {
+            float: "left",
+            width: "100%"
+        }
+    ]
 }
+
+pocketgrid.nested = [
+    pocketgrid.group,
+    {
+        clear: "none",
+        float: "left",
+        margin: "0 !important"
+    }
+]
 </script>
 
 <script>
@@ -280,48 +290,70 @@ head.appendChild(style);
 setTimeout(function(){
 var j2c = window.j2c;
 
-var initial_js = (function () {/*return j2c.sheet({
-  // Border-box-sizing
-  ".block,.blockgroup":{
-    ",:before,:after":{
-      box_sizing:"border-box"
-    }
-  },
-  ".blockgroup": [
-    // Clearfix
-    "*zoom: 1",
-    {
-      ":before,:after": {
-        display: "table",
-        content: '""',
-        line_heigth: 0
-      },
-      ":after": {clear:"both"},
+function longString(func) {
+  var matches = func.toString().match(/function\s*\(\)\s*\{\s*\/\*\!?\s*([\s\S]+?)\s*\*\/\s*\}/);
+  if (!matches) return false;
+ 
+  return matches[1];
+}
 
-      // ul/li compatibility
-      list_style_type:"none",
-      margin$padding:0,
 
-      " > .blockgroup": {
-        // Nested grid
-        clear: "none",
-        float: "left",
-        margin: "0 !important"
-      }
+function sanitize(source) {
+  return source.replace(/(\W)(while|for|eval)(\W)/g, "$1_$2_$3")
+}
+var pages = [
+  {
+    name: "Inline stlyes: intro",
+    code: longString(function(){/*!
+// Here we demonstrate j2c's ability to
+// create inline styles.
+
+j2c({
+  // Underscores are converted to
+  // dashes so that property names can
+  // be left unquoted.
+  background_color:"red",
+
+  // The following sets the width and
+  // color of the top and left borders.
+  border: {
+    top$left: {
+      width: "1px",
+      color: "white"
     }
-  ],
-  // Default block
-  ".block": {
-    float: "left",
-    width: "100%"
   }
 })
-*/}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
 
-m.module(playground, {
+*/})
+  }, {
+    name: "Inline styles: arrays for order",
+    code: longString(function(){/*!
+// The order of iteration over the keys
+// of a js object is undefined. If you
+// want to ensure that properties occur
+// in order, use an array:
+
+j2c([
+  {border: "solid 1px grey"},
+  {border_left: "dashed 3px green"}
+])
+
+*/})
+  }
+]
+
+pages.forEach(function(p){
+  p.original = p.code;
+})
+
+var initial_js = pages[0].code
+
+var PGM = {
     controller: function() {
         var self = this,
             count = 0
+
+        self.page = m.prop(pages[0])
 
         function loadDeps() {
             count += 1;
@@ -346,22 +378,20 @@ m.module(playground, {
         self.deps.unshift(
             m("link", {
                 itemprop:"stylesheet", rel:"stylesheet",
-                href:"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css",
+                href:"codemirror.css",
                 onload:loadDeps
             })
         )
 
-        self.loaderStyle = j2c({
-            align: "center",
-            display: "table-cell",
-            height: "10em",
-            vertical_align: "middle"
-        })
         self.css_output=""
         self.runcode = function(code) {
             var ok = true, res;
             try{
-                res = new Function('j2c', code.getValue())(j2c)
+                res = new Function(
+                  'j2c', 
+                  'console', 'alert', 'window', 'document', 'undefined', 
+                  "'use strict';  return (" + sanitize(code.getValue()) + ");"
+                ).call(null, j2c);
                 if ("[object String]" !== {}.toString.call(res)) res = j2c.sheet(res);
                 res = cssbeautify(res);
                 self.css_output=res;
@@ -377,21 +407,38 @@ m.module(playground, {
     view:function(ctrl) {
         return [
             ctrl.deps,
-            !ctrl.loaded ? m("div", {style:ctrl.loaderStyle}, "Loading the editor...") :
-            m(".playground", [
+            !ctrl.loaded ? m("div", "Loading the editor...") :
+            m(".playground", {class: PGM.css.playground}, [
+                m('style', PGM.css),
+                m("div", {class: PGM.css.menu}, [
+                  m("div", {
+                    class: PGM.css.arrow, 
+                    style: ctrl.cangoback ? "pointer:click" : "color:#888",
+                    onclick: ctrl.goback
+                  }, m("p", "<")),
+                  m("div", {class: PGM.css.select},
+                    m("select", [m('option', "Inline stlyes: intro")])
+                  ),
+                  m("div", {
+                    class: PGM.css.arrow, 
+                    style: ctrl.cangoforward ? "pointer:click" : "color:#888",
+                    onclick: ctrl.goforward
+                  }, m("p", ">")),
+                ]),
                 m(".code", {
+                    class: PGM.css.code,
                     config: function(elt, init){
                         if (!init) {
                             ctrl.JSCode = CodeMirror(elt, {
                                 value: initial_js,
-                                mode:  "javascript",
-                                lineNumbers: true
+                                mode:  "javascript"
                             });
                             ctrl.JSCode.on("change", ctrl.runcode)
                         }
                     }
                 }),
                 m(".CSS", {
+                    class: PGM.css.CSS,
                     config: function(elt, init){
                         if (!init) {
                             ctrl.CSSCode = CodeMirror(elt, {
@@ -405,8 +452,63 @@ m.module(playground, {
                 })
             ])
         ]
-    }
-})
+    },
+    css: j2c.scoped({
+      playground:pocketgrid.group,
+      menu: [
+        pocketgrid.nested,
+        {
+          font_size: "1.6em",
+          width:"100%"
+        }
+      ],
+      arrow:[
+        pocketgrid.block,
+        {
+          display:"table-cell",
+          height: "2em",
+          vertical_align:"middle",
+          width: "5%",
+          " p": {
+            height: "100%",
+            margin:"0 auto",
+            vertical_align: "middle",
+            width: "1em"
+          }
+        }
+      ],
+      select: [
+        pocketgrid.block,
+        {
+          vertical_align:"middle",
+          width: "90%",
+          " select": {
+            border: "0px solid #ccc",
+            cursor: "pointer",
+            font_size: "inherit",
+            text_overflow: "ellipsis",
+            width: "100%",
+            _moz$_webkit$:{appearance:"none"},
+            "::-ms-expand":{appearance:"none"}
+          }
+        }
+      ],
+    code: [
+      pocketgrid.block,
+      {
+        width:"50%"
+      }
+    ],
+    CSS: [
+      pocketgrid.block,
+      {
+        width:"50%"
+      }
+    ]
+    })
+}
+
+m.module(playground, PGM)
 
 })
 </script>
