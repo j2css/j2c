@@ -17,7 +17,8 @@ See the 'dist' directory for usable files.
     ARRAY =  type.call(empty),
     STRING = type.call(""),
     scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
-    counter = 0;
+    counter = 0,
+    j2c = {};
 
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
@@ -56,7 +57,7 @@ See the 'dist' directory for usable files.
 
 
   /*/-inline-/*/
-  function j2c(o, vendors, buf) {
+  j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return buf.reverse().join("\n");
   }
@@ -166,7 +167,7 @@ See the 'dist' directory for usable files.
 
   function _finalize(buf) {return buf.reverse().join("\n");}
 
-  function j2c(o, vendors, buf) {
+  j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return _finalize(buf);
   }

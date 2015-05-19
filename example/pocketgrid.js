@@ -25,9 +25,7 @@ SOFTWARE.
 
 var j2c = require("../dist/j2c.commonjs");
 
-j2c.vendors = [];
-
-console.log(j2c.sheet("").add({
+console.log(j2c.sheet({
   /* Border-box-sizing */
   ".block,.blockgroup":{
     ",:before,:after":{
@@ -62,5 +60,5 @@ console.log(j2c.sheet("").add({
     float: "left",
     width: "100%"
   }
-}).toString())
+}))
 

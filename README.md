@@ -13,7 +13,7 @@ Think SASS, but with JSONish syntax.
   - [But, seriously...](#but-seriously)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [For inline decalrations: `j2c(declarations)`](#for-inline-decalrations-j2cdeclarations)
+  - [For inline decalrations: `j2c.inline(declarations)`](#for-inline-decalrations-j2cinlinedeclarations)
     - [Arrays](#arrays)
       - [Overloading properties](#overloading-properties)
       - [Mixins](#mixins)
@@ -104,14 +104,14 @@ Unique class names are generated automatically for `title` and `content`, and as
 
 All methods take in JS objects and return strings. It's up to you to insert the result in the DOM using your favorite method.
 
-### For inline decalrations: `j2c(declarations)`
+### For inline decalrations: `j2c.inline(declarations)`
 
 The `j2c` function walks down JS objects and builds a `property:value;` list out of it.
 
 ```JavaScript
-j2c({
+j2c.inline({
   background_color:"red",
-  border:{
+  border: {
     top$left: {
       width: "1px",
       color: "white"
@@ -139,9 +139,9 @@ You can combine (sub)properties who share the same value using `$` as a separato
 The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occur in order (say, `border` before `border-left`), use an array:
 
 ```JavaScript
-j2c([
-{border: "solid 1px grey"}
-{border_left: "dashed 3px green"}
+j2c.inline([
+  {border: "solid 1px grey"},
+  {border_left: "dashed 3px green"}
 ])
 ```
 
@@ -150,7 +150,7 @@ border: solid 1px grey;
 border-left: dashed 3px green;
 ```
 
-More generally, `j2c([foo,bar])` is equivalent to `j2c(foo) + j2c(bar)`. 
+More generally, `j2c.inline([foo,bar])` is equivalent to `j2c.inline(foo) + j2c.inline(bar)`. 
 
 This enables the following techniques:
 
@@ -159,7 +159,7 @@ This enables the following techniques:
 If you want to overload a property by using an array at the value level
 
 ```JavaScript
-j2c({
+j2c.inline({
     border_color: ["#33e", "rgba(64,64,255,0.8)"],
 })
 ```
@@ -174,7 +174,7 @@ border-color:rgba(64,64,255,0.8);
 Alternatively:
 
 ```JavaScript
-j2c([
+j2c.inline([
   { border_color: "#33e"},
   { border_color: "rgba(64,64,255,0.8)"}
 ])
@@ -183,7 +183,7 @@ j2c([
 and 
 
 ```JavaScript
-j2c({
+j2c.inline({
     border:[
       {color: "#33e"},
       {color: "rgba(64,64,255,0.8)"}
@@ -205,7 +205,7 @@ function mixin(color) {
   }
 }
 
-j2c([
+j2c.inline([
   mixin("red"),
   {
     font_size:"2em"
@@ -411,13 +411,13 @@ Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet(
 
 ### Prefixing property names
 
-`j2c()` , `j2c.sheet()` and `j2c.scoped()` take a vendor prefix list as a second, optional argument. When it is present, prefixes are automatically prepended to all properties.
+`j2c.inline()` , `j2c.sheet()` and `j2c.scoped()` take a vendor prefix list as a second, optional argument. When it is present, prefixes are automatically prepended to all properties.
 
 Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
 
 
 ```JavaScript
-j2c({transition:"all 1s"}, ["moz", "webkit"])
+j2c.inline({transition:"all 1s"}, ["moz", "webkit"])
 ```
 
 ```CSS
@@ -429,7 +429,7 @@ transition:all 1s;
 Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
 
 ```JavaScript
-j2c({
+j2c.inline({
   // Notice the trailing dollar, required for the unprefixed property.
   _o$_ms$_moz$_webkit$: {foo: "bar"},
   hello: "world"
@@ -454,7 +454,7 @@ p {
 To prefix values, you can use `j2c.prefix`:
 
 ```JavaScript
-j2c({
+j2c.inline({
   background_image:j2c.prefix(
     "linear-gradient(90deg, #f00, #ff0)",
     ['moz','webkit']
@@ -482,10 +482,12 @@ There's no support for prefixing a list multiple values (e.g. `"linear-gradient(
 `j2c` relies on JS objects to define selectors and properties. As a consequence, the source order cannot be guaranteed to be respected in the output. 
 
 ```Javascript
-j2c(".hello").add({
-  foo:"bar",
-  baz:"qux"
-}).toString()
+j2c.sheet({
+  ".hello": {
+    foo:"bar",
+    baz:"qux"
+  }
+})
 ```
 
 This may produce either `.hello{foo:bar;baz:qux;}` or `.hello{baz:qux;foo:bar;}`.
@@ -493,10 +495,12 @@ This may produce either `.hello{foo:bar;baz:qux;}` or `.hello{baz:qux;foo:bar;}`
 If you need some selectors or properties to happen in order, use an array of objects.
 
 ```Javascript
-j2c(".hello").add([
-  {foo:"bar"},
-  {baz:"qux"}
-]).toString()
+j2c.sheet({
+  ".hello":[
+    {foo:"bar"},
+    {baz:"qux"}
+  ]
+})
 ```
 
 This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.

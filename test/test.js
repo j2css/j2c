@@ -33,7 +33,7 @@ function randInt() {
     var j2c = require(lib)
 
     function checkinline(result, expected, vendors){
-        result = "p{" + j2c(result, vendors) + "}"
+        result = "p{" + j2c.inline(result, vendors) + "}"
         expected = (expected instanceof Array ? expected : [expected]).map(function(s){
             return "p{" + s + "}"
         });
