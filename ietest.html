@@ -33,10 +33,13 @@ var safecss = j2c.scoped({
     foo:{color:"blue"}
 })
 
+
+console && console.log && console.log("Mounting Scoped")
 m.mount(scoped, {view:function(){return m(
     "span", {class:safecss.foo}, [
         m('style', {config:function(el, isInit){
             if (!isInit) {
+                console && console.log && console.log("Config running")
                 // if no IE lte8 support is required `m('style', Widget.styles)`
                 // does the trick.
                 try { el.innerText = safecss
