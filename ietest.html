@@ -1,0 +1,30 @@
+<!doctype html>
+<title>J2C — JavaScript to CSS Compiler</title>
+
+<!--[if lte IE 8]>
+<script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
+<![endif]-->
+
+<script src="https://cdn.rawgit.com/pygy/j2c/f84075582e21af6b3c89a58afb02f37b892c42df/dist/j2c.global.js"></script>
+<script src="mithril.js"></script>
+
+
+
+<p class="foo">Hello</p>
+<div id="app"></div>
+
+<script>
+var css = j2c.sheet({".foo":{color:"red"}}),
+    head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+
+style.type = 'text/css';
+if (style.styleSheet){
+  style.styleSheet.cssText = css;
+} else {
+  style.appendChild(document.createTextNode(css));
+}
+
+head.appendChild(style);
+
+</script>
