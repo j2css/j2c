@@ -10,9 +10,9 @@
 
 
 
-<p class="foo">Hello <span id="app"></span></p>
+<p class="foo">Hello <span id="world"></span></p>
 
-
+<div id="scoped"></div>
 <script>
 var css = j2c.sheet({".foo":{color:"red"}}),
     head = document.head || document.getElementsByTagName('head')[0],
@@ -27,6 +27,25 @@ if (style.styleSheet){
 
 head.appendChild(style);
 
-m.mount(app, {view:function(){return m("span", {style:j2c({color:"green"})}, "Mithril + j2c World")}});
+m.mount(world, {view:function(){return m("span", {style:j2c({color:"green"})}, "Mithril + j2c World")}});
+
+var safecss = j2c.scoped({
+    foo:{color:"blue"}
+})
+
+m.mount(scoped, {view:function(){return m(
+    "span", {class:safecss.foo}, [
+        m('style', {config:function(el, isInit){
+            if (!isInit) {
+                // if no IE lte8 support is required `m('style', Widget.styles)`
+                // does the trick.
+                try { el.innerText = safecss
+                    //appendChild(document.createTextNode(safecss)) 
+                } catch (e) { el.styleSheet.cssText = safecss }
+            }
+        }}),
+        "Safe scoped sheet."
+    ])
+}});
 
 </script>
