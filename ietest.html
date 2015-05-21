@@ -10,8 +10,8 @@
 
 
 
-<p class="foo">Hello</p>
-<div id="app"></div>
+<p class="foo">Hello <span id="app"></span></p>
+
 
 <script>
 var css = j2c.sheet({".foo":{color:"red"}}),
@@ -26,5 +26,7 @@ if (style.styleSheet){
 }
 
 head.appendChild(style);
+
+m.mount(app, {view:function(){return m("span", {style:j2c({color:"green"})}, "Mithril + j2c World")}});
 
 </script>
