@@ -6,7 +6,7 @@
     OBJECT = type.call({}),
     ARRAY =  type.call(empty),
     STRING = type.call(""),
-    scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0,
     j2c = {};
 

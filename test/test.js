@@ -576,8 +576,8 @@ function randInt() {
 
     test("j2c.scoped", function(){
         var css = j2c.scoped({bit:{foo:5},bat:{bar:6}});
-        expect(css.bit.slice(0,4)).to.be("j2c_");
-        expect(css.bit).not.to.be(css.bat);
+        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        expect(css.bit.slice(4)).not.to.be(css.bat.slice(4));
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
         expect(css.indexOf("." + css.bat + "{\nbar:6;\n}")).not.to.be(-1);
     });

@@ -6,7 +6,7 @@ define('j2c', function(){return (function () {
     OBJECT = type.call({}),
     ARRAY =  type.call(empty),
     STRING = type.call(""),
-    scope_root = "j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0,
     j2c = {};
 
@@ -159,7 +159,7 @@ define('j2c', function(){return (function () {
         buf = [];
     vendors = vendors || empty;
     for (k in statements) if (own.call(statements, k)) {
-      classes[k] = scope_root + (counter++);
+      classes[k] = k.replace(/[^\-\w]/, '') + scope_root + (counter++);
       _add(statements[k], buf, "." + classes[k], vendors);
     }
     buf = new String(_finalize(buf));

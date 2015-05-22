@@ -1,6 +1,6 @@
 # j2c
 
-JavaScript to CSS compiler. ~820 bytes mingzipped.
+JavaScript to CSS compiler. ~850 bytes mingzipped.
 
 Think SASS, but with JSONish syntax.
 
@@ -392,13 +392,19 @@ var sheet = j2c.scoped({
 });
 
 console.log(sheet.bit);
-// 'j2c_371971407_1431849941805_0'
+// 'foo_j2c_371971407_1431849941805_0'
 console.log(sheet.bat);
-//  'j2c_371971407_1431849941805_1'
+//  'bar_j2c_371971407_1431849941805_1'
 
 // `sheet` is actually a String object, which can be used as a normal string.
 console.log(sheet+"");
-// '.j2c_371971407_1431849941805_1{margin:0;}.j2c_371971407_1431849941805_0{color:red;}'
+
+// .bar_j2c_371971407_1431849941805_1{
+// margin:0;
+// }
+// .foo_j2c_371971407_1431849941805_0{
+// color:red;
+// }
 ```
 
 Unique classes are automatically generated for each scope name. The middle part of the class names ensures that class names are unique even if several instances of `j2c` are used on the page.
