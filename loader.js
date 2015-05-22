@@ -1,5 +1,8 @@
 /*----------------------------------------------------------------------------
 
+/!\ WIP. Works well for simple loading with dependencies, but using the result of 
+mithrilLoader() as a dependency is still buggy.
+
 `{loading, element} = mithrilLoader(libs::Arrary [, options::{m::mithril, base::String}])`
 where `libs` is an array of strings and array:
 
@@ -41,6 +44,11 @@ So:
         }
     }
 
+See here for an exampl using gratutious intermediate loaders (as a demo)
+
+https://github.com/pygy/j2c/blob/7db41c8fb0d2f12f7ebd7ed7fa9bd9be73a7fae0/index.html#L291-L305
+
+
 That's it.
 ----------------------------------------------------------------------------*/
 
@@ -49,10 +57,27 @@ That's it.
       , ARRAY = type.call([])
       , STRING = type.call("")
       ;
+
+    var delayed = (function(){
+        var proms = [];
+        return {
+            postpone: function (promise){
+                if (proms.indexOf(promise) === -1) {
+                    proms.push(promise);
+                }
+            },
+            run : function(func) {
+                proms.forEach(function(p){p.then(func)});
+                proms = []
+            }
+        }
+    })();
+
     function mithrilLoader(libs, options) {
         // Since we iterate over libs backwards, reverse
         // the list to keep the resulting DOM in source
         // order.
+        console.log("++Options", options)
         libs = libs.slice(0).reverse()
         options = options || {};
         m = options.m || window.m;
@@ -76,12 +101,11 @@ That's it.
             if (lib.element && lib.loading) {
                 tags.push(lib.element);
                 libs.splice(i);
-                thens.push(lib.loading)
+                delayed.postpone(lib.loading)
             }
         }
-        for (var i = thens.length; i--;) {
-            thens[i].then(onLoad);
-        }
+        console.log("rootlibs delayed.run()")
+        delayed.run(onLoad);
 
         function onLoad(e){
             if (e && e.target && e.target.tagName.toLowerCase() === "script") {
@@ -112,15 +136,18 @@ That's it.
                 var lib = libs[i], deps = [];
                 if (type.call(lib) == ARRAY){
                     deps = lib[1] || deps;
+                    console.log("ARRAY", lib[0])
                     lib = lib[0];
                 }
                 lib = (type.call(lib) === STRING )? base + lib : lib;
                 if (deps.length === 0
                  || deps.every(function (dep) {
-                        return dep.loading && !dep.loading() || loaded[base + dep]
+                        if(dep.loading) { console.log("dep.loading",dep.loading()) };
+                        return dep.loading && !dep.loading() || loaded[base + dep];
                     })
                  ) {
                     tags.push(createTag(lib));
+                    console.log(tags, lib, libs)
                     libs.splice(i,1);
                 }
             }
@@ -133,6 +160,26 @@ That's it.
         }
 
         _load();
+
+        for (var i = libs.length; i--;) {
+            var lib = libs[i];
+            if (type.call(lib) === ARRAY) {
+                var deps = lib[1] || []
+                for (var j = deps.length; j--;) {
+                    var dep = deps[j];
+                    console.log("pushdep", lib[0], "...")
+                    if (dep.element && dep.loading) {
+                        console.log("...", dep)
+
+                        delayed.postpone(dep.loading);
+                    }
+                }
+            }
+        }
+        console.log("depslibs delayed.run()")
+
+        delayed.run(load);
+
         return {
             loading: loading.promise,
             // return a single element to make DOM diffing more efficient.
