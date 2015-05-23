@@ -19,6 +19,7 @@ We also show how you combine property names.
 
 */}),
       code: longString(function(){/*!
+"p {" +
 
 j2c.inline({
   background_color:"red",
@@ -28,7 +29,9 @@ j2c.inline({
       color: "white"
     }
   }
-})*/})
+})
+
++ "}"*/})
     }, {
       name: "Inline styles: arrays for order",
       description: longString(function(){/*!
@@ -38,11 +41,13 @@ If you want to ensure that properties occur in order, use an array:
 
 */}),
       code: longString(function(){/*!
+"p {" +
 j2c.inline([
   {border: "solid 1px grey"},
   {border_left: "dashed 3px green"}
 ])
-*/})
+
++ "}"*/})
     }, {
       name: "Style sheet example",
       description: longString(function(){/*!
