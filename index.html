@@ -4,35 +4,55 @@
 <!--[if lte IE 8]>
 <script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
 <![endif]-->
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+<script>
+var j2c=function(){function n(e,r,t,c,i,o,s){switch(a.call(e)){case u:for(i=e.length;i--;)n(e[i],r,t,c);break;case f:t=t&&t+"-";for(i in e)if(o=e[i],i.indexOf("$")+1)for(s in i=i.split("$"))l.call(i,s)&&n(o,r,t+i[s],c);else n(o,r,t+i,c);break;default:for(r.push(e=(t&&t.replace(/_/g,"-")+":")+e+";"),i=c.length;i--;)r.push("-"+c[i]+"-"+e)}}function e(n,e,t,c,i,a){for(c=[],a=e.length;a--;)for(i=n.length;i--;)c.push(r(n[i],e[a],t));return c}function r(n,e,r){return r&&e.indexOf("&")+1?e.replace("&",n):n+e}function t(c,s,h,p,w,g,d){switch(d=c,a.call(c)){case u:for(w=c.length;w--;)t(c[w],s,h,p);break;case f:d={};for(w in c)"@"==w[0]&&(g=c[w],a.call(g)==o?s.push(w+" "+g+";"):w.match(/^@keyframes /)?(s.push("}"),t(g,s,"",p),s.push(w+"{"),s.push("}"),t(g,s,"",["webkit"]),s.push("@-webkit-"+w.slice(1)+"{")):w.match(/^@font-face/)?t(g,s,w,i):(s.push("}"),t(g,s,h,p),s.push(w+"{")));for(w in c)g=c[w],w.match(/^[-\w$]+$/)?d[w]=g:"@"!=w[0]&&t(g,s,h.indexOf(",")+w.indexOf(",")+2?e(h.split(","),w.split(","),1).join(","):r(h,w,1),p);case o:for(w in d)if(l.call(d,w)){s.push("}"),n(d,s,"",p),s.push((h||"*")+"{");break}}}function c(n){return n.reverse().join("\n")}var i=[],a={}.toString,l={}.hasOwnProperty,f=a.call({}),u=a.call(i),o=a.call(""),s="_j2c_"+(1e9*Math.random()|0)+"_"+1*new Date+"_",h=0,p={};return p.inline=function(e,r,t){return n(e,t=[],"",r||i),c(t)},p.sheet=function(n,e,r){return t(n,r=[],"",e||i),c(r)},p.scoped=function(n,e,r){var a={},f=[];e=e||i;for(r in n)l.call(n,r)&&(a[r]=r.replace(/[^\-\w]/,"")+s+h++,t(n[r],f,"."+a[r],e));f=new String(c(f));for(r in n)l.call(n,r)&&(f[r]=a[r]);return f},p.prefix=function(n,r){return e(r.map(function(n){return"-"+n+"-"}).concat([""]).reverse(),[n])},p}();
+/*
+Copyright © 2015 Pierre-Yves Gérardy
 
-<script src="https://cdn.rawgit.com/pygy/j2c/f84075582e21af6b3c89a58afb02f37b892c42df/dist/j2c.global.js"></script>
-<script src="mithril.js"></script>
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the “Software”),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+*/
+</script>
 
 <script>
 
+// PocketGrid
+
 var border_box = {
-    ",:before,:after":{ //note the initial coma
+    ",:before,:after":{
         box_sizing:"border-box"
     }
 }
 
 var pocketgrid = {
     group: [
-        /* Clearfix */
         "*zoom: 1",
         border_box,
         {
             ":before,:after": {
                 display: "table",
                 content: '""',
-                line_heigth: 0
+                line_height: 0
             },
             ":after": {clear:"both"},
-
-            /* ul/li compatibility */
             "list-style-type":"none",
             margin$padding:0
-
         }
     ],
     block: [
@@ -52,9 +72,36 @@ pocketgrid.nested = [
         margin: "0 !important"
     }
 ]
+
+/*!
+PocketGrid 1.1.0 Copyright (c) 2013 Arnaud Leray
+j2c port Copyright (c) 2015 Pierre-Yves Gérardy
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 </script>
 
 <script>
+
+// Styles for the static part of the pages
+
 var isFF = (typeof InstallTrigger !== 'undefined'),
     isIElt10 = (document.all && !window.atob);
 
@@ -93,145 +140,128 @@ var logo = {
 
 var logostyle = j2c.sheet({
     "@font-face":[
-    {
-        font: {
-            family: "'Dosis'",
-            style: "normal",
-            weight: 500
-        },
-        src: "local('Dosis Medium'), local('Dosis-Medium'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAARkAAAAFkdQT1PYSudjAAAEfAAAAGxHU1VCABUACgAABOgAAAAMT1MvMoqCeA4AAAI0AAAAYGNtYXAAYwCZAAAClAAAADxnYXNwAAMABwAABFgAAAAMZ2x5Zn9PVS0AAADsAAAAuGhlYWT428GxAAABzAAAADZoaGVhB5cCyQAAAhAAAAAkaG10eAV7AIQAAAIEAAAADGxvY2EAMwBcAAABxAAAAAhtYXhwAiwESAAAAaQAAAAgbmFtZRrTNq0AAALQAAABaHBvc3T/3QAaAAAEOAAAACAAAQBA//oB7wLbACIAADcRNDYzMhYVFAYjIicmIyIVERQzMj4CNzYzMhYVFAYjIiZAd2BidhQWKAIGfIWIJzQZCAMDJxYUd2Jfd9QBLXBqY0sbEx1zjv7TjhYqHhkdFBtMZWoAAAAAAQAU//oBwwLbABsAADc0NjMyFRQWMzI1ESMiJjU0MzMyFhURFAYjIiYUFRUqRT6Egg4PHbAPF3VgYnixFxIdNUKOAbsWESUQDv4XcWllAAAAAAEAAAADAGwABwAAAAAAAgABAAIAIAAAAgAD2AAAAAAAAAAAADMAXAABAAAAAQGJXP+4El8PPPUAHwPoAAAAAMqKZMYAAAAAy40Xb/95/xMEGAP7AAAACAACAAAAAAAAAWEAMAITAEACBwAUAAEAAAQD/xMAAAQ5/3n/eQQYAAEAAAAAAAAAAAAAAAAAAAADAAMByQH0AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQYDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAQAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2gLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgBDAEr//wAAAEMASv///77/uAABAAAAAAAAAAAABwBaAAMAAQQJAAEACgAAAAMAAQQJAAIADAAKAAMAAQQJAAMAegAWAAMAAQQJAAQAGACQAAMAAQQJAAUAGgCoAAMAAQQJAAYAGADCAAMAAQQJAA4ANADaAEQAbwBzAGkAcwBNAGUAZABpAHUAbQBFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtADoAIAAyADAAMQAxAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtAFYAZQByAHMAaQBvAG4AIAAxAC4AMAAwADcARABvAHMAaQBzAC0ATQBlAGQAaQB1AG0AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoAHgAsAAFsYXRuAAgABAAAAAD//wABAAAAAWtlcm4ACAAAAAEAAAABAAQAAgAAAAEACAACACIABAAAACoAKgADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAEAAgABAAEAAgABAAIAAQAAAAoACgAKAAA=) format('truetype')"
-    },{
-        font: {
-            family: "'Dosis'",
-            style: "normal",
-            weight: 700
-        },
-        src: "local('Dosis Bold'), local('Dosis-Bold'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype')"
-    }],
-    " body":{margin$padding:0},
-    ".container":{
-        color:"#333",
-        margin: "0 auto",
-        max_width:"48em",
-        padding:0,
-        position:"relative"
-    },
-    ".ghribbon":[
         {
-            background_color:logo.subtitle_color,
-            left: "-6.9em",
-            overflow: "hidden",
-            position:"absolute",
-            top: "2.2em",
-            transition: "all 0.5s",
-            white_space: "nowrap",
-            width:"20em",
-            _o$_ms$_moz$_webkit$: {
-                transform: "rotate(-45deg) scaleX(0.9)",
-                box_shadow: "0 0 10px rgba(0,0,0,0.6)"
+            font: {
+                family: "'Dosis'",
+                style: "normal",
+                weight: 500
             },
-            ":hover": {
-                box_shadow: "0 0 8px rgba(0,0,0,0.6)"
+            src: "local('Dosis Medium'), local('Dosis-Medium'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAARkAAAAFkdQT1PYSudjAAAEfAAAAGxHU1VCABUACgAABOgAAAAMT1MvMoqCeA4AAAI0AAAAYGNtYXAAYwCZAAAClAAAADxnYXNwAAMABwAABFgAAAAMZ2x5Zn9PVS0AAADsAAAAuGhlYWT428GxAAABzAAAADZoaGVhB5cCyQAAAhAAAAAkaG10eAV7AIQAAAIEAAAADGxvY2EAMwBcAAABxAAAAAhtYXhwAiwESAAAAaQAAAAgbmFtZRrTNq0AAALQAAABaHBvc3T/3QAaAAAEOAAAACAAAQBA//oB7wLbACIAADcRNDYzMhYVFAYjIicmIyIVERQzMj4CNzYzMhYVFAYjIiZAd2BidhQWKAIGfIWIJzQZCAMDJxYUd2Jfd9QBLXBqY0sbEx1zjv7TjhYqHhkdFBtMZWoAAAAAAQAU//oBwwLbABsAADc0NjMyFRQWMzI1ESMiJjU0MzMyFhURFAYjIiYUFRUqRT6Egg4PHbAPF3VgYnixFxIdNUKOAbsWESUQDv4XcWllAAAAAAEAAAADAGwABwAAAAAAAgABAAIAIAAAAgAD2AAAAAAAAAAAADMAXAABAAAAAQGJXP+4El8PPPUAHwPoAAAAAMqKZMYAAAAAy40Xb/95/xMEGAP7AAAACAACAAAAAAAAAWEAMAITAEACBwAUAAEAAAQD/xMAAAQ5/3n/eQQYAAEAAAAAAAAAAAAAAAAAAAADAAMByQH0AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQYDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAQAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2gLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgBDAEr//wAAAEMASv///77/uAABAAAAAAAAAAAABwBaAAMAAQQJAAEACgAAAAMAAQQJAAIADAAKAAMAAQQJAAMAegAWAAMAAQQJAAQAGACQAAMAAQQJAAUAGgCoAAMAAQQJAAYAGADCAAMAAQQJAA4ANADaAEQAbwBzAGkAcwBNAGUAZABpAHUAbQBFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtADoAIAAyADAAMQAxAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtAFYAZQByAHMAaQBvAG4AIAAxAC4AMAAwADcARABvAHMAaQBzAC0ATQBlAGQAaQB1AG0AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoAHgAsAAFsYXRuAAgABAAAAAD//wABAAAAAWtlcm4ACAAAAAEAAAABAAQAAgAAAAEACAACACIABAAAACoAKgADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAEAAgABAAEAAgABAAIAAQAAAAoACgAKAAA=) format('truetype')"
+        },
+        {
+            font: {
+                family: "'Dosis'",
+                style: "normal",
+                weight: 700
             },
-            " a": {
-                border:"solid 1px rgba(255,255,255,0.65)",
-                color:"#eee",
-                display:"block",
-                font: "normal 82% sans-serif",
-                margin:"2px auto",
-                padding:"8px 50px",
-                position:"relative",
-                text: {
-                    align:"center",
-                    decoration: "none",
-                    shadow: "0 0 5px rgba(0, 0, 0, 1)"
-                },
-                transition: "all 0.3s",
-                width:"15em",
-                ":hover,:hover::before": {
-                    border:"solid 1px #fff",
-                    color:"#fff",
-                    text: {
-                        shadow: "0 0 5px rgba(255,255,255,0.3)"
-                    }
-                },
-                "::before": {
-                    border:"dashed 1px  rgba(255,255,255,0.45)",
-                    content:"' '",
-                    height$width:"100%",
-                    margin:{top:"-9px",left:"-6em"},
-                    position:"absolute",
-                }
-            }
-        },{
-            "@media (min-width:64em)":{
-                position:"fixed"
-            }
+            src: "local('Dosis Bold'), local('Dosis-Bold'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype')"
         }
     ],
-    " .green":{color:"green"},
-    " .red":{color:"inherit"},
-    // " body": pocketgrid.blockgroup,
+    " body":{
+        margin$padding: 0,
+        font_family:"Source Sans Pro, sans-serif"
+    },
+    ".container":[
+        pocketgrid.group,
+        {
+            margin: "0 auto",
+            max_width:"48em",
+            padding:0,
+            position:"relative"
+        }
+    ],
     " header": [
         {
             background_color: logo.bg_color,
-            font_size: "2em",
             overflow: "hidden",
             padding:0,
 
-            " h2, h6": {
-                color: logo.subtitle_color,
-                font_family: "sans-serif",
-                text_align: "center"
+            "@media (min-width:48.001em)": {
+                border_bottom: "1px dotted "+ "#dd5",
+                height:"17em"
+            },
+
+            " h2, h6": [
+                pocketgrid.block,
+                {
+                    color: logo.subtitle_color,
+                    text_align: "center",
+                    "@media (min-width:48.001em)": {
+                        width:"60%",
+                    text_shadow: outline(60, 50, "#ffc")
+                    }
+                }
+            ],
+
+            " h2":{
+                font_size: "2.4em",
+                "@media (min-width:48.001em)": {
+                    margin_top:"1.6em"
+                }
             },
 
             " h6": {
                 background_color:"#fff",
+                font_size: "1.6em",
                 margin:0,
-                padding_top:"0.5em"
-            },
-
-            " h1": {
-                color: logo.color,
-                font:{
-                    family: "Dosis, sans-serif",
-                    size: "9em",
-                    weight: 500
-                },
-                line_height: 0.8,
-                margin: "0 auto",
-                postion: "relative",
-                text_shadow: outline(17, 9, "#9cf"),
-                width: "1.05em",
-
-                ":before": {
-                    content:'"J"'
-                },
-
-                " .two":{
-                    color: logo.two_color,
-                    font: {
-                        size: "0.643em",
-                        weight: 700
-                    },
-                    margin_left: "-0.273em",
-                    padding_top: "0.36em",
-                    position: "absolute",
-                    z_index: 1
-                },
-
-                " .Cee": {
-                    color: logo.color,
-                    margin_left: "-0.015em",
-                    position: "absolute",
-                    ":before": {
-                        content:'"C"'
-                    }
+                padding_top:"0.5em",
+                "@media (min-width:48.001em)": {
+                    background_color: logo.bg_color,
+                    padding_top:0
                 }
             },
+            " .logo": [
+                pocketgrid.block,
+                {
+                    "@media (min-width:48.001em)": {
+                        width:"40%"
+                    }
+                }
+            ],
+            " h1": [
+                {
+                    color: logo.color,
+                    font:{
+                        family: "Dosis, sans-serif",
+                        size: "18em",
+                        weight: 500
+                    },
+                    line_height: 0.8,
+                    margin: "0 auto",
+                    postion: "relative",
+                    text_shadow: outline(17, 9, "#9cf"),
+                    width: "1.015em",
+                    " .Jay": {
+                        // background_color:"blue",
+                        ":before": {
+                            content:'"J"'
+                        }
+                    },
+                    " .two":{
+                        color: logo.two_color,
+                        font: {
+                            size: "0.643em",
+                            weight: 700
+                        },
+                        margin_left: "-0.273em",
+                        padding_top: "0.36em",
+                        position: "absolute",
+                        z_index: 1
+                    },
+
+                    " .Cee": {
+                        color: logo.color,
+                        margin_left: "-0.015em",
+                        position: "absolute",
+                        ":before": {
+                            content:'"C"'
+                        }
+                    }
+                }
+            ],
 
 
-            " h1, h1 .Cee": {
+            " h1 .Jay, h1 .Cee": {
                 ":before": {
                     background_color:  logo.bg_color,
                     display: "block",
@@ -248,17 +278,71 @@ var logostyle = j2c.sheet({
     ],
     ".description":[
         {
-            font:{
-                family:"sans-serif",
-                size:"1.3em"
-            },
+            font_size:"1.3em",
             line_height:"1.5em",
             margin:{left$right:"1em"}
         }
-    ]
-    
+    ],
+    " hr":{
+        color: "#dd5"
+    },
+    ".ghribbon":{
+        background_color:logo.subtitle_color,
+        left: "-6.9em",
+        overflow: "hidden",
+        position:"absolute",
+        top: "2.2em",
+        transition: "all 0.5s",
+        white_space: "nowrap",
+        width:"20em",
+        _o$_ms$_moz$_webkit$: {
+            transform: "rotate(-45deg) scaleX(0.9)",
+            box_shadow: "0 0 10px rgba(0,0,0,0.6)"
+        },
+        ":hover": {
+            box_shadow: "0 0 8px rgba(0,0,0,0.6)"
+        },
+        " a": {
+            border:"solid 1px rgba(255,255,255,0.65)",
+            color:"#eee",
+            display:"block",
+            font_size: "90%",
+            line_heigth: "0.9em",
+            margin:"2px auto",
+            padding:"8px 50px",
+            position:"relative",
+            text: {
+                align:"center",
+                decoration: "none",
+                shadow: "0 0 5px rgba(0, 0, 0, 1)"
+            },
+            transition: "all 0.3s",
+            width:"15em",
+            ":hover,:hover::before": {
+                border:"solid 1px #fff",
+                color:"#fff",
+                text: {
+                    shadow: "0 0 5px rgba(255,255,255,0.3)"
+                }
+            },
+            "::before": {
+                border:"dashed 1px  rgba(255,255,255,0.45)",
+                content:"' '",
+                height$width:"100%",
+                margin:{top:"-9px",left:"-6em"},
+                position:"absolute",
+            }
+        },
+        "@media (min-width:64em)":{
+            position:"fixed"
+        }
+    }
+
 })
 
+if (isIElt10){ // lte 8, really.
+    document.createElement('header');
+}
 
 var css = logostyle.toString()
     head = document.head || document.getElementsByTagName('head')[0],
@@ -275,16 +359,199 @@ head.appendChild(style);
 
 </script>
 <header>
-        <h1 class="hollow">J<span class="two">2</span><span class="Cee">C</span></h1>
+    <div class="container">
+        <div class="logo">
+            <h1 class="hollow"><span class="Jay">J</span><span class="two">2</span><span class="Cee">C</span></h1>
+        </div>
         <h2>JavaScript to<br>CSS Compiler</h2>
-        <h6>~830 bytes down the line</h6>
+        <h6>~850 bytes down the line</h6>
+    </div>
 </header>
 <div class="container">
-<p class="description"><tt>j2c</tt> is a CSS preprocessor working from JavaScript objects. It provides a sizable subset of SASS in a tiny, single pass compiler.</p>
-<p class="description">This page is very much WIP, please check the <a href="https://github.com/pygy/j2c">github repo</a> for the documentation.</p>
-<div id="playground"></div>
-<script src="loader.js"></script>
+<p class="description"><code>j2c</code> is a CSS preprocessor working from JavaScript objects. It provides a sizable subset of SASS in a tiny, single pass compiler.</p>
+<p class="description">Check the <a href="https://github.com/pygy/j2c">github repo</a> for the documentation.</p>
 
+<p class="description">Here's a WIP code playground.</p>
+<hr>
+<div id="playground"></div>
+
+<script src="mithril.js"></script>
+<script src="loader.js"></script>
+<script>
+setTimeout(function(){
+
+var libs = mithrilLoader([
+  "codemirror.js",
+  "codemirror.css",
+  ["javascript.js", ["codemirror.js"]],
+  ["css.js",        ["codemirror.js"]],
+  "playground/pages.js",
+  "cssbeautify.js",
+  "commonmark.js"
+])
+
+var mdReader, mdWriter
+libs.loading.then(function(){
+    mdReader = new commonmark.Parser();
+    mdWriter = new commonmark.HtmlRenderer();
+})
+
+var j2c = window.j2c;
+
+function sanitize(source) {
+  return source.replace(/(\W)(while|for|eval)(\W)/g, "$1_$2_$3")
+}
+
+
+var PGM = {
+    controller: function() {
+        var self = this,
+            count = 0
+
+        self.cangoforward = true
+
+        self.css_output=""
+        self.runcode = function(code) {
+            var ok = true, res;
+            try{
+                res = new Function(
+                  'j2c', 'sheet',
+                  'console', 'alert', 'window', 'document', 'undefined', 
+                  "'use strict';  return (" + sanitize(code.getValue()) + ");"
+                ).call(null, j2c);
+                if ("[object String]" !== {}.toString.call(res)) res = j2c.sheet(res);
+                res = cssbeautify(res);
+                self.css_output=res;
+                self.CSSCode.setValue(res);
+            } catch (e) {
+                ERRR = e
+                self.CSSCode.setValue("/* " + e + " */\n" + self.css_output);
+            }
+           m.redraw()
+        }
+        self.showvendors = m.prop(false)
+    },
+    view:function(ctrl) {
+        return [
+            libs.element,
+            libs.loading() ? m("div", "Loading the editor...") :
+            m(".playground."+ PGM.css.playground, [
+                m('style', PGM.css),
+                m("."+PGM.css.menu, [
+                  m("."+PGM.css.arrow, {
+                    style: ctrl.cangoback ? "cursor:pointer" : "color:#888",
+                    onclick: ctrl.goback
+                  }, m("p", "<")),
+                  m(".select." + PGM.css.select,
+                    m("select", [m('option', pages[0].name)])
+                  ),
+                  m("."+PGM.css.arrow, {
+                    style: ctrl.cangoforward ? "pointer:click" : "color:#888",
+                    onclick: ctrl.goforward
+                  }, m("p", ">")),
+                ]),
+                m("."+PGM.css.description, m.trust(mdWriter.render(mdReader.parse(pages[0].description)))),
+                m("."+PGM.css.code, {
+                    config: function(elt, init){
+                        if (!init) {
+                            ctrl.JSCode = CodeMirror(elt, {
+                                value: pages[0].code(),
+                                mode:  "javascript"
+                            });
+                            ctrl.JSCode.on("change", ctrl.runcode)
+                        }
+                    }
+                }),
+                m("."+PGM.css.CSS, {
+                    config: function(elt, init){
+                        if (!init) {
+                            ctrl.CSSCode = CodeMirror(elt, {
+                                value: "",
+                                mode:  "css",
+                                readOnly:"nocursor"
+                            });
+                            ctrl.runcode(ctrl.JSCode)
+                        }
+                    }
+                })
+            ])
+        ]
+    },
+    css: j2c.scoped({
+      playground:pocketgrid.group,
+      menu: [
+        pocketgrid.nested,
+        {
+          font_size: "1.6em",
+          width:"100%"
+        }
+      ],
+      arrow: [
+        pocketgrid.block,
+        {
+          display:"table-cell",
+          height: "2em",
+          vertical_align:"middle",
+          width: "5%",
+          " p": {
+            height: "100%",
+            margin:"0 auto",
+            transition: "color, 0.5s",
+            vertical_align: "middle",
+            width: "1em",
+            ":hover":{
+              color:"#888"
+            }
+          }
+        }
+      ],
+      select: [
+        pocketgrid.block,
+        {
+          vertical_align:"middle",
+          width: "90%",
+          // styling a select block: http://stackoverflow.com/a/13968900
+          " select": {
+            border: "0px solid #ccc",
+            cursor: "pointer",
+            font_size: "inherit",
+            text_overflow: "ellipsis",
+            width: "100%",
+            _moz$_webkit$:{appearance:"none"},
+            "::-ms-expand":{appearance:"none"}
+          }
+        }
+      ],
+      description: {
+        font_size:"1.2em",
+        line_height:"1.5em",
+        margin:{left$right:"1em"}
+      },
+      code: [
+        pocketgrid.block,
+        {
+          width:"50%"
+        }
+      ],
+      CSS: [
+        pocketgrid.block,
+        {
+          width:"50%"
+        }
+      ]
+    })
+}
+
+m.module(playground, PGM)
+
+})
+
+var s = document.createElement('link')
+s.href = 'codemirror.css'
+s.rel=s.itemprop = 'stylesheet';
+s.onload = function(e){window.EL = e}
+document.body.appendChild(s)
+</script>
 
 </div>
 <div class="ghribbon"><a href="https://github.com/pygy/j2c">Fork me on GitHub</a></div>

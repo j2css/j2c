@@ -9,49 +9,84 @@ new function(){
 
   window.pages = [
     {
-      name: "Inline stlyes: intro",
+      name: "Inline styles: intro",
+      description: longString(function(){/*!
+`j2c.inline()` creates inline styles.
+
+Underscores are converted to dashes so that property names can be left unquoted.
+
+We also show how you combine property names.
+
+*/}),
       code: longString(function(){/*!
-  // Here we demonstrate j2c's ability to
-  // create inline styles.
 
-  j2c({
-    // Underscores are converted to
-    // dashes so that property names can
-    // be left unquoted.
-    background_color:"red",
-
-    // The following sets the width and
-    // color of the top and left borders.
-    border: {
-      top$left: {
-        width: "1px",
-        color: "white"
-      }
+j2c.inline({
+  background_color:"red",
+  border: {
+    top$left: {
+      width: "1px",
+      color: "white"
     }
-  })
-
-  */})
+  }
+})*/})
     }, {
       name: "Inline styles: arrays for order",
+      description: longString(function(){/*!
+The order of iteration over the keys of a js object is undefined.
+
+If you want to ensure that properties occur in order, use an array:
+
+*/}),
       code: longString(function(){/*!
-  // The order of iteration over the keys
-  // of a js object is undefined. If you
-  // want to ensure that properties occur
-  // in order, use an array:
-
-  j2c([
-    {border: "solid 1px grey"},
-    {border_left: "dashed 3px green"}
-  ])
-
-  */})
+j2c.inline([
+  {border: "solid 1px grey"},
+  {border_left: "dashed 3px green"}
+])
+*/})
+    }, {
+      name: "Style sheet example",
+      description: longString(function(){/*!
+Here's `j2c.sheet()` example.
+*/}),
+      code: longString(function(){/*!
+j2c.sheet({
+  ".foo": {
+    color:"red",
+    "@media  (max-width:48em)": {
+      color:"green"
+    },
+    "& .bar,& .baz": {
+      text_decoration:"underline"
+    }
+  }
+})
+*/})
+    }, {
+      name: "Inline styles: arrays for order",
+      description: longString(function(){/*!
+This is how `j2c.scoped` works:
+*/}),
+      code: longString(function(){/*!
+sheet = j2c.scoped({
+  foo: {
+    color:"red",
+    "@media  (max-width:48em)": {
+      color:"green"
+    },
+    "& .bar": {
+      text_decoration:"underline"
+    }
+  }
+}),
+"/* sheet.foo: " + sheet.foo + "*+/\n\n" + sheet
+*/}).replace("*+/", "*/")
     }
   ]
 
-  pages.forEach(function(p){
-    p.original = p.code;
-  })
-
-  window.initial_js = pages[0].code
-
+  pages.forEach(function (page) {
+    var code = page.code;
+    page.original = code;
+    page.code = m.prop(code)
+  });
 }
+
