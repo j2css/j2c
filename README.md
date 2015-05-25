@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
+[![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
 
 # j2c
 
