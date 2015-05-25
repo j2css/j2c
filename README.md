@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
+
 # j2c
 
 JavaScript to CSS compiler. ~850 bytes mingzipped.
@@ -91,11 +93,11 @@ Widget = {
   }),
 
   view: function (ctrl) {
-    return m('.widget', [
-      m('style', Widget.styles)
-      m('h3', { class: Widget.styles.title }),
-      m('div', { class: Widget.styles.content })
-    ])
+    return <div>
+      <style>{Widget.styles}</style>
+      <h3 class="{Widget.styles.title}">Hello</h3>
+      <div class="{Widget.styles.content}">Foo bar baz</div>
+    </div>
   }
 }
 ```
