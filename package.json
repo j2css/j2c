@@ -5,7 +5,8 @@
   "main": "dist/j2c.commonjs.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node_modules/mocha/bin/mocha --reporter nyan --ui qunit"
+    "test": "node_modules/mocha/bin/mocha --reporter nyan --ui qunit",
+    "cover": "node_modules/mocha/bin/mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -17,12 +18,20 @@
   "bugs": {
     "url": "https://github.com/pygy/j2c/issues"
   },
+  "config": {
+    "blanket": {
+      "pattern": "//j2c\\.commonjs/"
+    }
+  },
   "homepage": "http://j2c.py.gy",
   "devDependencies":{
     "uglify-js":"*",
     "crass":"*",
     "mocha":"*",
     "expect.js":"*",
-    "surgicate":"*"
+    "surgicate":"*",
+    "coveralls": "^2.11.2",
+    "mocha-lcov-reporter": "0.0.2",
+    "blanket": "^1.1.7"
   }
 }
