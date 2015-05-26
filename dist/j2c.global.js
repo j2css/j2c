@@ -58,7 +58,7 @@
   }
 
   function _concat(a, b, selectorP) {
-    return selectorP && b.indexOf("&") + 1 ? b.replace("&", a) : a + b
+    return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b
   }
 
 

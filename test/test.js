@@ -368,6 +368,17 @@ function randInt() {
         )
     });
 
+    test("& &", function() {
+        check(
+            j2c.sheet({".foo": {
+                "& &": {
+                    bar: "baz"
+                }
+            }}),
+            ".foo .foo{bar:baz}"
+        )
+    });
+
     test("2 x 2", function() {
         check(
             add("p", {
