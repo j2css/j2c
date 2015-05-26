@@ -596,11 +596,56 @@ function randInt() {
           , width = randInt()
           , o, sheet
           ;
-        for (var i = 100; i--;){
+        for (var i = 17; i--;){
             o = {" p":{}}
             o[" p"][prop] = 5
             o[" p"]["."+klass] = {foo:6}
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+            o = {" p":{}}
+            o[" p"][prop] = 5
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            o[" p"]["."+klass] = {foo:6}
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+            o = {" p":{}}
+            o[" p"]["."+klass] = {foo:6}
+            o[" p"][prop] = 5
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+            o = {" p":{}}
+            o[" p"]["."+klass] = {foo:6}
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            o[" p"][prop] = 5
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+            o = {" p":{}}
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            o[" p"]["."+klass] = {foo:6}
+            o[" p"][prop] = 5
+            if (
+                normalize(j2c.sheet(o)) 
+                != 
+                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+            ) total++;
+            o = {" p":{}}
+            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7}
+            o[" p"][prop] = 5
+            o[" p"]["."+klass] = {foo:6}
             if (
                 normalize(j2c.sheet(o)) 
                 != 
