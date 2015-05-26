@@ -372,13 +372,13 @@ function randInt() {
         check(
             add("p", {
                 " .foo, .bar":{
-                    " .baz &, .qux &":{
+                    " .baz &, .qux":{
                         foo:"bar"
                     }
                 }
             }),
 
-            ".baz p .foo,.baz p .bar,.qux p .foo,.qux p .bar {foo:bar}"
+            ".baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}"
         )
     });
 
