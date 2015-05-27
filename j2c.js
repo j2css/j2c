@@ -35,7 +35,7 @@ See the 'dist' directory for usable files.
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
-          for (kk in k = k.split("$")) if (own.call(k, kk))
+          for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
             _declarations(v, buf, prefix + k[kk], vendors);
         } else {
           _declarations(v, buf, prefix + k, vendors);
