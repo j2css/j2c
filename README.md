@@ -7,10 +7,7 @@ JavaScript to CSS compiler. ~850 bytes mingzipped.
 
 Think SASS, but with JSONish syntax.
 
-----
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+## Table of Contents
 
 - [Why?](#why)
   - [But, seriously...](#but-seriously)
@@ -31,12 +28,11 @@ Think SASS, but with JSONish syntax.
 - [Limitations](#limitations)
   - [Selectors and properties order](#selectors-and-properties-order)
   - [No input validation](#no-input-validation)
-  - [No pretty printing](#no-pretty-printing)
+  - [Little pretty printing](#little-pretty-printing)
+- [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
+- [TODO](#todo)
 - [License: MIT](#license-mit)
 
-<small>*TOC generated with [DocToc](https://github.com/thlorenz/doctoc), then tweaked a bit.*</small>
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ----
 
@@ -342,7 +338,19 @@ becomes
 
 For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
-At rules are guarateed to be inserted after the properties and sub-selectors at a given level. This prevents nested `@media` blocks to be overridden by declarations found out of them.
+At-rules are guarateed to be inserted after the properties and sub-selectors at a given level. This prevents nested `@media` blocks to be overridden by declarations found out of them.
+
+If you need several media queries where the order of definition is important, or if you need at-rules that must be inserted at the top of a sheet, use arrays.
+
+```JavaScript
+j2c.sheet([
+  {"@import": "url(foo.css)"},
+  {"@namespace": "url(http://www.w3.org/1999/xhtml)"},
+  {"@namespace": "svg url(http://www.w3.org/2000/svg)"},
+  {
+    ".your": {sheet:"here"}
+  }
+])
 
 #### CSS Hacks
 
@@ -414,7 +422,7 @@ Unique classes are automatically generated for each scope name. The middle part 
 
 Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet()` functionality is available.
 
-
+*Caveat:* At the moment, animations defined with `@keyframes` are still part of the global CSS namespace. The same goes for font names defined in `@font-face` blocks.
 
 ## Vendor prefixes:
 
@@ -484,6 +492,114 @@ There's no support for prefixing a list multiple values (e.g. `"linear-gradient(
 
 `@keyframes` blocks automatically produce their `@-webkit-keyframes` counterparts, even in the absence of a vendor list argument.
 
+## Inserting the stylesheet in the document
+
+Foreword: Please note that the following is based on research on the Web, but not effectively tested in Internet explorer at the moment.
+
+### ie9+
+
+Add a text node to a new `style` element.
+
+```JavaScript
+var style = document.createElement('style');
+style.type = 'text/css'; // my not even be needed
+style.appendChild(document.createTextNode(sheet));
+```
+
+In frameworks:
+
+```Handlebars
+<style>{sheet}</style>
+```
+
+Sweet, innit?
+
+### ie8+ (sheets up to 32k in ie8)
+
+As above, but with a `link` element and a data URI.
+
+```Handlebars
+<link rel="stylesheet" itemprop="stylesheet" href="{'data:,' + encodeURIComponent(sheet)}" />
+```
+
+Note that ie8 has a 32k limit on the length of data URIs. It supports base 64 in data URIs, but doesn't provide `btoa`, which would not be useful in this context anyway, since base 64 encoded sheets are larger than URI encoded ones.
+
+### ie6+ (unlimited sheet size)
+
+
+```JavaScript
+function stylize(element, sheet){
+    element.type = 'text/css';
+    if (element.styleSheet){
+      element.styleSheet.cssText = sheet;
+    } else {
+      element.appendChild(document.createTextNode(sheet));
+    }
+    return element;
+}
+var style = document.createElement('style')
+stylize(style);
+document.head.appendChild(style);
+```
+
+For this to work in client-side frameworks, you need to grab a handle on the actual `<style>` DOM node. This means that you must create a custom component/directive.
+
+Here are a few examples:
+
+#### React:
+
+```JavaScript
+var j2cComponent = {
+   render: function(){
+        return <style />
+    }
+    componentDidMount: function(){
+        stylize(React.findDOMNode(this), this.prop.sheet)
+    }
+}
+```
+
+#### Mithril:
+
+```JavaScript
+var j2cComponent = {
+    view: function(ctrl, args) {
+        return m("style", {
+            sheet: args.sheet
+            config: function(el, isinit, vdom) { 
+                if(!isinit) {
+                    stylize(el, vdom.attrs.sheet); 
+                }
+            }
+        })
+    }
+}
+```
+
+#### Angular v1.3- (1.4 is ie9+)
+
+```JavaScript
+module.directive('j2cSheet', function() {
+  return {
+    restrict: 'A',
+    link: function link(scope, element, attrs) {
+        if (element.tagName.toUpperCase() !== "STYLE") throw 'j2cSheet expects a <style> element';
+        stylize(element[0], attrs.j2cSheet);
+    }
+  };
+});
+
+module.directive('j2cInline', function() {
+  return {
+    restrict: 'A',
+    link: function link(scope, element, attrs) {
+        element[0].style += j2c.inline(attrs.j2cInline);
+    }
+  };
+});
+```
+
+
 ## Limitations
 
 ### Selectors and properties order
@@ -520,7 +636,7 @@ This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.
 
 I may get around and write a validator companion, but I'm not there yet :-).
 
-### No pretty printing
+### Little pretty printing
 
 `j2c` puts each selector list and properties on their own lines, but doesn't indent or add other white space.
 
@@ -533,5 +649,11 @@ It's up to you to pick distinctive names.
 ### Vendor prefixes corner cases
 
 `j2c` doesn't provide any facility to auto-prefix a list of values. It is relevant in the context of multiple gradient backgrounds and `transition`/`transition-property` values.
+
+## TODO:
+
+- Improve the web site. Move the docs there.
+- Test DOM insertion methods in old IE.
+- Add scoped animation names and maybe font names too?
 
 ## License: MIT
