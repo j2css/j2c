@@ -25,13 +25,16 @@ Think SASS, but with JSONish syntax.
     - [CSS Hacks](#css-hacks)
     - [Mixins redux](#mixins-redux)
   - [Scoped sheet for components: `j2c.scoped(...)`](#scoped-sheet-for-components-j2cscoped)
-- [Limitations](#limitations)
-  - [Selectors and properties order](#selectors-and-properties-order)
-  - [No input validation](#no-input-validation)
-  - [Little pretty printing](#little-pretty-printing)
 - [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
+- [Limitations](#limitations)
 - [TODO](#todo)
 - [License: MIT](#license-mit)
+
+### 
+
+It's up to you to pick distinctive names.
+
+### Vendor prefixes corner cases
 
 
 ----
@@ -142,6 +145,17 @@ j2c.inline([
   {border: "solid 1px grey"},
   {border_left: "dashed 3px green"}
 ])
+```
+
+or
+
+```JavaScript
+j2c.inline({
+  border: [
+    "solid 1px grey",
+    {left: "dashed 3px green"}
+  ]
+})
 ```
 
 ```CSS
@@ -394,7 +408,7 @@ Arrays works the same way at the selector level as they do at the property/value
 
 ### Scoped sheet for components: `j2c.scoped(...)`
 
-`j2c.scoped` offers a [`JSS`](https://github.com/jsstyles/jss)-like functionality:
+`j2c.scoped` offers a [JSS](https://github.com/jsstyles/jss)-like functionality:
 
 ```JavaScript
 var sheet = j2c.scoped({
@@ -423,6 +437,30 @@ Unique classes are automatically generated for each scope name. The middle part 
 Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet()` functionality is available.
 
 *Caveat:* At the moment, animations defined with `@keyframes` are still part of the global CSS namespace. The same goes for font names defined in `@font-face` blocks.
+
+#### Scoped animations (to be implemented)
+
+```JavaScript
+styles = j2c.scoped({
+  foo: {
+    "@keyframes bar": {
+      //...
+    },
+    " .baz": {
+      animation: "bar"
+    }
+  }
+})
+```
+
+```CSS
+._foo_j2c_3465769785678_76876576587_1 {
+  animation: bar_foo_j2c_3465769785678_76876576587_1
+}
+@keyframes bar_foo_j2c_3465769785678_76876576587_1 {
+  /* ... */
+}
+```
 
 ## Vendor prefixes:
 
@@ -644,7 +682,7 @@ For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be
 
 ### `@keyframes` names are global, even in a scoped stylesheet.
 
-It's up to you to pick distinctive names.
+It's up to you to pick distinctive names. This is high on the TODO list.
 
 ### Vendor prefixes corner cases
 
