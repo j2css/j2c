@@ -5,8 +5,7 @@
 <script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
 <![endif]-->
 <meta name=viewport content="width=device-width, initial-scale=1">
-<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600&text=%20058CJSabcdehijlmnoprstvwy~' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
 <script>
 var j2c=function(){function n(e,r,c,t,i,o,s){switch(a.call(e)){case u:for(i=e.length;i--;)n(e[i],r,c,t);break;case f:c=c&&c+"-";for(i in e)if(o=e[i],i.indexOf("$")+1)for(s in i=i.split("$").reverse())l.call(i,s)&&n(o,r,c+i[s],t);else n(o,r,c+i,t);break;default:for(r.push(e=(c&&c.replace(/_/g,"-")+":")+e+";"),i=t.length;i--;)r.push("-"+t[i]+"-"+e)}}function e(n,e,c,t,i,a){t=[];for(a in e)if(l.call(e,a))for(i in n)l.call(n,i)&&t.push(r(n[i],e[a],c));return t}function r(n,e,r){return r&&e.indexOf("&")+1?e.replace(/&/g,n):n+e}function c(t,s,h,p,w,d,g){switch(g=t,a.call(t)){case u:for(w=t.length;w--;)c(t[w],s,h,p);break;case f:g={};for(w in t)"@"==w[0]&&(d=t[w],a.call(d)==o?s.push(w+" "+d+";"):w.match(/^@keyframes /)?(s.push("}"),c(d,s,"",p),s.push(w+"{"),s.push("}"),c(d,s,"",["webkit"]),s.push("@-webkit-"+w.slice(1)+"{")):w.match(/^@font-face/)?c(d,s,w,i):(s.push("}"),c(d,s,h,p),s.push(w+"{")));for(w in t)d=t[w],w.match(/^[-\w$]+$/)?g[w]=d:"@"!=w[0]&&c(d,s,h.indexOf(",")+w.indexOf(",")+2?e(h.split(","),w.split(","),1).join(","):r(h,w,1),p);case o:for(w in g)if(l.call(g,w)){s.push("}"),n(g,s,"",p),s.push((h||"*")+"{");break}}}function t(n){return n.reverse().join("\n")}var i=[],a={}.toString,l={}.hasOwnProperty,f=a.call({}),u=a.call(i),o=a.call(""),s="_j2c_"+(1e9*Math.random()|0)+"_"+1*new Date+"_",h=0,p={};return p.inline=function(e,r,c){return n(e,c=[],"",r||i),t(c)},p.sheet=function(n,e,r){return c(n,r=[],"",e||i),t(r)},p.scoped=function(n,e,r){var a={},f=[];e=e||i;for(r in n)l.call(n,r)&&(a[r]=r.replace(/[^\-\w]/,"")+s+h++,c(n[r],f,"."+a[r],e));f=new String(t(f));for(r in n)l.call(n,r)&&(f[r]=a[r]);return f},p.prefix=function(n,r){return e(r.map(function(n){return"-"+n+"-"}).concat([""]),[n])},p}();
 /*
@@ -142,13 +141,13 @@ var logo = {
     two_color: ["#24f", "rgba(255,255,255,1)", isIElt10 && "#24f"],
     subtitle_color: "#357",
     bg_color: "#ff8",
-    mainbg: "linear-gradient(45deg, #ff8, #fb6)",
-    bg: "linear-gradient(225deg, #ff8, #fb6)",
-    bg2: "linear-gradient(225deg, #ff8, #ff8, #fb6)",
+    mainbg: j2c.prefix("linear-gradient(45deg, #ff8, #fb6)", ["webkit"]),
+    bg: j2c.prefix("linear-gradient(225deg, #ff8, #fb6)", ["webkit"]),
+    bg2: j2c.prefix("linear-gradient(225deg, #ff8 50%, #fb6 100%)", ["webkit"]),
     JCOutline: outline(13, 9, "#9cf"),
     _2Outline: outline(13/0.643, 9/0.643, "#9cf"),
-    h2Outline: outline(40, 30, "#9cf"),
-    h6Outline: outline(45, 30, "#9cf")
+    h2Outline: outline(40, 30, "#7ad"),
+    h6Outline: outline(45, 30, "#357")
 }
 
 var logostyle = j2c.sheet({
@@ -171,21 +170,14 @@ var logostyle = j2c.sheet({
         }
     ],
     " html": {
-        overflow_x: "hidden"
+        overflow_x: "hidden",
+        height:"100%"
     },
     " body":{
         margin$padding: 0,
-        font_family:"Source Sans Pro, sans-serif"
+        font_family:"Source Sans Pro, sans-serif",
+        height:"100%"
     },
-    ".container":[
-        pocketgrid.group,
-        {
-            margin: "0 auto",
-            max_width:"48em",
-            padding:0,
-            position:"relative"
-        }
-    ],
     " header": [
         {
             background_color: logo.bg_color,
@@ -199,6 +191,15 @@ var logostyle = j2c.sheet({
                 height:"17em"
             },
 
+            " .container":[
+                pocketgrid.group,
+                {
+                    margin: "0 auto",
+                    max_width:"48em",
+                    padding:0,
+                    position:"relative"
+                }
+            ],
 
             " h2, h6": [
                 pocketgrid.block,
@@ -206,9 +207,7 @@ var logostyle = j2c.sheet({
                     text_align: "center",
                     z_index:6,
                     "@media (min-width:48.001em)": {
-                        width:"60%",
-                         _o$_ms$_moz$_webkit$: {
-                        }
+                        width:"60%"
                     }
                 }
             ],
@@ -232,14 +231,13 @@ var logostyle = j2c.sheet({
 
             " h6": {
                 background_color:"#fff",
-                color: logo.subtitle_color,
+                color: "#fff",
                 font_size: "1.6em",
                 margin:0,
                 padding_top:"0.5em",
                 text_shadow: logo.h6Outline,
                 "@media (min-width:48.001em)": {
                     background_color: "transparent",
-                    color: "#fff",
                     padding_top:0
                 }
             },
@@ -316,8 +314,6 @@ var logostyle = j2c.sheet({
                     }
                 }
             ],
-
-
             " h1 .Jay, h1 .Cee": {
                 ":after": [{
                     background_color:  logo.bg_color,
@@ -327,7 +323,7 @@ var logostyle = j2c.sheet({
                     overflow: "hidden",
                     position: "absolute",
                     bottom:"42%"
-                },"background:"+logo.bg],
+                },{"background":logo.bg}],
                 ":before": {
                     background_color:  logo.bg_color,
                     bottom:"-0.2em",
@@ -340,19 +336,62 @@ var logostyle = j2c.sheet({
                 }
             }
         },
-        "background:"+logo.mainbg
+        {"background":logo.mainbg}
         // ,
         // pocketgrid.block
     ],
-    ".description":[
+    " .main":[
         {
-            font_size:"1.3em",
+            margin: "0 auto",
+            max_width:"48em",
+            position:"relative",
             line_height:"1.5em",
-            margin:{left$right:"1em"}
+            padding:[0, {left$right:"1em"}],
+            "> *":{
+                font_size:"1.3em",
+            },
+            " #playground>*:after": {
+              content: "",
+              display: "table",
+              clear: "both"
+            },
+            " .wrapperNode":[
+              pocketgrid.group,
+            ],
+
+            " .codeNode, .styleNode":[
+                pocketgrid.block,
+                {
+                  border: "10px solid #fb6",
+                  display: "table-cell",
+                  height: "100%",
+                  margin_bottom:"1em",
+                  " .CodeMirror":{
+                    height: "inherit",
+                    "@media  (min-width:48.001em)":{
+                        height: "20em"
+                    }
+                }
+              }
+            ],
+            "@media  (min-width:48.001em)":{
+                " .codeNode, .styleNode": {
+                  width:"50%"
+                },
+                " .codeNode": {border_right_width:"6px"},
+                " .styleNode": {border_left_width:"6px"}
+            }
         }
     ],
-    " hr":{
-        color: "#dd5"
+    " footer":{
+        background: logo.mainbg,
+        border_top: "1px dotted "+ "#dd5",
+        color: "#fff",
+        padding: {bottom$top: "1em"},
+        text: {
+          align: "center",
+          shadow: logo.h6Outline
+        }
     },
     ".ghribbon":{
         background_color:"#a00",//logo.subtitle_color,
@@ -415,8 +454,7 @@ var logostyle = j2c.sheet({
         "@media (min-width:64em)":{
             position:"fixed"
         }
-    }
-
+    },
 })
 
 var css = logostyle;
@@ -431,7 +469,6 @@ if (style.styleSheet){
 }
 
 head.appendChild(style);
-
 </script>
 <header>
     <div class="container">
@@ -442,193 +479,224 @@ head.appendChild(style);
         <h6>~850 bytes down the line</h6>
     </div>
 </header>
-<div class="container">
-<p class="description"><code>j2c</code> is a CSS preprocessor working from JavaScript objects. It provides a sizable subset of SASS in a tiny, single pass compiler.</p>
-<p class="description">Its <code>scoped()</code> mode allows to style MVC components/directives without class name clashes. Check the <a href="https://github.com/pygy/j2c">github repo</a> for the documentation.</p>
+<div class="main">
+<p><code>j2c</code> is a CSS preprocessor working from JavaScript objects. It provides a sizable subset of SASS in a tiny, single pass compiler.</p>
+<p>Its <code>scoped()</code> mode allows to style components without class name clashes.</p>
 
-<p class="description">Here's a WIP code playground.</p>
-<hr>
-<div id="playground"></div>
+<p>Here's a short sample of what it can do. Check the <a href="https://github.com/pygy/j2c">github repo</a> for the full documentation.</p>
 
-<script src="mithril.js"></script>
-<script src="loader.js"></script>
-<script>
-setTimeout(function(){
+<p>You can play with the code samples live.</p>
 
-var libs = mithrilLoader([
-  "codemirror.js",
-  "codemirror.css",
-  ["javascript.js", ["codemirror.js"]],
-  ["css.js",        ["codemirror.js"]],
-  "playground/pages.js",
-  "cssbeautify.js",
-  "commonmark.js"
-])
+<noscript id="rawdocs"><pre>
 
-var mdReader, mdWriter
-libs.loading.then(function(){
-    mdReader = new commonmark.Parser();
-    mdWriter = new commonmark.HtmlRenderer();
+### Inline styles
+
+`j2c.inline()` creates inline styles.
+
+Underscores are converted to dashes so that property names can be left unquoted.
+
+Arrays ensures that properties are ordered (not so for objects).
+
+The dollar sign combines (sub-)property names.
+
+```JavaScript
+"p {" +
+j2c.inline({
+  background_color:"red",
+  border: [
+    "1px solid grey",
+    {left$right: {width: "3px"}}
+  ]
 })
++ "}"
+```
 
-var j2c = window.j2c;
+```CSS
+p {
+    border: 1px solid grey;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    background-color: red;
+}
+```
+
+You can also use arrays to insert mixins.
+
+### Building a style sheet
+
+`j2c.sheet()` creates a style sheet. Nested selectors and at-rules are supported. Arrays can also be used where needed.
+
+```JavaScript
+j2c.sheet({
+  ".foo": {
+    color: "red",
+    "@media  (min-width:48.01em)": {
+      color: "green"
+    },
+    "& .bar,& .baz": {
+      text_decoration: "underline"
+    }
+  }
+})
+```
+
+```CSS
+.foo {
+    color: red;
+}
+
+.foo .bar,.foo .baz {
+    text-decoration: underline;
+}
+
+@media  (min-width:48.01em) {
+    .foo {
+        color: green;
+    }
+}
+```
+
+### Scoped definitions:
+
+Here's a quick taste of the `j2c.scoped()` mode. In the example, `foo` is not really a class name, it is converted to a unique class name under the hood.
+
+```JavaScript
+sheet = j2c.scoped({
+  foo: {
+    color: "red",
+    "@media  (max-width:48em)": {
+      color: "green"
+    },
+    "& .bar": {
+      text_decoration: "underline"
+    }
+  }
+}),
+"/* sheet.foo: " + sheet.foo +
+"*/\n" + sheet
+```
+
+Like what you've seen so far? [Check out the code](https://github.com/pygy/j2c).
+
+</pre></noscript>
+<div id="playground">Loading the docs...</div>
+<script src="combined.min.js"></script>
+<link rel="stylesheet" itemprop="stylesheet" href="codemirror.css"></link>
+<script>
+var unescape = (function() {
+  /*
+  unescape is borrowed from Underscore.js
+
+  Copyright (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative
+  Reporters & Editors
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the "Software"), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+  */
+  var map = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#x60;': '`'
+  };
+  var list = ['&amp;','&lt;','&gt;','&quot;','&#x27;','&#x60;']
+  var escaper = function(match) {
+    return map[match];
+  };
+
+  var source = '(?:' + list.join('|') + ')';
+  var testRegexp = RegExp(source);
+  var replaceRegexp = RegExp(source, 'g');
+  return function(string) {
+    string = string == null ? '' : '' + string;
+    return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+  };
+})();
 
 function sanitize(source) {
   return source.replace(/(\W)(while|for|eval)(\W)/g, "$1_$2_$3")
 }
 
-
-var PGM = {
-    controller: function() {
-        var self = this,
-            count = 0
-
-        self.cangoforward = true
-
-        self.css_output=""
-        self.runcode = function(code) {
-            var ok = true, res;
-            try{
-                res = new Function(
-                  'j2c', 'sheet',
-                  'console', 'alert', 'window', 'document', 'undefined', 
-                  "'use strict';  return (" + sanitize(code.getValue()) + ");"
-                ).call(null, j2c);
-                if ("[object String]" !== {}.toString.call(res)) res = j2c.sheet(res);
-                res = cssbeautify(res);
-                self.css_output=res;
-                self.CSSCode.setValue(res);
-            } catch (e) {
-                ERRR = e
-                self.CSSCode.setValue("/* " + e + " */\n" + self.css_output);
-            }
-           m.redraw()
-        }
-        self.showvendors = m.prop(false)
-    },
-    view:function(ctrl) {
-        return [
-            libs.element,
-            libs.loading() ? m("div", "Loading the editor...") :
-            m(".playground."+ PGM.css.playground, [
-                m('style', PGM.css),
-                m("."+PGM.css.menu, [
-                  m("."+PGM.css.arrow, {
-                    style: ctrl.cangoback ? "cursor:pointer" : "color:#888",
-                    onclick: ctrl.goback
-                  }, m("p", "<")),
-                  m(".select." + PGM.css.select,
-                    m("select", [m('option', pages[0].name)])
-                  ),
-                  m("."+PGM.css.arrow, {
-                    style: ctrl.cangoforward ? "pointer:click" : "color:#888",
-                    onclick: ctrl.goforward
-                  }, m("p", ">")),
-                ]),
-                m("."+PGM.css.description, m.trust(mdWriter.render(mdReader.parse(pages[0].description)))),
-                m("."+PGM.css.code, {
-                    config: function(elt, init){
-                        if (!init) {
-                            ctrl.JSCode = CodeMirror(elt, {
-                                value: pages[0].code(),
-                                mode:  "javascript"
-                            });
-                            ctrl.JSCode.on("change", ctrl.runcode)
-                        }
-                    }
-                }),
-                m("."+PGM.css.CSS, {
-                    config: function(elt, init){
-                        if (!init) {
-                            ctrl.CSSCode = CodeMirror(elt, {
-                                value: "",
-                                mode:  "css",
-                                readOnly:"nocursor"
-                            });
-                            ctrl.runcode(ctrl.JSCode)
-                        }
-                    }
-                })
-            ])
-        ]
-    },
-    css: j2c.scoped({
-      playground:pocketgrid.group,
-      menu: [
-        pocketgrid.nested,
-        {
-          font_size: "1.6em",
-          width:"100%"
-        }
-      ],
-      arrow: [
-        pocketgrid.block,
-        {
-          display:"table-cell",
-          height: "2em",
-          vertical_align:"middle",
-          width: "5%",
-          " p": {
-            height: "100%",
-            margin:"0 auto",
-            transition: "color, 0.5s",
-            vertical_align: "middle",
-            width: "1em",
-            ":hover":{
-              color:"#888"
-            }
-          }
-        }
-      ],
-      select: [
-        pocketgrid.block,
-        {
-          vertical_align:"middle",
-          width: "90%",
-          // styling a select block: http://stackoverflow.com/a/13968900
-          " select": {
-            border: "0px solid #ccc",
-            cursor: "pointer",
-            font_size: "inherit",
-            text_overflow: "ellipsis",
-            width: "100%",
-            _moz$_webkit$:{appearance:"none"},
-            "::-ms-expand":{appearance:"none"}
-          }
-        }
-      ],
-      description: {
-        font_size:"1.2em",
-        line_height:"1.5em",
-        margin:{left$right:"1em"}
-      },
-      code: [
-        pocketgrid.block,
-        {
-          width:"50%"
-        }
-      ],
-      CSS: [
-        pocketgrid.block,
-        {
-          width:"50%"
-        }
-      ]
-    })
+function runcode(code, previous) {
+    var res;
+    try{
+        res = new Function(
+          'j2c', 'sheet',
+          'console', 'alert', 'window', 'document', 'undefined', 
+          "'use strict';  return (" + sanitize(code) + ");"
+        ).call(null, j2c);
+        if ("[object String]" !== {}.toString.call(res))  throw "string value expected";
+        return cssbeautify(res);
+    } catch (e) {
+        ERR = e
+        return ("/* " + e + " */\n\n" + self.css_output);
+    }
 }
 
-m.module(playground, PGM)
 
+var md_parser = new commonmark.Parser()
+  , md_renderer = new commonmark.HtmlRenderer();
+
+playground.innerHTML = md_renderer.render(md_parser.parse(rawdocs.firstChild.data.slice(5, rawdocs.firstChild.data.length-6)));
+
+[].slice.call(playground.children).forEach(function(elt){
+    if (elt.tagName !== "PRE") return;
+    if (elt.children[0] && elt.children[0].tagName === "CODE" && elt.children[0].className === "language-CSS") {
+        elt.parentElement.removeChild(elt);
+    }
+    if (elt.children[0] && elt.children[0].tagName === "CODE" && elt.children[0].className === "language-JavaScript") {
+        var codeText = unescape(elt.children[0].innerHTML);
+        var styleText = ""
+        var wrapperNode = document.createElement("div");
+        var codeNode = document.createElement("div");
+        var styleNode = document.createElement("div");
+        wrapperNode.className = "wrapperNode";
+        codeNode.className = "codeNode";
+        styleNode.className = "styleNode";
+        var cm_style = CodeMirror(styleNode, {
+            value: runcode(codeText, ""),
+            mode:  "css",
+            readOnly:true
+        })
+        var cm_code = CodeMirror(codeNode, {
+            value:codeText,
+            mode: "javascript"
+        })
+        cm_code.on("change", function(code){
+            cm_style.setValue(runcode(code.getValue(), cm_style.getValue()))
+        })
+        wrapperNode.appendChild(codeNode);
+        wrapperNode.appendChild(styleNode);
+        elt.parentElement.insertBefore(wrapperNode, elt);
+        elt.parentElement.removeChild(elt);
+        cm_code.refresh();
+        cm_style.refresh();
+    }
 })
-
-var s = document.createElement('link')
-s.href = 'codemirror.css'
-s.rel=s.itemprop = 'stylesheet';
-s.onload = function(e){window.EL = e}
-document.body.appendChild(s)
 </script>
 
 </div>
+<footer> Copyright 2015 &copy; Pierre-Yves Gérardy</footer>
 
 <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600&text=Fork%20menGitHub' rel='stylesheet' type='text/css'>
 <div class="ghribbon"><a href="https://github.com/pygy/j2c">Fork me on GitHub</a></div>

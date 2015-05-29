@@ -17,6 +17,23 @@ Underscores are converted to dashes so that property names can be left unquoted.
 
 We also show how you combine property names.
 
+<div class="codesample">
+
+```JavaScript
+//foo
+```
+</div>
+
+and 
+
+<div class="CSSsample">
+
+```CSS
+.foo{
+  color:red;
+}
+```
+</div>
 */}),
       code: longString(function(){/*!
 "p {" +
