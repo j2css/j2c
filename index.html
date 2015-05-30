@@ -36,7 +36,7 @@ DEALINGS IN THE SOFTWARE.
 // PocketGrid
 
 var border_box = {
-    ",:before,:after":{
+    "&, &:before, &:after":{
         box_sizing:"border-box"
     }
 }
@@ -108,6 +108,7 @@ var isFF = (typeof InstallTrigger !== 'undefined'),
 
 if (isIElt10){ // lte 8, really.
     document.createElement('header');
+    document.createElement('footer');
 }
 
 //fake text outline using shadows.
@@ -150,7 +151,7 @@ var logo = {
     h6Outline: outline(45, 30, "#357")
 }
 
-var logostyle = j2c.sheet({
+var pagestyle = j2c.sheet({
     "@font-face":[
         {
             font: {
@@ -362,7 +363,10 @@ var logostyle = j2c.sheet({
             " .codeNode, .styleNode":[
                 pocketgrid.block,
                 {
-                  border: "10px solid #fb6",
+                  border: [
+                    "10px solid #fb6",
+                    {radius: "10px"}
+                  ],
                   display: "table-cell",
                   height: "100%",
                   margin_bottom:"1em",
@@ -378,8 +382,18 @@ var logostyle = j2c.sheet({
                 " .codeNode, .styleNode": {
                   width:"50%"
                 },
-                " .codeNode": {border_right_width:"6px"},
-                " .styleNode": {border_left_width:"6px"}
+                " .codeNode": {
+                  border:{
+                    right_width:"6px",
+                    top$bottom: {right_radius: 0}
+                  }
+                },
+                " .styleNode": {
+                  border:{
+                    left_width:"6px",
+                    top$bottom: {left_radius: 0}
+                  }
+                }
             }
         }
     ],
@@ -387,6 +401,7 @@ var logostyle = j2c.sheet({
         background: logo.mainbg,
         border_top: "1px dotted "+ "#dd5",
         color: "#fff",
+        margin_top: "4em",
         padding: {bottom$top: "1em"},
         text: {
           align: "center",
@@ -457,7 +472,7 @@ var logostyle = j2c.sheet({
     },
 })
 
-var css = logostyle;
+var css = pagestyle;
     head = document.head || document.getElementsByTagName('head')[0],
     style = document.createElement('style');
 
@@ -488,6 +503,7 @@ head.appendChild(style);
 <p>You can play with the code samples live.</p>
 
 <noscript id="rawdocs"><pre>
+----
 
 ### Inline styles
 
@@ -495,36 +511,35 @@ head.appendChild(style);
 
 Underscores are converted to dashes so that property names can be left unquoted.
 
-Arrays ensures that properties are ordered (not so for objects).
-
-The dollar sign combines (sub-)property names.
+Arrays ensures that properties are ordered properly. Order can't be guaranteed for objects.
 
 ```JavaScript
-"p {" +
 j2c.inline({
   background_color:"red",
   border: [
     "1px solid grey",
-    {left$right: {width: "3px"}}
+    {left_width: "3px"}
   ]
 })
-+ "}"
 ```
 
 ```CSS
-p {
-    border: 1px solid grey;
-    border-left-width: 3px;
-    border-right-width: 3px;
-    background-color: red;
-}
+border: 1px solid grey;
+border-left-width: 3px;
+background-color: red;
 ```
 
 You can also use arrays to insert mixins.
 
+----
+
 ### Building a style sheet
 
-`j2c.sheet()` creates a style sheet. Nested selectors and at-rules are supported. Arrays can also be used where needed.
+`j2c.sheet()` creates a style sheet.
+
+Nested selectors and at-rules are supported.
+
+Arrays can also be used where needed for order and mixins (not shown here).
 
 ```JavaScript
 j2c.sheet({
@@ -556,9 +571,22 @@ j2c.sheet({
 }
 ```
 
+----
+
 ### Scoped definitions:
 
-Here's a quick taste of the `j2c.scoped()` mode. In the example, `foo` is not really a class name, it is converted to a unique class name under the hood.
+CSS class names live in a global namespace. Developers and designers have
+to be careful not to step on one another's feet, and good unique names are not
+easy to find.
+
+A potential solution is to use inline styles, but adding the all over the place in
+templates is bulky, and they are less powerful than style sheets (no `@media` queries,
+no `:before` or `:hover` pseudo-elements)
+
+`j2c`'s scoped mode solves this problem by generating unique class names automatically.
+
+Here's a quick taste of the `j2c.scoped()` mode. In the example, `foo` is not really a class
+name, it is converted to a unique one under the hood.
 
 ```JavaScript
 sheet = j2c.scoped({
@@ -571,12 +599,75 @@ sheet = j2c.scoped({
       text_decoration: "underline"
     }
   }
-}),
-"/* sheet.foo: " + sheet.foo +
-"*/\n" + sheet
+})
 ```
 
-Like what you've seen so far? [Check out the code](https://github.com/pygy/j2c).
+In another component:
+
+```JavaScript
+sheet = j2c.scoped({
+  foo: {
+    font_size:"2em",
+    ":before": {
+      content: '"Look Ma, no clash!"'
+    }
+  }
+})
+```
+
+In both cases you can put `sheet` in a `<style>` element, and use `sheet.foo` as a class
+for your component/directive/whatever. `sheet.foo` will read something along
+`"foo_j2c_XXXXX_YYYYYYYY_N"`. Where the `XXX...`, `YYY...` and `N` combo is globally unique.
+They are respectively a random number, a timestamp, and a counter.
+`j2c` can be included several times in the same page, and can also be used on the server
+to generate isomorphic componenents.
+
+If you modify these examples (did I mention they are editable?), you'll see the counter increment
+every time the sheet is updated.
+
+[Find the full documentation on GitHub](https://github.com/pygy/j2c). Vendor prefixes,
+animations, CSS hacks and the mysterious dollar property combiner are also covered there.
+
+You may also want to check the source of this page for a medium-sized stlye sheet 
+written with `j2c` (mostly the logo and the GitHub ribbon).
+
+----
+
+### FAQ
+
+#### Why do you use underscores in property names?
+
+Actually, dashes are supported too, but I wanted property names to be allowed to be left unquoted.
+CamelCase may be more familiar for property names in JS, but, in practice, underscores are nicer to work with:
+- when pasting CSS in your JS source
+- when refactoring from `{text_decoration: "none"}` to
+
+```JSON
+{
+  text: {
+    align: "center",
+    decoration: "none"
+  }
+}
+```
+and back. I'd rather avoid having three sytaxes for the same thing.
+
+#### There's another project called "j2c"
+
+There are at least two other programming-related things called "j2c": a [Java
+to C++ compiler](https://code.google.com/a/eclipselabs.org/p/j2c/) and the
+[J2EE connector architecture](https://en.wikipedia.org/wiki/Java_EE_Connector_Architecture).
+I believe that they are sufficiently different in scope for the naming collision
+not to be relevant.
+
+#### That's all, folks...
+
+...for now.
+
+If I were hip, this is where I'd intimate you to follow me on Twitter, but I don't
+post anything there :-)
+
+Thanks for reading 'till the end, have a nice day.
 
 </pre></noscript>
 <div id="playground">Loading the docs...</div>
@@ -637,6 +728,15 @@ function sanitize(source) {
   return source.replace(/(\W)(while|for|eval)(\W)/g, "$1_$2_$3")
 }
 
+function _beautify(css){
+  var res = cssbeautify(css);
+  if (res === css) {
+    res = cssbeautify("p{"+css+"}", {indent:''})
+    res = res.slice(4, res.length-2)
+  }
+  return res;
+}
+
 function runcode(code, previous) {
     var res;
     try{
@@ -646,10 +746,10 @@ function runcode(code, previous) {
           "'use strict';  return (" + sanitize(code) + ");"
         ).call(null, j2c);
         if ("[object String]" !== {}.toString.call(res))  throw "string value expected";
-        return cssbeautify(res);
+        return _beautify(res);
     } catch (e) {
         ERR = e
-        return ("/* " + e + " */\n\n" + self.css_output);
+        return "/* " + e + " */";
     }
 }
 
