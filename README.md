@@ -30,18 +30,11 @@ Think SASS, but with JSONish syntax.
 - [TODO](#todo)
 - [License: MIT](#license-mit)
 
-### 
-
-It's up to you to pick distinctive names.
-
-### Vendor prefixes corner cases
-
-
 ----
 
 ## Why?
 
-* Send small, compact, SASS-like data down the line
+* Write your stylsheet in a SASS-like manner
 * Simplify your asset pipeline
 * Use the full power of JavaScript for mixins, variables, macros and feature detection
 * Good fit for virtual DOM frameworks like React or Mithril
