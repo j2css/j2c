@@ -67,6 +67,8 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 ## Usage
 
+**/!\ Warning /!\** The API of the git head underwent a major overhaul which hasn't been documented yet. What follows is valid up to v0.7.2 (the current stable release).
+
 `j2c` can be used to either assemble inline declarations, full style sheets, or scoped rules, each step building on the former.
 
 Scoped rules are especially useful for client-side frameworks, as can be seen in this simple [Mithril](http://mithril.js.org) module:

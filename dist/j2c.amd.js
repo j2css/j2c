@@ -13,11 +13,11 @@ define('j2c', function(){return (function () {
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
   // turned into strings.
-  function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
+  function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
       for (k = o.length;k--;)
-        _declarations(o[k], buf, prefix, vendors);
+        _declarations(o[k], buf, prefix, vendors, localize);
       break;
     case OBJECT:
       prefix = (prefix && prefix + "-");
@@ -26,9 +26,9 @@ define('j2c', function(){return (function () {
         if (k.indexOf("$") + 1) {
           // "$" was found.
           for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
-            _declarations(v, buf, prefix + k[kk], vendors);
+            _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
-          _declarations(v, buf, prefix + k, vendors);
+          _declarations(v, buf, prefix + k, vendors, localize);
         }
       }
       break;
@@ -38,7 +38,15 @@ define('j2c', function(){return (function () {
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      buf.push(o = (prefix && (prefix).replace(/_/g, "-") + ":") + o + ";");
+      k=(prefix && (prefix).replace(/_/g, "-") + ":")
+
+      if (localize && (k == "animation-name:" || k == "animation:")) {
+        o = o.split(',').map(function(o){
+          return o.replace(/([-\w]+)/, localize)}
+        ).join(",");
+      }
+
+      buf.push(o = k + o + ";");
       // vendorify
       for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
@@ -63,7 +71,7 @@ define('j2c', function(){return (function () {
 
 
   // Add rulesets and other CSS statements to the sheet.
-  function _add(statements, buf, prefix, vendors, /*var*/ k, v, decl) {
+  function _add(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a 
@@ -74,7 +82,7 @@ define('j2c', function(){return (function () {
 
     case ARRAY:
       for (k = statements.length;k--;)
-        _add(statements[k], buf, prefix, vendors);
+        _add(statements[k], buf, prefix, vendors, localize);
       break;
 
     case OBJECT:
@@ -86,8 +94,9 @@ define('j2c', function(){return (function () {
           buf.push(k + " " + v + ";");
 
         } else if (k.match(/^@keyframes /)) {
+          k = localize ? k.replace(/ ([-\w]+)/, localize) : k
           buf.push("}");
-          _add(v, buf, "", vendors);
+          _add(v, buf, "", vendors, localize);
           buf.push(k + "{");
 
           // add a @-webkit-keyframes block too.
@@ -101,7 +110,7 @@ define('j2c', function(){return (function () {
         } else { 
           // default @-rule (usually @media)
           buf.push("}");
-          _add(v, buf, prefix, vendors);
+          _add(v, buf, prefix, vendors, localize);
           buf.push(k + "{");
         }
       }
@@ -121,7 +130,7 @@ define('j2c', function(){return (function () {
             /* else */
               _concat(prefix, k, 1)
             ,
-            vendors
+            vendors, localize
           );
         }
       }
@@ -135,35 +144,36 @@ define('j2c', function(){return (function () {
       // declarations.
       for (k in decl) if (own.call(decl, k)){
         buf.push("}");
-        _declarations(decl, buf, "", vendors);
-        buf.push((prefix || "*") + "{");
+        _declarations(decl, buf, "", vendors, localize);
+        buf.push((localize ? prefix.replace(/\.([-\w]+)/g, localize) : prefix || "*") + "{");
         break;
       }
     }
   }
 
-  function _finalize(buf) {return buf.reverse().join("\n");}
+  function _finalize(buf, postprocess) {
+    postprocess && postprocess(buf);
+    return buf.reverse().join("\n");
+  }
 
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return _finalize(buf);
   }
 
-  j2c.sheet = function (statements, vendors, buf) {
-    _add(statements, buf = [], "", vendors || empty);
-    return _finalize(buf);
-  };
-
-  j2c.scoped = function(statements, vendors, k) {
-    var classes = {},
-        buf = [];
-    vendors = vendors || empty;
-    for (k in statements) if (own.call(statements, k)) {
-      classes[k] = k.replace(/[^\-\w]/, '') + scope_root + (counter++);
-      _add(statements[k], buf, "." + classes[k], vendors);
-    }
-    buf = new String(_finalize(buf));
-    for (k in statements) if (own.call(statements, k)) buf[k] = classes[k];
+  j2c.sheet = function (statements, options, buf, k) {
+    options = options || {};
+    var suffix = scope_root + counter++
+      , global = options.global || []
+      , locals = {}
+      ;
+    _add(statements, buf = [], "", options.vendors || empty, global === true ? false : function (match, k) {
+      if (global.indexOf(match) + 1 || match[0] != '.' && global.indexOf(k) + 1) return match;
+      locals[k] || (locals[k] = k + suffix);
+      return match + suffix;
+    });
+    buf = new String(_finalize(buf, options.then));
+    for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
   }
   /*/-statements-/*/

@@ -13,11 +13,11 @@
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
   // turned into strings.
-  function _declarations(o, buf, prefix, vendors, /*var*/ k, v, kk) {
+  function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
       for (k = o.length;k--;)
-        _declarations(o[k], buf, prefix, vendors);
+        _declarations(o[k], buf, prefix, vendors, localize);
       break;
     case OBJECT:
       prefix = (prefix && prefix + "-");
@@ -26,9 +26,9 @@
         if (k.indexOf("$") + 1) {
           // "$" was found.
           for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
-            _declarations(v, buf, prefix + k[kk], vendors);
+            _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
-          _declarations(v, buf, prefix + k, vendors);
+          _declarations(v, buf, prefix + k, vendors, localize);
         }
       }
       break;
@@ -38,7 +38,15 @@
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      buf.push(o = (prefix && (prefix).replace(/_/g, "-") + ":") + o + ";");
+      k=(prefix && (prefix).replace(/_/g, "-") + ":")
+
+      if (localize && (k == "animation-name:" || k == "animation:")) {
+        o = o.split(',').map(function(o){
+          return o.replace(/([-\w]+)/, localize)}
+        ).join(",");
+      }
+
+      buf.push(o = k + o + ";");
       // vendorify
       for (k = vendors.length; k--;)
          buf.push("-" + vendors[k] + "-" + o);
