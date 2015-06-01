@@ -9,10 +9,10 @@ JavaScript to CSS compiler. ~850 bytes mingzipped.
 
 Think SASS, but with JSONish syntax.
 
+This is the "how to" document. For the motivation behind the library, check out [the home page](http://j2c.py.gy).
+
 ## Table of Contents
 
-- [Why?](#why)
-  - [But, seriously...](#but-seriously)
 - [Installation](#installation)
 - [Usage](#usage)
   - [For inline decalrations: `j2c.inline(declarations)`](#for-inline-decalrations-j2cinlinedeclarations)
@@ -26,7 +26,6 @@ Think SASS, but with JSONish syntax.
     - [At-rules](#at-rules)
     - [CSS Hacks](#css-hacks)
     - [Mixins redux](#mixins-redux)
-  - [Scoped sheet for components: `j2c.scoped(...)`](#scoped-sheet-for-components-j2cscoped)
 - [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
 - [Limitations](#limitations)
 - [TODO](#todo)
@@ -34,27 +33,11 @@ Think SASS, but with JSONish syntax.
 
 ----
 
-## Why?
-
-* Write your stylsheet in a SASS-like manner
-* Simplify your asset pipeline
-* Use the full power of JavaScript for mixins, variables, macros and feature detection
-* Good fit for virtual DOM frameworks like React or Mithril
-* I like writing compilers :-)
-
-### But, seriously...
-
-This is mostly intended as a client-side helper to generate styles for Virtual DOM frameworks (Mithril, React, Mercury...).
-
-Whether or not this is useful as a general CSS replacement remains to be seen.
-
-For that use case, it trades off file size down the line for time lost because the rendering is blocked by executing JS. Benchmarks, especially on underpowered devices are yet to be performed.
-
 ## Installation
 
 ```Bash
-# Please send a PR if you want to see it included in other package systems.
 $ npm install j2c
+# Please send a PR if you want to see it included in other package systems.
 ```
 
 then
@@ -69,39 +52,59 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 **/!\ Warning /!\** The API of the git head underwent a major overhaul which hasn't been documented yet. What follows is valid up to v0.7.2 (the current stable release).
 
-`j2c` can be used to either assemble inline declarations, full style sheets, or scoped rules, each step building on the former.
+`j2c` can be used to either assemble inline declarations or full style sheets with, by default, locally unique class names.
 
-Scoped rules are especially useful for client-side frameworks, as can be seen in this simple [Mithril](http://mithril.js.org) module:
+Like SASS and friends, `j2c` supports nested at-rules and selectors, and mixins.
+
+Here's an example of locallized class names (as pioneered by [JSS]()):
 
 ```JavaScript
-Widget = {
-  styles: j2c.scoped({
-    title: {
-      font_size: '3rem',
-      "&:before":{
-        color: "#888",
-        content: "#"
-      }
-    },
-    content: {
-      padding: '2rem',
-      margin: '0 0 0.5rem 0'
+var sheet = j2c.sheet({
+  ".title": {
+    font_size: "3rem",
+    "&:before": {
+      color: "#00b",
+      content: "'#'"
     }
-  }),
-
-  view: function (ctrl) {
-    return <div>
-      <style>{Widget.styles}</style>
-      <h3 class="{Widget.styles.title}">Hello</h3>
-      <div class="{Widget.styles.content}">Foo bar baz</div>
-    </div>
+  },
+  ".content": {
+    line_height: "1.6em"
+    padding: "2rem"
   }
+});
+```
+
+Unique class names are generated automatically for `title` and `content`:
+
+```CSS
+.content_j2c_335954347_1433153443593_3 {
+    line-height: 1.6em;
+    padding: 2rem;
+}
+
+.title_j2c_335954347_1433153443593_3 {
+    font-size: 3rem;
+}
+
+.title_j2c_335954347_1433153443593_3:before {
+    content: '#';
+    color: #888;
 }
 ```
 
-Unique class names are generated automatically for `title` and `content`, and assigned to the corresponding properties of the object returned by `j2c.scoped()`.
+`sheet` is now a `String` object with a `title` and `content` properties that hold the unique class names. It can be used like this in your view:
 
-All methods take in JS objects and return strings. It's up to you to insert the result in the DOM using your favorite method.
+```Haml
+<div>
+  <style>{sheet}</style>
+  <h3 class="{sheet.title}">Hello</h3>
+  <div class="{sheet.content}">Foo bar baz...</div>
+</div>
+```
+
+The `<style>{sheet}</style>` construct works in modernish browsers (ie9+). For older IE, see [below](#inserting-the-stylesheet-in-the-document).
+
+Animation names are also "localized" by default, font names are left untouched.
 
 ### For inline decalrations: `j2c.inline(declarations)`
 
@@ -256,7 +259,7 @@ j2c.sheet({
             border: {left$right: {width: "2px"}}
         }
     }
-})
+}, {global:true})
 
 ```
 
@@ -281,9 +284,13 @@ ul.my_root_class {
 }
 ```
 
-#### Telling selectors and properties apart
+#### Selector syntax (telling then and properties apart)
 
-`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is a property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted, while (sub-)selectors have to be quoted.
+`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is a property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted in the source, while (sub-)selectors have to be quoted.
+
+White space in selectors is significant. `{".foo": {".bar":{...}}}` applies to `.foo.bar` while
+
+Element selectors like `p` or `body` match the property pattern and must thus be preceded by a space. 
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
@@ -402,62 +409,6 @@ You can also pass th result of `j2c.inline` which is less picky about property n
 #### Mixins redux
 
 Arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins).
-
-### Scoped sheet for components: `j2c.scoped(...)`
-
-`j2c.scoped` offers a [JSS](https://github.com/jsstyles/jss)-like functionality:
-
-```JavaScript
-var sheet = j2c.scoped({
-  foo:{color:"red"},
-  bar:{margin:0}
-});
-
-console.log(sheet.bit);
-// 'foo_j2c_371971407_1431849941805_0'
-console.log(sheet.bat);
-//  'bar_j2c_371971407_1431849941805_1'
-
-// `sheet` is actually a String object, which can be used as a normal string.
-console.log(sheet+"");
-
-// .bar_j2c_371971407_1431849941805_1{
-// margin:0;
-// }
-// .foo_j2c_371971407_1431849941805_0{
-// color:red;
-// }
-```
-
-Unique classes are automatically generated for each scope name. The middle part of the class names ensures that class names are unique even if several instances of `j2c` are used on the page.
-
-Scoped sheets can define nested selectors and use at-rules. The full `j2c.sheet()` functionality is available.
-
-*Caveat:* At the moment, animations defined with `@keyframes` are still part of the global CSS namespace. The same goes for font names defined in `@font-face` blocks.
-
-#### Scoped animations (to be implemented)
-
-```JavaScript
-styles = j2c.scoped({
-  foo: {
-    "@keyframes bar": {
-      //...
-    },
-    " .baz": {
-      animation: "bar"
-    }
-  }
-})
-```
-
-```CSS
-._foo_j2c_3465769785678_76876576587_1 {
-  animation: bar_foo_j2c_3465769785678_76876576587_1
-}
-@keyframes bar_foo_j2c_3465769785678_76876576587_1 {
-  /* ... */
-}
-```
 
 ## Vendor prefixes:
 
