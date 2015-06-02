@@ -668,6 +668,38 @@ function randInt() {
 
     })
 
+
+
+      ///////////////////////////////////
+     /**/  suite("Foolproofing, ")  /**/
+    ///////////////////////////////////
+
+
+    test("property-like selector", function() {
+        var E;
+        try{
+            j2c.sheet({"g,p":{animation_name:"bit, bat"}});
+        } catch(e) {
+            E = e
+        }
+        expect(E).not.to.be(undefined);
+        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E);
+    })
+
+
+    test("property-like sub-selector", function() {
+        var E;
+        try{
+            j2c.sheet({".foo":{"g,p":{animation_name:"bit, bat"}}});
+        } catch(e) {
+            E = e
+        }
+        expect(E).not.to.be(undefined);
+        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E);
+    })
+
+
+
       ////////////////////////////
      /**/  suite("Order, ")  /**/
     ////////////////////////////

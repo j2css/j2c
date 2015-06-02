@@ -6,6 +6,7 @@
     OBJECT = type.call({}),
     ARRAY =  type.call(empty),
     STRING = type.call(""),
+    propertyName = /^[-\w$]+$/,
     scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
     counter = 0,
     j2c = {};
@@ -66,6 +67,7 @@
   }
 
   function _concat(a, b, selectorP) {
+    if (selectorP && b.match(propertyName)) throw "invalid selector '" + b +  "'";
     return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b
   }
 
@@ -116,7 +118,7 @@
       }
       for (k in statements) {
         v = statements[k];
-        if (k.match(/^[-\w$]+$/)) {
+        if (k.match(propertyName)) {
           // It is a declaration.
           decl[k] = v;
 
