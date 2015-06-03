@@ -9,7 +9,7 @@ included in the inline and main builds, respectively.
 See the 'dist' directory for usable files.
 
 *//*/-notice-/*/(function () {
-  /*jslint bitwise: true, laxcomma:true*/
+  /*jslint bitwise: true*/
   var
     empty = [],
     type = ({}).toString,
@@ -152,13 +152,13 @@ See the 'dist' directory for usable files.
           // nested sub-selectors
           _add(v, buf,
             /* if prefix and/or k have a coma */
-              prefix.indexOf(",") + k.indexOf(",") + 2 ?
+            prefix.indexOf(",") + k.indexOf(",") + 2 ?
             /* then */
               _cartesian(prefix.split(","), k.split(","), 1).join(",") :
             /* else */
-              _concat(prefix, k, 1)
-            ,
-            vendors, localize
+              _concat(prefix, k, 1),
+            vendors,
+            localize
           );
         }
       }
@@ -190,10 +190,9 @@ See the 'dist' directory for usable files.
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
-    var suffix = scope_root + counter++
-      , global = options.global || []
-      , locals = {}
-      ;
+    var global = options.global || [],
+    suffix = scope_root + counter++,
+    locals = {};
     _add(statements, buf = [], "", options.vendors || empty, global === true ? false : function (match, k) {
       if (global.indexOf(match) + 1 || match[0] != '.' && global.indexOf(k) + 1) return match;
       if (!locals[k]) (locals[k] = k + suffix);

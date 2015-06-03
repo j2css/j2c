@@ -1,5 +1,5 @@
 module.exports = (function () {
-  /*jslint bitwise: true, laxcomma:true*/
+  /*jslint bitwise: true*/
   var
     empty = [],
     type = ({}).toString,

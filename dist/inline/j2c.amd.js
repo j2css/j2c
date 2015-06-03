@@ -1,5 +1,5 @@
 define('j2c', function(){return (function () {
-  /*jslint bitwise: true, laxcomma:true*/
+  /*jslint bitwise: true*/
   var
     empty = [],
     type = ({}).toString,

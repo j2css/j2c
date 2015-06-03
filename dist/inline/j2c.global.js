@@ -1,5 +1,5 @@
 ;var j2c = (function () {
-  /*jslint bitwise: true, laxcomma:true*/
+  /*jslint bitwise: true*/
   var
     empty = [],
     type = ({}).toString,
