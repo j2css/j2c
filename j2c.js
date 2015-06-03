@@ -179,7 +179,7 @@ See the 'dist' directory for usable files.
   }
 
   function _finalize(buf, postprocess) {
-    postprocess && postprocess(buf);
+    if (postprocess) postprocess(buf);
     return buf.reverse().join("\n");
   }
 
@@ -196,7 +196,7 @@ See the 'dist' directory for usable files.
       ;
     _add(statements, buf = [], "", options.vendors || empty, global === true ? false : function (match, k) {
       if (global.indexOf(match) + 1 || match[0] != '.' && global.indexOf(k) + 1) return match;
-      locals[k] || (locals[k] = k + suffix);
+      if (!locals[k]) (locals[k] = k + suffix);
       return match + suffix;
     });
     /*jshint -W053 */
