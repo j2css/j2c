@@ -27,13 +27,16 @@ var fs = require("fs"),
         }
     };
 
+/*jshint -W079 */
 for (var name in versions) {
+/*jshint +W079 */
     var src = versions[name];
     for (var wrp in wrappers) {
         var wrapped = wrappers[wrp].source.replace("%", src);
             
         fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped);
         if (wrappers[wrp].minify) {
+/*jshint -W083 */
             (function(){
                 var minified = uglify.minify(
                     wrapped, {fromString: true}).code,
@@ -45,6 +48,7 @@ for (var name in versions) {
                     console.log(_name+"."+_wrp, _ || buf.length);
                 });
             })();
+/*jshint +W083 */
         }
     }
 }

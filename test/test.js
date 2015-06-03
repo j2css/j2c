@@ -703,12 +703,11 @@ function randInt() {
 
 
     test("declarations > subselectors > @rules", function(){
-        var total = 0
-          , prop = randStr()
-          , klass = randStr()
-          , width = randInt()
-          , o, sheet
-          ;
+        var total = 0,
+            prop = randStr(),
+            klass = randStr(),
+            width = randInt(),
+            o;
         for (var i = 17; i--;){
             o = {" p":{}};
             o[" p"][prop] = 5;
