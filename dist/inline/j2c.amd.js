@@ -41,11 +41,7 @@ define('j2c', function(){return (function () {
       // `o` is the value.
       k=(prefix && (prefix).replace(/_/g, "-") + ":")
 
-      if (localize && (k == "animation-name:" || k == "animation:")) {
-        o = o.split(',').map(function(o){
-          return o.replace(/([-\w]+)/, localize)}
-        ).join(",");
-      }
+      
 
       buf.push(o = k + o + ";");
       // vendorify

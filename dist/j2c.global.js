@@ -41,11 +41,13 @@
       // `o` is the value.
       k=(prefix && (prefix).replace(/_/g, "-") + ":")
 
+      /*/-statements-/*/
       if (localize && (k == "animation-name:" || k == "animation:")) {
         o = o.split(',').map(function(o){
           return o.replace(/([-\w]+)/, localize)}
         ).join(",");
       }
+      /*/-statements-/*/
 
       buf.push(o = k + o + ";");
       // vendorify
