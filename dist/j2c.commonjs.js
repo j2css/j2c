@@ -1,16 +1,16 @@
 module.exports = (function () {
   /*jslint bitwise: true*/
   var
+    j2c = {},
     empty = [],
-    type = ({}).toString,
-    own =  ({}).hasOwnProperty,
-    OBJECT = type.call({}),
+    type = j2c.toString,
+    own =  j2c.hasOwnProperty,
+    OBJECT = type.call(j2c),
     ARRAY =  type.call(empty),
     STRING = type.call(""),
     propertyName = /^[-\w$]+$/,
     scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
-    counter = 0,
-    j2c = {};
+    counter = 0;
 
   // Handles the property:value; pairs.
   // Note that the sheets are built upside down and reversed before being
