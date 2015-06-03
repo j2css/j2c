@@ -163,7 +163,7 @@ border: solid 1px grey;
 border-left: dashed 3px green;
 ```
 
-More generally, `j2c.inline([foo,bar])` is equivalent to `j2c.inline(foo) + j2c.inline(bar)`. 
+More generally, `j2c.inline([foo,bar])` is equivalent to `j2c.inline(foo) + j2c.inline(bar)`.
 
 This enables the following techniques:
 
@@ -193,7 +193,7 @@ j2c.inline([
 ])
 ```
 
-and 
+and
 
 ```JavaScript
 j2c.inline({
@@ -241,16 +241,16 @@ j2c.sheet({
             color: "red"
         },
         // properties for the main ul.my_root_class elements
-        font: { 
+        font: {
             size: "2em",
             family: "sans-serif"
         },
         // underscores in property names are converted to dashes.
-        background_color: "#44f", 
+        background_color: "#44f",
 
         // sub-selector for children element, notice the mandatory initial space
         // signifying a child element.
-        " li": { 
+        " li": {
             padding:{
                 left: "5px"
                 top: "10px"
@@ -290,7 +290,7 @@ ul.my_root_class {
 
 White space in selectors is significant. `{".foo": {".bar":{...}}}` applies to `.foo.bar` while
 
-Element selectors like `p` or `body` match the property pattern and must thus be preceded by a space. 
+Element selectors like `p` or `body` match the property pattern and must thus be preceded by a space.
 
 Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
 
@@ -312,7 +312,7 @@ j2c.sheet({
 }
 ```
 
-Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving 
+Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving
 
 ```CSS
 .block,.block:before,.block:after,.blockgroup,.blockgroup:before,.blockgroup:after{
@@ -552,9 +552,9 @@ var j2cComponent = {
     view: function(ctrl, args) {
         return m("style", {
             sheet: args.sheet
-            config: function(el, isinit, vdom) { 
+            config: function(el, isinit, vdom) {
                 if(!isinit) {
-                    stylize(el, vdom.attrs.sheet); 
+                    stylize(el, vdom.attrs.sheet);
                 }
             }
         })
@@ -589,7 +589,7 @@ module.directive('j2cInline', function() {
 
 ### Selectors and properties order
 
-`j2c` relies on JS objects to define selectors and properties. As a consequence, the source order cannot be guaranteed to be respected in the output. 
+`j2c` relies on JS objects to define selectors and properties. As a consequence, the source order cannot be guaranteed to be respected in the output.
 
 ```Javascript
 j2c.sheet({
