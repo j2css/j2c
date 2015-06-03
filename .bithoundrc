@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "**/inline/*.js",
+    "**/*.min.js",
+    "**/*.amd.js",
+    "**/*.es6.js",
+    "**/*.global.js",
+    "j2c.js",
+    "example/*.js"
+  ]
+}

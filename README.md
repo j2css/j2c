@@ -630,7 +630,6 @@ module.directive('j2cInline', function() {
 });
 ```
 
-
 ## Limitations
 
 ### Selectors and properties order
