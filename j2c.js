@@ -9,6 +9,7 @@ included in the inline and main builds, respectively.
 See the 'dist' directory for usable files.
 
 *//*/-notice-/*/(function () {
+  /*jslint bitwise: true, laxcomma:true*/
   var
     empty = [],
     type = ({}).toString,
@@ -36,7 +37,7 @@ See the 'dist' directory for usable files.
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
-          for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
+          for (kk in (k = k.split("$").reverse())) if (own.call(k, kk))
             _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
           _declarations(v, buf, prefix + k, vendors, localize);
@@ -49,13 +50,13 @@ See the 'dist' directory for usable files.
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      k=(prefix && (prefix).replace(/_/g, "-") + ":")
+      k = (prefix && (prefix).replace(/_/g, "-") + ":");
 
       /*/-statements-/*/
       if (localize && (k == "animation-name:" || k == "animation:")) {
         o = o.split(',').map(function(o){
-          return o.replace(/([-\w]+)/, localize)}
-        ).join(",");
+          return o.replace(/([-\w]+)/, localize);
+        }).join(",");
       }
       /*/-statements-/*/
 
@@ -71,7 +72,7 @@ See the 'dist' directory for usable files.
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return buf.reverse().join("\n");
-  }
+  };
 
   function _cartesian(a,b, res, i, j) {
     res = [];
@@ -93,7 +94,7 @@ See the 'dist' directory for usable files.
 
   function _concat(a, b, selectorP) {
     if (selectorP && b.match(propertyName)) throw "invalid selector '" + b +  "'";
-    return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b
+    return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
 
 
@@ -103,7 +104,7 @@ See the 'dist' directory for usable files.
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a 
     // string or a declarations object with the same code.
-    decl = statements
+    decl = statements;
 
     switch (type.call(statements)) {
 
@@ -121,7 +122,7 @@ See the 'dist' directory for usable files.
           buf.push(k + " " + v + ";");
 
         } else if (k.match(/^@keyframes /)) {
-          k = localize ? k.replace(/ ([-\w]+)/, localize) : k
+          k = localize ? k.replace(/ ([-\w]+)/, localize) : k;
           buf.push("}");
           _add(v, buf, "", vendors, localize);
           buf.push(k + "{");
@@ -132,7 +133,7 @@ See the 'dist' directory for usable files.
           buf.push("@-webkit-" + k.slice(1) + "{");
 
         } else if (k.match(/^@font-face/)) {
-          _add(v, buf, k, empty)
+          _add(v, buf, k, empty);
 
         } else { 
           // default @-rule (usually @media)
@@ -161,9 +162,8 @@ See the 'dist' directory for usable files.
           );
         }
       }
-  
-      // fall through for handling declarations.
-
+      // fall through for handling declarations. The next line is for JSLint.
+      /* falls through */
     case STRING:
       // fake loop to detect the presence of declarations.
       // runs if decl is a non-empty string or when falling
@@ -186,7 +186,7 @@ See the 'dist' directory for usable files.
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return _finalize(buf);
-  }
+  };
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
@@ -199,15 +199,17 @@ See the 'dist' directory for usable files.
       locals[k] || (locals[k] = k + suffix);
       return match + suffix;
     });
-    buf = new String(_finalize(buf, options.then));
+    /*jshint -W053 */
+    buf = new String(_finalize(buf, options.then)); 
+    /*jshint +W053 */
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
-  }
+  };
   /*/-statements-/*/
 
   j2c.prefix = function(val, vendors) {
     return _cartesian(
-      vendors.map(function(p){return "-"+p+"-"}).concat([""]),
+      vendors.map(function(p){return "-" + p + "-";}).concat([""]),
       [val]
     );
   };

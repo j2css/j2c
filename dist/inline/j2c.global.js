@@ -1,4 +1,5 @@
 ;var j2c = (function () {
+  /*jslint bitwise: true, laxcomma:true*/
   var
     empty = [],
     type = ({}).toString,
@@ -26,7 +27,7 @@
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
-          for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
+          for (kk in (k = k.split("$").reverse())) if (own.call(k, kk))
             _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
           _declarations(v, buf, prefix + k, vendors, localize);
@@ -39,7 +40,7 @@
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      k=(prefix && (prefix).replace(/_/g, "-") + ":")
+      k = (prefix && (prefix).replace(/_/g, "-") + ":");
 
       
 
@@ -55,7 +56,7 @@
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return buf.reverse().join("\n");
-  }
+  };
 
   function _cartesian(a,b, res, i, j) {
     res = [];
@@ -70,7 +71,7 @@
 
   j2c.prefix = function(val, vendors) {
     return _cartesian(
-      vendors.map(function(p){return "-"+p+"-"}).concat([""]),
+      vendors.map(function(p){return "-" + p + "-";}).concat([""]),
       [val]
     );
   };

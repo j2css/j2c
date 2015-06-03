@@ -1,4 +1,5 @@
 module.exports = (function () {
+  /*jslint bitwise: true, laxcomma:true*/
   var
     empty = [],
     type = ({}).toString,
@@ -26,7 +27,7 @@ module.exports = (function () {
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
-          for (kk in k = k.split("$").reverse()) if (own.call(k, kk))
+          for (kk in (k = k.split("$").reverse())) if (own.call(k, kk))
             _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
           _declarations(v, buf, prefix + k, vendors, localize);
@@ -39,13 +40,13 @@ module.exports = (function () {
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      k=(prefix && (prefix).replace(/_/g, "-") + ":")
+      k = (prefix && (prefix).replace(/_/g, "-") + ":");
 
       /*/-statements-/*/
       if (localize && (k == "animation-name:" || k == "animation:")) {
         o = o.split(',').map(function(o){
-          return o.replace(/([-\w]+)/, localize)}
-        ).join(",");
+          return o.replace(/([-\w]+)/, localize);
+        }).join(",");
       }
       /*/-statements-/*/
 
@@ -70,7 +71,7 @@ module.exports = (function () {
 
   function _concat(a, b, selectorP) {
     if (selectorP && b.match(propertyName)) throw "invalid selector '" + b +  "'";
-    return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b
+    return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
 
 
@@ -80,7 +81,7 @@ module.exports = (function () {
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a 
     // string or a declarations object with the same code.
-    decl = statements
+    decl = statements;
 
     switch (type.call(statements)) {
 
@@ -98,7 +99,7 @@ module.exports = (function () {
           buf.push(k + " " + v + ";");
 
         } else if (k.match(/^@keyframes /)) {
-          k = localize ? k.replace(/ ([-\w]+)/, localize) : k
+          k = localize ? k.replace(/ ([-\w]+)/, localize) : k;
           buf.push("}");
           _add(v, buf, "", vendors, localize);
           buf.push(k + "{");
@@ -109,7 +110,7 @@ module.exports = (function () {
           buf.push("@-webkit-" + k.slice(1) + "{");
 
         } else if (k.match(/^@font-face/)) {
-          _add(v, buf, k, empty)
+          _add(v, buf, k, empty);
 
         } else { 
           // default @-rule (usually @media)
@@ -138,9 +139,8 @@ module.exports = (function () {
           );
         }
       }
-  
-      // fall through for handling declarations.
-
+      // fall through for handling declarations. The next line is for JSLint.
+      /* falls through */
     case STRING:
       // fake loop to detect the presence of declarations.
       // runs if decl is a non-empty string or when falling
@@ -163,7 +163,7 @@ module.exports = (function () {
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || empty);
     return _finalize(buf);
-  }
+  };
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
@@ -176,15 +176,17 @@ module.exports = (function () {
       locals[k] || (locals[k] = k + suffix);
       return match + suffix;
     });
-    buf = new String(_finalize(buf, options.then));
+    /*jshint -W053 */
+    buf = new String(_finalize(buf, options.then)); 
+    /*jshint +W053 */
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
-  }
+  };
   /*/-statements-/*/
 
   j2c.prefix = function(val, vendors) {
     return _cartesian(
-      vendors.map(function(p){return "-"+p+"-"}).concat([""]),
+      vendors.map(function(p){return "-" + p + "-";}).concat([""]),
       [val]
     );
   };

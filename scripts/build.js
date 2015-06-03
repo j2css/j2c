@@ -3,8 +3,7 @@ var fs = require("fs"),
     uglify = require("uglify-js"),
     zlib = require("zlib"),
     surgicate = require("surgicate"),
-    source = surgicate({path:"j2c.js"}).excise("notice").toString()
-
+    source = surgicate({path:"j2c.js"}).excise("notice").toString(),
     versions = {
         "j2c": surgicate({source:source}).excise("inline"),
         "inline/j2c": surgicate({source:source}).excise("statements") + ""
@@ -26,24 +25,24 @@ var fs = require("fs"),
             source: "define('j2c', function(){return %});",
             minify: true
         }
-    }
+    };
 
-for (name in versions) {
+for (var name in versions) {
     var src = versions[name];
-    for (wrp in wrappers) {
+    for (var wrp in wrappers) {
         var wrapped = wrappers[wrp].source.replace("%", src);
             
-        fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped)
+        fs.writeFileSync("dist/" + name + "." + wrp + ".js", wrapped);
         if (wrappers[wrp].minify) {
             (function(){
                 var minified = uglify.minify(
                     wrapped, {fromString: true}).code,
                     _name = name,
-                    _wrp = wrp
+                    _wrp = wrp;
 
-                fs.writeFileSync("dist/" + name + "." + wrp + ".min.js", minified)
+                fs.writeFileSync("dist/" + name + "." + wrp + ".min.js", minified);
                 zlib.gzip(minified, function(_, buf){ 
-                    console.log(_name+"."+_wrp, _ || buf.length)
+                    console.log(_name+"."+_wrp, _ || buf.length);
                 });
             })();
         }
