@@ -167,11 +167,11 @@
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
-    var global = options.global || [],
+    var global = options.global || {},
     suffix = scope_root + counter++,
     locals = {};
     _add(statements, buf = [], "", options.vendors || empty, global === true ? false : function (match, k) {
-      if (global.indexOf(match) + 1 || match[0] != '.' && global.indexOf(k) + 1) return match;
+      if ((( match[0] == '.' ? global.classes : global.animations )|| empty).indexOf(k) + 1) return match;
       if (!locals[k]) (locals[k] = k + suffix);
       return match + suffix;
     });

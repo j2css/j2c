@@ -580,7 +580,7 @@ function randInt() {
     });
 
     test("a local class with a global animation of the same name", function(){
-        var css = j2c.sheet({".bit":{foo:5}}, {global:['bit']});
+        var css = j2c.sheet({".bit":{foo:5}}, {global:{animations:['bit']}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
     });
@@ -594,7 +594,7 @@ function randInt() {
     });
 
     test("a local and a global classes", function(){
-        var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}}, {global:[".bat"]});
+        var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}}, {global:{classes:["bat"]}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
@@ -616,13 +616,13 @@ function randInt() {
     });
 
     test("@keyframes with a global class of the same name", function(){
-        var css = j2c.sheet({"@keyframes bit":{}}, {global:[".bit"]});
+        var css = j2c.sheet({"@keyframes bit":{}}, {global:{classes:["bit"]}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.indexOf("@keyframes " + css.bit +"{")).not.to.be(-1);
     });
 
     test("a global @keyframes", function() {
-        var css = j2c.sheet({"@keyframes bit":{}}, {global:["bit"]});
+        var css = j2c.sheet({"@keyframes bit":{}}, {global:{animations:["bit"]}});
         expect(css.bit).to.be(undefined);
         expect(css.indexOf("@keyframes bit{")).not.to.be(-1);
     });
@@ -634,13 +634,13 @@ function randInt() {
     });
 
     test("one animation with a global class of the same name", function(){
-        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:[".bit"]});
+        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:{classes:["bit"]}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.indexOf("animation:" + css.bit +" ")).not.to.be(-1);
     });
 
     test("a global animation", function() {
-        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:["bit"]});
+        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:{animations:["bit"]}});
         expect(css.bit).to.be(undefined);
         expect(css.indexOf("animation:bit ")).not.to.be(-1);
     });
@@ -659,7 +659,7 @@ function randInt() {
     });
 
     test("two animation-name, one global", function() {
-        var css = j2c.sheet({" p":{animation_name:"bit, bat"}},{global:["bat"]});
+        var css = j2c.sheet({" p":{animation_name:"bit, bat"}},{global:{animations:["bat"]}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css.indexOf("animation-name:" + css.bit +", bat;")).not.to.be(-1);
