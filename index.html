@@ -370,8 +370,10 @@ var pagestyle = j2c.sheet({
                   display: "table-cell",
                   height: "100%",
                   margin_bottom:"1em",
+
                   " .CodeMirror":{
                     height: "inherit",
+
                     "@media  (min-width:48.001em)":{
                         height: "20em"
                     }
@@ -380,19 +382,19 @@ var pagestyle = j2c.sheet({
             ],
             "@media  (min-width:48.001em)":{
                 " .codeNode, .styleNode": {
-                  width:"50%"
+                    width:"50%"
                 },
                 " .codeNode": {
-                  border:{
-                    right_width:"6px",
-                    top$bottom: {right_radius: 0}
-                  }
+                    border: {
+                      right_width:"6px",
+                      top$bottom: {right_radius: 0}
+                    }
                 },
                 " .styleNode": {
-                  border:{
-                    left_width:"6px",
-                    top$bottom: {left_radius: 0}
-                  }
+                    border: {
+                      left_width:"6px",
+                      top$bottom: {left_radius: 0}
+                    }
                 }
             }
         }
@@ -805,12 +807,18 @@ playground.innerHTML = md_renderer.render(md_parser.parse(rawdocs.firstChild.dat
 <div class="ghribbon"><a href="https://github.com/pygy/j2c">Fork me on GitHub</a></div>
 
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-63587650-1', 'auto');
-  ga('send', 'pageview');
-
+ga('create', 'UA-63587650-1', 'auto');
+ga('send', 'pageview');
+setTimeout(function(){
+  _gaq.push([
+    '_trackEvent', 
+    'Control', 
+    'Bounce Rate', 
+    ''])
+  }, 30000)
 </script>
