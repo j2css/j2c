@@ -579,12 +579,6 @@ function randInt() {
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
     });
 
-    test("a local class with a global animation of the same name", function(){
-        var css = j2c.sheet({".bit":{foo:5}}, {global:{animations:['bit']}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
-    });
-
     test("two local classes", function(){
         var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
@@ -611,12 +605,6 @@ function randInt() {
 
     test("@keyframes", function(){
         var css = j2c.sheet({"@keyframes bit":{}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("@keyframes " + css.bit +"{")).not.to.be(-1);
-    });
-
-    test("@keyframes with a global class of the same name", function(){
-        var css = j2c.sheet({"@keyframes bit":{}}, {global:{classes:["bit"]}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.indexOf("@keyframes " + css.bit +"{")).not.to.be(-1);
     });
