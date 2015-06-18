@@ -612,7 +612,7 @@ function randInt() {
     test("a global @keyframes", function() {
         var css = j2c.sheet({"@keyframes :global(bit)":{}});
         expect(css.bit).to.be(undefined);
-        expect(css + '').to.contain("@keyframes bit{")
+        expect(css + '').to.contain("@keyframes bit{");
     });
 
     test("a @keyframe nested in a @global at-rule", function() {
