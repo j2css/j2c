@@ -615,6 +615,12 @@ function randInt() {
         expect(css + '').to.contain("@keyframes bit{")
     });
 
+    test("a @keyframe nested in a @global at-rule", function() {
+        var css = j2c.sheet({"@global":{"@keyframes bat":{"foo":6}}});
+        expect(css.bat).to.be(undefined);
+        expect(css + '').to.contain("@keyframes bat{");
+    });
+
     test("one animation", function(){
         var css = j2c.sheet({" p":{animation:"bit 1sec"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
@@ -623,6 +629,12 @@ function randInt() {
 
     test("a global animation", function() {
         var css = j2c.sheet({" p":{animation:":global(bit) 1sec"}});
+        expect(css.bit).to.be(undefined);
+        expect(css + '').to.contain("animation:bit ");
+    });
+
+    test("an animation nested in a @global at-rule", function() {
+        var css = j2c.sheet({"@global":{" p":{animation:"bit 1sec"}}});
         expect(css.bit).to.be(undefined);
         expect(css + '').to.contain("animation:bit ");
     });
