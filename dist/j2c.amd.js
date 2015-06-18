@@ -2,14 +2,17 @@ define('j2c', function(){return (function () {
   /*jslint bitwise: true*/
   var
     j2c = {},
-    empty = [],
+    emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,
     OBJECT = type.call(j2c),
-    ARRAY =  type.call(empty),
+    ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
-    propertyName = /^[-\w$]+$/,
-    scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "_j2c_" + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + "_",
     counter = 0;
 
   // Handles the property:value; pairs.
@@ -45,7 +48,7 @@ define('j2c', function(){return (function () {
       /*/-statements-/*/
       if (localize && (k == "animation-name:" || k == "animation:")) {
         o = o.split(',').map(function(o){
-          return o.replace(/([-\w]+)/, localize);
+          return o.replace(/()(?::global\(([-\w]+)\))|(?:([-\w]+))/, localize);
         }).join(",");
       }
       /*/-statements-/*/
@@ -70,7 +73,7 @@ define('j2c', function(){return (function () {
   }
 
   function _concat(a, b, selectorP) {
-    if (selectorP && b.match(propertyName)) throw "invalid selector '" + b +  "'";
+    if (selectorP && b.match(/^[-\w$]+$/)) throw "invalid selector '" + b +  "'";
     return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
 
@@ -99,7 +102,7 @@ define('j2c', function(){return (function () {
           buf.push(k + " " + v + ";");
 
         } else if (k.match(/^@keyframes /)) {
-          k = localize ? k.replace(/ ([-\w]+)/, localize) : k;
+          k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:([-\w]+)))/, localize) : k;
           buf.push("}");
           _add(v, buf, "", vendors, localize);
           buf.push(k + "{");
@@ -110,7 +113,10 @@ define('j2c', function(){return (function () {
           buf.push("@-webkit-" + k.slice(1) + "{");
 
         } else if (k.match(/^@font-face/)) {
-          _add(v, buf, k, empty);
+          _add(v, buf, k, emptyArray);
+
+        } else if (k.match(/^@global/)) {
+          _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
 
         } else { 
           // default @-rule (usually @media)
@@ -121,7 +127,7 @@ define('j2c', function(){return (function () {
       }
       for (k in statements) {
         v = statements[k];
-        if (k.match(propertyName)) {
+        if (k.match(/^[-\w$]+$/)) {
           // It is a declaration.
           decl[k] = v;
 
@@ -143,13 +149,13 @@ define('j2c', function(){return (function () {
       /* falls through */
     case STRING:
       // fake loop to detect the presence of declarations.
-      // runs if decl is a non-empty string or when falling
+      // runs if decl is a non-emptyArray string or when falling
       // through from the `Object` case, when there are
       // declarations.
       for (k in decl) if (own.call(decl, k)){
         buf.push("}");
         _declarations(decl, buf, "", vendors, localize);
-        buf.push((localize ? prefix.replace(/\.([-\w]+)/g, localize) : prefix || "*") + "{");
+        buf.push((localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix || "*") + "{");
         break;
       }
     }
@@ -161,22 +167,21 @@ define('j2c', function(){return (function () {
   }
 
   j2c.inline = function (o, vendors, buf) {
-    _declarations(o, buf = [], "", vendors || empty);
+    _declarations(o, buf = [], "", vendors || emptyArray);
     return _finalize(buf);
   };
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
-    var global = options.global || {},
     suffix = scope_root + counter++,
     locals = {};
-    _add(statements, buf = [], "", options.vendors || empty, global === true ? false : function (match, k) {
-      if ((( match[0] == '.' ? global.classes : global.animations )|| empty).indexOf(k) + 1) return match;
-      if (!locals[k]) (locals[k] = k + suffix);
+    _add(statements, buf = [], "", options.vendors || emptyArray, function (match, space, global, name) {
+      if (global) return space+global;
+      if (!locals[name]) locals[name] = name + suffix;
       return match + suffix;
     });
     /*jshint -W053 */
-    buf = new String(_finalize(buf, options.then)); 
+    buf = new String(_finalize(buf, options.filter)); 
     /*jshint +W053 */
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;

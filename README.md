@@ -1,15 +1,17 @@
-[![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
-[![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
-[![bitHound Score](https://www.bithound.io/github/pygy/j2c/badges/score.svg)](https://www.bithound.io/github/pygy/j2c/)
-
 # j2c
 
-JavaScript to CSS compiler. ~850 bytes mingzipped.
+[![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
+JavaScript to CSS compiler. ~1024 bytes mingzipped.
 
 Think SASS, but with JSONish syntax.
 
 This is the "how to" document. For the motivation behind the library, check out [the home page](http://j2c.py.gy).
+
+[![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
+[![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
+[![bitHound Score](https://www.bithound.io/github/pygy/j2c/badges/score.svg)](https://www.bithound.io/github/pygy/j2c/)
 
 ## Table of Contents
 
@@ -37,7 +39,6 @@ This is the "how to" document. For the motivation behind the library, check out 
 
 ```Bash
 $ npm install j2c
-# Please send a PR if you want to see it included in other package systems.
 ```
 
 then
@@ -56,10 +57,10 @@ There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` d
 
 Like SASS and friends, `j2c` supports nested at-rules and selectors, and mixins.
 
-Here's an example of locallized class names (as pioneered by [JSS]()):
+Here's an example of locallized class names (as pioneered AFAIK by [JSS](https://github.com/jsstyles/jss)):
 
 ```JavaScript
-var sheet = j2c.sheet({
+sheet = j2c.sheet({
   ".title": {
     font_size: "3rem",
     "&:before": {
@@ -68,7 +69,7 @@ var sheet = j2c.sheet({
     }
   },
   ".content": {
-    line_height: "1.6em"
+    line_height: "1.6em",
     padding: "2rem"
   }
 });
@@ -77,22 +78,22 @@ var sheet = j2c.sheet({
 Unique class names are generated automatically for `title` and `content`:
 
 ```CSS
-.content_j2c_335954347_1433153443593_3 {
+.content_j2c_fvp6zc2gdj35evhsl73ffzq_0 {
     line-height: 1.6em;
     padding: 2rem;
 }
 
-.title_j2c_335954347_1433153443593_3 {
+.title_j2c_fvp6zc2gdj35evhsl73ffzq_0 {
     font-size: 3rem;
 }
 
-.title_j2c_335954347_1433153443593_3:before {
+.title_j2c_fvp6zc2gdj35evhsl73ffzq_0:before {
     content: '#';
     color: #888;
 }
 ```
 
-`sheet` is now a `String` object with a `title` and `content` properties that hold the unique class names. It can be used like this in your view:
+`sheet` is now a `String` object with a `title` and `content` properties that hold the unique class names. It can be used like this in your view, either on the server, in the browser of for isomorphic apps:
 
 ```Haml
 <div>
@@ -136,7 +137,7 @@ Underscores are automatically turned into dashes so that property names can be l
 
 You can combine (sub)properties who share the same value using `$` as a separator. It is useful to specify vendor prefixes. Once again, it allows to leave property names unquoted.
 
-#### Arrays
+#### Arrays for property ordering and mixins
 
 The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occur in order (say, `border` before `border-left`), use an array:
 

@@ -248,9 +248,9 @@ function randInt() {
 
     test("composed selector : child with a given class", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 " .foo":{bar:"baz"}
-            }}, {global:true}),
+            }}}),
 
             "p .foo{bar:baz}"
         );
@@ -258,9 +258,9 @@ function randInt() {
 
     test("composed selector: add a class to the root", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 ".foo":{bar:"baz"}
-            }}, {global:true}),
+            }}}),
 
             "p.foo{bar:baz}"
         );
@@ -278,10 +278,10 @@ function randInt() {
 
     test("mixing definitions and sub-selectors", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 foo:"bar",
                 " .foo":{bar:"baz"}
-            }}, {global:true}),
+            }}}),
 
             ["p .foo{bar:baz} p {foo:bar}", "p {foo:bar} p .foo{bar:baz}"]
         );
@@ -296,13 +296,13 @@ function randInt() {
 
     test("1 x 2", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 " .foo":{
                     ":before,:after":{
                         foo:"bar"
                     }
                 }
-            }}, {global:true}),
+            }}}),
 
             "p .foo:before, p .foo:after {foo:bar}"
         );
@@ -310,13 +310,13 @@ function randInt() {
 
     test("2 x 1", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 " .foo, .bar":{
                     ":before":{
                         foo:"bar"
                     }
                 }
-            }}, {global:true}),
+            }}}),
 
             "p .foo:before, p .bar:before {foo:bar}"
         );
@@ -324,13 +324,13 @@ function randInt() {
 
     test("2 x 2", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 " .foo, .bar":{
                     ":before,:after":{
                         foo:"bar"
                     }
                 }
-            }}, {global:true}),
+            }}}),
 
             "p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}"
         );
@@ -339,13 +339,13 @@ function randInt() {
 
     test("2 x 3 one of which is empty", function() {
         check(
-            j2c.sheet({" p": {
+            j2c.sheet({"@global":{" p": {
                 " .foo, .bar":{
                     ",:before,:after":{
                         foo:"bar"
                     }
                 }
-            }}, {global:true}),
+            }}}),
 
             "p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}"
         );
@@ -361,8 +361,8 @@ function randInt() {
     test("composed selector: add a class to the root", function() {
         check(
             j2c.sheet({" p": {
-                ".foo &":{bar:"baz"}
-            }}, {global:true}),
+                ":global(.foo) &":{bar:"baz"}
+            }}),
 
             ".foo p{bar:baz}"
         );
@@ -370,11 +370,11 @@ function randInt() {
 
     test("& &", function() {
         check(
-            j2c.sheet({".foo": {
+            j2c.sheet({":global(.foo)": {
                 "& &": {
                     bar: "baz"
                 }
-            }}, {global:true}),
+            }}),
             ".foo .foo{bar:baz}"
         );
     });
@@ -382,12 +382,12 @@ function randInt() {
     test("2 x 2", function() {
         check(
             j2c.sheet({" p": {
-                " .foo, .bar":{
-                    " .baz &, .qux":{
+                " :global(.foo), :global(.bar)":{
+                    " :global(.baz) &, :global(.qux)":{
                         foo:"bar"
                     }
                 }
-            }}, {global:true}),
+            }}),
 
             ".baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}"
         );
@@ -554,10 +554,10 @@ function randInt() {
 
     test("@keyframes", function(){
         check(
-            j2c.sheet({" p": {"@keyframes qux": {
+            j2c.sheet({" p": {"@keyframes :global(qux)": {
                 " from":{foo:"bar"},
                 " to":{foo:"baz"}
-            }}}, {global:true, vendors: ["o", "p"]}),
+            }}}, {vendors: ["o", "p"]}),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
                 "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",
@@ -593,8 +593,8 @@ function randInt() {
         expect(css.indexOf("." + css.bat + "{\nbar:6;\n}")).not.to.be(-1);
     });
 
-    test("a local and a global classes", function(){
-        var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}}, {global:{classes:["bat"]}});
+    test("a local and a global class", function(){
+        var css = j2c.sheet({".bit":{foo:5},":global(.bat)":{bar:6}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
@@ -622,7 +622,7 @@ function randInt() {
     });
 
     test("a global @keyframes", function() {
-        var css = j2c.sheet({"@keyframes bit":{}}, {global:{animations:["bit"]}});
+        var css = j2c.sheet({"@keyframes :global(bit)":{}});
         expect(css.bit).to.be(undefined);
         expect(css.indexOf("@keyframes bit{")).not.to.be(-1);
     });
@@ -633,14 +633,8 @@ function randInt() {
         expect(css.indexOf("animation:" + css.bit +" ")).not.to.be(-1);
     });
 
-    test("one animation with a global class of the same name", function(){
-        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:{classes:["bit"]}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("animation:" + css.bit +" ")).not.to.be(-1);
-    });
-
     test("a global animation", function() {
-        var css = j2c.sheet({" p":{animation:"bit 1sec"}}, {global:{animations:["bit"]}});
+        var css = j2c.sheet({" p":{animation:":global(bit) 1sec"}});
         expect(css.bit).to.be(undefined);
         expect(css.indexOf("animation:bit ")).not.to.be(-1);
     });
@@ -659,7 +653,7 @@ function randInt() {
     });
 
     test("two animation-name, one global", function() {
-        var css = j2c.sheet({" p":{animation_name:"bit, bat"}},{global:{animations:["bat"]}});
+        var css = j2c.sheet({" p":{animation_name:"bit, :global(bat)"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css.indexOf("animation-name:" + css.bit +", bat;")).not.to.be(-1);
@@ -714,7 +708,7 @@ function randInt() {
             o[" p"]["."+klass] = {foo:6};
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
             o = {" p":{}};
@@ -722,7 +716,7 @@ function randInt() {
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             o[" p"]["."+klass] = {foo:6};
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
             o = {" p":{}};
@@ -730,7 +724,7 @@ function randInt() {
             o[" p"][prop] = 5;
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
             o = {" p":{}};
@@ -738,7 +732,7 @@ function randInt() {
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             o[" p"][prop] = 5;
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
             o = {" p":{}};
@@ -746,7 +740,7 @@ function randInt() {
             o[" p"]["."+klass] = {foo:6};
             o[" p"][prop] = 5;
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
             o = {" p":{}};
@@ -754,7 +748,7 @@ function randInt() {
             o[" p"][prop] = 5;
             o[" p"]["."+klass] = {foo:6};
             if (
-                normalize(j2c.sheet(o, {global:true})) != 
+                normalize(j2c.sheet({"@global":o})) != 
                 normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
             ) total++;
         }

@@ -2,14 +2,17 @@ export default (function () {
   /*jslint bitwise: true*/
   var
     j2c = {},
-    empty = [],
+    emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,
     OBJECT = type.call(j2c),
-    ARRAY =  type.call(empty),
+    ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
-    propertyName = /^[-\w$]+$/,
-    scope_root = "_j2c_" + (Math.random() * 1e9 | 0) + "_" + 1 * (new Date()) + "_",
+    scope_root = "_j2c_" + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + 
+      (Math.random() * 10e8 | 0).toString(36) + "_",
     counter = 0;
 
   // Handles the property:value; pairs.
@@ -54,7 +57,7 @@ export default (function () {
 
   /*/-inline-/*/
   j2c.inline = function (o, vendors, buf) {
-    _declarations(o, buf = [], "", vendors || empty);
+    _declarations(o, buf = [], "", vendors || emptyArray);
     return buf.reverse().join("\n");
   };
 
