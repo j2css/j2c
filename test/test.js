@@ -569,84 +569,90 @@ function randInt() {
     });
 
       //////////////////////////////
-     /**/  suite("Locals, ");  /**/
+     /**/  suite("Locals, GLobals ");  /**/
     //////////////////////////////
 
 
     test("a local class", function(){
         var css = j2c.sheet({".bit":{foo:5}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
+        expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
     });
 
     test("two local classes", function(){
         var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
-        expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
-        expect(css.indexOf("." + css.bat + "{\nbar:6;\n}")).not.to.be(-1);
+        expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
+        expect(css + '').to.contain("." + css.bat + "{\nbar:6;\n}");
     });
 
     test("a local and a global class", function(){
         var css = j2c.sheet({".bit":{foo:5},":global(.bat)":{bar:6}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
-        expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
-        expect(css.indexOf(".bat{\nbar:6;\n}")).not.to.be(-1);
+        expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
+        expect(css + '').to.contain(".bat{\nbar:6;\n}");
     });
 
     test("two local classes, nested", function(){
         var css = j2c.sheet({".bit":{foo:5,".bat":{bar:6}}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
-        expect(css.indexOf("." + css.bit + "{\nfoo:5;\n}")).not.to.be(-1);
-        expect(css.indexOf("." + css.bit +"." + css.bat + "{\nbar:6;\n}")).not.to.be(-1);
+        expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
+        expect(css + '').to.contain("." + css.bit +"." + css.bat + "{\nbar:6;\n}");
     });
 
     test("@keyframes", function(){
         var css = j2c.sheet({"@keyframes bit":{}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("@keyframes " + css.bit +"{")).not.to.be(-1);
+        expect(css + '').to.contain("@keyframes " + css.bit +"{");
     });
 
     test("a global @keyframes", function() {
         var css = j2c.sheet({"@keyframes :global(bit)":{}});
         expect(css.bit).to.be(undefined);
-        expect(css.indexOf("@keyframes bit{")).not.to.be(-1);
+        expect(css + '').to.contain("@keyframes bit{")
     });
 
     test("one animation", function(){
         var css = j2c.sheet({" p":{animation:"bit 1sec"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("animation:" + css.bit +" ")).not.to.be(-1);
+        expect(css + '').to.contain("animation:" + css.bit +" ");
     });
 
     test("a global animation", function() {
         var css = j2c.sheet({" p":{animation:":global(bit) 1sec"}});
         expect(css.bit).to.be(undefined);
-        expect(css.indexOf("animation:bit ")).not.to.be(-1);
+        expect(css + '').to.contain("animation:bit ");
     });
 
     test("one animation-name", function() {
         var css = j2c.sheet({" p":{animation_name:"bit"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
-        expect(css.indexOf("animation-name:" + css.bit +";")).not.to.be(-1);
+        expect(css + '').to.contain("animation-name:" + css.bit +";");
     });
 
     test("two animation-name", function() {
         var css = j2c.sheet({" p":{animation_name:"bit, bat"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
-        expect(css.indexOf("animation-name:" + css.bit +", " + css.bat)).not.to.be(-1);
+        expect(css + '').to.contain("animation-name:" + css.bit +", " + css.bat);
     });
 
     test("two animation-name, one global", function() {
         var css = j2c.sheet({" p":{animation_name:"bit, :global(bat)"}});
         expect(css.bit.slice(0,8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
-        expect(css.indexOf("animation-name:" + css.bit +", bat;")).not.to.be(-1);
+        expect(css + '').to.contain("animation-name:" + css.bit +", bat;");
     });
 
+    test("a nested @global at-rule", function() {
+        var css = j2c.sheet({".bit":{"@global":{".bat":{"foo":6}}}});
+        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        expect(css.bat).to.be(undefined);
+        expect(css + '').to.contain( css.bit +".bat{");
+    });
 
 
       ////////////////////////////////////
