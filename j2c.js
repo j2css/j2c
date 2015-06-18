@@ -196,8 +196,8 @@ See the 'dist' directory for usable files.
 
   j2c.sheet = function (statements, options, buf, k) {
     options = options || {};
-    suffix = scope_root + counter++,
-    locals = {};
+    var suffix = scope_root + counter++,
+        locals = {};
     _add(statements, buf = [], "", options.vendors || emptyArray, function (match, space, global, name) {
       if (global) return space+global;
       if (!locals[name]) locals[name] = name + suffix;
