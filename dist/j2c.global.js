@@ -112,14 +112,14 @@
           _add(v, buf, "", ["webkit"]);
           buf.push("@-webkit-" + k.slice(1) + "{");
 
-        } else if (k.match(/^@font-face/)) {
+        } else if (k.match(/^@(font-face|page )/)) {
           _add(v, buf, k, emptyArray);
 
         } else if (k.match(/^@global/)) {
           _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
 
         } else { 
-          // default @-rule (usually @media)
+          // default @-rule (usually @media or @supports)
           buf.push("}");
           _add(v, buf, prefix, vendors, localize);
           buf.push(k + "{");
@@ -181,7 +181,7 @@
       return match + suffix;
     });
     /*jshint -W053 */
-    buf = new String(_finalize(buf, options.filter)); 
+    buf = new String(_finalize(buf, options.after));
     /*jshint +W053 */
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
