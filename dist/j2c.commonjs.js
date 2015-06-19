@@ -21,7 +21,7 @@ module.exports = (function () {
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      for (k = o.length;k--;)
+      for (k = 0; k < o.length; k++)
         _declarations(o[k], buf, prefix, vendors, localize);
       break;
     case OBJECT:
@@ -55,7 +55,7 @@ module.exports = (function () {
 
       buf.push(o = k + o + ";");
       // vendorify
-      for (k = vendors.length; k--;)
+      for (k = 0; k < vendors.length; k++)
          buf.push("-" + vendors[k] + "-" + o);
     }
   }
@@ -79,7 +79,7 @@ module.exports = (function () {
 
 
   // Add rulesets and other CSS statements to the sheet.
-  function _add(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl) {
+  function _add(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl, at) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a 
@@ -89,49 +89,20 @@ module.exports = (function () {
     switch (type.call(statements)) {
 
     case ARRAY:
-      for (k = statements.length;k--;)
+      for (k = 0; k < statements.length; k++)
         _add(statements[k], buf, prefix, vendors, localize);
       break;
 
     case OBJECT:
       decl = {};
-      for (k in statements) if (k[0] == "@") { // Handle At-rules
-        v = statements[k];
-
-        if (type.call(v) == STRING) {
-          buf.push(k + " " + v + ";");
-
-        } else if (k.match(/^@keyframes /)) {
-          k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:([-\w]+)))/, localize) : k;
-          buf.push("}");
-          _add(v, buf, "", vendors, localize);
-          buf.push(k + "{");
-
-          // add a @-webkit-keyframes block too.
-          buf.push("}");
-          _add(v, buf, "", ["webkit"]);
-          buf.push("@-webkit-" + k.slice(1) + "{");
-
-        } else if (k.match(/^@(font-face|page )/)) {
-          _add(v, buf, k, emptyArray);
-
-        } else if (k.match(/^@global/)) {
-          _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
-
-        } else { 
-          // default @-rule (usually @media or @supports)
-          buf.push("}");
-          _add(v, buf, prefix, vendors, localize);
-          buf.push(k + "{");
-        }
-      }
       for (k in statements) {
         v = statements[k];
         if (k.match(/^[-\w$]+$/)) {
           // It is a declaration.
           decl[k] = v;
-
-        } else if (k[0] != "@") {
+        } else if (k[0] == "@") {
+          at = true;
+        } else {
           // nested sub-selectors
           _add(v, buf,
             /* if prefix and/or k have a coma */
@@ -153,17 +124,49 @@ module.exports = (function () {
       // through from the `Object` case, when there are
       // declarations.
       for (k in decl) if (own.call(decl, k)){
-        buf.push("}");
-        _declarations(decl, buf, "", vendors, localize);
         buf.push((localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix || "*") + "{");
+        _declarations(decl, buf, "", vendors, localize);
+        buf.push("}");
         break;
+      }
+    }
+    if (at) for (k in statements) if (k[0] == "@") { // Handle At-rules
+      v = statements[k];
+
+      if (type.call(v) == STRING) {
+        buf.push(k + " " + v + ";");
+
+      } else if (k.match(/^@keyframes /)) {
+        k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:([-\w]+)))/, localize) : k;
+        // add a @-webkit-keyframes block too.
+
+        buf.push("@-webkit-" + k.slice(1) + "{");
+        _add(v, buf, "", ["webkit"]);
+        buf.push("}");
+
+        buf.push(k + "{");
+        _add(v, buf, "", vendors, localize);
+        buf.push("}");
+
+
+      } else if (k.match(/^@(font-face|page )/)) {
+        _add(v, buf, k, emptyArray);
+
+      } else if (k.match(/^@global/)) {
+        _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
+
+      } else { 
+        // default @-rule (usually @media or @supports)
+        buf.push(k + "{");
+        _add(v, buf, prefix, vendors, localize);
+        buf.push("}");
       }
     }
   }
 
   function _finalize(buf, postprocess) {
     if (postprocess) postprocess(buf);
-    return buf.reverse().join("\n");
+    return buf.join("\n");
   }
 
   j2c.inline = function (o, vendors, buf) {

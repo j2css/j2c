@@ -703,19 +703,21 @@ function randInt() {
 
 
     test("declarations > subselectors > @rules", function(){
-        var total = 0,
-            prop = randStr(),
-            klass = randStr(),
-            width = randInt(),
-            o;
+        var total = 0, prop, klass, width, reference, o;
         for (var i = 17; i--;){
+            prop = randStr();
+            klass = randStr();
+            width = randInt();
+
+            reference = normalize(" p." + klass + "{foo:6;} p{" + prop +":5;} @media (min-width:" + width + "em){p{bar:7;}}")
+
             o = {" p":{}};
             o[" p"][prop] = 5;
             o[" p"]["."+klass] = {foo:6};
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
             o = {" p":{}};
             o[" p"][prop] = 5;
@@ -723,7 +725,7 @@ function randInt() {
             o[" p"]["."+klass] = {foo:6};
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
             o = {" p":{}};
             o[" p"]["."+klass] = {foo:6};
@@ -731,7 +733,7 @@ function randInt() {
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
             o = {" p":{}};
             o[" p"]["."+klass] = {foo:6};
@@ -739,7 +741,7 @@ function randInt() {
             o[" p"][prop] = 5;
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
             o = {" p":{}};
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
@@ -747,7 +749,7 @@ function randInt() {
             o[" p"][prop] = 5;
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
             o = {" p":{}};
             o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
@@ -755,7 +757,7 @@ function randInt() {
             o[" p"]["."+klass] = {foo:6};
             if (
                 normalize(j2c.sheet({"@global":o})) != 
-                normalize("p{" + prop +":5;} p." + klass + "{foo:6;} @media (min-width:" + width + "em){p{bar:7;}}")
+                reference
             ) total++;
         }
         expect(total).to.be(0);

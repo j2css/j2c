@@ -21,7 +21,7 @@
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
-      for (k = o.length;k--;)
+      for (k = 0; k < o.length; k++)
         _declarations(o[k], buf, prefix, vendors, localize);
       break;
     case OBJECT:
@@ -49,7 +49,7 @@
 
       buf.push(o = k + o + ";");
       // vendorify
-      for (k = vendors.length; k--;)
+      for (k = 0; k < vendors.length; k++)
          buf.push("-" + vendors[k] + "-" + o);
     }
   }
