@@ -190,11 +190,6 @@ module.exports = (function () {
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
   };
-
-  j2c.global = function(sheet, options) {
-    return j2c.sheet({"@global": sheet}, options);
-  };
-
   /*/-statements-/*/
 
   j2c.prefix = function(val, vendors) {
