@@ -116,7 +116,7 @@ define('j2c', function(){return (function () {
           );
         }
       }
-      // fall through for handling declarations. The next line is for JSLint.
+      // fall through for handling declarations. The next line is for JSHint.
       /* falls through */
     case STRING:
       // fake loop to detect the presence of declarations.
@@ -130,7 +130,8 @@ define('j2c', function(){return (function () {
         break;
       }
     }
-    if (at) for (k in statements) if (k[0] == "@") { // Handle At-rules
+    // Handle At-rules
+    if (at) for (k in statements) if (k[0] == "@") {
       v = statements[k];
 
       if (type.call(v) == STRING) {
@@ -149,14 +150,14 @@ define('j2c', function(){return (function () {
         buf.push("}");
 
 
-      } else if (k.match(/^@(font-face|page )/)) {
+      } else if (k.match(/^@(?:font-face|viewport|page )/)) {
         _add(v, buf, k, emptyArray);
 
       } else if (k.match(/^@global/)) {
         _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
 
       } else { 
-        // default @-rule (usually @media or @supports)
+        // conditional block (@media @document or @supports)
         buf.push(k + "{");
         _add(v, buf, prefix, vendors, localize);
         buf.push("}");
@@ -189,6 +190,11 @@ define('j2c', function(){return (function () {
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;
   };
+
+  j2c.global = function(sheet, options) {
+    return j2c.sheet({"@global": sheet}, options);
+  };
+
   /*/-statements-/*/
 
   j2c.prefix = function(val, vendors) {

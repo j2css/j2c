@@ -139,7 +139,7 @@ See the 'dist' directory for usable files.
           );
         }
       }
-      // fall through for handling declarations. The next line is for JSLint.
+      // fall through for handling declarations. The next line is for JSHint.
       /* falls through */
     case STRING:
       // fake loop to detect the presence of declarations.
@@ -153,7 +153,8 @@ See the 'dist' directory for usable files.
         break;
       }
     }
-    if (at) for (k in statements) if (k[0] == "@") { // Handle At-rules
+    // Handle At-rules
+    if (at) for (k in statements) if (k[0] == "@") {
       v = statements[k];
 
       if (type.call(v) == STRING) {
@@ -172,14 +173,14 @@ See the 'dist' directory for usable files.
         buf.push("}");
 
 
-      } else if (k.match(/^@(font-face|page )/)) {
+      } else if (k.match(/^@(?:font-face|viewport|page )/)) {
         _add(v, buf, k, emptyArray);
 
       } else if (k.match(/^@global/)) {
         _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
 
       } else { 
-        // default @-rule (usually @media or @supports)
+        // conditional block (@media @document or @supports)
         buf.push(k + "{");
         _add(v, buf, prefix, vendors, localize);
         buf.push("}");
