@@ -736,7 +736,7 @@ function randInt() {
     // TODO simplify this.
     test("declarations > subselectors > @rules", function(){
         var total = 0, prop, klass, width, reference, o;
-        for (var i = 17; i--;){
+        for (var i = 1; i--;){
             prop = randStr();
             klass = randStr();
             width = randInt();
