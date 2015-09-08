@@ -54,6 +54,18 @@ function randInt() {
         );
     });
 
+    test("two properties", function() {
+        checkinline(
+            {foo:"bar", baz:"qux"},
+            "foo:bar;baz:qux;"
+        );
+    });
+
+    test("two properties, ensure order", function() {
+        expect(j2c.inline({foo:"bar", baz:"qux"})).to.be("foo:bar;\nbaz:qux;");
+    });
+
+
     test("array of values", function() {
         checkinline(
             {foo:["bar", "baz"]},
@@ -74,6 +86,12 @@ function randInt() {
             "foo-bar:baz;foo-qux:baz;"
         );
     });
+
+    test("multiple sub-properties, ensure order", function() {
+        expect(j2c.inline({foo$baz:"qux"})).to.be("foo:qux;\nbaz:qux;");
+    });
+
+
 
     test("multiple sub-properties with a sub-sub-property", function(){
         checkinline(
@@ -568,9 +586,9 @@ function randInt() {
         );
     });
 
-      //////////////////////////////
-     /**/  suite("Locals, GLobals ");  /**/
-    //////////////////////////////
+      //////////////////////////////////////
+     /**/  suite("Locals, Globals ");  /**/
+    //////////////////////////////////////
 
 
     test("a local class", function(){
@@ -701,7 +719,21 @@ function randInt() {
      /**/  suite("Order, ");  /**/
     /////////////////////////////
 
+    test("two properties", function() {
+        expect(''+j2c.sheet({" p":{foo:"bar", baz:"qux"}})).to.be(" p{\nfoo:bar;\nbaz:qux;\n}");
+    });
 
+    test("$ combiner", function() {
+        expect(''+j2c.sheet({" p":{foo$baz:"qux"}})).to.be(" p{\nfoo:qux;\nbaz:qux;\n}");
+    });
+
+
+    // This was built with the assumption that
+    // objects are totally unordered which isn't true in JS
+    // As long as no properties are deleted and created again,
+    // the insertion order is the iteration order in all
+    // browsers and in node too.
+    // TODO simplify this.
     test("declarations > subselectors > @rules", function(){
         var total = 0, prop, klass, width, reference, o;
         for (var i = 17; i--;){

@@ -16,8 +16,6 @@
     counter = 0;
 
   // Handles the property:value; pairs.
-  // Note that the sheets are built upside down and reversed before being
-  // turned into strings.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
     case ARRAY:
@@ -30,7 +28,7 @@
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
-          for (kk in (k = k.split("$").reverse())) if (own.call(k, kk))
+          for (kk in (k = k.split("$"))) if (own.call(k, kk))
             _declarations(v, buf, prefix + k[kk], vendors, localize);
         } else {
           _declarations(v, buf, prefix + k, vendors, localize);
@@ -58,7 +56,7 @@
   /*/-inline-/*/
   j2c.inline = function (o, vendors, buf) {
     _declarations(o, buf = [], "", vendors || emptyArray);
-    return buf.reverse().join("\n");
+    return buf.join("\n");
   };
 
   function _cartesian(a,b, res, i, j) {
