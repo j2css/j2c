@@ -736,62 +736,68 @@ function randInt() {
     // TODO simplify this.
     test("declarations > subselectors > @rules", function(){
         var total = 0, prop, klass, width, reference, o;
-        for (var i = 1; i--;){
-            prop = randStr();
-            klass = randStr();
-            width = randInt();
 
-            reference = normalize(" p." + klass + "{foo:6;} p{" + prop +":5;} @media (min-width:" + width + "em){p{bar:7;}}")
+        prop = randStr();
+        klass = randStr();
+        width = randInt();
 
-            o = {" p":{}};
-            o[" p"][prop] = 5;
-            o[" p"]["."+klass] = {foo:6};
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-            o = {" p":{}};
-            o[" p"][prop] = 5;
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            o[" p"]["."+klass] = {foo:6};
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-            o = {" p":{}};
-            o[" p"]["."+klass] = {foo:6};
-            o[" p"][prop] = 5;
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-            o = {" p":{}};
-            o[" p"]["."+klass] = {foo:6};
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            o[" p"][prop] = 5;
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-            o = {" p":{}};
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            o[" p"]["."+klass] = {foo:6};
-            o[" p"][prop] = 5;
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-            o = {" p":{}};
-            o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-            o[" p"][prop] = 5;
-            o[" p"]["."+klass] = {foo:6};
-            if (
-                normalize(j2c.sheet({"@global":o})) != 
-                reference
-            ) total++;
-        }
+        reference = normalize(" p." + klass + "{foo:6;} p{" + prop +":5;} @media (min-width:" + width + "em){p{bar:7;}}")
+
+
+        o = {" p":{}};
+        o[" p"][prop] = 5;
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
+        o = {" p":{}};
+        o[" p"][prop] = 5;
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o[" p"]["."+klass] = {foo:6};
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
+        o = {" p":{}};
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"][prop] = 5;
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
+        o = {" p":{}};
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o[" p"][prop] = 5;
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
+        o = {" p":{}};
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"][prop] = 5;
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
+        o = {" p":{}};
+        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o[" p"][prop] = 5;
+        o[" p"]["."+klass] = {foo:6};
+        if (
+            normalize(j2c.sheet({"@global":o})) != 
+            reference
+        ) total++;
+
         expect(total).to.be(0);
     });
 });
