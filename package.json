@@ -1,6 +1,6 @@
 {
   "name": "j2c",
-  "version": "0.8.0-pre",
+  "version": "0.8.0-pre.0",
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/pygy/j2c.git"
   },
-  "keywords": ["CSS", "css-in-js", "preprocessor"],
+  "keywords": ["CSS", "css-in-js"],
   "author": "Pierre-Yves Gérardy",
   "license": "MIT",
   "bugs": {

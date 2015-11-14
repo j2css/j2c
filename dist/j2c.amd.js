@@ -8,10 +8,10 @@ define('j2c', function(){return (function () {
     OBJECT = type.call(j2c),
     ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
-    scope_root = "_j2c_" + 
-      (Math.random() * 10e8 | 0).toString(36) + 
-      (Math.random() * 10e8 | 0).toString(36) + 
-      (Math.random() * 10e8 | 0).toString(36) + 
+    scope_root = "_j2c_" +
+      (Math.random() * 10e8 | 0).toString(36) +
+      (Math.random() * 10e8 | 0).toString(36) +
+      (Math.random() * 10e8 | 0).toString(36) +
       (Math.random() * 10e8 | 0).toString(36) + "_",
     counter = 0;
 
@@ -80,7 +80,7 @@ define('j2c', function(){return (function () {
   function _add(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl, at) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
-    // declaratons. This allows to process either a 
+    // declaratons. This allows to process either a
     // string or a declarations object with the same code.
     decl = statements;
 
@@ -154,7 +154,7 @@ define('j2c', function(){return (function () {
       } else if (k.match(/^@global/)) {
         _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
 
-      } else { 
+      } else {
         // conditional block (@media @document or @supports)
         buf.push(k + "{");
         _add(v, buf, prefix, vendors, localize);

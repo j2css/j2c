@@ -8,10 +8,10 @@ module.exports = (function () {
     OBJECT = type.call(j2c),
     ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
-    scope_root = "_j2c_" + 
-      (Math.random() * 10e8 | 0).toString(36) + 
-      (Math.random() * 10e8 | 0).toString(36) + 
-      (Math.random() * 10e8 | 0).toString(36) + 
+    scope_root = "_j2c_" +
+      (Math.random() * 10e8 | 0).toString(36) +
+      (Math.random() * 10e8 | 0).toString(36) +
+      (Math.random() * 10e8 | 0).toString(36) +
       (Math.random() * 10e8 | 0).toString(36) + "_",
     counter = 0;
 
