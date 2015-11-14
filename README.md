@@ -3,14 +3,15 @@
 [![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-JavaScript to CSS compiler. ~1030 bytes mingzipped.
+A tiny CSS in JS solution. ~1030 bytes mingzipped.
 
-Think SASS, but with JSONish syntax.
+Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
 
 This is the "how to" document. For the motivation behind the library, check out [the home page](http://j2c.py.gy).
 
 [![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
 [![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
+[![Dependency Status](https://david-dm.org/pygy/j2c.svg)](https://david-dm.org/pygy/j2c) :-)
 [![bitHound Score](https://www.bithound.io/github/pygy/j2c/badges/score.svg)](https://www.bithound.io/github/pygy/j2c/)
 
 ## Table of Contents
@@ -47,15 +48,13 @@ then
 var j2c = require('j2c')
 ```
 
-There are also separate builds for `AMD`, `ES6` and `window.j2c` in the `dist` directory.
+There are also separate builds for `AMD`, `ES6` and a global `window.j2c` in the `dist` directory.
 
 ## Usage
 
-**/!\ Warning /!\** The API of the git head underwent a major overhaul which hasn't been documented yet. What follows is valid up to v0.7.2 (the current stable release).
-
 `j2c` can be used to either assemble inline declarations or full style sheets with, by default, locally unique class names.
 
-Like SASS and friends, `j2c` supports nested at-rules and selectors, and mixins.
+Like SASS LESS and Stylus, `j2c` supports nested at-rules and selectors, and mixins.
 
 Here's an example of locallized class names (as pioneered AFAIK by [JSS](https://github.com/jsstyles/jss)):
 
@@ -93,7 +92,7 @@ Unique class names are generated automatically for `title` and `content`:
 }
 ```
 
-`sheet` is now a `String` object with a `title` and `content` properties that hold the unique class names. It can be used like this in your view, either on the server, in the browser of for isomorphic apps:
+`sheet` is now a `String` object with a `title` and `content` properties that hold the unique class names. It can be used like this in your view, either on the server, in the browser of for isomorphic apps (let's say this is part of a React view):
 
 ```Haml
 <div>

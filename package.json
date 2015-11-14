@@ -1,7 +1,7 @@
 {
   "name": "j2c",
-  "version": "0.7.2",
-  "description": "A JavaScript object to CSS compiler.",
+  "version": "0.8.0-pre",
+  "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
     "build": "node scripts/build.js",
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/pygy/j2c.git"
   },
-  "keywords": ["CSS", "compiler", "preprocessor", "SASS", "LESS", "Stylus", "JSON"],
+  "keywords": ["CSS", "css-in-js", "preprocessor"],
   "author": "Pierre-Yves Gérardy",
   "license": "MIT",
   "bugs": {
