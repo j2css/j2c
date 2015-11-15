@@ -259,7 +259,7 @@ j2c.sheet({
             border: {left$right: {width: "2px"}}
         }
     }
-}, {global:true})
+})
 
 ```
 

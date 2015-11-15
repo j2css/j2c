@@ -850,6 +850,44 @@ function randInt() {
         check(css + '',"p{animation-name:BOT;}");
     });
 
+    test("one plugin that does nothing", function() {
+        check(''+j2c.sheet(
+            {" p":{foo: "bar"}},
+            {plugins: [function(){}]}
+        ), "p{foo:bar;}");
+    });
+
+    test("one plugin that mutates the buffer", function() {
+        check(''+j2c.sheet(
+            {" p":{foo: "bar"}},
+            {plugins: [function(buf){
+                buf[0]="li{"
+            }]}
+        ), "li{foo:bar;}");
+    });
+
+    test("one plugin that returns a new buffer", function() {
+        check(''+j2c.sheet(
+            {" p":{foo: "bar"}},
+            {plugins: [function(){
+                return ["li{foo:bar;}"];
+            }]}
+        ), "li{foo:bar;}");
+    });
+
+    test("two plugins that mutate the buffer", function() {
+        check(''+j2c.sheet(
+            {" p":{foo: "bar"}},
+            {plugins: [
+                function(buf){
+                    buf[0]=buf[0].replace("p","a")
+                },
+                function(buf){
+                    buf[0]=buf[0].replace("a","i")
+                }                
+            ]}
+        ), "i{foo:bar;}");
+    });
 
 });
 
