@@ -5,8 +5,8 @@
 - classes and animations/@keyframes names are now local by default in `j2c.sheet()`.
 - introduced `@global{}` and `:global()` to reach global names
 - dropped `j2c.scoped()` which is obsoleted by the above.
-- add a post-process `plugins` hook as groundwork for autoprefix/prefixfree.
-- add a 'namespace' option to share local names between sheets. Useful for nesting.
+- add a `namespace` option to share local names between sheets. Useful for nesting, say, grid elements.
+- add a post-process `plugins` option as groundwork for autoprefix/prefixfree.
 
 ## v0.7.3
 

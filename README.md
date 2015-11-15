@@ -235,8 +235,8 @@ font-size:2em;'
 ### For building a style sheet: `j2c.sheet(rules)`
 
 ```JavaScript
-j2c.sheet({
-    "ul.my_root_class": {
+s = j2c.sheet({
+    "ul.foo": {
         "@media condition": {
             color: "red"
         },
@@ -252,39 +252,42 @@ j2c.sheet({
         // signifying a child element.
         " li": {
             padding:{
-                left: "5px"
+                left: "5px",
                 top: "10px"
             },
-            // convenient $hortcut.
+            // convenient $ shortcut.
             border: {left$right: {width: "2px"}}
         }
     }
 })
-
 ```
 
 Output (beautified):
 
 ```CSS
-@media condition {
-  ul.my_root_class {
-    color:red;
-  }
-}
-ul.my_root_class  li {
+ul.foo_j2c_fgdl0s2a5fmle5g56rbuax71_0 li{
   padding-left:5px;
   padding-top:10px;
   border-left-width:2px;
   border-right-width:2px;
 }
-ul.my_root_class {
+ul.foo_j2c_fgdl0s2a5fmle5g56rbuax71_0{
   font-size:2em;
   font-family:sans-serif;
   background-color:#44f;
 }
+@media condition{
+  ul.foo_j2c_fgdl0s2a5fmle5g56rbuax71_0{
+    color:red;
+  }
+}
 ```
 
+Were `s.foo === "foo_j2c_fgdl0s2a5fmle5g56rbuax71_0 "`
+
 #### Selector syntax (telling then and properties apart)
+
+tl;dr: always prefix element selectors with a space.
 
 `j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is a property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted in the source, while (sub-)selectors have to be quoted.
 
@@ -296,6 +299,29 @@ Selectors are concatenated as is, while properties are concatenated with hyphens
 
 The properties at a given selector level are guaganteed to appear in the CSS output before the ones of sub-selectors and before those present in nested @-rules.
 
+#### Global class and animation names.
+
+You can define or refer to global names using the `@global{}` pseudo at-rule, and the `:global()` function. This will thus preserve the `.foo`, `.bar` and `baz` names:
+
+```JavaScript
+s = j2c.sheet({
+    "@global": {
+        "ul.foo": {
+            font_size: "2em",
+        }
+    }
+    "p:global(.bar)" :{
+        color:"#f00"
+        animation_name: ":global(baz)"
+    },
+    "@keyframes :global(baz)": {
+        // define the global "baz" animation here.
+    }
+})
+```
+
+`@global` blocks also globalize animation names (not shown above).
+
 #### Combining multiple selectors
 
 TODO: refactor this section to mention the SASS-like `&` placeholder (at any arbitrary position).
@@ -303,13 +329,13 @@ TODO: refactor this section to mention the SASS-like `&` placeholder (at any arb
 Here's a excerpt from the `j2c` port of the [PocketGrid](https://github.com/arnaudleray/pocketgrid/blob/44aa1154a56b11a852f7252943f265028c28f056/pocketgrid.css).
 
 ```JavaScript
-j2c.sheet({
+j2c.sheet({"@global": {
   ".block,.blockgroup":{
     ",:before,:after":{          // Notice the initial coma.
       box_sizing:"border-box"
     }
   }
-}
+}})
 ```
 
 Nesting `",:before,:after"` inside the `".block,.blockgroup"` block combines `[".block", ".blockgroup"]` with `["", ":before", ":after"]`, giving
