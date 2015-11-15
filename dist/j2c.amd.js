@@ -2,6 +2,7 @@ define('j2c', function(){return (function () {
   /*jslint bitwise: true*/
   var
     j2c = {},
+    emptyObject = {},
     emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,
@@ -46,7 +47,7 @@ define('j2c', function(){return (function () {
       /*/-statements-/*/
       if (localize && (k == "animation-name:" || k == "animation:")) {
         o = o.split(',').map(function(o){
-          return o.replace(/()(?::global\(([-\w]+)\))|(?:([-\w]+))/, localize);
+          return o.replace(/()(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/, localize);
         }).join(",");
       }
       /*/-statements-/*/
@@ -122,7 +123,7 @@ define('j2c', function(){return (function () {
       // through from the `Object` case, when there are
       // declarations.
       for (k in decl) if (own.call(decl, k)){
-        buf.push((localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix || "*") + "{");
+        buf.push((localize ? prefix.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g, localize) : prefix || "*") + "{");
         _declarations(decl, buf, "", vendors, localize);
         buf.push("}");
         break;
@@ -136,7 +137,7 @@ define('j2c', function(){return (function () {
         buf.push(k + " " + v + ";");
 
       } else if (k.match(/^@keyframes /)) {
-        k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:([-\w]+)))/, localize) : k;
+        k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/, localize) : k;
         // add a @-webkit-keyframes block too.
 
         buf.push("@-webkit-" + k.slice(1) + "{");
@@ -152,7 +153,7 @@ define('j2c', function(){return (function () {
         _add(v, buf, k, emptyArray);
 
       } else if (k.match(/^@global/)) {
-        _add(v, buf, (localize ? prefix.replace(/()(?::global\((\.[-\w]+)\))|(?:\.([-\w]+))/g, localize) : prefix), vendors);
+        _add(v, buf, (localize ? prefix.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g, localize) : prefix), vendors);
 
       } else {
         // conditional block (@media @document or @supports)
@@ -163,8 +164,9 @@ define('j2c', function(){return (function () {
     }
   }
 
-  function _finalize(buf, postprocess) {
-    if (postprocess) postprocess(buf);
+  function _finalize(buf, plugins, i) {
+    plugins = plugins || emptyArray;
+    for (i = 0; i< plugins.length; i++) buf = plugins[i](buf) || buf;
     return buf.join("\n");
   }
 
@@ -174,16 +176,18 @@ define('j2c', function(){return (function () {
   };
 
   j2c.sheet = function (statements, options, buf, k) {
-    options = options || {};
+    options = options || emptyObject;
+    buf = options.namespace || emptyObject;
     var suffix = scope_root + counter++,
         locals = {};
-    _add(statements, buf = [], "", options.vendors || emptyArray, function (match, space, global, name) {
+    for (k in buf) locals[k] = buf[k];
+    _add(statements, buf = [], "", options.vendors || emptyArray, function (match, space, global, dot, name) {
       if (global) return space+global;
       if (!locals[name]) locals[name] = name + suffix;
-      return match + suffix;
+      return space + dot + locals[name];
     });
     /*jshint -W053 */
-    buf = new String(_finalize(buf, options.after));
+    buf = new String(_finalize(buf, options.plugins));
     /*jshint +W053 */
     for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
     return buf;

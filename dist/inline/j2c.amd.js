@@ -2,6 +2,7 @@ define('j2c', function(){return (function () {
   /*jslint bitwise: true*/
   var
     j2c = {},
+    emptyObject = {},
     emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,

@@ -800,6 +800,57 @@ function randInt() {
 
         expect(total).to.be(0);
     });
+
+      ///////////////////////////////
+     /**/  suite("Options, ");  /**/
+    ///////////////////////////////
+
+    test("namespaced class", function() {
+        var css = j2c.sheet(
+            {".foo":{foo:"bar", baz:"qux"}},
+            {namespace: {foo:"FOO"}}
+        )
+        check('' + css, ".FOO{foo:bar;baz:qux;}");
+        expect(css.foo).to.be("FOO");
+    });
+
+    test("namespaced class wrapping a global block", function() {
+        var css = j2c.sheet(
+            {".foo":{"@global":{".foo":{foo:"bar", baz:"qux"}}}},
+            {namespace: {foo:"FOOO"}}
+        )
+        check('' + css, ".FOOO.foo{foo:bar;baz:qux;}");
+        expect(css.foo).to.be("FOOO");
+    });
+
+    test("namespaced @keyframes", function(){
+        var css = j2c.sheet(
+            {"@keyframes bit":{}},
+            {namespace: {bit: "BOT"}}
+        );
+        expect(css.bit).to.be("BOT");
+        expect(css + '').to.contain("@keyframes BOT{");
+    });
+    
+    test("namespaced animation", function(){
+        var css = j2c.sheet(
+            {" p":{animation: "bit 1sec"}},
+            {namespace: {bit: "BOT"}}
+        );
+        expect(css.bit).to.be("BOT");
+        check(css + '',"p{animation:BOT 1sec;}");
+    });
+
+    test("namespaced animation-name", function() {
+        var css = j2c.sheet(
+            {" p":{animation_name: "bit"}},
+            {namespace: {bit: "BOT"}}
+        );
+        expect(css.bit).to.be("BOT");
+        check(css + '',"p{animation-name:BOT;}");
+    });
+
+
 });
 
 

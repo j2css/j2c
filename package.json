@@ -5,7 +5,8 @@
   "main": "dist/j2c.commonjs.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node_modules/mocha/bin/mocha --reporter nyan --ui qunit",
+    "nyan": "node_modules/mocha/bin/mocha --reporter nyan --ui qunit",
+    "test": "node_modules/mocha/bin/mocha --ui qunit",
     "cover": "node_modules/mocha/bin/mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
