@@ -26,13 +26,13 @@
   },
   "homepage": "http://j2c.py.gy",
   "devDependencies":{
-    "uglify-js":"2.4.24",
+    "uglify-js":"2.6.0",
     "crass":"0.7.7",
-    "mocha":"2.3.2",
+    "mocha":"2.3.3",
     "expect.js":"0.3.1",
     "surgicate":"0.0.3",
     "coveralls": "^2.11.2",
-    "mocha-lcov-reporter": "0.0.2",
+    "mocha-lcov-reporter": "1.0.0",
     "blanket": "^1.1.7"
   }
 }
