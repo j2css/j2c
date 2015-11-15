@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-A tiny CSS in JS solution. ~1030 bytes mingzipped.
+A tiny CSS in JS solution. Less than 1.1KB mingzipped.
 
 Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
 
@@ -11,7 +11,7 @@ This is the "how to" document. For the motivation behind the library, check out 
 
 [![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
 [![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
-[![Dependency Status](https://david-dm.org/pygy/j2c.svg)](https://david-dm.org/pygy/j2c) :-)
+[![Dependency Status](https://david-dm.org/pygy/j2c.svg)](https://david-dm.org/pygy/j2c)
 [![bitHound Score](https://www.bithound.io/github/pygy/j2c/badges/score.svg)](https://www.bithound.io/github/pygy/j2c/)
 
 ## Table of Contents
