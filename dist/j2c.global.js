@@ -78,7 +78,7 @@
 
 
   // Add rulesets and other CSS statements to the sheet.
-  function _add(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl, at) {
+  function _sheet(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl, at) {
     // optionally needed in the "[object String]" case
     // where the `statements` variable actually holds
     // declaratons. This allows to process either a
@@ -89,7 +89,7 @@
 
     case ARRAY:
       for (k = 0; k < statements.length; k++)
-        _add(statements[k], buf, prefix, vendors, localize);
+        _sheet(statements[k], buf, prefix, vendors, localize);
       break;
 
     case OBJECT:
@@ -103,7 +103,7 @@
           at = true;
         } else {
           // nested sub-selectors
-          _add(v, buf,
+          _sheet(v, buf,
             /* if prefix and/or k have a coma */
             prefix.indexOf(",") + k.indexOf(",") + 2 ?
             /* then */
@@ -141,24 +141,24 @@
         // add a @-webkit-keyframes block too.
 
         buf.push("@-webkit-" + k.slice(1) + "{");
-        _add(v, buf, "", ["webkit"]);
+        _sheet(v, buf, "", ["webkit"]);
         buf.push("}");
 
         buf.push(k + "{");
-        _add(v, buf, "", vendors, localize);
+        _sheet(v, buf, "", vendors, localize);
         buf.push("}");
 
 
       } else if (k.match(/^@(?:font-face|viewport|page )/)) {
-        _add(v, buf, k, emptyArray);
+        _sheet(v, buf, k, emptyArray);
 
       } else if (k.match(/^@global/)) {
-        _add(v, buf, (localize ? prefix.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g, localize) : prefix), vendors);
+        _sheet(v, buf, (localize ? prefix.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g, localize) : prefix), vendors);
 
       } else {
         // conditional block (@media @document or @supports)
         buf.push(k + "{");
-        _add(v, buf, prefix, vendors, localize);
+        _sheet(v, buf, prefix, vendors, localize);
         buf.push("}");
       }
     }
@@ -181,11 +181,15 @@
     var suffix = scope_root + counter++,
         locals = {};
     for (k in buf) locals[k] = buf[k];
-    _add(statements, buf = [], "", options.vendors || emptyArray, function (match, space, global, dot, name) {
-      if (global) return space+global;
-      if (!locals[name]) locals[name] = name + suffix;
-      return space + dot + locals[name];
-    });
+    _sheet(
+      statements, buf = [], "",
+      options.vendors || emptyArray,
+      function (match, space, global, dot, name) {
+        if (global) return space+global;
+        if (!locals[name]) locals[name] = name + suffix;
+        return space + dot + locals[name];
+      }
+    );
     /*jshint -W053 */
     buf = new String(_finalize(buf, options.plugins));
     /*jshint +W053 */
