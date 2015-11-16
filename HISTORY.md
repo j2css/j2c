@@ -6,7 +6,9 @@
 - introduced `@global{}` and `:global()` to reach global names
 - dropped `j2c.scoped()` which is obsoleted by the above.
 - add a `namespace` option to share local names between sheets. Useful for nesting, say, grid elements.
-- add a post-process `plugins` option as groundwork for autoprefix/prefixfree.
+- add a post-process `plugins` option as groundwork for autoprefix/prefixfree (documentation will follow).
+- better at-rules handling
+- support for autoDeCamelization of property-names.
 
 ## v0.7.3
 

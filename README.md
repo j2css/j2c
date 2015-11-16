@@ -2,8 +2,7 @@
 
 [![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-
-A tiny CSS in JS solution. Less than 1.1KB mingzipped.
+A tiny CSS in JS solution. 1.1 KiB mingzipped.
 
 Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
 
@@ -247,6 +246,8 @@ s = j2c.sheet({
         },
         // underscores in property names are converted to dashes.
         background_color: "#44f",
+        // CamelCase is also automatically handled.
+        borderRadius:"2px",
 
         // sub-selector for children element, notice the mandatory initial space
         // signifying a child element.

@@ -114,6 +114,13 @@ function randInt() {
         );
     });
 
+    test("convert CamelCase", function() {
+        checkinline(
+            {"FoO":"bar"},
+            "-fo-o:bar;"
+        );
+    });
+
     test("String value", function() {
         checkinline(
             "foo:bar",

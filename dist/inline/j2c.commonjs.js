@@ -16,6 +16,10 @@ module.exports = (function () {
       (Math.random() * 10e8 | 0).toString(36) + "_",
     counter = 0;
 
+    function _decamelize(match) {
+      return "-" + match.toLowerCase()
+    }
+
   // Handles the property:value; pairs.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
     switch (type.call(o)) {
@@ -42,7 +46,7 @@ module.exports = (function () {
       // `o` is then treated as a `property:value` pair.
       // otherwise, `prefix` is the property name, and
       // `o` is the value.
-      k = (prefix && (prefix).replace(/_/g, "-") + ":");
+      k = (prefix && (prefix).replace(/_/g, "-").replace(/[A-Z]/g, _decamelize) + ":");
 
       
 
