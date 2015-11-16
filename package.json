@@ -28,7 +28,7 @@
   "devDependencies":{
     "uglify-js":"2.6.0",
     "crass":"0.7.7",
-    "mocha":"2.3.3",
+    "mocha":"2.3.4",
     "expect.js":"0.3.1",
     "surgicate":"0.0.3",
     "coveralls": "^2.11.2",
