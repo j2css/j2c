@@ -17,12 +17,13 @@ module.exports = (function () {
     counter = 0;
 
     function _decamelize(match) {
-      return "-" + match.toLowerCase()
+      return "-" + match.toLowerCase();
     }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
-    switch (type.call(o)) {
+    if (o==null) return;
+    switch ( type.call(o = o.valueOf()) ) {
     case ARRAY:
       for (k = 0; k < o.length; k++)
         _declarations(o[k], buf, prefix, vendors, localize);

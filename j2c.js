@@ -203,12 +203,16 @@ See the 'dist' directory for usable files.
     return _finalize(buf);
   };
 
-  j2c.sheet = function (statements, options, buf, k) {
+  j2c.sheet = function (statements, options, ns, buf, k) {
     options = options || emptyObject;
     buf = options.namespace || emptyObject;
+    if (type.call(buf) !== ARRAY) buf = [buf];
     var suffix = scope_root + counter++,
         locals = {};
-    for (k in buf) locals[k] = buf[k];
+    for (k in buf) {
+      ns = buf[k]
+      for (k in ns) locals[k] = ns[k];
+    }
     _sheet(
       statements, buf = [], "",
       options.vendors || emptyArray,

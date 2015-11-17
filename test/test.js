@@ -922,6 +922,17 @@ function randInt() {
         check(css + '',"p{animation-name:BOT;}");
     });
 
+    test("two namespaces", function(){
+        var css = j2c.sheet(
+            {".foo.bar":{foo:"bar", baz:"qux"}},
+            {namespace: [{foo:"FOOO"}, {bar:"BARR"}]}
+        )
+        check('' + css, ".FOOO.BARR{foo:bar;baz:qux;}");
+        expect(css.foo).to.be("FOOO");
+        expect(css.bar).to.be("BARR");
+
+    })
+
     test("one plugin that does nothing", function() {
         check(''+j2c.sheet(
             {" p":{foo: "bar"}},

@@ -17,12 +17,13 @@ export default (function () {
     counter = 0;
 
     function _decamelize(match) {
-      return "-" + match.toLowerCase()
+      return "-" + match.toLowerCase();
     }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
-    switch (type.call(o)) {
+    if (o==null) return;
+    switch ( type.call(o = o.valueOf()) ) {
     case ARRAY:
       for (k = 0; k < o.length; k++)
         _declarations(o[k], buf, prefix, vendors, localize);
@@ -76,7 +77,7 @@ export default (function () {
   }
 
   function _concat(a, b, selectorP) {
-    if (selectorP && b.match(/^[-\w$]+$/)) throw "invalid selector '" + b +  "'";
+    if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'");
     return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
 
@@ -179,12 +180,16 @@ export default (function () {
     return _finalize(buf);
   };
 
-  j2c.sheet = function (statements, options, buf, k) {
+  j2c.sheet = function (statements, options, ns, buf, k) {
     options = options || emptyObject;
     buf = options.namespace || emptyObject;
+    if (type.call(buf) !== ARRAY) buf = [buf];
     var suffix = scope_root + counter++,
         locals = {};
-    for (k in buf) locals[k] = buf[k];
+    for (k in buf) {
+      ns = buf[k]
+      for (k in ns) locals[k] = ns[k];
+    }
     _sheet(
       statements, buf = [], "",
       options.vendors || emptyArray,
