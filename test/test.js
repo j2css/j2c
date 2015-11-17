@@ -43,7 +43,7 @@ function randInt() {
 
 
       //////////////////////////////
-     /**/  suite("Inline, ");  /**/
+     /**/  suite("Inline: ");  /**/
     //////////////////////////////
 
 
@@ -157,10 +157,9 @@ function randInt() {
     });
 
     test("CSS *Hack", function() {
-        checkinline(
-            {"*foo":"bar"},
-            "*foo:bar;"
-        );
+        // tested manually because the crass normalization 
+        // outputs an empty string.
+        expect(j2c.inline({"*foo":"bar"})).to.be("*foo:bar;");
     });
 
     test("CSS _Hack", function() {
@@ -170,10 +169,20 @@ function randInt() {
         );
     });
 
+    test("valueOf conversion", function() {
+        var bar = {valueOf:function(){return "bar"}}
+        checkinline(
+            {foo:bar},
+            "foo:bar;"
+        );
+    });
+
+
+
 
 
       ////////////////////////////////////////////
-     /**/  suite("Inline auto prefixes, ");  /**/
+     /**/  suite("Inline auto prefixes: ");  /**/
     ////////////////////////////////////////////
 
     test("vendor prefixes", function() {
@@ -185,7 +194,7 @@ function randInt() {
     });
 
       //////////////////////////////////
-     /**/  suite("j2c.prefix, ");  /**/
+     /**/  suite("j2c.prefix: ");  /**/
     //////////////////////////////////
 
     test("1 x 1", function() {
@@ -217,7 +226,7 @@ function randInt() {
 
 
       /////////////////////////////////
-     /**/  suite("j2c.sheet, ");  /**/
+     /**/  suite("j2c.sheet: ");  /**/
     /////////////////////////////////
 
 
@@ -230,7 +239,7 @@ function randInt() {
 
 
       ///////////////////////////////////
-     /**/  suite("Definitions, ");  /**/
+     /**/  suite("Definitions: ");  /**/
     ///////////////////////////////////
 
 
@@ -315,7 +324,7 @@ function randInt() {
 
 
       //////////////////////////////////////////////////
-     /**/  suite("Selector Cartesian product, ");  /**/
+     /**/  suite("Selector Cartesian product: ");  /**/
     //////////////////////////////////////////////////
 
 
@@ -379,7 +388,7 @@ function randInt() {
 
 
       /////////////////////////////////
-     /**/  suite("Ampersand, ");  /**/
+     /**/  suite("Ampersand: ");  /**/
     //////////////////////////////////
 
 
@@ -419,7 +428,7 @@ function randInt() {
     });
 
       //////////////////////////////////////////
-     /**/  suite("Strings and Arrays, ");  /**/
+     /**/  suite("Strings and Arrays: ");  /**/
     //////////////////////////////////////////
 
 
@@ -486,7 +495,7 @@ function randInt() {
 
 
       ///////////////////////////////////////////
-     /**/  suite("Sheet auto prefixes, ");  /**/
+     /**/  suite("Sheet auto prefixes: ");  /**/
     ///////////////////////////////////////////
 
     test("String literal", function() {
@@ -506,7 +515,7 @@ function randInt() {
 
 
       ////////////////////////////////
-     /**/  suite("At rules, ");  /**/
+     /**/  suite("At rules: ");  /**/
     ////////////////////////////////
 
 
@@ -700,7 +709,7 @@ function randInt() {
 
 
       ////////////////////////////////////
-     /**/  suite("Foolproofing, ");  /**/
+     /**/  suite("Foolproofing: ");  /**/
     ////////////////////////////////////
 
 
@@ -711,8 +720,8 @@ function randInt() {
         } catch(e) {
             E = e;
         }
-        expect(E).not.to.be(undefined);
-        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E);
+        expect(E).to.be.an(Error);
+        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message);
     });
 
 
@@ -723,14 +732,14 @@ function randInt() {
         } catch(e) {
             E = e;
         }
-        expect(E).not.to.be(undefined);
-        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E);
+        expect(E).to.be.an(Error);
+        expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message);
     });
 
 
 
       /////////////////////////////
-     /**/  suite("Order, ");  /**/
+     /**/  suite("Order: ");  /**/
     /////////////////////////////
 
     test("two properties", function() {
@@ -816,7 +825,7 @@ function randInt() {
     });
 
       ///////////////////////////////
-     /**/  suite("Options, ");  /**/
+     /**/  suite("Options: ");  /**/
     ///////////////////////////////
 
     test("namespaced class", function() {

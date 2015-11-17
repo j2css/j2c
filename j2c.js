@@ -99,7 +99,7 @@ See the 'dist' directory for usable files.
   }
 
   function _concat(a, b, selectorP) {
-    if (selectorP && b.match(/^[-\w$]+$/)) throw "invalid selector '" + b +  "'";
+    if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'");
     return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
 
