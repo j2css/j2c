@@ -27,7 +27,7 @@ See the 'dist' directory for usable files.
     counter = 0;
 
     function _decamelize(match) {
-      return "-" + match.toLowerCase()
+      return "-" + match.toLowerCase();
     }
 
   // Handles the property:value; pairs.
