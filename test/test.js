@@ -178,6 +178,53 @@ function randInt() {
     });
 
 
+    test("null value", function() {
+        checkinline(
+            null,
+            ""
+        );
+    });
+
+    test("null leafs", function() {
+        checkinline(
+            {foo:null},
+            ""
+        );
+    });
+
+    test("undefined leafs", function() {
+        checkinline(
+            {foo:void 8},
+            ""
+        );
+    });
+
+    test("null value", function() {
+        checkinline(
+            null,
+            ""
+        );
+    });
+
+    test("undefined value", function() {
+        checkinline(
+            void 8,
+            ""
+        );
+    });
+    test("null in Array", function() {
+        checkinline(
+            [null],
+            ""
+        );
+    });
+
+    test("undefined in Array", function() {
+        checkinline(
+            [void 8],
+            ""
+        );
+    });
 
 
 
@@ -192,6 +239,8 @@ function randInt() {
             ["o", "p"]
         );
     });
+
+
 
       //////////////////////////////////
      /**/  suite("j2c.prefix: ");  /**/
@@ -236,6 +285,7 @@ function randInt() {
             "p{foo:5}"
         );
     });
+
 
 
       ///////////////////////////////////
@@ -735,7 +785,6 @@ function randInt() {
         expect(E).to.be.an(Error);
         expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message);
     });
-
 
 
       /////////////////////////////
