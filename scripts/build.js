@@ -10,7 +10,7 @@ var fs = require("fs"),
     },
     wrappers = {
         global: {
-            source: ";var j2c = %;",
+            source: "var j2c = %;",
             minify: true
         },
         commonjs: {

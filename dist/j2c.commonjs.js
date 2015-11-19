@@ -1,5 +1,5 @@
 module.exports = (function () {
-  /*jslint bitwise: true*/
+  /*jslint bitwise: true,  unused:true, eqnull:true*/
   var
     j2c = {},
     emptyObject = {},
@@ -187,7 +187,7 @@ module.exports = (function () {
     var suffix = scope_root + counter++,
         locals = {};
     for (k in buf) {
-      ns = buf[k]
+      ns = buf[k];
       for (k in ns) locals[k] = ns[k];
     }
     _sheet(

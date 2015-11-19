@@ -4,10 +4,11 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "build": "node scripts/build.js",
-    "nyan": "node_modules/mocha/bin/mocha --reporter nyan --ui qunit",
-    "test": "node_modules/mocha/bin/mocha --ui qunit",
-    "cover": "node_modules/mocha/bin/mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js"
+    "all": "npm run build && npm run nyan",
+    "build": "node scripts/build.js && jshint dist/j2c.commonjs.js",
+    "nyan": "mocha --reporter nyan --ui qunit",
+    "test": "mocha --ui qunit",
+    "cover": "mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | coveralls"
   },
   "repository": {
     "type": "git",
@@ -26,13 +27,14 @@
   },
   "homepage": "http://j2c.py.gy",
   "devDependencies":{
-    "uglify-js":"2.6.0",
-    "crass":"0.7.7",
-    "mocha":"2.3.4",
-    "expect.js":"0.3.1",
-    "surgicate":"0.0.3",
+    "blanket": "^1.1.7",
     "coveralls": "^2.11.2",
+    "crass":"0.7.7",
+    "expect.js":"0.3.1",
+    "jshint":"2.8.0",
+    "mocha":"2.3.4",
     "mocha-lcov-reporter": "1.0.0",
-    "blanket": "^1.1.7"
+    "surgicate":"0.0.3",
+    "uglify-js":"2.6.0"
   }
 }

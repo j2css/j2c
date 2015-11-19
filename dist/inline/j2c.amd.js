@@ -1,5 +1,5 @@
 define('j2c', function(){return (function () {
-  /*jslint bitwise: true*/
+  /*jslint bitwise: true,  unused:true, eqnull:true*/
   var
     j2c = {},
     emptyObject = {},

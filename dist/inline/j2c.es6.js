@@ -1,5 +1,5 @@
 export default (function () {
-  /*jslint bitwise: true*/
+  /*jslint bitwise: true,  unused:true, eqnull:true*/
   var
     j2c = {},
     emptyObject = {},
