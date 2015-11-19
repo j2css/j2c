@@ -1,12 +1,12 @@
 {
   "name": "j2c",
-  "version": "0.8.0-pre.3",
+  "version": "0.8.0-pre.4",
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
     "all": "npm run build && npm run lint && npm run nyan",
     "build": "node scripts/build.js",
-    "lint":" echo \"linting...\" && jshint dist/j2c.commonjs.js",
+    "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js",
     "nyan": "mocha --reporter nyan --ui qunit",
     "test": "mocha --ui qunit",
     "cover": "mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | coveralls"
@@ -15,7 +15,10 @@
     "type": "git",
     "url": "https://github.com/pygy/j2c.git"
   },
-  "keywords": ["CSS", "css-in-js"],
+  "keywords": [
+    "CSS",
+    "css-in-js"
+  ],
   "author": "Pierre-Yves Gérardy",
   "license": "MIT",
   "bugs": {
@@ -27,15 +30,15 @@
     }
   },
   "homepage": "http://j2c.py.gy",
-  "devDependencies":{
+  "devDependencies": {
     "blanket": "^1.1.7",
     "coveralls": "^2.11.2",
-    "crass":"0.7.7",
-    "expect.js":"0.3.1",
-    "jshint":"2.8.0",
-    "mocha":"2.3.4",
+    "crass": "0.7.7",
+    "expect.js": "0.3.1",
+    "jshint": "2.8.0",
+    "mocha": "2.3.4",
     "mocha-lcov-reporter": "1.0.0",
-    "surgicate":"0.0.3",
-    "uglify-js":"2.6.0"
+    "surgicate": "0.0.3",
+    "uglify-js": "2.6.0"
   }
 }
