@@ -4,8 +4,9 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "all": "npm run build && npm run nyan",
-    "build": "node scripts/build.js && jshint dist/j2c.commonjs.js",
+    "all": "npm run build && npm run lint && npm run nyan",
+    "build": "node scripts/build.js",
+    "lint":" echo \"linting...\" && jshint dist/j2c.commonjs.js",
     "nyan": "mocha --reporter nyan --ui qunit",
     "test": "mocha --ui qunit",
     "cover": "mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | coveralls"
