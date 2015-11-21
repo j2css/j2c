@@ -5,11 +5,12 @@
   "main": "dist/j2c.commonjs.js",
   "scripts": {
     "all": "npm run build && npm run lint && npm run nyan",
+    "prepublish": "(in-publish && npm run -s all && git push --tags) || not-in-publish",
     "build": "node scripts/build.js",
     "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js",
-    "nyan": "mocha --reporter nyan --ui qunit",
+    "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
-    "cover": "mocha --require blanket --ui qunit --reporter mocha-lcov-reporter | coveralls"
+    "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"
   },
   "repository": {
     "type": "git",
@@ -35,10 +36,11 @@
     "coveralls": "^2.11.2",
     "crass": "0.7.7",
     "expect.js": "0.3.1",
-    "jshint": "2.8.0",
-    "mocha": "2.3.4",
-    "mocha-lcov-reporter": "1.0.0",
+    "in-publish": "^2.0.0",
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.4",
+    "mocha-lcov-reporter": "^1.0.0",
     "surgicate": "0.0.3",
-    "uglify-js": "2.6.0"
+    "uglify-js": "^2.6.0"
   }
 }
