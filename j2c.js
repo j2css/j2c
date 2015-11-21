@@ -16,14 +16,15 @@ See the 'dist' directory for usable files.
     emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,
-    OBJECT = type.call(j2c),
+    twoPow32 = Math.pow(2,32),
+    OBJECT = type.call(emptyObject),
     ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
     scope_root = "_j2c_" +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) + "_",
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_",
     counter = 0;
 
     function _decamelize(match) {
@@ -80,7 +81,9 @@ See the 'dist' directory for usable files.
     _declarations(o, buf = [], "", vendors || emptyArray);
     return buf.join("\n");
   };
+  /*/-inline-/*/
 
+  /*/-inline-/*/
   function _cartesian(a,b, res, i, j) {
     res = [];
     for (j in b) if(own.call(b, j))
@@ -103,8 +106,9 @@ See the 'dist' directory for usable files.
     if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'");
     return selectorP && b.indexOf("&") + 1 ? b.replace(/&/g, a) : a + b;
   }
+  /*/-statements-/*/
 
-
+  /*/-statements-/*/
   // Add rulesets and other CSS statements to the sheet.
   function _sheet(statements, buf, prefix, vendors, localize, /*var*/ k, v, decl, at) {
     // optionally needed in the "[object String]" case

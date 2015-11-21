@@ -6,14 +6,15 @@ var j2c = (function () {
     emptyArray = [],
     type = j2c.toString,
     own =  j2c.hasOwnProperty,
-    OBJECT = type.call(j2c),
+    twoPow32 = Math.pow(2,32),
+    OBJECT = type.call(emptyObject),
     ARRAY =  type.call(emptyArray),
     STRING = type.call(""),
     scope_root = "_j2c_" +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) +
-      (Math.random() * 10e8 | 0).toString(36) + "_",
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_" +
+      Math.floor(Math.random() * twoPow32).toString(36) + "_",
     counter = 0;
 
     function _decamelize(match) {
@@ -64,7 +65,9 @@ var j2c = (function () {
     _declarations(o, buf = [], "", vendors || emptyArray);
     return buf.join("\n");
   };
+  /*/-inline-/*/
 
+  /*/-inline-/*/
   function _cartesian(a,b, res, i, j) {
     res = [];
     for (j in b) if(own.call(b, j))
@@ -73,6 +76,8 @@ var j2c = (function () {
     return res;
   }
   /*/-inline-/*/
+
+  
 
   
 
