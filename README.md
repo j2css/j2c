@@ -550,9 +550,10 @@ function stylize(element, sheet){
     }
     return element;
 }
-var style = document.createElement('style')
-stylize(style);
-document.head.appendChild(style);
+var el = document.createElement('style')
+var sheet = j2c.sheet(...)
+stylize(el, sheet);
+document.head.appendChild(el);
 ```
 
 For this to work in client-side frameworks, you need to grab a handle on the actual `<style>` DOM node. This means that you must create a custom component/directive.
