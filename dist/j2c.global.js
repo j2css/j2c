@@ -1,11 +1,10 @@
 var j2c = (function () {
   /*jslint bitwise: true,  unused:true, eqnull:true*/
   var
-    j2c = {},
     emptyObject = {},
     emptyArray = [],
-    type = j2c.toString,
-    own =  j2c.hasOwnProperty,
+    type = emptyObject.toString,
+    own =  emptyObject.hasOwnProperty,
     twoPow32 = Math.pow(2,32),
     OBJECT = type.call(emptyObject),
     ARRAY =  type.call(emptyArray),
@@ -17,9 +16,9 @@ var j2c = (function () {
       Math.floor(Math.random() * twoPow32).toString(36) + "_",
     counter = 0;
 
-    function _decamelize(match) {
-      return "-" + match.toLowerCase();
-    }
+  function _decamelize(match) {
+    return "-" + match.toLowerCase();
+  }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
@@ -58,15 +57,15 @@ var j2c = (function () {
       }
       /*/-statements-/*/
 
-      buf.push(o = k + o + ";");
+      o = k + o + ";"
+
       // vendorify
-      for (k = 0; k < vendors.length; k++)
-         buf.push("-" + vendors[k] + "-" + o);
+      for (kk = 0; kk < vendors.length; kk++)
+         buf.push("-" + vendors[kk] + "-" + o);
+
+      buf.push(o);
     }
   }
-
-
-  
 
   
 
@@ -172,6 +171,7 @@ var j2c = (function () {
       }
     }
   }
+  /*/-statements-/*/
 
   function _finalize(buf, plugins, i) {
     plugins = plugins || emptyArray;
@@ -179,44 +179,101 @@ var j2c = (function () {
     return buf.join("\n");
   }
 
-  j2c.inline = function (o, vendors, buf) {
-    _declarations(o, buf = [], "", vendors || emptyArray);
-    return _finalize(buf);
-  };
+  // /*/-statements-/*/
+  // j2c.inline = function (o, vendors, buf) {
+  //   _declarations(o, buf = [], "", vendors || emptyArray);
+  //   return _finalize(buf);
+  // };
 
-  j2c.sheet = function (statements, options, ns, buf, k) {
-    options = options || emptyObject;
-    buf = options.namespace || emptyObject;
-    if (type.call(buf) !== ARRAY) buf = [buf];
-    var suffix = scope_root + counter++,
-        locals = {};
-    for (k in buf) {
-      ns = buf[k];
-      for (k in ns) locals[k] = ns[k];
-    }
-    _sheet(
-      statements, buf = [], "",
-      options.vendors || emptyArray,
-      function (match, space, global, dot, name) {
-        if (global) return space+global;
-        if (!locals[name]) locals[name] = name + suffix;
-        return space + dot + locals[name];
+  // j2c.sheet = function (statements, options, ns, buf, k) {
+  //   options = options || emptyObject;
+  //   buf = options.namespace || emptyObject;
+  //   if (type.call(buf) !== ARRAY) buf = [buf];
+  //   var suffix = scope_root + counter++,
+  //       locals = {};
+  //   for (k in buf) {
+  //     ns = buf[k];
+  //     for (k in ns) locals[k] = ns[k];
+  //   }
+  //   _sheet(
+  //     statements, buf = [], "",
+  //     options.vendors || emptyArray,
+  //     function (match, space, global, dot, name) {
+  //       if (global) return space+global;
+  //       if (!locals[name]) locals[name] = name + suffix;
+  //       return space + dot + locals[name];
+  //     }
+  //   );
+  //   /*jshint -W053 */
+  //   buf = new String(_finalize(buf, options.plugins));
+  //   /*jshint +W053 */
+  //   for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
+  //   return buf;
+  // };
+  // /*/-statements-/*/
+
+  // j2c.prefix = function(val, vendors) {
+  //   return _cartesian(
+  //     vendors.map(function(p){return "-" + p + "-";}).concat([""]),
+  //     [val]
+  //   );
+  // };
+
+  function j2c(res) {
+    res = res || {};
+    var extensions = [];
+    res.use = function() {
+      var args = arguments;
+      for (var i = 0; i < args.length; i++){
+        extensions.push(args[i]);
       }
-    );
-    /*jshint -W053 */
-    buf = new String(_finalize(buf, options.plugins));
-    /*jshint +W053 */
-    for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
-    return buf;
-  };
-  /*/-statements-/*/
+      return res;
+    };
+/*/-statements-/*/
+    res.sheet = function() {
+      var
+        args = arguments,
+        statements = args[args.length - 1],
+        suffix = scope_root + counter++,
+        locals = {},
+        ns = {},
+        i, k, buf;
 
-  j2c.prefix = function(val, vendors) {
-    return _cartesian(
-      vendors.map(function(p){return "-" + p + "-";}).concat([""]),
-      [val]
-    );
-  };
+      for (i = 0; i < args.length - 1; i++) {
+        for (k in args[i]) if (k-0 != k-0 && own.call(args[i], k)) {
+          locals[k] = args[i][k];
+        }
+      }
+      _sheet(
+        statements, buf = [], "", emptyArray /*vendors*/, 
+        function (match, space, global, dot, name) {
+          if (global) return space+global;
+          if (!locals[name]) locals[name] = name + suffix;
+          return space + dot + locals[name];
+        }
+      );
+      /*jshint -W053 */
+      buf = new String(_finalize(buf, extensions));
+      /*jshint +W053 */
+      for (k in locals) if (own.call(locals, k)) buf[k] = locals[k];
+      return buf;
+    };
+/*/-statements-/*/
+    res.inline = function (o, vendors, buf) {
+      _declarations(o, buf = [], "", vendors || emptyArray);
+      return _finalize(buf, extensions);
+    };
+
+    res.prefix = function(val, vendors) {
+      return _cartesian(
+        vendors.map(function(p){return "-" + p + "-";}).concat([""]),
+        [val]
+      );
+    };
+    return res;
+  }
+  j2c(j2c);
+  delete j2c.use;
   return j2c;
 })()
 

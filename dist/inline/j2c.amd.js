@@ -1,11 +1,10 @@
 define('j2c', function(){return (function () {
   /*jslint bitwise: true,  unused:true, eqnull:true*/
   var
-    j2c = {},
     emptyObject = {},
     emptyArray = [],
-    type = j2c.toString,
-    own =  j2c.hasOwnProperty,
+    type = emptyObject.toString,
+    own =  emptyObject.hasOwnProperty,
     twoPow32 = Math.pow(2,32),
     OBJECT = type.call(emptyObject),
     ARRAY =  type.call(emptyArray),
@@ -17,9 +16,9 @@ define('j2c', function(){return (function () {
       Math.floor(Math.random() * twoPow32).toString(36) + "_",
     counter = 0;
 
-    function _decamelize(match) {
-      return "-" + match.toLowerCase();
-    }
+  function _decamelize(match) {
+    return "-" + match.toLowerCase();
+  }
 
   // Handles the property:value; pairs.
   function _declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk) {
@@ -52,20 +51,15 @@ define('j2c', function(){return (function () {
 
       
 
-      buf.push(o = k + o + ";");
+      o = k + o + ";"
+
       // vendorify
-      for (k = 0; k < vendors.length; k++)
-         buf.push("-" + vendors[k] + "-" + o);
+      for (kk = 0; kk < vendors.length; kk++)
+         buf.push("-" + vendors[kk] + "-" + o);
+
+      buf.push(o);
     }
   }
-
-
-  /*/-inline-/*/
-  j2c.inline = function (o, vendors, buf) {
-    _declarations(o, buf = [], "", vendors || emptyArray);
-    return buf.join("\n");
-  };
-  /*/-inline-/*/
 
   /*/-inline-/*/
   function _cartesian(a,b, res, i, j) {
@@ -81,12 +75,47 @@ define('j2c', function(){return (function () {
 
   
 
-  j2c.prefix = function(val, vendors) {
-    return _cartesian(
-      vendors.map(function(p){return "-" + p + "-";}).concat([""]),
-      [val]
-    );
-  };
+  function _finalize(buf, plugins, i) {
+    plugins = plugins || emptyArray;
+    for (i = 0; i< plugins.length; i++) buf = plugins[i](buf) || buf;
+    return buf.join("\n");
+  }
+
+  // 
+
+  // j2c.prefix = function(val, vendors) {
+  //   return _cartesian(
+  //     vendors.map(function(p){return "-" + p + "-";}).concat([""]),
+  //     [val]
+  //   );
+  // };
+
+  function j2c(res) {
+    res = res || {};
+    var extensions = [];
+    res.use = function() {
+      var args = arguments;
+      for (var i = 0; i < args.length; i++){
+        extensions.push(args[i]);
+      }
+      return res;
+    };
+
+    res.inline = function (o, vendors, buf) {
+      _declarations(o, buf = [], "", vendors || emptyArray);
+      return _finalize(buf, extensions);
+    };
+
+    res.prefix = function(val, vendors) {
+      return _cartesian(
+        vendors.map(function(p){return "-" + p + "-";}).concat([""]),
+        [val]
+      );
+    };
+    return res;
+  }
+  j2c(j2c);
+  delete j2c.use;
   return j2c;
 })()
 

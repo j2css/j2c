@@ -4,7 +4,7 @@ var j2c,
     expect = require("expect.js");
 
 
-function normalize(s) { return crass.parse(s).optimize().toString(); }
+function normalize(s) { return crass.parse(s).toString(); }
 
 function check(result, expected){
     result = normalize(result);
@@ -228,17 +228,17 @@ function randInt() {
 
 
 
-      ////////////////////////////////////////////
-     /**/  suite("Inline auto prefixes: ");  /**/
-    ////////////////////////////////////////////
+    //   ////////////////////////////////////////////
+    //  /**/  suite("Inline auto prefixes: ");  /**/
+    // ////////////////////////////////////////////
 
-    test("vendor prefixes", function() {
-        checkinline(
-            ["foo:bar",{foo:"baz"}],
-            "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz",
-            ["o", "p"]
-        );
-    });
+    // test("vendor prefixes", function() {
+    //     checkinline(
+    //         ["foo:bar",{foo:"baz"}],
+    //         "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz",
+    //         ["o", "p"]
+    //     );
+    // });
 
 
 
@@ -266,12 +266,6 @@ function randInt() {
 
 ["../dist/j2c.commonjs", "../dist/j2c.commonjs.min"].forEach(function(lib){
     var j2c = require(lib);
-
-    function add(klass, o, vendors){
-        var sheet = {}; sheet[" "+klass] = o;
-        return j2c.sheet(sheet, vendors);
-    }
-
 
 
       /////////////////////////////////
@@ -506,7 +500,7 @@ function randInt() {
     test("Array of String literals", function() {
         check(
             j2c.sheet({" p": ["foo:bar", "foo:baz"]}),
-            "p{foo:bar;foo:baz}"
+            "p{foo:bar}p{foo:baz}"
         );
     });
 
@@ -538,29 +532,29 @@ function randInt() {
                 ],
                 "bar:quux;"
             ]}),
-            "p {bar:baz;bar:qux;bar:quux}"
+            "p{bar:baz}p{bar:qux}p{bar:quux}"
         );
     });
 
 
 
-      ///////////////////////////////////////////
-     /**/  suite("Sheet auto prefixes: ");  /**/
-    ///////////////////////////////////////////
+    //   ///////////////////////////////////////////
+    //  /**/  suite("Sheet auto prefixes: ");  /**/
+    // ///////////////////////////////////////////
 
-    test("String literal", function() {
-        check(
-            j2c.sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
-            "p{-o-foo:bar;-p-foo:bar;foo:bar}"
-        );
-    });
+    // test("String literal", function() {
+    //     check(
+    //         j2c.sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
+    //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
+    //     );
+    // });
 
-    test("Array of Strings", function() {
-        check(
-            j2c.sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
-            "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
-        );
-    });
+    // test("Array of Strings", function() {
+    //     check(
+    //         j2c.sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
+    //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
+    //     );
+    // });
 
 
 
@@ -573,7 +567,7 @@ function randInt() {
         check(
             j2c.sheet({" p": {
                 "@import":"'bar'"
-            }}, {vendors:["o", "p"]}),
+            }}),
 
             "@import 'bar';"
         );
@@ -583,9 +577,9 @@ function randInt() {
         check(
             j2c.sheet({" p": {
                 "@media foo":{bar:"baz"}
-            }}, {vendors:["o", "p"]}),
+            }}),
 
-            "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
+            "@media foo {p{bar:baz}}"
         );
     });
 
@@ -594,10 +588,10 @@ function randInt() {
             j2c.sheet({" p": {
                 "@media foo":{bar:"baz"},
                 "@media foo2":{bar2:"baz2"}
-            }}, {vendors:["o", "p"]}),
+            }}),
             [
-                "@media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}} @media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}}",
-                "@media foo2 {p{-o-bar2:baz2;-p-bar2:baz2;bar2:baz2}} @media foo {p{-o-bar:baz;-p-bar:baz;bar:baz}}"
+                "@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}",
+                "@media foo2 {p{bar2:baz2}} @media foo {p{bar:baz}}"
             ]
         );
     });
@@ -607,31 +601,31 @@ function randInt() {
             j2c.sheet({" p": [
                 {"@import":"'bar'"},
                 {"@import":"'baz'"}
-            ]}, {vendors: ["o", "p"]}),
+            ]}),
             "@import 'bar'; @import 'baz';"
         );
     });
 
     test("nested of At rules", function() {
         check(
-            j2c.sheet({" p": {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}}, {vendors:["o", "p"]}),
+            j2c.sheet({" p": {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}}),
             [
-                '@media screen{@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}p{-o-width:1000;-p-width:1000;width:1000}}',
-                '@media screen{p{-o-width:1000;-p-width:1000;width:1000}@media (max-width:12cm){p{-o-size:5;-p-size:5;size:5}}}'
+                '@media screen{@media (max-width:12cm){p{size:5}}p{width:1000}}',
+                '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
             ]
         );
     });
 
     test("@font-face", function(){
         check(
-            j2c.sheet({" p": {"@font-face":{foo:"bar"}}}, {vendors: ["o", "p"]}),
+            j2c.sheet({" p": {"@font-face":{foo:"bar"}}}),
             "@font-face{foo:bar}"
         );
     });
 
     test("@font-face two fonts", function(){
         check(
-            j2c.sheet({" p": {"@font-face":[{foo:"bar"},{foo:"baz"}]}}, {vendors: ["o", "p"]}),
+            j2c.sheet({" p": {"@font-face":[{foo:"bar"},{foo:"baz"}]}}),
             "@font-face{foo:bar}@font-face{foo:baz}"
         );
     });
@@ -641,13 +635,13 @@ function randInt() {
             j2c.sheet({" p": {"@keyframes :global(qux)": {
                 " from":{foo:"bar"},
                 " to":{foo:"baz"}
-            }}}, {vendors: ["o", "p"]}),
+            }}}),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
-                "@keyframes qux{from{-o-foo:bar;-p-foo:bar;foo:bar}to{-o-foo:baz;-p-foo:baz;foo:baz}}",
+                "@keyframes qux{from{foo:bar}to{foo:baz}}",
 
                 "@-webkit-keyframes qux{to{-webkit-foo:baz;foo:baz}from{-webkit-foo:bar;foo:bar}}" +
-                "@keyframes qux{to{-o-foo:baz;-p-foo:baz;foo:baz}from{-o-foo:bar;-p-foo:bar;foo:bar}}",
+                "@keyframes qux{to{foo:baz}from{foo:bar}}",
             ]
         );
     });
@@ -879,8 +873,8 @@ function randInt() {
 
     test("namespaced class", function() {
         var css = j2c.sheet(
-            {".foo":{foo:"bar", baz:"qux"}},
-            {namespace: {foo:"FOO"}}
+            {foo:"FOO"},
+            {".foo":{foo:"bar", baz:"qux"}}
         )
         check('' + css, ".FOO{foo:bar;baz:qux;}");
         expect(css.foo).to.be("FOO");
@@ -888,17 +882,17 @@ function randInt() {
 
     test("namespaced class wrapping a global block", function() {
         var css = j2c.sheet(
-            {".foo":{"@global":{".foo":{foo:"bar", baz:"qux"}}}},
-            {namespace: {foo:"FOOO"}}
+            {foo:"FOOO"},
+            {".foo":{"@global":{".foo":{foo:"bar", baz:"qux"}}}}
         )
         check('' + css, ".FOOO.foo{foo:bar;baz:qux;}");
         expect(css.foo).to.be("FOOO");
     });
 
     test("namespaced @keyframes", function(){
-        var css = j2c.sheet(
-            {"@keyframes bit":{}},
-            {namespace: {bit: "BOT"}}
+        var css = j2c.sheet( 
+            {bit: "BOT"}, 
+            {"@keyframes bit":{}}
         );
         expect(css.bit).to.be("BOT");
         expect(css + '').to.contain("@keyframes BOT{");
@@ -906,8 +900,8 @@ function randInt() {
 
     test("namespaced animation", function(){
         var css = j2c.sheet(
-            {" p":{animation: "bit 1sec"}},
-            {namespace: {bit: "BOT"}}
+            {bit: "BOT"},
+            {" p":{animation: "bit 1sec"}}
         );
         expect(css.bit).to.be("BOT");
         check(css + '',"p{animation:BOT 1sec;}");
@@ -915,8 +909,8 @@ function randInt() {
 
     test("namespaced animation-name", function() {
         var css = j2c.sheet(
-            {" p":{animation_name: "bit"}},
-            {namespace: {bit: "BOT"}}
+            {bit: "BOT"},
+            {" p":{animation_name: "bit"}}
         );
         expect(css.bit).to.be("BOT");
         check(css + '',"p{animation-name:BOT;}");
@@ -924,8 +918,8 @@ function randInt() {
 
     test("two namespaces", function(){
         var css = j2c.sheet(
-            {".foo.bar":{foo:"bar", baz:"qux"}},
-            {namespace: [{foo:"FOOO"}, {bar:"BARR"}]}
+            {foo:"FOOO"}, {bar:"BARR"}, 
+            {".foo.bar":{foo:"bar", baz:"qux"}}
         )
         check('' + css, ".FOOO.BARR{foo:bar;baz:qux;}");
         expect(css.foo).to.be("FOOO");
@@ -934,41 +928,41 @@ function randInt() {
     })
 
     test("one plugin that does nothing", function() {
-        check(''+j2c.sheet(
-            {" p":{foo: "bar"}},
-            {plugins: [function(){}]}
+        check(''+j2c().use(function(){}).sheet(
+            {" p":{foo: "bar"}}
         ), "p{foo:bar;}");
     });
 
     test("one plugin that mutates the buffer", function() {
-        check(''+j2c.sheet(
-            {" p":{foo: "bar"}},
-            {plugins: [function(buf){
+        check(''+j2c().use(
+            function(buf){
                 buf[0]="li{"
-            }]}
+            }
+        ).sheet(
+            {" p":{foo: "bar"}}
         ), "li{foo:bar;}");
     });
 
     test("one plugin that returns a new buffer", function() {
-        check(''+j2c.sheet(
-            {" p":{foo: "bar"}},
-            {plugins: [function(){
-                return ["li{foo:bar;}"];
-            }]}
+        check(''+j2c().use(
+        function(){
+            return ["li{foo:bar;}"];
+        }
+        ).sheet(
+            {" p":{foo: "bar"}}
         ), "li{foo:bar;}");
     });
 
     test("two plugins that mutate the buffer", function() {
-        check(''+j2c.sheet(
-            {" p":{foo: "bar"}},
-            {plugins: [
-                function(buf){
-                    buf[0]=buf[0].replace("p","a")
-                },
-                function(buf){
-                    buf[0]=buf[0].replace("a","i")
-                }
-            ]}
+        check(''+j2c().use(
+            function(buf){
+                buf[0]=buf[0].replace("p","a")
+            },
+            function(buf){
+                buf[0]=buf[0].replace("a","i")
+            }
+        ).sheet(
+            {" p":{foo: "bar"}}
         ), "i{foo:bar;}");
     });
 });
