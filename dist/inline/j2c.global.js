@@ -51,7 +51,7 @@ var j2c = (function () {
 
       
 
-      o = k + o + ";"
+      o = k + o + ";";
 
       // vendorify
       for (kk = 0; kk < vendors.length; kk++)
@@ -81,14 +81,7 @@ var j2c = (function () {
     return buf.join("\n");
   }
 
-  // 
 
-  // j2c.prefix = function(val, vendors) {
-  //   return _cartesian(
-  //     vendors.map(function(p){return "-" + p + "-";}).concat([""]),
-  //     [val]
-  //   );
-  // };
 
   function j2c(res) {
     res = res || {};

@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A tiny CSS in JS solution. 1.1 KiB mingzipped.
+A tiny CSS in JS solution. 1.2 KiB mingzipped.
 
 Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
 
@@ -107,11 +107,11 @@ Animation names are also "localized" by default, font names are left untouched.
 
 ### For inline decalrations: `j2c.inline(declarations)`
 
-The `j2c` function walks down JS objects and builds a `property:value;` list out of it.
+The `j2c` function takes in JS objects and builds a `property:value;` list out of it.
 
 ```JavaScript
 j2c.inline({
-  background_color:"red",
+  backgroundColor:"red",
   border: {
     top$left: {
       width: "1px",
@@ -131,40 +131,17 @@ border-left-color: white;
 border-left-width: 1px;
 ```
 
-Underscores are automatically turned into dashes so that property names can be left unquoted in the source.
+`CamelCase` and `_snake_case` names are turned into `-dash-case`, so that property names can be left unquoted in the source.
 
-You can combine (sub)properties who share the same value using `$` as a separator. It is useful to specify vendor prefixes. Once again, it allows to leave property names unquoted.
+Combine (sub)properties who share the same value using `$` as a separator. It is useful to specify vendor prefixes.
 
-#### Arrays for property ordering and mixins
+#### Property ordering
 
-The order of iteration over the keys of a js object is undefined. If you want to ensure that properties occur in order (say, `border` before `border-left`), use an array:
+Provided you don't delete and re-add properties to your objects, the properties will end up in the CSS sheet in the source order.
 
-```JavaScript
-j2c.inline([
-  {border: "solid 1px grey"},
-  {border_left: "dashed 3px green"}
-])
-```
+#### Arrays for value overloading and mixins
 
-or
-
-```JavaScript
-j2c.inline({
-  border: [
-    "solid 1px grey",
-    {left: "dashed 3px green"}
-  ]
-})
-```
-
-```CSS
-border: solid 1px grey;
-border-left: dashed 3px green;
-```
-
-More generally, `j2c.inline([foo,bar])` is equivalent to `j2c.inline(foo) + j2c.inline(bar)`.
-
-This enables the following techniques:
+You can sneak in arrays anywhere in the source tree. It enables many advanced techniques, like:
 
 ##### Overloading properties
 
@@ -231,7 +208,13 @@ border-color:red;
 font-size:2em;'
 ```
 
+The mixin could also be a plain JS object if it doesn't need to be customized.
+
 ### For building a style sheet: `j2c.sheet(rules)`
+
+Everything found in the `inline` section applies here too, I recommend you read it first.
+
+To give you a taste of what can be done in j2c, here's a first, rather advanced example.
 
 ```JavaScript
 s = j2c.sheet({
@@ -263,7 +246,7 @@ s = j2c.sheet({
 })
 ```
 
-Output (beautified):
+Output (after indentation):
 
 ```CSS
 ul.foo_j2c_fgdl0s2a5fmle5g56rbuax71_0 li{
@@ -396,10 +379,11 @@ j2c.sheet([
     ".your": {sheet:"here"}
   }
 ])
+```
 
 #### CSS Hacks
 
-Since `sheet.add` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
+Since `j2c.sheet` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
 
 Here's another modified excerpt from the PocketGrid port:
 
@@ -422,7 +406,7 @@ Result:
 
 ```CSS
 .blockgroup{
-*zoom: 1; /* hack */
+*zoom: 1; /* hackety hackery */
 }
 .blockgroup{
   list-style-type:none;
@@ -441,22 +425,7 @@ Arrays works the same way at the selector level as they do at the property/value
 
 ### Prefixing property names
 
-`j2c.inline()` , `j2c.sheet()` and `j2c.scoped()` take a vendor prefix list as a second, optional argument. When it is present, prefixes are automatically prepended to all properties.
-
-Most of the resulting combinations don't make any sense (`-moz-color` FTW), and they are simply ignored by browsers. That's the price to pay for the small code size.
-
-
-```JavaScript
-j2c.inline({transition:"all 1s"}, ["moz", "webkit"])
-```
-
-```CSS
--moz-transition:all 1s;
--webkit-transition:all 1s;
-transition:all 1s;
-```
-
-Alternatively, you can specify the prefixes by hand using the "$" operator where needed:
+You can specify the prefixes by hand using the "$" operator where needed:
 
 ```JavaScript
 j2c.inline({
@@ -479,7 +448,10 @@ p {
 }
 ```
 
+
 ### Prefixing values
+
+`/!\` This will be replaced by a plugin in a future version.
 
 To prefix values, you can use `j2c.prefix`:
 
@@ -500,8 +472,9 @@ background-image: linear-gradient(90deg, #f00, #ff0);
 
 There's no support for prefixing a list multiple values (e.g. `"linear-gradient(90deg, #f00, #ff0),linear-gradient(90deg, #f00, #ff0)"`).
 
-
 ### `@-webkit-keyframes`
+
+`/!\` This will be replaced by a plugin in a future version.
 
 `@keyframes` blocks automatically produce their `@-webkit-keyframes` counterparts, even in the absence of a vendor list argument.
 
@@ -590,7 +563,7 @@ var j2cComponent = {
 }
 ```
 
-#### Angular v1.3- (1.4 is ie9+)
+#### Angular v1.3- (1.4 is ie9+, and support dynamic `<style>` tags).
 
 ```JavaScript
 module.directive('j2cSheet', function() {
@@ -617,31 +590,26 @@ module.directive('j2cInline', function() {
 
 ### Selectors and properties order
 
-`j2c` relies on JS objects to define selectors and properties. As a consequence, the source order cannot be guaranteed to be respected in the output.
+`j2c` relies on JS objects to define selectors and properties. The iteration order of object properties is officially undefined, but in practice it only differs in situations that do not really apply to `j2c`. As long as we're using non-numeric keys and we don't delete then re-add object properties, the iteration order is the output order.
 
-```Javascript
-j2c.sheet({
-  ".hello": {
-    foo:"bar",
-    baz:"qux"
-  }
-})
+### At rules order
+
+At-rules, if present, are processed after selectors. This also applies to nested at-rules.
+
+If you want an at-rule to appear in source before normal rules, you can use an array:
+
+```JavaScript
+j2c.sheet(
+    [
+      {
+        "@namespace": "svg url(http://www.w3.org/2000/svg)"
+      }, {
+        "svg|a": {
+          // ...
+        }
+      }
+    ]
 ```
-
-This may produce either `.hello{foo:bar;baz:qux;}` or `.hello{baz:qux;foo:bar;}`.
-
-If you need some selectors or properties to happen in order, use an array of objects.
-
-```Javascript
-j2c.sheet({
-  ".hello":[
-    {foo:"bar"},
-    {baz:"qux"}
-  ]
-})
-```
-
-This will always yield `.hello{foo:bar;}.hello{baz:qux;}`.
 
 ### No input validation
 
@@ -655,10 +623,6 @@ I may get around and write a validator companion, but I'm not there yet :-).
 
 For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be](https://github.com/mattbasta/crass) [au](https://github.com/beautify-web/js-beautify) [ti](https://github.com/senchalabs/cssbeautify) [fier](http://csstidy.sourceforge.net/)] of your choice.
 
-### `@keyframes` names are global, even in a scoped stylesheet.
-
-It's up to you to pick distinctive names. This is high on the TODO list.
-
 ### Vendor prefixes corner cases
 
 `j2c` doesn't provide any facility to auto-prefix a list of values. It is relevant in the context of multiple gradient backgrounds and `transition`/`transition-property` values.
@@ -667,6 +631,6 @@ It's up to you to pick distinctive names. This is high on the TODO list.
 
 - Improve the web site. Move the docs there.
 - Test DOM insertion methods in old IE.
-- Add scoped animation names and maybe font names too?
+- Improve At rule handling Arrays are currently inconsistent and buggy.
 
 ## License: MIT
