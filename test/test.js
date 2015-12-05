@@ -157,7 +157,7 @@ function randInt() {
     });
 
     test("CSS *Hack", function() {
-        // tested manually because the crass normalization 
+        // tested manually because the crass normalization
         // outputs an empty string.
         expect(j2c.inline({"*foo":"bar"})).to.be("*foo:bar;");
     });
@@ -559,11 +559,11 @@ function randInt() {
 
 
       ////////////////////////////////
-     /**/  suite("At rules: ");  /**/
+     /**/  suite("At-rules: ");  /**/
     ////////////////////////////////
 
 
-    test("standard At rule with text value", function() {
+    test("standard at-rule with text value", function() {
         check(
             j2c.sheet({" p": {
                 "@import":"'bar'"
@@ -573,7 +573,7 @@ function randInt() {
         );
     });
 
-    test("standard At rule with object value", function() {
+    test("standard at-rule with object value", function() {
         check(
             j2c.sheet({" p": {
                 "@media foo":{bar:"baz"}
@@ -583,20 +583,19 @@ function randInt() {
         );
     });
 
-    test("several At rules with object value", function() {
+    test("several at-rules with object value", function() {
         check(
             j2c.sheet({" p": {
                 "@media foo":{bar:"baz"},
                 "@media foo2":{bar2:"baz2"}
             }}),
             [
-                "@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}",
-                "@media foo2 {p{bar2:baz2}} @media foo {p{bar:baz}}"
+                "@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}"
             ]
         );
     });
 
-    test("Array of At rules with text values", function() {
+    test("Array of at-rules with text values", function() {
         check(
             j2c.sheet({" p": [
                 {"@import":"'bar'"},
@@ -606,11 +605,10 @@ function randInt() {
         );
     });
 
-    test("nested of At rules", function() {
+    test("nested at-rules", function() {
         check(
             j2c.sheet({" p": {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}}),
             [
-                '@media screen{@media (max-width:12cm){p{size:5}}p{width:1000}}',
                 '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
             ]
         );
@@ -638,13 +636,43 @@ function randInt() {
             }}}),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
-                "@keyframes qux{from{foo:bar}to{foo:baz}}",
-
-                "@-webkit-keyframes qux{to{-webkit-foo:baz;foo:baz}from{-webkit-foo:bar;foo:bar}}" +
-                "@keyframes qux{to{foo:baz}from{foo:bar}}",
+                "@keyframes qux{from{foo:bar}to{foo:baz}}"
             ]
         );
     });
+
+      //////////////////////////////////////////////////
+     /**/  suite("At-rules with array values: ");  /**/
+    //////////////////////////////////////////////////
+
+
+    test("@font-face with a 1-element array", function(){
+        check(
+            j2c.sheet({" p": {"@font-face":[{foo:"bar"}]}}),
+            "@font-face{foo:bar}"
+        );
+    })
+
+    test("@font-face with a 2-elements array", function(){
+        check(
+            j2c.sheet({" p": {"@font-face":[{foo:"bar"},{foo:"baz"}]}}),
+            "@font-face{foo:bar}@font-face{foo:baz}"
+        );
+    })
+
+    test("@namespace with a 1-element array", function(){
+        check(
+            j2c.sheet({"@namespace": ["'http://foo.example.com'"]}),
+            "@namespace 'http://foo.example.com';"
+        );
+    })
+
+    test("@namespace with a 2-elements array", function(){
+        check(
+            j2c.sheet({"@namespace": ["'http://foo.example.com'", " bar 'http://bar.example.com'"]}),
+            "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
+        );
+    })
 
       //////////////////////////////////////
      /**/  suite("Locals, Globals ");  /**/
@@ -867,9 +895,9 @@ function randInt() {
         expect(total).to.be(0);
     });
 
-      ///////////////////////////////
-     /**/  suite("Options: ");  /**/
-    ///////////////////////////////
+      //////////////////////////////////
+     /**/  suite("Namespaces: ");  /**/
+    //////////////////////////////////
 
     test("namespaced class", function() {
         var css = j2c.sheet(
@@ -890,8 +918,8 @@ function randInt() {
     });
 
     test("namespaced @keyframes", function(){
-        var css = j2c.sheet( 
-            {bit: "BOT"}, 
+        var css = j2c.sheet(
+            {bit: "BOT"},
             {"@keyframes bit":{}}
         );
         expect(css.bit).to.be("BOT");
@@ -918,7 +946,7 @@ function randInt() {
 
     test("two namespaces", function(){
         var css = j2c.sheet(
-            {foo:"FOOO"}, {bar:"BARR"}, 
+            {foo:"FOOO"}, {bar:"BARR"},
             {".foo.bar":{foo:"bar", baz:"qux"}}
         )
         check('' + css, ".FOOO.BARR{foo:bar;baz:qux;}");
@@ -926,6 +954,10 @@ function randInt() {
         expect(css.bar).to.be("BARR");
 
     })
+
+      ///////////////////////////////
+     /**/  suite("Plugins: ");  /**/
+    ///////////////////////////////
 
     test("one plugin that does nothing", function() {
         check(''+j2c().use(function(){}).sheet(

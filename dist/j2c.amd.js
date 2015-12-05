@@ -141,10 +141,15 @@ define('j2c', function(){return (function () {
     if (at) for (k in statements) if (k[0] == "@") {
       v = statements[k];
 
-      if (type.call(v) == STRING) {
-        buf.push(k + " " + v + ";");
-
-      } else if (k.match(/^@keyframes /)) {
+      if (k.match(/^.(?:namespace|import|charset)/)) {
+        if(type.call(v) == ARRAY){
+          for (at = 0; at < v.length; at ++) {
+            buf.push(k + " " + v[at] + ";");
+          }
+        } else {
+          buf.push(k + " " + v + ";");
+        }
+      } else if (k.match(/^.keyframes /)) {
         k = localize ? k.replace(/( )(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/, localize) : k;
         // add a @-webkit-keyframes block too.
 
@@ -157,10 +162,10 @@ define('j2c', function(){return (function () {
         buf.push("}");
 
 
-      } else if (k.match(/^@(?:font-face|viewport|page )/)) {
+      } else if (k.match(/^.(?:font-face|viewport|page )/)) {
         _sheet(v, buf, k, emptyArray);
 
-      } else if (k.match(/^@global/)) {
+      } else if (k.match(/^.global/)) {
         _sheet(v, buf, (localize ? prefix.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g, localize) : prefix), vendors);
 
       } else {
