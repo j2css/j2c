@@ -635,6 +635,5 @@ For debugging purposes, I recommend that you pipe `j2c`'s  output through a [[be
 
 - Improve the web site. Move the docs there.
 - Test DOM insertion methods in old IE.
-- Improve At rule handling Arrays are currently inconsistent and buggy.
 
 ## License: MIT
