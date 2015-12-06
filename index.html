@@ -7,7 +7,8 @@
 <meta name=viewport content="width=device-width, initial-scale=1">
 <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
 <script>
-var j2c=function(){function n(e,r,c,t,i,o,s){switch(a.call(e)){case u:for(i=e.length;i--;)n(e[i],r,c,t);break;case f:c=c&&c+"-";for(i in e)if(o=e[i],i.indexOf("$")+1)for(s in i=i.split("$").reverse())l.call(i,s)&&n(o,r,c+i[s],t);else n(o,r,c+i,t);break;default:for(r.push(e=(c&&c.replace(/_/g,"-")+":")+e+";"),i=t.length;i--;)r.push("-"+t[i]+"-"+e)}}function e(n,e,c,t,i,a){t=[];for(a in e)if(l.call(e,a))for(i in n)l.call(n,i)&&t.push(r(n[i],e[a],c));return t}function r(n,e,r){return r&&e.indexOf("&")+1?e.replace(/&/g,n):n+e}function c(t,s,h,p,w,d,g){switch(g=t,a.call(t)){case u:for(w=t.length;w--;)c(t[w],s,h,p);break;case f:g={};for(w in t)"@"==w[0]&&(d=t[w],a.call(d)==o?s.push(w+" "+d+";"):w.match(/^@keyframes /)?(s.push("}"),c(d,s,"",p),s.push(w+"{"),s.push("}"),c(d,s,"",["webkit"]),s.push("@-webkit-"+w.slice(1)+"{")):w.match(/^@font-face/)?c(d,s,w,i):(s.push("}"),c(d,s,h,p),s.push(w+"{")));for(w in t)d=t[w],w.match(/^[-\w$]+$/)?g[w]=d:"@"!=w[0]&&c(d,s,h.indexOf(",")+w.indexOf(",")+2?e(h.split(","),w.split(","),1).join(","):r(h,w,1),p);case o:for(w in g)if(l.call(g,w)){s.push("}"),n(g,s,"",p),s.push((h||"*")+"{");break}}}function t(n){return n.reverse().join("\n")}var i=[],a={}.toString,l={}.hasOwnProperty,f=a.call({}),u=a.call(i),o=a.call(""),s="_j2c_"+(1e9*Math.random()|0)+"_"+1*new Date+"_",h=0,p={};return p.inline=function(e,r,c){return n(e,c=[],"",r||i),t(c)},p.sheet=function(n,e,r){return c(n,r=[],"",e||i),t(r)},p.scoped=function(n,e,r){var a={},f=[];e=e||i;for(r in n)l.call(n,r)&&(a[r]=r.replace(/[^\-\w]/,"")+s+h++,c(n[r],f,"."+a[r],e));f=new String(t(f));for(r in n)l.call(n,r)&&(f[r]=a[r]);return f},p.prefix=function(n,r){return e(r.map(function(n){return"-"+n+"-"}).concat([""]),[n])},p}();
+var j2c=function(){function n(n){return"-"+n.toLowerCase()}function r(t,e,a,o,l,i,c,h){if(null!=t)switch(f.call(t=t.valueOf())){case p:for(i=0;i<t.length;i++)r(t[i],e,a,o,l);break;case s:a=a&&a+"-";for(i in t)if(c=t[i],i.indexOf("$")+1)for(h in i=i.split("$"))u.call(i,h)&&r(c,e,a+i[h],o,l);else r(c,e,a+i,o,l);break;default:for(i=a&&a.replace(/_/g,"-").replace(/[A-Z]/g,n)+":",!l||"animation-name:"!=i&&"animation:"!=i||(t=t.split(",").map(function(n){return n.replace(/()(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/,l)}).join(",")),t=i+t+";",h=0;h<o.length;h++)e.push("-"+o[h]+"-"+t);e.push(t)}}function t(n,r,t,a,o,l){a=[];for(l in r)if(u.call(r,l))for(o in n)u.call(n,o)&&a.push(e(n[o],r[l],t));return a}function e(n,r,t){if(t&&r.match(/^[-\w$]+$/))throw new Error("invalid selector '"+r+"'");return t&&r.indexOf("&")+1?r.replace(/&/g,n):n+r}function a(n,o,l,i,h,w,m,b,d){switch(b=n,f.call(n)){case p:for(w=0;w<n.length;w++)a(n[w],o,l,i,h);break;case s:b={};for(w in n)m=n[w],w.match(/^[-\w$]+$/)?b[w]=m:"@"==w[0]?d=!0:a(m,o,l.indexOf(",")+w.indexOf(",")+2?t(l.split(","),w.split(","),1).join(","):e(l,w,1),i,h);case g:for(w in b)if(u.call(b,w)){o.push((h?l.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g,h):l||"*")+"{"),r(b,o,"",i,h),o.push("}");break}}if(d)for(w in n)"@"==w[0]&&(m=n[w],f.call(m)==g?o.push(w+" "+m+";"):w.match(/^@keyframes /)?(w=h?w.replace(/( )(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/,h):w,o.push("@-webkit-"+w.slice(1)+"{"),a(m,o,"",["webkit"]),o.push("}"),o.push(w+"{"),a(m,o,"",i,h),o.push("}")):w.match(/^@(?:font-face|viewport|page )/)?a(m,o,w,c):w.match(/^@global/)?a(m,o,h?l.replace(/()(?:(?::global\((\.[-\w]+)\))|(?:(\.)([-\w]+)))/g,h):l,i):(o.push(w+"{"),a(m,o,l,i,h),o.push("}")))}function o(n,r,t){for(r=r||c,t=0;t<r.length;t++)n=r[t](n)||n;return n.join("\n")}function l(n){n=n||{};var e=[];return n.use=function(){for(var r=arguments,t=0;t<r.length;t++)e.push(r[t]);return n},n.sheet=function(){var n,r,t,l=arguments,i=l[l.length-1],f=w+m++,h={};for(n=0;n<l.length-1;n++)for(r in l[n])r-0!=r-0&&u.call(l[n],r)&&(h[r]=l[n][r]);a(i,t=[],"",c,function(n,r,t,e,a){return t?r+t:(h[a]||(h[a]=a+f),r+e+h[a])}),t=new String(o(t,e));for(r in h)u.call(h,r)&&(t[r]=h[r]);return t},n.inline=function(n,t,a){return r(n,a=[],"",t||c),o(a,e)},n.prefix=function(n,r){return t(r.map(function(n){return"-"+n+"-"}).concat([""]),[n])},n}var i={},c=[],f=i.toString,u=i.hasOwnProperty,h=Math.pow(2,32),s=f.call(i),p=f.call(c),g=f.call(""),w="_j2c_"+Math.floor(Math.random()*h).toString(36)+"_"+Math.floor(Math.random()*h).toString(36)+"_"+Math.floor(Math.random()*h).toString(36)+"_"+Math.floor(Math.random()*h).toString(36)+"_",m=0;return l(l),delete l.use,l}();
+
 /*
 Copyright © 2015 Pierre-Yves Gérardy
 
@@ -122,15 +123,14 @@ function outline(w, bl, co){
 
     // This one is ugly :-/
     return [
-
-        ""  + w + "em 0 " + bl + "em " + co, "0 "  + w   + "em " + bl + "em " + co,
-        "-" + w + "em 0 " + bl + "em " + co, "0 -" + top + "em " + bl + "em " + co,
-
         ""  + dg + "em "  + dg + "em " + bl + "em " + co,
         "-" + dg + "em "  + dg + "em " + bl + "em " + co,
         ""  + dg + "em -" + dg + "em " + bl + "em " + co,
-        "-" + dg + "em -" + dg + "em " + bl + "em " + co
-
+        "-" + dg + "em -" + dg + "em " + bl + "em " + co,
+        "" + w + "em 0 "    + bl + "em " + co,
+        "0 "  + w   + "em " + bl + "em " + co,
+        "-" + w + "em 0 " + bl + "em " + co,
+        "0 -" + top + "em " + bl + "em " + co,
     ].join() + ";"
 }
 // 
@@ -145,13 +145,13 @@ var logo = {
     mainbg: j2c.prefix("linear-gradient(45deg, #ff8, #fb6)", ["webkit"]),
     bg: j2c.prefix("linear-gradient(225deg, #ff8, #fb6)", ["webkit"]),
     bg2: j2c.prefix("linear-gradient(225deg, #ff8 50%, #fb6 100%)", ["webkit"]),
-    JCOutline: outline(13, 9, "#9cf"),
-    _2Outline: outline(13/0.643, 9/0.643, "#9cf"),
-    h2Outline: outline(40, 30, "#7ad"),
-    h6Outline: outline(45, 30, "#357")
+    JCOutline: outline(13, 6, "#9cf"),
+    _2Outline: outline(13/0.643, 6/0.643, "#9cf"),
+    h2Outline: outline(40, 20, "#7ad"),
+    h6Outline: outline(45, 20, "#357")
 }
 
-var pagestyle = j2c.sheet({
+var pagestyle = j2c.sheet({"@global": {
     "@font-face":[
         {
             font: {
@@ -472,7 +472,7 @@ var pagestyle = j2c.sheet({
             position:"fixed"
         }
     },
-})
+}})
 
 var css = pagestyle;
     head = document.head || document.getElementsByTagName('head')[0],
@@ -492,13 +492,14 @@ head.appendChild(style);
         <div class="logo">
             <h1 class="hollow"><span class="Jay">J</span><span class="two">2</span><span class="Cee">C</span></h1>
         </div>
-        <h2><big>J</big>avaScript object<br>to <big>C</big>SS compiler</h2>
-        <h6>~850 bytes down the line</h6>
+        <h2>Small CSS-in-JS solution</h2>
+        <h6>~1.3KB down the line</h6>
     </div>
 </header>
 <div class="main">
-<p><code>j2c</code> is a CSS preprocessor working from JavaScript objects. It provides a sizable subset of SASS in a tiny, single pass compiler.</p>
-<p>Its <code>scoped()</code> mode allows to style components without class name clashes.</p>
+<p><code>j2c</code> is a CSS-in-JS library. It provides a sizable subset of SASS in a tiny package.</p>
+<p>Mixins, nested rules, composable and extensible.</p>
+<p>Classe names and animations are localized by default, PostCSS style.</p>
 
 <p>Here's a short sample of what it can do. Check the <a href="https://github.com/pygy/j2c">github repo</a> for the full documentation.</p>
 
@@ -541,10 +542,10 @@ You can also use arrays to insert mixins.
 
 Nested selectors and at-rules are supported.
 
-Arrays can also be used where needed for order and mixins (not shown here).
+Arrays can also be used where needed for mixins (not shown here).
 
 ```JavaScript
-j2c.sheet({
+j2c.sheet({"@global": {
   ".foo": {
     color: "red",
     "@media  (min-width:48.01em)": {
@@ -554,7 +555,7 @@ j2c.sheet({
       text_decoration: "underline"
     }
   }
-})
+}})
 ```
 
 ```CSS
@@ -573,31 +574,32 @@ j2c.sheet({
 }
 ```
 
+The `@global` pseudo at-rule prevents `j2c.sheet` from localizing class names.
+
 ----
 
 ### Scoped definitions:
 
 CSS class names live in a global namespace. Developers and designers have
-to be careful not to step on one another's feet, and good unique names are not
+to be careful not to step on one another's feet, and meaningful, unique names are not
 easy to find.
 
-A potential solution is to use inline styles, but adding the all over the place in
-templates is bulky, and they are less powerful than style sheets (no `@media` queries,
-no `:before` or `:hover` pseudo-elements)
+A potential solution is to use inline styles, but adding them all over the place in
+templates can be bulky, and they are less powerful than style sheets (no `@media` queries,
+no `:before` or `:hover` pseudo-elements, ...)
 
-`j2c`'s scoped mode solves this problem by generating unique class names automatically.
+`j2c` solves this problem by generating unique class names automatically.
 
-In the example, `foo` is not really a class name, it is converted to a unique one
-under the hood.
+In the next example, `.foo` is converted to a unique yet recognizable one under the hood.
 
 ```JavaScript
-sheet = j2c.scoped({
-  foo: {
+sheet = j2c.sheet({
+  ".foo": {
     color: "red",
     "@media  (max-width:48em)": {
       color: "green"
     },
-    "& .bar": {
+    "& :global(.bar)": {
       text_decoration: "underline"
     }
   }
@@ -607,8 +609,8 @@ sheet = j2c.scoped({
 In another component:
 
 ```JavaScript
-sheet = j2c.scoped({
-  foo: {
+sheet = j2c.sheet({
+  ".foo": {
     font_size:"2em",
     ":before": {
       content: '"Look Ma, no clash!"'
@@ -617,15 +619,31 @@ sheet = j2c.scoped({
 })
 ```
 
-In both cases you can put `sheet` in a `<style>` element, and use `sheet.foo` as a class
-for your component/directive/whatever. `sheet.foo` will read something along
-`"foo_j2c_XXX_YYY_N"`. Where the `XXX_YYY_N` combo is globally unique.
-They are respectively a random number, a timestamp, and a counter.
-`j2c` can be included several times in the same page, and can also be used on the server
-to generate isomorphic componenents.
+See? No name clash :-)
 
-If you modify these examples (did I mention they are editable?), you'll see the counter increment
+You can put `sheet` in a `<style>` element, and use `sheet.foo` as a class
+for your component/directive/whatever. `sheet.foo` will read something along
+`"foo_j2c_XXXX_N"`. Where the `XXXX_N` combo is globally unique.
+They are respectively a 128 bit random number and a counter.
+
+If you play with the live examples, you'll see the counter increment
 every time the sheet is updated.
+
+`j2c` can be included several times in the same page, and can also be used on the server
+to generate isomorphic componenents (but you'll have to overwrite the styles on hydration).
+
+#### Sharing a namespace between sheets.
+
+If you want several sheets to share the same scope, you can pass it as the second argument to `j2c.sheet()`. You can pass a sheet object returned by `j2c.sheet`, it will work just fine.
+
+```JavaScript
+// for the sake of example.
+sheet = j2c.sheet({foo: "myFOO"}, {
+  ".foo": {
+    font_size:"2em"
+  }
+}) 
+```
 
 [Find the full documentation on GitHub](https://github.com/pygy/j2c). Vendor prefixes,
 animations, CSS hacks and the mysterious dollar property combiner are also covered there.
@@ -639,7 +657,7 @@ written with `j2c` (mostly the logo and the GitHub ribbon).
 
 #### Why do you use underscores in property names?
 
-Actually, dashes are supported too, but I wanted property names to be allowed to be left unquoted.
+Actually, camelCase and dashes are supported too. I wanted property names to be allowed to be left unquoted.
 CamelCase may be more familiar for property names in JS, but, in practice, underscores are nicer to work with:
 - when pasting CSS in your JS source
 - when refactoring from `{text_decoration: "none"}` to
@@ -652,7 +670,9 @@ CamelCase may be more familiar for property names in JS, but, in practice, under
   }
 }
 ```
-and back. I'd rather avoid having three sytaxes for the same thing.
+and back.
+
+Note however that some automated CSS 2 JS tools use CamelCase, and thus it is also supported.
 
 #### There's another project called "j2c"
 
