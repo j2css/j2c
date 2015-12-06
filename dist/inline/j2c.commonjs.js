@@ -57,9 +57,7 @@ module.exports = (function () {
 
       o = k + o + ";";
 
-      // vendorify
-      for (kk = 0; kk < vendors.length; kk++)
-         buf.push("-" + vendors[kk] + "-" + o);
+  
 
       buf.push(o);
     }

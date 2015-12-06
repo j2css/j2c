@@ -69,9 +69,11 @@ A move to rollup as a build system is planned, post v0.8.0
 
       o = k + o + ";";
 
+  /*/-statements-/*/
       // vendorify
       for (kk = 0; kk < vendors.length; kk++)
          buf.push("-" + vendors[kk] + "-" + o);
+  /*/-statements-/*/
 
       buf.push(o);
     }

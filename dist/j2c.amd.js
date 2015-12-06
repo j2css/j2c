@@ -57,9 +57,11 @@ define('j2c', function(){return (function () {
 
       o = k + o + ";";
 
+  /*/-statements-/*/
       // vendorify
       for (kk = 0; kk < vendors.length; kk++)
          buf.push("-" + vendors[kk] + "-" + o);
+  /*/-statements-/*/
 
       buf.push(o);
     }
