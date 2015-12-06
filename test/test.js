@@ -169,7 +169,7 @@ function randInt() {
         );
     });
 
-    test("valueOf conversion", function() {
+    test("custom obj.valueOf", function() {
         var bar = {valueOf:function(){return "bar";}};
         checkinline(
             {foo:bar},
@@ -177,6 +177,11 @@ function randInt() {
         );
     });
 
+
+
+      /////////////////////////////////////
+     /**/  suite("Inline, nulls: ");  /**/
+    /////////////////////////////////////
 
     test("null value", function() {
         checkinline(
@@ -226,6 +231,10 @@ function randInt() {
         );
     });
 
+      /////////////////////////////////////////
+     /**/  suite("Inline namespaces: ");  /**/
+    /////////////////////////////////////////
+
     test("namespaced animation", function() {
         var result = j2c.inline({foo:"theFoo"}, {animation:"foo 1sec"});
         expect(result).to.be('animation:theFoo 1sec;');
@@ -245,6 +254,52 @@ function randInt() {
         var result = j2c.inline({foo:"theFoo", bar:"theBar"}, {animation:"foo 1sec, bar 2sec"});
         expect(result).to.be('animation:theFoo 1sec, theBar 2sec;');
     });
+
+
+
+      //////////////////////////////////////
+     /**/  suite("Inline plugins: ");  /**/
+    //////////////////////////////////////
+
+    test("one plugin that does nothing", function() {
+        expect(''+j2c().use(function(){}).inline(
+            {foo: "bar"}
+        )).to.be("foo:bar;");
+    });
+
+    test("one plugin that mutates the buffer", function() {
+        expect(''+j2c().use(
+            function(buf){
+                buf[0] = buf[0].replace('f','k');
+            }
+        ).inline(
+            {foo: "bar"}
+        )).to.be("koo:bar;");
+    });
+
+    test("one plugin that returns a new buffer", function() {
+        expect(''+j2c().use(
+            function(buf){
+                return ['hello:world;'];
+            }
+        ).inline(
+            {foo: "bar"}
+        )).to.be("hello:world;");
+    });
+
+    test("two plugins that mutate the buffer", function() {
+        expect(''+j2c().use(
+            function(buf){
+                buf[0]=buf[0].replace("f", "a");
+            },
+            function(buf){
+                buf[0]=buf[0].replace("a", "m");
+            }
+        ).inline(
+            {foo: "bar"}
+        )).to.be("moo:bar;");
+    });
+
 
 
       //////////////////////////////////
