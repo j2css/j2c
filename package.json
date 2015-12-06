@@ -8,7 +8,7 @@
     "prepublish": "(in-publish && npm run -s all && git push --follow-tags) || not-in-publish",
     "build": "npm run -s clean && node scripts/build.js",
     "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
-    "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js",
+    "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js && jshint dist/inline/j2c.commonjs.js && jshint test/test.js",
     "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
     "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"

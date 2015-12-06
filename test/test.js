@@ -33,7 +33,7 @@ function randInt() {
     var j2c = require(lib);
 
     function checkinline(result, expected, vendors){
-        result = "p{" + j2c.inline(result, vendors) + "}";
+        result = "p{" + j2c.inline(result) + "}";
         expected = (expected instanceof Array ? expected : [expected]).map(function(s){
             return "p{" + s + "}";
         });
@@ -49,20 +49,20 @@ function randInt() {
 
     test("a single property", function() {
         checkinline(
-            {foo:"bar"},
+            {foo: "bar"},
             "foo:bar;"
         );
     });
 
     test("two properties", function() {
         checkinline(
-            {foo:"bar", baz:"qux"},
+            {foo: "bar", baz: "qux"},
             "foo:bar;baz:qux;"
         );
     });
 
     test("two properties, ensure order", function() {
-        expect(j2c.inline({foo:"bar", baz:"qux"})).to.be("foo:bar;\nbaz:qux;");
+        expect(j2c.inline({foo: "bar", baz: "qux"})).to.be("foo:bar;\nbaz:qux;");
     });
 
 
@@ -75,48 +75,48 @@ function randInt() {
 
     test("sub-properties", function(){
         checkinline(
-            {foo:{bar:"baz"}},
+            {foo: {bar: "baz"}},
             "foo-bar:baz;"
         );
     });
 
     test("multiple sub-properties", function(){
         checkinline(
-            {foo:{bar$qux:"baz"}},
+            {foo: {bar$qux: "baz"}},
             "foo-bar:baz;foo-qux:baz;"
         );
     });
 
     test("multiple sub-properties, ensure order", function() {
-        expect(j2c.inline({foo$baz:"qux"})).to.be("foo:qux;\nbaz:qux;");
+        expect(j2c.inline({foo$baz: "qux"})).to.be("foo:qux;\nbaz:qux;");
     });
 
 
 
     test("multiple sub-properties with a sub-sub-property", function(){
         checkinline(
-            {foo:{bar$baz:{qux:"quux"}}},
+            {foo: {bar$baz: {qux: "quux"}}},
             "foo-bar-qux:quux;foo-baz-qux:quux;"
         );
     });
 
     test("multiple sub-properties with two sub-sub-properties", function(){
         checkinline(
-            {foo:{bar$baz:{qux$quux:"fred"}}},
+            {foo: {bar$baz: {qux$quux: "fred"}}},
             "foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;"
         );
     });
 
     test("convert underscores", function() {
         checkinline(
-            {"f_o_o":"bar"},
+            {"f_o_o": "bar"},
             "f-o-o:bar;"
         );
     });
 
     test("convert CamelCase", function() {
         checkinline(
-            {"FoO":"bar"},
+            {"FoO": "bar"},
             "-fo-o:bar;"
         );
     });
@@ -130,28 +130,28 @@ function randInt() {
 
     test("Array of Strings values", function() {
         checkinline(
-            ["foo:bar","foo:baz"],
+            ["foo:bar", "foo:baz"],
             "foo:bar;foo:baz"
         );
     });
 
     test("Array of mixed values at the root", function() {
         checkinline(
-            ["foo:bar",{foo:"baz"}],
+            ["foo:bar", {foo: "baz"}],
             "foo:bar;foo:baz"
         );
     });
 
     test("Array of mixed value and sub-property", function() {
         checkinline(
-            {foo:["bar", {baz:"qux"}]},
+            {foo:["bar", {baz: "qux"}]},
             "foo:bar;foo-baz:qux"
         );
     });
 
     test("Prefixes by hand", function() {
         checkinline(
-            {_o$_p$:{foo:"bar"}},
+            {_o$_p$: {foo: "bar"}},
             "-o-foo:bar;-p-foo:bar;foo:bar;"
         );
     });
@@ -159,18 +159,18 @@ function randInt() {
     test("CSS *Hack", function() {
         // tested manually because the crass normalization
         // outputs an empty string.
-        expect(j2c.inline({"*foo":"bar"})).to.be("*foo:bar;");
+        expect(j2c.inline({"*foo": "bar"})).to.be("*foo:bar;");
     });
 
     test("CSS _Hack", function() {
         checkinline(
-            ["_foo:bar",{_baz:"qux"}],
+            ["_foo:bar", {_baz: "qux"}],
             "_foo:bar;-baz:qux;"
         );
     });
 
     test("valueOf conversion", function() {
-        var bar = {valueOf:function(){return "bar"}}
+        var bar = {valueOf:function(){return "bar";}};
         checkinline(
             {foo:bar},
             "foo:bar;"
@@ -226,25 +226,31 @@ function randInt() {
         );
     });
 
+    test("namespaced animation", function() {
+        var result = j2c.inline({foo:"theFoo"}, {animation:"foo 1sec"});
+        expect(result).to.be('animation:theFoo 1sec;');
+    });
 
+    test("namespaced animation-name", function() {
+        var result = j2c.inline({foo:"theFoo"}, {animation_name:"foo"});
+        expect(result).to.be('animation-name:theFoo;');
+    });
 
-    //   ////////////////////////////////////////////
-    //  /**/  suite("Inline auto prefixes: ");  /**/
-    // ////////////////////////////////////////////
+    test("namespaced and non-namespaced animation-name", function() {
+        var result = j2c.inline({foo:"theFoo"}, {animation_name:"foo, bar"});
+        expect(result).to.be('animation-name:theFoo, bar;');
+    });
 
-    // test("vendor prefixes", function() {
-    //     checkinline(
-    //         ["foo:bar",{foo:"baz"}],
-    //         "-o-foo:bar;-p-foo:bar;foo:bar;-o-foo:baz;-p-foo:baz;foo:baz",
-    //         ["o", "p"]
-    //     );
-    // });
-
+    test("two namespaced animations", function() {
+        var result = j2c.inline({foo:"theFoo", bar:"theBar"}, {animation:"foo 1sec, bar 2sec"});
+        expect(result).to.be('animation:theFoo 1sec, theBar 2sec;');
+    });
 
 
       //////////////////////////////////
      /**/  suite("j2c.prefix: ");  /**/
     //////////////////////////////////
+
 
     test("1 x 1", function() {
         var prod = j2c.prefix("foo", ["o"]);
@@ -268,6 +274,7 @@ function randInt() {
     var j2c = require(lib);
 
 
+
       /////////////////////////////////
      /**/  suite("j2c.sheet: ");  /**/
     /////////////////////////////////
@@ -275,7 +282,7 @@ function randInt() {
 
     test("direct sheet call", function(){
         check(
-            j2c.sheet({" p":{foo:5}}),
+            j2c.sheet({" p": {foo:5}}),
             "p{foo:5}"
         );
     });
@@ -290,7 +297,7 @@ function randInt() {
     test("basic", function() {
         check(
             j2c.sheet({" p": {
-                foo:"bar"
+                foo: "bar"
             }}),
             "p{foo:bar}"
         );
@@ -299,7 +306,7 @@ function randInt() {
     test("convert underscores", function() {
         check(
             j2c.sheet({" p": {
-                foo_foo:"bar"
+                foo_foo: "bar"
             }}),
             "p{foo-foo:bar}"
         );
@@ -317,7 +324,7 @@ function randInt() {
     test("composed property name", function() {
         check(
             j2c.sheet({" p": {
-                foo:{bar:"baz"}
+                foo: {bar: "baz"}
             }}),
 
             "p{foo-bar:baz}"
@@ -326,8 +333,8 @@ function randInt() {
 
     test("composed selector : child with a given class", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                " .foo":{bar:"baz"}
+            j2c.sheet({"@global": {" p": {
+                " .foo": {bar: "baz"}
             }}}),
 
             "p .foo{bar:baz}"
@@ -336,8 +343,8 @@ function randInt() {
 
     test("composed selector: add a class to the root", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                ".foo":{bar:"baz"}
+            j2c.sheet({"@global": {" p": {
+                ".foo": {bar: "baz"}
             }}}),
 
             "p.foo{bar:baz}"
@@ -356,9 +363,9 @@ function randInt() {
 
     test("mixing definitions and sub-selectors", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                foo:"bar",
-                " .foo":{bar:"baz"}
+            j2c.sheet({"@global": {" p": {
+                foo: "bar",
+                " .foo": {bar: "baz"}
             }}}),
 
             ["p .foo{bar:baz} p {foo:bar}", "p {foo:bar} p .foo{bar:baz}"]
@@ -374,10 +381,10 @@ function randInt() {
 
     test("1 x 2", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                " .foo":{
-                    ":before,:after":{
-                        foo:"bar"
+            j2c.sheet({"@global": {" p": {
+                " .foo": {
+                    ":before,:after": {
+                        foo: "bar"
                     }
                 }
             }}}),
@@ -388,10 +395,10 @@ function randInt() {
 
     test("2 x 1", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                " .foo, .bar":{
-                    ":before":{
-                        foo:"bar"
+            j2c.sheet({"@global": {" p": {
+                " .foo, .bar": {
+                    ":before": {
+                        foo: "bar"
                     }
                 }
             }}}),
@@ -402,10 +409,10 @@ function randInt() {
 
     test("2 x 2", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                " .foo, .bar":{
-                    ":before,:after":{
-                        foo:"bar"
+            j2c.sheet({"@global": {" p": {
+                " .foo, .bar": {
+                    ":before,:after": {
+                        foo: "bar"
                     }
                 }
             }}}),
@@ -417,10 +424,10 @@ function randInt() {
 
     test("2 x 3 one of which is empty", function() {
         check(
-            j2c.sheet({"@global":{" p": {
-                " .foo, .bar":{
-                    ",:before,:after":{
-                        foo:"bar"
+            j2c.sheet({"@global": {" p": {
+                " .foo, .bar": {
+                    ",:before,:after": {
+                        foo: "bar"
                     }
                 }
             }}}),
@@ -439,7 +446,7 @@ function randInt() {
     test("composed selector: add a class to the root", function() {
         check(
             j2c.sheet({" p": {
-                ":global(.foo) &":{bar:"baz"}
+                ":global(.foo) &": {bar: "baz"}
             }}),
 
             ".foo p{bar:baz}"
@@ -460,9 +467,9 @@ function randInt() {
     test("2 x 2", function() {
         check(
             j2c.sheet({" p": {
-                " :global(.foo), :global(.bar)":{
-                    " :global(.baz) &, :global(.qux)":{
-                        foo:"bar"
+                " :global(.foo), :global(.bar)": {
+                    " :global(.baz) &, :global(.qux)": {
+                        foo: "bar"
                     }
                 }
             }}),
@@ -508,7 +515,7 @@ function randInt() {
     test("overloaded properties", function() {
         check(
             j2c.sheet({" p": {
-                foo:["bar","baz"]
+                foo:["bar", "baz"]
             }}),
             "p{foo:bar;foo:baz}"
         );
@@ -517,7 +524,7 @@ function randInt() {
     test("overloaded sub-properties", function() {
         check(
             j2c.sheet({" p": {
-                foo:[{bar:"baz"},{bar:"qux"}]
+                foo:[{bar: "baz"}, {bar: "qux"}]
             }}),
             "p{foo-bar:baz;foo-bar:qux}"
         );
@@ -527,8 +534,8 @@ function randInt() {
         check(
             j2c.sheet({" p": [
                 [
-                    {bar:"baz"},
-                    {bar:"qux"}
+                    {bar: "baz"},
+                    {bar: "qux"}
                 ],
                 "bar:quux;"
             ]}),
@@ -566,7 +573,7 @@ function randInt() {
     test("standard at-rule with text value", function() {
         check(
             j2c.sheet({" p": {
-                "@import":"'bar'"
+                "@import": "'bar'"
             }}),
 
             "@import 'bar';"
@@ -576,7 +583,7 @@ function randInt() {
     test("standard at-rule with object value", function() {
         check(
             j2c.sheet({" p": {
-                "@media foo":{bar:"baz"}
+                "@media foo": {bar: "baz"}
             }}),
 
             "@media foo {p{bar:baz}}"
@@ -586,8 +593,8 @@ function randInt() {
     test("several at-rules with object value", function() {
         check(
             j2c.sheet({" p": {
-                "@media foo":{bar:"baz"},
-                "@media foo2":{bar2:"baz2"}
+                "@media foo": {bar: "baz"},
+                "@media foo2": {bar2: "baz2"}
             }}),
             [
                 "@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}"
@@ -598,8 +605,8 @@ function randInt() {
     test("Array of at-rules with text values", function() {
         check(
             j2c.sheet({" p": [
-                {"@import":"'bar'"},
-                {"@import":"'baz'"}
+                {"@import": "'bar'"},
+                {"@import": "'baz'"}
             ]}),
             "@import 'bar'; @import 'baz';"
         );
@@ -607,7 +614,7 @@ function randInt() {
 
     test("nested at-rules", function() {
         check(
-            j2c.sheet({" p": {"@media screen":{width:1000,"@media (max-width: 12cm)":{size:5}}}}),
+            j2c.sheet({" p": {"@media screen": {width:1000, "@media (max-width: 12cm)": {size:5}}}}),
             [
                 '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
             ]
@@ -616,14 +623,14 @@ function randInt() {
 
     test("@font-face", function(){
         check(
-            j2c.sheet({" p": {"@font-face":{foo:"bar"}}}),
+            j2c.sheet({" p": {"@font-face": {foo: "bar"}}}),
             "@font-face{foo:bar}"
         );
     });
 
     test("@font-face two fonts", function(){
         check(
-            j2c.sheet({" p": {"@font-face":[{foo:"bar"},{foo:"baz"}]}}),
+            j2c.sheet({" p": {"@font-face":[{foo: "bar"}, {foo: "baz"}]}}),
             "@font-face{foo:bar}@font-face{foo:baz}"
         );
     });
@@ -631,8 +638,8 @@ function randInt() {
     test("@keyframes", function(){
         check(
             j2c.sheet({" p": {"@keyframes :global(qux)": {
-                " from":{foo:"bar"},
-                " to":{foo:"baz"}
+                " from": {foo: "bar"},
+                " to": {foo: "baz"}
             }}}),
             [
                 "@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}" +
@@ -648,31 +655,31 @@ function randInt() {
 
     test("@font-face with a 1-element array", function(){
         check(
-            j2c.sheet({" p": {"@font-face":[{foo:"bar"}]}}),
+            j2c.sheet({" p": {"@font-face":[{foo: "bar"}]}}),
             "@font-face{foo:bar}"
         );
-    })
+    });
 
     test("@font-face with a 2-elements array", function(){
         check(
-            j2c.sheet({" p": {"@font-face":[{foo:"bar"},{foo:"baz"}]}}),
+            j2c.sheet({" p": {"@font-face":[{foo: "bar"}, {foo: "baz"}]}}),
             "@font-face{foo:bar}@font-face{foo:baz}"
         );
-    })
+    });
 
     test("@namespace with a 1-element array", function(){
         check(
             j2c.sheet({"@namespace": ["'http://foo.example.com'"]}),
             "@namespace 'http://foo.example.com';"
         );
-    })
+    });
 
     test("@namespace with a 2-elements array", function(){
         check(
             j2c.sheet({"@namespace": ["'http://foo.example.com'", " bar 'http://bar.example.com'"]}),
             "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
         );
-    })
+    });
 
       //////////////////////////////////////
      /**/  suite("Locals, Globals ");  /**/
@@ -680,101 +687,101 @@ function randInt() {
 
 
     test("a local class", function(){
-        var css = j2c.sheet({".bit":{foo:5}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {foo:5}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
     });
 
     test("two local classes", function(){
-        var css = j2c.sheet({".bit":{foo:5},".bat":{bar:6}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {foo:5}, ".bat": {bar:6}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
         expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
         expect(css + '').to.contain("." + css.bat + "{\nbar:6;\n}");
     });
 
     test("a local and a global class", function(){
-        var css = j2c.sheet({".bit":{foo:5},":global(.bat)":{bar:6}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {foo:5}, ":global(.bat)": {bar:6}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
         expect(css + '').to.contain(".bat{\nbar:6;\n}");
     });
 
     test("a local wrapping a global block", function(){
-        var css = j2c.sheet({".bit":{"@global":{".bat":{foo:5}}}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {"@global": {".bat": {foo:5}}}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css + '').to.contain("." + css.bit + ".bat{\nfoo:5;\n}");
     });
 
     test("two local classes, nested", function(){
-        var css = j2c.sheet({".bit":{foo:5,".bat":{bar:6}}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {foo:5, ".bat": {bar:6}}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
         expect(css + '').to.contain("." + css.bit + "{\nfoo:5;\n}");
         expect(css + '').to.contain("." + css.bit +"." + css.bat + "{\nbar:6;\n}");
     });
 
     test("@keyframes", function(){
-        var css = j2c.sheet({"@keyframes bit":{}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({"@keyframes bit": {}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css + '').to.contain("@keyframes " + css.bit +"{");
     });
 
     test("a global @keyframes", function() {
-        var css = j2c.sheet({"@keyframes :global(bit)":{}});
+        var css = j2c.sheet({"@keyframes :global(bit)": {}});
         expect(css.bit).to.be(undefined);
         expect(css + '').to.contain("@keyframes bit{");
     });
 
     test("a @keyframe nested in a @global at-rule", function() {
-        var css = j2c.sheet({"@global":{"@keyframes bat":{"foo":6}}});
+        var css = j2c.sheet({"@global": {"@keyframes bat": {"foo":6}}});
         expect(css.bat).to.be(undefined);
         expect(css + '').to.contain("@keyframes bat{");
     });
 
     test("one animation", function(){
-        var css = j2c.sheet({" p":{animation:"bit 1sec"}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({" p": {animation: "bit 1sec"}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css + '').to.contain("animation:" + css.bit +" ");
     });
 
     test("a global animation", function() {
-        var css = j2c.sheet({" p":{animation:":global(bit) 1sec"}});
+        var css = j2c.sheet({" p": {animation: ":global(bit) 1sec"}});
         expect(css.bit).to.be(undefined);
         expect(css + '').to.contain("animation:bit ");
     });
 
     test("an animation nested in a @global at-rule", function() {
-        var css = j2c.sheet({"@global":{" p":{animation:"bit 1sec"}}});
+        var css = j2c.sheet({"@global": {" p": {animation: "bit 1sec"}}});
         expect(css.bit).to.be(undefined);
         expect(css + '').to.contain("animation:bit ");
     });
 
     test("one animation-name", function() {
-        var css = j2c.sheet({" p":{animation_name:"bit"}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({" p": {animation_name: "bit"}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css + '').to.contain("animation-name:" + css.bit +";");
     });
 
     test("two animation-name", function() {
-        var css = j2c.sheet({" p":{animation_name:"bit, bat"}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({" p": {animation_name: "bit, bat"}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bit.slice(4)).to.be(css.bat.slice(4));
         expect(css + '').to.contain("animation-name:" + css.bit +", " + css.bat);
     });
 
     test("two animation-name, one global", function() {
-        var css = j2c.sheet({" p":{animation_name:"bit, :global(bat)"}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({" p": {animation_name: "bit, :global(bat)"}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css + '').to.contain("animation-name:" + css.bit +", bat;");
     });
 
     test("a nested @global at-rule", function() {
-        var css = j2c.sheet({".bit":{"@global":{".bat":{"foo":6}}}});
-        expect(css.bit.slice(0,8)).to.be("bit_j2c_");
+        var css = j2c.sheet({".bit": {"@global": {".bat": {"foo":6}}}});
+        expect(css.bit.slice(0, 8)).to.be("bit_j2c_");
         expect(css.bat).to.be(undefined);
         expect(css + '').to.contain( css.bit +".bat{");
     });
@@ -788,7 +795,7 @@ function randInt() {
     test("property-like selector", function() {
         var E;
         try{
-            j2c.sheet({"g,p":{animation_name:"bit, bat"}});
+            j2c.sheet({"g,p": {animation_name: "bit, bat"}});
         } catch(e) {
             E = e;
         }
@@ -800,7 +807,7 @@ function randInt() {
     test("property-like sub-selector", function() {
         var E;
         try{
-            j2c.sheet({".foo":{"g,p":{animation_name:"bit, bat"}}});
+            j2c.sheet({".foo": {"g,p": {animation_name: "bit, bat"}}});
         } catch(e) {
             E = e;
         }
@@ -814,11 +821,11 @@ function randInt() {
     /////////////////////////////
 
     test("two properties", function() {
-        expect(''+j2c.sheet({" p":{foo:"bar", baz:"qux"}})).to.be(" p{\nfoo:bar;\nbaz:qux;\n}");
+        expect(''+j2c.sheet({" p": {foo: "bar", baz: "qux"}})).to.be(" p{\nfoo:bar;\nbaz:qux;\n}");
     });
 
     test("$ combiner", function() {
-        expect(''+j2c.sheet({" p":{foo$baz:"qux"}})).to.be(" p{\nfoo:qux;\nbaz:qux;\n}");
+        expect(''+j2c.sheet({" p": {foo$baz: "qux"}})).to.be(" p{\nfoo:qux;\nbaz:qux;\n}");
     });
 
 
@@ -827,72 +834,68 @@ function randInt() {
     // As long as no properties are deleted and created again,
     // the insertion order is the iteration order in all
     // browsers and in node too.
-    // TODO simplify this.
-    test("declarations > subselectors > @rules", function(){
-        var total = 0, prop, klass, width, reference, o;
+    test("subselector > declaration > @media", function(){
+        var prop, klass, width, reference, o;
 
         prop = randStr();
         klass = randStr();
         width = randInt();
 
-        reference = normalize(" p." + klass + "{foo:6;} p{" + prop +":5;} @media (min-width:" + width + "em){p{bar:7;}}")
+        reference = normalize(
+            " p." + klass + "{foo:6;} p{" + prop +
+            ":5;} @media (min-width: " + width + "em){p{bar:7;}}"
+        );
 
 
-        o = {" p":{}};
+        o = {" p": {}};
         o[" p"][prop] = 5;
-        o[" p"]["."+klass] = {foo:6};
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
+        o[" p"]["." + klass] = {foo:6};
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
 
-        o = {" p":{}};
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
+
+        o = {" p": {}};
         o[" p"][prop] = 5;
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
         o[" p"]["."+klass] = {foo:6};
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
 
-        o = {" p":{}};
-        o[" p"]["."+klass] = {foo:6};
-        o[" p"][prop] = 5;
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
 
-        o = {" p":{}};
-        o[" p"]["."+klass] = {foo:6};
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
-        o[" p"][prop] = 5;
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
-
-        o = {" p":{}};
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        o = {" p": {}};
         o[" p"]["."+klass] = {foo:6};
         o[" p"][prop] = 5;
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
 
-        o = {" p":{}};
-        o[" p"]["@media (min-width:" + width + "em)"] = {bar:7};
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
+
+        o = {" p": {}};
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
+        o[" p"][prop] = 5;
+
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
+
+        o = {" p": {}};
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
+        o[" p"]["."+klass] = {foo:6};
+        o[" p"][prop] = 5;
+
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
+
+        o = {" p": {}};
+        o[" p"]["@media (min-width: " + width + "em)"] = {bar:7};
         o[" p"][prop] = 5;
         o[" p"]["."+klass] = {foo:6};
-        if (
-            normalize(j2c.sheet({"@global":o})) !=
-            reference
-        ) total++;
 
-        expect(total).to.be(0);
+        expect(normalize(j2c.sheet({"@global":o}))).to.be(reference);
+
+    });
+
+    test("@namespace then selector", function() {
+        check(j2c.sheet({
+            "@namespace": "'foo'",
+            " p": {foo: "bar"}
+        }), "@namespace 'foo';p{foo:bar;}");
     });
 
       //////////////////////////////////
@@ -901,18 +904,18 @@ function randInt() {
 
     test("namespaced class", function() {
         var css = j2c.sheet(
-            {foo:"FOO"},
-            {".foo":{foo:"bar", baz:"qux"}}
-        )
+            {foo: "FOO"},
+            {".foo": {foo: "bar", baz: "qux"}}
+        );
         check('' + css, ".FOO{foo:bar;baz:qux;}");
         expect(css.foo).to.be("FOO");
     });
 
     test("namespaced class wrapping a global block", function() {
         var css = j2c.sheet(
-            {foo:"FOOO"},
-            {".foo":{"@global":{".foo":{foo:"bar", baz:"qux"}}}}
-        )
+            {foo: "FOOO"},
+            {".foo": {"@global": {".foo": {foo: "bar", baz: "qux"}}}}
+        );
         check('' + css, ".FOOO.foo{foo:bar;baz:qux;}");
         expect(css.foo).to.be("FOOO");
     });
@@ -920,7 +923,7 @@ function randInt() {
     test("namespaced @keyframes", function(){
         var css = j2c.sheet(
             {bit: "BOT"},
-            {"@keyframes bit":{}}
+            {"@keyframes bit": {}}
         );
         expect(css.bit).to.be("BOT");
         expect(css + '').to.contain("@keyframes BOT{");
@@ -929,31 +932,20 @@ function randInt() {
     test("namespaced animation", function(){
         var css = j2c.sheet(
             {bit: "BOT"},
-            {" p":{animation: "bit 1sec"}}
+            {" p": {animation: "bit 1sec"}}
         );
         expect(css.bit).to.be("BOT");
-        check(css + '',"p{animation:BOT 1sec;}");
+        check(css + '', "p{animation:BOT 1sec;}");
     });
 
     test("namespaced animation-name", function() {
         var css = j2c.sheet(
             {bit: "BOT"},
-            {" p":{animation_name: "bit"}}
+            {" p": {animation_name: "bit"}}
         );
         expect(css.bit).to.be("BOT");
-        check(css + '',"p{animation-name:BOT;}");
+        check(css + '', "p{animation-name:BOT;}");
     });
-
-    test("two namespaces", function(){
-        var css = j2c.sheet(
-            {foo:"FOOO"}, {bar:"BARR"},
-            {".foo.bar":{foo:"bar", baz:"qux"}}
-        )
-        check('' + css, ".FOOO.BARR{foo:bar;baz:qux;}");
-        expect(css.foo).to.be("FOOO");
-        expect(css.bar).to.be("BARR");
-
-    })
 
       ///////////////////////////////
      /**/  suite("Plugins: ");  /**/
@@ -961,17 +953,17 @@ function randInt() {
 
     test("one plugin that does nothing", function() {
         check(''+j2c().use(function(){}).sheet(
-            {" p":{foo: "bar"}}
+            {" p": {foo: "bar"}}
         ), "p{foo:bar;}");
     });
 
     test("one plugin that mutates the buffer", function() {
         check(''+j2c().use(
             function(buf){
-                buf[0]="li{"
+                buf[0] = "li{";
             }
         ).sheet(
-            {" p":{foo: "bar"}}
+            {" p": {foo: "bar"}}
         ), "li{foo:bar;}");
     });
 
@@ -981,21 +973,21 @@ function randInt() {
             return ["li{foo:bar;}"];
         }
         ).sheet(
-            {" p":{foo: "bar"}}
+            {" p": {foo: "bar"}}
         ), "li{foo:bar;}");
     });
 
     test("two plugins that mutate the buffer", function() {
         check(''+j2c().use(
             function(buf){
-                buf[0]=buf[0].replace("p","a")
+                buf[0]=buf[0].replace("p", "a");
             },
             function(buf){
-                buf[0]=buf[0].replace("a","i")
+                buf[0]=buf[0].replace("a", "i");
             }
         ).sheet(
-            {" p":{foo: "bar"}}
-        ), "i{foo:bar;}");
+            {" p": {fop: "bar"}}
+        ), "i{fop:bar;}");
     });
 });
 

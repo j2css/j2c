@@ -30,7 +30,7 @@ module.exports = (function () {
       break;
     case OBJECT:
       prefix = (prefix && prefix + "-");
-      for (k in o) {
+      for (k in o) if (own.call(o, k)){
         v = o[k];
         if (k.indexOf("$") + 1) {
           // "$" was found.
@@ -49,7 +49,11 @@ module.exports = (function () {
       // `o` is the value.
       k = (prefix && (prefix).replace(/_/g, "-").replace(/[A-Z]/g, _decamelize) + ":");
 
-      
+      if (localize && (k == "animation-name:" || k == "animation:")) {
+        o = o.split(',').map(function(o){
+          return o.replace(/()(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/, localize);
+        }).join(",");
+      }
 
       o = k + o + ";";
 
@@ -62,10 +66,10 @@ module.exports = (function () {
   }
 
   /*/-inline-/*/
-  function _cartesian(a,b, res, i, j) {
+  function _cartesian(a, b, res, i, j) {
     res = [];
-    for (j in b) if(own.call(b, j))
-      for (i in a) if(own.call(a, i))
+    for (j in b) if (own.call(b, j))
+      for (i in a) if (own.call(a, i))
         res.push(a[i] + b[j]);
     return res;
   }
@@ -94,8 +98,20 @@ module.exports = (function () {
       return res;
     };
 
-    res.inline = function (o, vendors, buf) {
-      _declarations(o, buf = [], "", vendors || emptyArray);
+    res.inline = function (locals, decl, buf) {
+      if (arguments.length === 1) {
+        decl = locals; locals = {};
+      }
+      _declarations(
+        decl,
+        buf = [],
+        "", // prefix
+        emptyArray, // vendors
+        function localize(match, space, global, dot, name) {
+          if (global) return space+global;
+          if (!locals[name]) return name;
+          return space + dot + locals[name];
+        });
       return _finalize(buf, extensions);
     };
 

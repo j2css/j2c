@@ -2,13 +2,17 @@
 
 ## v0.8.0
 
-- classes and animations/@keyframes names are now local by default in `j2c.sheet()`.
+- classes and animations/@keyframes names are now localized by default in `j2c.sheet()`.
 - introduced `@global{}` and `:global()` to reach global names
 - dropped `j2c.scoped()` which is obsoleted by the above.
-- add a `namespace` option to share local names between sheets. Useful for nesting, say, grid elements.
-- add a post-process `plugins` option as groundwork for autoprefix/prefixfree (documentation will follow).
-- better at-rules handling
+- dropped bulk auto-prefixing.
+- better at-rules handling.
 - support for autoDeCamelization of property-names.
+- New signature for `j2c.sheet([namespace1, namespace2, ] source)` where `namespace` is an object
+with plain -> localized names for classes and animations.
+- allow to create custom j2c instances that can be extended with plugins *[needs docs]*.
+- Hardened the test suite.
+- Bug fix: the source order is now respected in the output, with the caveat that, for nested selector, the children appear in source before the parent.
 
 ## v0.7.3
 

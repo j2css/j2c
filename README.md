@@ -2,11 +2,13 @@
 
 [![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A tiny CSS in JS solution. 1.2 KiB mingzipped.
+A tiny CSS in JS solution. 1.3 KiB mingzipped.
 
 Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
 
-This is the "how to" document. For the motivation behind the library, check out [the home page](http://j2c.py.gy).
+Advanced CSS features, like nested conditional at-rules (anywhere in the stylesheet, like SASS), `@namespace`, `@font-face`, `@keyframes` (with automatic `@-webkit-keyframes`) are present out of the box.
+
+The [home page](http://j2c.py.gy) has a few interactive demos.
 
 [![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
 [![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
@@ -422,6 +424,8 @@ You can also pass th result of `j2c.inline` which is less picky about property n
 Arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins).
 
 ## Vendor prefixes:
+
+_Note: The prefix story in `j2c` is currently sub-optimal. I hope at some point to port prefixfree as a plugin. It is already small, and half of it isn't needed for `j2c` (the half that deals with finding and updating style elements in the DOM)._
 
 ### Prefixing property names
 
