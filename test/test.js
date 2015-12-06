@@ -683,13 +683,6 @@ function randInt() {
         );
     });
 
-    test("@font-face two fonts", function(){
-        check(
-            j2c.sheet({" p": {"@font-face":[{foo: "bar"}, {foo: "baz"}]}}),
-            "@font-face{foo:bar}@font-face{foo:baz}"
-        );
-    });
-
     test("@keyframes", function(){
         check(
             j2c.sheet({" p": {"@keyframes :global(qux)": {
