@@ -419,7 +419,10 @@ var pagestyle = j2c.sheet({"@global": {
     },
     ".ghribbon":{
         background_color:"#a00",//logo.subtitle_color,
-        font_weight:600,
+        font: {
+            family: "sans-serif",
+            weight: 400
+        },
         left: "-6.9em",
         line_height: "0.7em",
         position:"absolute",
