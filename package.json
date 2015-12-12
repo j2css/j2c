@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pygy/j2c.git"
+    "url": "https://github.com/j2css/j2c.git"
   },
   "keywords": [
     "CSS",
@@ -24,7 +24,7 @@
   "author": "Pierre-Yves Gérardy",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pygy/j2c/issues"
+    "url": "https://github.com/j2css/j2c/issues"
   },
   "config": {
     "blanket": {

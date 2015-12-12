@@ -1,6 +1,6 @@
 # j2c
 
-[![Join the chat at https://gitter.im/pygy/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pygy/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/j2css/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/j2css/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A tiny CSS in JS solution. 1.3 KiB mingzipped.
 
@@ -10,10 +10,10 @@ Advanced CSS features, like nested conditional at-rules (anywhere in the stylesh
 
 The [home page](http://j2c.py.gy) has a few interactive demos.
 
-[![Build Status](https://travis-ci.org/pygy/j2c.svg?branch=master)](https://travis-ci.org/pygy/j2c)
-[![Coverage Status](https://coveralls.io/repos/pygy/j2c/badge.svg?branch=master)](https://coveralls.io/r/pygy/j2c?branch=master)
-[![Dependency Status](https://david-dm.org/pygy/j2c.svg)](https://david-dm.org/pygy/j2c)
-[![bitHound Score](https://www.bithound.io/github/pygy/j2c/badges/score.svg)](https://www.bithound.io/github/pygy/j2c/)
+[![Build Status](https://travis-ci.org/j2css/j2c.svg?branch=master)](https://travis-ci.org/j2css/j2c)
+[![Coverage Status](https://coveralls.io/repos/j2css/j2c/badge.svg?branch=master)](https://coveralls.io/r/j2css/j2c?branch=master)
+[![Dependency Status](https://david-dm.org/j2css/j2c.svg)](https://david-dm.org/j2css/j2c)
+[![bitHound Score](https://www.bithound.io/github/j2css/j2c/badges/score.svg)](https://www.bithound.io/github/j2css/j2c/)
 
 ## Table of Contents
 
