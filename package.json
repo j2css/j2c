@@ -35,7 +35,7 @@
   "devDependencies": {
     "blanket": "^1.1.7",
     "coveralls": "^2.11.2",
-    "crass": "0.7.7",
+    "crass": "0.7.8",
     "expect.js": "0.3.1",
     "in-publish": "^2.0.0",
     "jshint": "^2.8.0",
