@@ -4,7 +4,7 @@
 
 A tiny CSS in JS solution. 1.3 KiB mingzipped.
 
-Supports local classes by default, mixins, @rules and nested selectors. Composable. Extensible.
+Supports local classes by default, mixins, at-rules and nested selectors. Composable. Extensible.
 
 Advanced CSS features, like nested conditional at-rules (anywhere in the stylesheet, like SASS), `@namespace`, `@font-face`, `@keyframes` (with automatic `@-webkit-keyframes`) are present out of the box.
 
