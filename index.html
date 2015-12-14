@@ -118,17 +118,20 @@ function outline(w, bl, co){ // width, blur, color
     w = w / 1000;
     bl = bl / 1000;
 
+    var FFcorrection = 5/4;
     
-    var top = isFF ? w / 16 * 20 : w, // In FF, the pseudo-outline is slightly thinner on top.
-        dg = (""+w / 1.414213).slice(0,4); // diagonal, divide by sqrt(2)
-
+    var top = isFF ? w *FFcorrection : w, // In FF, the pseudo-outline is slightly thinner on top.
+        dg = (""+w / 1.3).slice(0,4), // diagonal, divide by ~sqrt(2) (it looks better with 1.3)
+        topdg = isFF ? dg * FFcorrection : dg;
     // This one is ugly :-/
     return [
-        ""  + dg + "em "  + dg + "em " + bl + "em " + co,
+        // IE only supports up to 4 text shadows. We put the
+        // diagonal ones first because it looks nicer.
+        ""  + topdg + "em "  + dg + "em " + bl + "em " + co,
         "-" + dg + "em "  + dg + "em " + bl + "em " + co,
-        ""  + dg + "em -" + dg + "em " + bl + "em " + co,
-        "-" + dg + "em -" + dg + "em " + bl + "em " + co,
-        "" + w + "em 0 "    + bl + "em " + co,
+        ""  + topdg + "em -" + topdg + "em " + bl + "em " + co,
+        "-" + dg + "em -" + topdg + "em " + bl + "em " + co,
+        "" + top + "em 0 "    + bl + "em " + co,
         "0 "  + w   + "em " + bl + "em " + co,
         "-" + w + "em 0 " + bl + "em " + co,
         "0 -" + top + "em " + bl + "em " + co,
@@ -147,9 +150,11 @@ var logo = {
     bg: j2c.prefix("linear-gradient(225deg, #ff8, #fb6)", ["webkit"]),
     bg2: j2c.prefix("linear-gradient(225deg, #ff8 50%, #fb6 100%)", ["webkit"]),
     JCOutline: outline(13, 6, "#9cf"),
-    _2Outline: outline(13/0.643, 6/0.643, "#9cf"),
+    _2Outline: outline(13/0.643, 6/0.643, "#adf"),
     h2Outline: outline(40, 20, "#7ad"),
-    h6Outline: outline(45, 15, "#357")
+    h6Outline: outline(45, 15, "#357"),
+    JCOutlineHover: outline(40, 20, "#bdf"),
+    _2OutlineHover: outline(40/0.643, 20/0.643, "#cef")
 }
 
 var pagestyle = j2c.sheet({"@global": {
@@ -195,6 +200,7 @@ var pagestyle = j2c.sheet({"@global": {
             overflow: "hidden",
             padding:0,
             z_index:"-2",
+
 
             "@media (min-width:48.001em)": {
                 border_bottom: "1px dotted "+ "#dd5",
@@ -276,6 +282,15 @@ var pagestyle = j2c.sheet({"@global": {
                     z_index:3,
                     _o$_ms$_moz$_webkit$: {
                         user_select: "none"
+                    },
+
+                    " .Jay, .Cee, .two": {
+                        transition: "all 0.15s"
+                    },
+
+                    ":hover": {
+                        " .Jay, .Cee": {text_shadow: logo.JCOutlineHover},
+                        " .two": {text_shadow: logo._2OutlineHover}
                     },
 
 
