@@ -295,9 +295,9 @@ s = j2c.sheet({
         "ul.foo": {
             font_size: "2em",
         }
-    }
+    },
     "p:global(.bar)" :{
-        color:"#f00"
+        color:"#f00",
         animation_name: ":global(baz)"
     },
     "@keyframes :global(baz)": {
