@@ -7,6 +7,7 @@
     "all": "npm run build && npm run lint && npm run nyan",
     "prepublish": "(in-publish && npm run -s all && git push --follow-tags) || not-in-publish",
     "build": "npm run -s clean && node scripts/build.js",
+    "uglify": "uglifyjs dist/j2c.commonjs.js -c -m --comments > dist/j2c.commonjs.min.js && uglifyjs dist/j2c.amd.js -c -m --comments > dist/j2c.amd.min.js && uglifyjs dist/j2c.global.js -c -m --comments > dist/j2c.global.min.js",
     "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
     "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js && jshint dist/inline/j2c.commonjs.js && jshint test/test.js",
     "nyan": "mocha --ui qunit --reporter nyan",

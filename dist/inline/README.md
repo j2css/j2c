@@ -1,1 +1,3 @@
+No inline builds currently.
+
 This directory contains `j2c` builds that only provide the `inline()` function. Mingzipped, half the size of the full library.

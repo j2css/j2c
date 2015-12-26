@@ -1,5 +1,15 @@
 # Change log
 
+## v0.8.2
+
+- cleanup
+- improve test suite
+- update docs to reflect move to the `j2css` Github organization.
+
+## v0.8.0
+
+- docs cleanup (version bump for npmjs.com dislpay).
+
 ## v0.8.0
 
 - classes and animations/@keyframes names are now localized by default in `j2c.sheet()`.
