@@ -438,24 +438,24 @@ var pagestyle = j2c.sheet({"@global": {
                   border_color: "#fff",
                   content: "'css' !important"
                 }
+            },
+            "@media  (min-width:48.001em)":{
+                " .codeNode, .styleNode": {
+                    width:"50%"
+                },
+                " .styleNode": {
+                    border: {
+                      right_width:"6px",
+                      top$bottom: {right_radius: 0}
+                    }
+                },
+                " .codeNode": {
+                    border: {
+                      left_width:"6px",
+                      top$bottom: {left_radius: 0}
+                    }
+                }
             }
-            // "@media  (min-width:48.001em)":{
-            //     " .codeNode, .styleNode": {
-            //         width:"50%"
-            //     },
-            //     " .codeNode": {
-            //         border: {
-            //           right_width:"6px",
-            //           top$bottom: {right_radius: 0}
-            //         }
-            //     },
-            //     " .styleNode": {
-            //         border: {
-            //           left_width:"6px",
-            //           top$bottom: {left_radius: 0}
-            //         }
-            //     }
-            // }
         }
     ],
     " footer":{
@@ -577,82 +577,64 @@ head.appendChild(style);
 }
 </textarea>
 </div>
-<script src="combined.min.js"></script>
-<script src="importer.min.js"></script>
 <link rel="stylesheet" itemprop="stylesheet" href="codemirror.css"></link>
 <script>
-var unescape = (function() {
-  /*
-  unescape is borrowed from Underscore.js
 
-  Copyright (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative
-  Reporters & Editors
+if(typeof Promise === 'undefined') {
+    /**@license MIT-promiscuous-©Ruben Verborgh*/
+    !function(n,t){function c(n,t){return(typeof t)[0]==n}function u(o,e){return e=function f(i,h,l,a,p,s){function y(n){return function(t){p&&(p=0,f(c,n,t))}}if(a=f.q,i!=c)return u(function(n,t){a.push({p:this,r:n,j:t,1:i,0:h})});if(l&&c(n,l)|c(t,l))try{p=l.then}catch(j){h=0,l=j}if(c(n,p))try{p.call(l,y(1),h=y(0))}catch(j){h(j)}else for(e=function(t,e){return c(n,t=h?t:e)?u(function(n,c){r(this,n,c,l,t)}):o},s=0;s<a.length;)p=a[s++],c(n,i=p[h])?r(p.p,p.r,p.j,l,i):(h?p.r:p.j)(l)},e.q=[],o.call(o={then:function(n,t){return e(n,t)},"catch":function(n){return e(0,n)}},function(n){e(c,1,n)},function(n){e(c,0,n)}),o}function r(u,r,o,e,f){setTimeout(function(){try{e=f(e),f=e&&c(t,e)|c(n,e)&&e.then,c(n,f)?e==u?o(TypeError()):f.call(e,r,o):r(e)}catch(i){o(i)}})}function o(n){return u(function(t){t(n)})}Promise=u,u.resolve=o,u.reject=function(n){return u(function(t,c){c(n)})},u.all=function(n){return u(function(t,c,u,r){r=[],u=n.length||t(r),n.map(function(n,e){o(n).then(function(n){r[e]=n,--u||t(r)},c)})})}}("f","o");
+}
 
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation
-  files (the "Software"), to deal in the Software without
-  restriction, including without limitation the rights to use,
-  copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the
-  Software is furnished to do so, subject to the following
-  conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-  OTHER DEALINGS IN THE SOFTWARE.
-  */
-  var map = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#x27;': "'",
-    '&#x60;': '`'
-  };
-  var list = ['&amp;','&lt;','&gt;','&quot;','&#x27;','&#x60;']
-  var escaper = function(match) {
-    return map[match];
-  };
-
-  var source = '(?:' + list.join('|') + ')';
-  var testRegexp = RegExp(source);
-  var replaceRegexp = RegExp(source, 'g');
-  return function(string) {
-    string = string == null ? '' : '' + string;
-    return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
-  };
-})();
-
-function sanitize(source) {
-  return source.replace(/(\W)(while|for|eval)(\W)/g, "$1_$2_$3")
+function load (lib) {
+    var elt = document.createElement('script')
+    elt.src = lib
+    document.head.appendChild(elt)
+    return new Promise(function(fulfill) {
+        elt.onload = elt.onreadystatechange = function() {
+            if (
+                !this.readyState ||
+                this.readyState === "loaded" ||
+                this.readyState === "complete"
+            ) fulfill(true)
+        };
+    })
 }
 
 
-        var cssText = ".foo {\n  background-color: red;\n}\n"
-        var jsText = ""
-        var cm_style = CodeMirror.fromTextArea(csssource, {
-            value: cssText,
-            mode:  "css"
-        })
-        var cm_code = CodeMirror.fromTextArea(jsoutput, {
-            value:j2cImporter.toJS(cssText),
-            mode: "javascript",
-            readOnly:true
-        })
-        cm_style.on("change", function(style){
-            cm_code.setValue(j2cImporter.toJS(style.getValue()))
-        })
-        cm_style.refresh();
-        cm_code.setValue(j2cImporter.toJS(cm_style.getValue()))
-        cm_code.refresh();
+
+Promise.all([load("combined.min.js"), load("importer.min.js")]).then(function(){
+    var wrapperNode = document.createElement("div");
+    var codeNode = document.createElement("div");
+    var styleNode = document.createElement("div");
+
+    wrapperNode.appendChild(styleNode);
+    wrapperNode.appendChild(codeNode);
+
+    wrapperNode.className = "wrapperNode";
+    codeNode.className = "codeNode";
+    styleNode.className = "styleNode";
+
+    while (playground.childNodes.length) playground.removeChild(playground.firstChild)
+    playground.appendChild(wrapperNode)
+
+    var cssText = ".foo {\n  background-color: red;\n}\n"
+    var jsText = ""
+    var cm_style = CodeMirror(styleNode, {
+        value: cssText,
+        mode:  "css"
+    })
+    var cm_code = CodeMirror(codeNode, {
+        value:j2cImporter.toJS(cssText),
+        mode: "javascript",
+        readOnly:true
+    })
+    cm_style.on("change", function(style){
+        cm_code.setValue(j2cImporter.toJS(style.getValue()))
+    })
+    cm_style.refresh()
+    cm_code.setValue(j2cImporter.toJS(cm_style.getValue()))
+    cm_code.refresh()
+})
 </script>
 
 </div>
