@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/j2css/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/j2css/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A tiny CSS in JS solution. 1.3 KiB mingzipped.
+A tiny CSS in JS solution. 1.5 KiB mingzipped.
 
 Supports local classes by default, mixins, at-rules and nested selectors. Composable. Extensible.
 
