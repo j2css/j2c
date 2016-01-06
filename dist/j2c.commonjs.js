@@ -238,9 +238,11 @@ function j2c(res) {
         var list = []
         if(extend === ':extend(') {
           if (name in ns) throw new Error("Foreign names can't be extended: " + name)
-          for (k = 6; k < arguments.length - 2; k+=3) {
-            if (arguments[k] || arguments[k+2]){
-              list.push(arguments[k] || localize(0, '', 0, '', arguments[k+2]))
+          if ((locals[name] || '').indexOf(' ') + 1) throw new Error('class .'+name+' can only be extended once')
+          extend = arguments
+          for (k = 6; k < extend.length - 2; k+=3) {
+            if (extend[k] || extend[k+2]){
+              list.push(extend[k] || localize(0, '', 0, '', extend[k+2]))
             }
           }
           list.push(name + suffix)
