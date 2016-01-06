@@ -10,6 +10,7 @@
     "uglify": "uglifyjs dist/j2c.commonjs.js -c -m --comments > dist/j2c.commonjs.min.js && uglifyjs dist/j2c.amd.js -c -m --comments > dist/j2c.amd.min.js && uglifyjs dist/j2c.global.js -c -m --comments > dist/j2c.global.min.js",
     "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
     "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js && jshint dist/inline/j2c.commonjs.js && jshint test/test.js",
+    "eslint": " echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
     "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
     "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"
@@ -35,13 +36,16 @@
   "homepage": "http://j2c.py.gy",
   "devDependencies": {
     "blanket": "^1.1.7",
+    "compose-regexp": "^0.1.8",
     "coveralls": "^2.11.2",
     "crass": "0.7.8",
+    "eslint": "^1.10.3",
     "expect.js": "0.3.1",
     "in-publish": "^2.0.0",
     "jshint": "^2.8.0",
     "mocha": "^2.3.4",
     "mocha-lcov-reporter": "^1.0.0",
+    "rollup": "^0.24.0",
     "surgicate": "0.0.3",
     "uglify-js": "^2.6.0"
   }
