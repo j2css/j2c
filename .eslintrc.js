@@ -14,7 +14,7 @@ module.exports = {
         ],
         semi: [
             2,
-            "always"
+            "never"
         ],
         "no-trailing-spaces": [2]
     },
@@ -32,4 +32,4 @@ module.exports = {
         browser: true
     },
     extends: "eslint:recommended"
-};
+}

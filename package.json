@@ -4,13 +4,12 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "all": "npm run build && npm run lint && npm run nyan",
+    "all": "npm run build && npm run eslint && npm run nyan",
     "prepublish": "(in-publish && npm run -s all && git push --follow-tags) || not-in-publish",
     "build": "npm run -s clean && node scripts/build.js",
     "uglify": "uglifyjs dist/j2c.commonjs.js -c -m --comments > dist/j2c.commonjs.min.js && uglifyjs dist/j2c.amd.js -c -m --comments > dist/j2c.amd.min.js && uglifyjs dist/j2c.global.js -c -m --comments > dist/j2c.global.min.js",
     "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
-    "lint": " echo \"linting...\" && jshint dist/j2c.commonjs.js && jshint dist/inline/j2c.commonjs.js && jshint test/test.js",
-    "eslint": " echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
+    "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
     "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
     "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"

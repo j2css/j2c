@@ -1,4 +1,8 @@
-global.__proto__ = require("compose-regexp")
+/*eslint-env node*/
+/*eslint no-console: 0*/
+/*eslint no-undef: 0*/
+
+global.__proto__ = require('compose-regexp')
 
 var maybe = greedy.bind(null, '?')
 
@@ -139,7 +143,7 @@ var selector = flags('g', sequence(
                         ':global(',
                         /\s*/,
                         capture(
-                            '.', 
+                            '.',
                             /[-\w]+/
                         ),
                         /\s*/,
