@@ -6,24 +6,6 @@ global.__proto__ = require('compose-regexp')
 
 var maybe = greedy.bind(null, '?')
 maybe()
-// animation animation-name
-// /
-//     ()
-//     (?:
-//         (?:
-//             :global\((
-//                 [-\w]+
-//             )\)
-//         )
-//     |
-//         (?:
-//             ()
-//             (
-//                 [-\w]+
-//             )
-//         )
-//     )
-// /
 
 var animation = sequence(
     capture(),
@@ -42,25 +24,6 @@ var animation = sequence(
     )
 )
 console.log('anumation / animation-name\n', animation)
-
-// keyframes
-// /
-//     ( )
-//     (?:
-//         (?:
-//             :global\((
-//                 [-\w]+
-//             )\)
-//         )
-//         |
-//         (?:
-//             ()
-//             (
-//                 [-\w]+
-//             )
-//         )
-//     )
-// /
 
 var keyframes = sequence(
     capture(' '),
@@ -81,22 +44,6 @@ var keyframes = sequence(
 
 console.log('@keyframes\n', keyframes)
 
-// @global and selector
-// /
-//     ()
-//     (?:
-//         (?:
-//             :global\((
-//                 \.[-\w]+
-//             )\)
-//         )
-//         |
-//         (?:
-//             (\.)
-//             ([-\w]+)
-//         )
-//     )
-// /g
 
 var _global = either(
     sequence(
