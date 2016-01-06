@@ -5,7 +5,7 @@
 global.__proto__ = require('compose-regexp')
 
 var maybe = greedy.bind(null, '?')
-
+maybe()
 // animation animation-name
 // /
 //     ()
@@ -98,61 +98,53 @@ console.log('@keyframes\n', keyframes)
 //     )
 // /g
 
+var _global = either(
+    sequence(
+        ':global(',
+        /\s*/,
+        '.',
+        capture(
+            /[-\w]+/
+        ),
+        /\s*/,
+        ')'
+    ),
+    sequence(
+        capture('.'),
+        capture(/[-\w]+/)
+    )
+)
+
 var selector = flags('g', sequence(
-    capture(' '),
+    capture(''),
     either(
         sequence(
             ':global(',
             /\s*/,
-            capture('.', /[-\w]+/),
+            capture(
+                '.',
+                /[-\w]+/
+            ),
             /\s*/,
             ')'
         ),
         sequence(
             capture('.'),
-            capture(/[-\w]+/)
-        )
-    ),
-    maybe(
-        sequence(
-            /\s*/,
-            capture(':extend('),
-            /\s*/,
-            either(
+            capture(/[-\w]+/),
+            maybe(
                 sequence(
-                    ':global(',
                     /\s*/,
-                    capture(
-                        '.',
-                        /[-\w]+/
+                    capture(':extend('),
+                    /\s*/,
+                    _global,
+                    greedy('*',
+                        /\s*/,
+                        ',',
+                        /\s*/,
+                        _global
                     ),
                     /\s*/,
                     ')'
-                ),
-                sequence(
-                    capture('.'),
-                    capture(/[-\w]+/)
-                )
-            ),
-            greedy('*',
-                /\s*/,
-                ',',
-                /\s*/,
-                either(
-                    sequence(
-                        ':global(',
-                        /\s*/,
-                        capture(
-                            '.',
-                            /[-\w]+/
-                        ),
-                        /\s*/,
-                        ')'
-                    ),
-                    sequence(
-                        ('.'),
-                        capture(/[-\w]+/)
-                    )
                 )
             )
         )

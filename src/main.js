@@ -40,10 +40,22 @@ export default function j2c(res) {
     }
     sheet(
       statements, buf, '', emptyArray /*vendors*/,
-      function localize(match, space, global, dot, name) {
+      function localize(match, space, global, dot, name, extend) {
+        var list = []
+        if(extend === ':extend(') {
+          if (name in ns) throw new Error("Foreign names can't be extended: " + name)
+          for (k = 6; k < arguments.length - 2; k+=3) {
+            if (arguments[k] || arguments[k+2]){
+              list.push(arguments[k] || localize(0, '', 0, '', arguments[k+2]))
+            }
+          }
+          list.push(name + suffix)
+        } else {
+          list = [name + suffix]
+        }
         if (global) return space+global
-        if (!locals[name]) locals[name] = name + suffix
-        return space + dot + locals[name]
+        if (!locals[name]) locals[name] = list.join(' ')
+        return space + dot + locals[name].match(/\S+$/)
       }
     )
     /*jshint -W053 */

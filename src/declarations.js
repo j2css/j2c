@@ -35,7 +35,7 @@ export function declarations(o, buf, prefix, vendors, localize,/*var*/ k, v, kk)
 
     if (localize && (k == 'animation-name:' || k == 'animation:')) {
       o = o.split(',').map(function(o){
-        return o.replace(/()(?:(?::global\(([-\w]+)\))|(?:()([-\w]+)))/, localize)
+        return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, localize)
       }).join(',')
     }
 
