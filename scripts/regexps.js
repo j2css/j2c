@@ -45,22 +45,22 @@ var keyframes = sequence(
 console.log('@keyframes\n', keyframes)
 
 
-var _global = either(
-    sequence(
-        ':global(',
-        /\s*/,
-        '.',
-        capture(
-            /[-\w]+/
-        ),
-        /\s*/,
-        ')'
-    ),
-    sequence(
-        capture('.'),
-        capture(/[-\w]+/)
-    )
-)
+// var _global = either(
+//     sequence(
+//         ':global(',
+//         /\s*/,
+//         '.',
+//         capture(
+//             /[-\w]+/
+//         ),
+//         /\s*/,
+//         ')'
+//     ),
+//     sequence(
+//         capture('.'),
+//         capture(/[-\w]+/)
+//     )
+// )
 
 var selector = flags('g', sequence(
     capture(''),
@@ -77,23 +77,7 @@ var selector = flags('g', sequence(
         ),
         sequence(
             capture('.'),
-            capture(/[-\w]+/),
-            maybe(
-                sequence(
-                    /\s*/,
-                    capture(':extend('),
-                    /\s*/,
-                    _global,
-                    greedy('*',
-                        /\s*/,
-                        ',',
-                        /\s*/,
-                        _global
-                    ),
-                    /\s*/,
-                    ')'
-                )
-            )
+            capture(/[-\w]+/)
         )
     )
 ))

@@ -40,23 +40,23 @@ export default function j2c(res) {
     }
     sheet(
       statements, buf, '', emptyArray /*vendors*/,
-      function localize(match, space, global, dot, name, extend) {
-        var list = []
-        if(extend === ':extend(') {
-          if (name in ns) throw new Error("Foreign names can't be extended: " + name)
-          if ((locals[name] || '').indexOf(' ') + 1) throw new Error('class .'+name+' can only be extended once')
-          extend = arguments
-          for (k = 6; k < extend.length - 2; k+=3) {
-            if (extend[k] || extend[k+2]){
-              list.push(extend[k] || localize(0, '', 0, '', extend[k+2]))
-            }
-          }
-          list.push(name + suffix)
-        } else {
-          list = [name + suffix]
+      function localize(match, space, global, dot, name) {
+        if(space === 'extend') {
+          // {extend: ...} handling.
+          // for code size, we reuse the names of the
+          // standard regexp replacer. The names should read
+          // localize(parent, extend, /*var*/ nameList, _, name)
+          if (name in ns) throw new Error("can't extend inherited class '." + name + "'")
+          global = locals[name]
+          locals[name] =
+            global.slice(0, global.lastIndexOf(' ') + 1) +
+            match + ' ' +
+            global.slice(global.lastIndexOf(' ') + 1)
+          return
+        } else if (global) {
+          return space+global
         }
-        if (global) return space+global
-        if (!locals[name]) locals[name] = list.join(' ')
+        if (!locals[name]) locals[name] = name + suffix
         return space + dot + locals[name].match(/\S+$/)
       }
     )

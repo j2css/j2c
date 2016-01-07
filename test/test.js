@@ -45,9 +45,9 @@ function randInt() {
 
 
 
-      //////////////////////////////
-     /**suite('Inline: ');  /**/
-    //////////////////////////////
+  //////////////////////////////
+  /**/  suite('Inline: ')  /**/
+  //////////////////////////////
 
 
   test('a single property', function() {
@@ -182,9 +182,9 @@ function randInt() {
 
 
 
-      /////////////////////////////////////
-     /**suite('Inline, nulls: ');  /**/
-    /////////////////////////////////////
+  /////////////////////////////////////
+  /**/  suite('Inline, nulls: ')  /**/
+  /////////////////////////////////////
 
   test('null value', function() {
     checkinline(
@@ -234,9 +234,9 @@ function randInt() {
         )
   })
 
-      /////////////////////////////////////////
-     /**suite('Inline namespaces: ');  /**/
-    /////////////////////////////////////////
+  /////////////////////////////////////////
+  /**/  suite('Inline namespaces: ')  /**/
+  /////////////////////////////////////////
 
   test('namespaced animation', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
@@ -260,9 +260,9 @@ function randInt() {
 
 
 
-      //////////////////////////////////////
-     /**suite('Inline plugins: ');  /**/
-    //////////////////////////////////////
+  //////////////////////////////////////
+  /**/  suite('Inline plugins: ')  /**/
+  //////////////////////////////////////
 
   test('one plugin that does nothing', function() {
     expect(''+j2c().use(function(){}).inline(
@@ -305,9 +305,9 @@ function randInt() {
 
 
 
-      //////////////////////////////////
-     /**suite('j2c.prefix: ');  /**/
-    //////////////////////////////////
+  //////////////////////////////////
+  /**/  suite('j2c.prefix: ')  /**/
+  //////////////////////////////////
 
 
   test('1 x 1', function() {
@@ -333,9 +333,9 @@ function randInt() {
 
 
 
-      /////////////////////////////////
-     /**suite('j2c.sheet: ');  /**/
-    /////////////////////////////////
+  /////////////////////////////////
+  /**/  suite('j2c.sheet: ')  /**/
+  /////////////////////////////////
 
 
   test('direct sheet call', function(){
@@ -347,9 +347,9 @@ function randInt() {
 
 
 
-      ///////////////////////////////////
-     /**suite('Definitions: ');  /**/
-    ///////////////////////////////////
+  ///////////////////////////////////
+  /**/  suite('Definitions: ')  /**/
+  ///////////////////////////////////
 
 
   test('basic', function() {
@@ -432,9 +432,9 @@ function randInt() {
 
 
 
-      //////////////////////////////////////////////////
-     /**suite('Selector Cartesian product: ');  /**/
-    //////////////////////////////////////////////////
+  //////////////////////////////////////////////////
+  /**/  suite('Selector Cartesian product: ')  /**/
+  //////////////////////////////////////////////////
 
 
   test('1 x 2', function() {
@@ -496,9 +496,9 @@ function randInt() {
 
 
 
-      /////////////////////////////////
-     /**suite('Ampersand: ');  /**/
-    //////////////////////////////////
+  /////////////////////////////////
+  /**/  suite('Ampersand: ')  /**/
+  //////////////////////////////////
 
 
   test('composed selector: add a class to the root', function() {
@@ -536,9 +536,9 @@ function randInt() {
         )
   })
 
-      //////////////////////////////////////////
-     /**suite('Strings and Arrays: ');  /**/
-    //////////////////////////////////////////
+  //////////////////////////////////////////
+  /**/  suite('Strings and Arrays: ')  /**/
+  //////////////////////////////////////////
 
 
   test('String literal', function() {
@@ -623,9 +623,9 @@ function randInt() {
 
 
 
-      ////////////////////////////////
-     /**suite('At-rules: ');  /**/
-    ////////////////////////////////
+  ////////////////////////////////
+  /**/  suite('At-rules: ')  /**/
+  ////////////////////////////////
 
 
   test('standard at-rule with text value', function() {
@@ -699,9 +699,9 @@ function randInt() {
         )
   })
 
-      //////////////////////////////////////////////////
-     /**suite('At-rules with array values: ');  /**/
-    //////////////////////////////////////////////////
+  //////////////////////////////////////////////////
+  /**/  suite('At-rules with array values: ')  /**/
+  //////////////////////////////////////////////////
 
 
   test('@font-face with a 1-element array', function(){
@@ -732,8 +732,8 @@ function randInt() {
         )
   })
 
-      //////////////////////////////////////
-     /**suite('Locals, Globals ');  /**/
+    //////////////////////////////////////
+    /*suite('Locals, Globals ')  /**/
     //////////////////////////////////////
 
 
@@ -838,8 +838,8 @@ function randInt() {
   })
 
 
-      ////////////////////////////////////
-     /**suite('Foolproofing: ');  /**/
+    ////////////////////////////////////
+    /*suite('Foolproofing: ')  /**/
     ////////////////////////////////////
 
 
@@ -867,8 +867,8 @@ function randInt() {
   })
 
 
-      /////////////////////////////
-     /**suite('Order: ');  /**/
+    /////////////////////////////
+    /*suite('Order: ')  /**/
     /////////////////////////////
 
   test('two properties', function() {
@@ -949,8 +949,8 @@ function randInt() {
     }), "@namespace 'foo';p{foo:bar;}")
   })
 
-      //////////////////////////////////
-     /**suite('Namespaces: ');  /**/
+    //////////////////////////////////
+    /*suite('Namespaces: ')  /**/
     //////////////////////////////////
 
   test('namespaced class', function() {
@@ -998,9 +998,41 @@ function randInt() {
     check(css + '', 'p{animation-name:BOT;}')
   })
 
-      ///////////////////////////////
-     /**suite('Plugins: ');  /**/
-    ///////////////////////////////
+  //////////////////////////////
+  /**/  suite('extend: ')  /**/
+  //////////////////////////////
+
+  test('local extend', function() {
+    var css = j2c.sheet({'.bit': {extend:'.bat'}})
+    expect(css.bit).to.contain('bit_j2c_')
+    expect(css.bat).to.contain('bat_j2c_')
+    expect(css.bat).not.to.contain('bit_j2c_')
+    expect(css.bit).to.contain(css.bat + ' ')
+  })
+
+  test('global extend', function() {
+    var css = j2c.sheet({'.bit': {extend:':global(.bat)'}})
+    expect(css.bit).to.contain('bit_j2c_')
+    expect(css.bit).to.contain('bat ')
+  })
+
+  test('two local extend', function() {
+    var css = j2c.sheet({'.bit': {extend:['.bat', '.bot']}})
+    expect(css.bit).to.contain('bit_j2c_')
+    expect(css.bat).to.contain('bat_j2c_')
+    expect(css.bot).to.contain('bot_j2c_')
+    expect(css.bat).not.to.contain('bit_j2c_')
+    expect(css.bot).not.to.contain('bit_j2c_')
+    expect(css.bit).to.contain(css.bat + ' ' + css.bot + ' ')
+  })
+
+  //TODO Add test to check for exceptions when trying to
+  // extend an inherited class or something other than a
+  // simple local class
+
+  ///////////////////////////////
+  /**/  suite('Plugins: ')  /**/
+  ///////////////////////////////
 
   test('one plugin that does nothing', function() {
     check(''+j2c().use(function(){}).sheet(
