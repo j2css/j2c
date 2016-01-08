@@ -2,9 +2,9 @@
 
 [![Join the chat at https://gitter.im/j2css/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/j2css/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A tiny CSS in JS solution. 1.5 KiB mingzipped.
+A tiny CSS in JS solution. 1.45 KiB mingzipped.
 
-Supports local classes by default, mixins, at-rules and nested selectors. Composable. Extensible.
+Supports local classes by default, mixins and extensions, at-rules and nested selectors. Composable. Extensible.
 
 Advanced CSS features, like nested conditional at-rules (anywhere in the stylesheet, like SASS), `@namespace`, `@font-face`, `@keyframes` (with automatic `@-webkit-keyframes`) are present out of the box.
 
@@ -28,8 +28,8 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
     - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
     - [Combining multiple selectors](#combining-multiple-selectors)
     - [At-rules](#at-rules)
+    - [Mixins and @extend](#mixins-and-extend)
     - [CSS Hacks](#css-hacks)
-    - [Mixins redux](#mixins-redux)
 - [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
 - [Limitations](#limitations)
 - [TODO](#todo)
@@ -383,6 +383,58 @@ j2c.sheet([
 ])
 ```
 
+#### Mixins and `@extend`
+
+Mixins and `@extend` make `j2c` sheets composable. Both techniques can be combined.
+
+##### Mixins
+
+For mixins, arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins) to create mixins, that can return either at-rules, selectors, properties or a mix thereof.
+
+##### `@extend`
+
+`j2c` also supports a SASS-like `@extend`, more powerful in some regards, but more limited in others.
+
+The limitation is that it can only deal with classes. Specifically:
+
+```JS
+namespace = j2c.sheet({
+  '.red': {color: '#f00'}
+})
+
+sheet = j2c.sheet(namespace, {
+  '.great': {
+    fontSize: '3em'
+  },
+  '.greatRed': {
+    '@extend': ['.great', '.red'] // you can also pass a single class
+  }
+})
+```
+
+`sheet.greatRed` is now defined as `'great_j2c...  red_j2c...  greatRed_j2c...'` (class names truncated for readability).
+
+The extra power comes from the fact that you can inherit from arbitrary classes, not just j2c-defined ones:
+
+```JS
+sheet = j2c.sheet(namespace, {
+  '.myButton': {
+    '@extend': ':global(.button)', // coming, say, form Bootstrap
+    color: theme.highlight
+  }
+})
+```
+
+Here, `sheet.myButton` is `'button  myButton_j2c...'`.
+
+While `@extend` can import from arbitrary classes, it only imports into local ones.
+
+`@extend` works fine with nested selectors. If there are more than one class in a selector, `@extend` applies to the last (right-most) one.
+
+###### Invalid uses
+
+If the last or only selector is a `:global(.klass)`, in `@global` context, or in the absence of a class in the selector, `@extend` is turned into a `at-extend` property and inserted as-is in the sheet.
+
 #### CSS Hacks
 
 Since `j2c.sheet` only accepts property names that match `/^[-_0-9A-Za-z$]+$/`, it is not possible to express CSS hacks using objects. You can, however, work around the issue by using arrays and strings instead.
@@ -418,10 +470,6 @@ Result:
 ```
 
 You can also pass th result of `j2c.inline` which is less picky about property names.
-
-#### Mixins redux
-
-Arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins).
 
 ## Vendor prefixes:
 
