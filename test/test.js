@@ -36,262 +36,262 @@ function randInt() {
   var j2c = require(lib)
 
   function checkinline(result, expected){
-      result = 'p{' + j2c.inline(result) + '}'
-      expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-        return 'p{' + s + '}'
-      })
-      check(result, expected)
-    }
+    result = 'p{' + j2c.inline(result) + '}'
+    expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+      return 'p{' + s + '}'
+    })
+    check(result, expected)
+  }
 
 
 
-  //////////////////////////////
-  /**/      suite('Inline: ')  /**/
-  //////////////////////////////
+  /////////////////////////////
+  /**/  suite('Inline: ')  /**/
+  /////////////////////////////
 
 
   test('a single property', function() {
-      checkinline(
+    checkinline(
       {foo: 'bar'},
       'foo:bar;'
     )
-    })
+  })
 
   test('two properties', function() {
-      checkinline(
+    checkinline(
       {foo: 'bar', baz: 'qux'},
       'foo:bar;baz:qux;'
     )
-    })
+  })
 
   test('two properties, ensure order', function() {
-      expect(j2c.inline({foo: 'bar', baz: 'qux'})).to.be('foo:bar;\nbaz:qux;')
-    })
+    expect(j2c.inline({foo: 'bar', baz: 'qux'})).to.be('foo:bar;\nbaz:qux;')
+  })
 
 
   test('array of values', function() {
-      checkinline(
+    checkinline(
       {foo:['bar', 'baz']},
       'foo:bar;foo:baz;'
     )
-    })
+  })
 
   test('sub-properties', function(){
-      checkinline(
+    checkinline(
       {foo: {bar: 'baz'}},
       'foo-bar:baz;'
-      )
-    })
+    )
+  })
 
   test('multiple sub-properties', function(){
-      checkinline(
+    checkinline(
       {foo: {bar$qux: 'baz'}},
       'foo-bar:baz;foo-qux:baz;'
-      )
-    })
+    )
+  })
 
   test('multiple sub-properties, ensure order', function() {
-      expect(j2c.inline({foo$baz: 'qux'})).to.be('foo:qux;\nbaz:qux;')
-    })
+    expect(j2c.inline({foo$baz: 'qux'})).to.be('foo:qux;\nbaz:qux;')
+  })
 
 
 
   test('multiple sub-properties with a sub-sub-property', function(){
-      checkinline(
+    checkinline(
       {foo: {bar$baz: {qux: 'quux'}}},
       'foo-bar-qux:quux;foo-baz-qux:quux;'
     )
-    })
+  })
 
   test('multiple sub-properties with two sub-sub-properties', function(){
-      checkinline(
+    checkinline(
       {foo: {bar$baz: {qux$quux: 'fred'}}},
       'foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;'
     )
-    })
+  })
 
   test('convert underscores', function() {
-      checkinline(
+    checkinline(
       {'f_o_o': 'bar'},
       'f-o-o:bar;'
     )
-    })
+  })
 
   test('convert CamelCase', function() {
-      checkinline(
+    checkinline(
       {'FoO': 'bar'},
       '-fo-o:bar;'
     )
-    })
+  })
 
   test('String value', function() {
-      checkinline(
+    checkinline(
       'foo:bar',
       'foo:bar;'
     )
-    })
+  })
 
   test('Array of Strings values', function() {
-      checkinline(
+    checkinline(
       ['foo:bar', 'foo:baz'],
       'foo:bar;foo:baz'
     )
-    })
+  })
 
   test('Array of mixed values at the root', function() {
-      checkinline(
+    checkinline(
       ['foo:bar', {foo: 'baz'}],
       'foo:bar;foo:baz'
     )
-    })
+  })
 
   test('Array of mixed value and sub-property', function() {
-      checkinline(
+    checkinline(
       {foo:['bar', {baz: 'qux'}]},
       'foo:bar;foo-baz:qux'
     )
-    })
+  })
 
   test('Prefixes by hand', function() {
-      checkinline(
+    checkinline(
       {_o$_p$: {foo: 'bar'}},
       '-o-foo:bar;-p-foo:bar;foo:bar;'
     )
-    })
+  })
 
   test('CSS *Hack', function() {
     // tested manually because the crass normalization
     // outputs an empty string.
-      expect(j2c.inline({'*foo': 'bar'})).to.be('*foo:bar;')
-    })
+    expect(j2c.inline({'*foo': 'bar'})).to.be('*foo:bar;')
+  })
 
   test('CSS _Hack', function() {
-      checkinline(
+    checkinline(
       ['_foo:bar', {_baz: 'qux'}],
       '_foo:bar;-baz:qux;'
     )
-    })
+  })
 
   test('custom obj.valueOf', function() {
-      var bar = {valueOf:function(){return 'bar'}}
-      checkinline(
+    var bar = {valueOf:function(){return 'bar'}}
+    checkinline(
       {foo:bar},
       'foo:bar;'
     )
-    })
+  })
 
 
 
-  /////////////////////////////////////
-  /**/      suite('Inline, nulls: ')  /**/
-  /////////////////////////////////////
+  ////////////////////////////////////
+  /**/  suite('Inline, nulls: ')  /**/
+  ////////////////////////////////////
 
   test('null value', function() {
-      checkinline(
+    checkinline(
       null,
       ''
     )
-    })
+  })
 
   test('null leafs', function() {
-      checkinline(
+    checkinline(
       {foo:null},
       ''
     )
-    })
+  })
 
   test('undefined leafs', function() {
-      checkinline(
+    checkinline(
       {foo:void 8},
       ''
     )
-    })
+  })
 
   test('null value', function() {
-      checkinline(
+    checkinline(
       null,
       ''
     )
-    })
+  })
 
   test('undefined value', function() {
-      checkinline(
+    checkinline(
       void 8,
       ''
-      )
-    })
+    )
+  })
   test('null in Array', function() {
-      checkinline(
+    checkinline(
       [null],
       ''
     )
-    })
+  })
 
   test('undefined in Array', function() {
-      checkinline(
+    checkinline(
       [void 8],
       ''
     )
-    })
+  })
 
-  /////////////////////////////////////////
-  /**/      suite('Inline namespaces: ')  /**/
-  /////////////////////////////////////////
+  ////////////////////////////////////////
+  /**/  suite('Inline namespaces: ')  /**/
+  ////////////////////////////////////////
 
   test('namespaced animation', function() {
-      var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
-      expect(result).to.be('animation:theFoo 1sec;')
-    })
+    var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
+    expect(result).to.be('animation:theFoo 1sec;')
+  })
 
   test('namespaced animation-name', function() {
-      var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
-      expect(result).to.be('animation-name:theFoo;')
-    })
+    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
+    expect(result).to.be('animation-name:theFoo;')
+  })
 
   test('namespaced and non-namespaced animation-name', function() {
-      var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
-      expect(result).to.be('animation-name:theFoo, bar;')
-    })
+    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
+    expect(result).to.be('animation-name:theFoo, bar;')
+  })
 
   test('two namespaced animations', function() {
-      var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
-      expect(result).to.be('animation:theFoo 1sec, theBar 2sec;')
-    })
+    var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
+    expect(result).to.be('animation:theFoo 1sec, theBar 2sec;')
+  })
 
 
 
-  //////////////////////////////////////
-  /**/      suite('Inline plugins: ')  /**/
-  //////////////////////////////////////
+  /////////////////////////////////////
+  /**/  suite('Inline plugins: ')  /**/
+  /////////////////////////////////////
 
   test('one plugin that does nothing', function() {
-      expect(''+j2c().use(function(){}).inline(
+    expect(''+j2c().use(function(){}).inline(
       {foo: 'bar'}
     )).to.be('foo:bar;')
-    })
+  })
 
   test('one plugin that mutates the buffer', function() {
-      expect(''+j2c().use(
+    expect(''+j2c().use(
       function(buf){
         buf[0] = buf[0].replace('f','k')
       }
     ).inline(
       {foo: 'bar'}
     )).to.be('koo:bar;')
-    })
+  })
 
   test('one plugin that returns a new buffer', function() {
-      expect(''+j2c().use(
+    expect(''+j2c().use(
       function(){
         return ['hello:world;']
       }
     ).inline(
       {foo: 'bar'}
     )).to.be('hello:world;')
-    })
+  })
 
   test('two plugins that mutate the buffer', function() {
-      expect(''+j2c().use(
+    expect(''+j2c().use(
       function(buf){
         buf[0]=buf[0].replace('f', 'a')
       },
@@ -301,27 +301,27 @@ function randInt() {
     ).inline(
       {foo: 'bar'}
     )).to.be('moo:bar;')
-    })
+  })
 
 
 
-  //////////////////////////////////
-  /**/      suite('j2c.prefix: ')  /**/
-  //////////////////////////////////
+  /////////////////////////////////
+  /**/  suite('j2c.prefix: ')  /**/
+  /////////////////////////////////
 
 
   test('1 x 1', function() {
-      var prod = j2c.prefix('foo', ['o'])
-      expect(prod[0]).to.be('-o-foo')
-      expect(prod[1]).to.be('foo')
-    })
+    var prod = j2c.prefix('foo', ['o'])
+    expect(prod[0]).to.be('-o-foo')
+    expect(prod[1]).to.be('foo')
+  })
 
   test('2 x 1', function() {
-      var prod = j2c.prefix('foo', ['o', 'p'])
-      expect(prod[0]).to.be('-o-foo')
-      expect(prod[1]).to.be('-p-foo')
-      expect(prod[2]).to.be('foo')
-    })
+    var prod = j2c.prefix('foo', ['o', 'p'])
+    expect(prod[0]).to.be('-o-foo')
+    expect(prod[1]).to.be('-p-foo')
+    expect(prod[2]).to.be('foo')
+  })
 
 });
 
@@ -333,9 +333,9 @@ function randInt() {
 
 
 
-  /////////////////////////////////
+  ////////////////////////////////
   /**/  suite('j2c.sheet: ')  /**/
-  /////////////////////////////////
+  ////////////////////////////////
 
 
   test('direct sheet call', function(){
@@ -347,9 +347,9 @@ function randInt() {
 
 
 
-  ///////////////////////////////////
+  //////////////////////////////////
   /**/  suite('Definitions: ')  /**/
-  ///////////////////////////////////
+  //////////////////////////////////
 
 
   test('basic', function() {
@@ -851,8 +851,8 @@ function randInt() {
     try{
       j2c.sheet({'g,p': {animation_name: 'bit, bat'}})
     } catch(e) {
-        E = e
-      }
+      E = e
+    }
     expect(E).to.be.an(Error)
     expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
   })
@@ -863,8 +863,8 @@ function randInt() {
     try{
       j2c.sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
     } catch(e) {
-        E = e
-      }
+      E = e
+    }
     expect(E).to.be.an(Error)
     expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
   })
