@@ -5,12 +5,12 @@ function decamelize(match) {
 }
 
 // Handles the property:value; pairs.
-export function declarations(o, buf, prefix, vendors, localize, selector, /*var*/ k, v, kk) {
+export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk) {
   if (o==null) return
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, vendors, localize, selector)
+      declarations(o[k], buf, prefix, vendors, localize)
     break
   case OBJECT:
     prefix = (prefix && prefix + '-')
@@ -19,23 +19,13 @@ export function declarations(o, buf, prefix, vendors, localize, selector, /*var*
       if (k.indexOf('$') + 1) {
         // "$" was found.
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], vendors, localize, selector)
+          declarations(v, buf, prefix + k[kk], vendors, localize)
       } else {
-        declarations(v, buf, prefix + k, vendors, localize, selector)
+        declarations(v, buf, prefix + k, vendors, localize)
       }
     }
     break
   default:
-    // extend:
-    if(localize && selector && prefix === 'extend') {
-      if (!/^\s*\.[-\w]+\s*$/.test(selector)) {
-        throw new Error ("`extend` applies only to local classes, got '"+selector+"'")
-      }
-      o = o.replace(/()(?::global\(\s*\.([-\w]+)\s*\)|()\.([-\w]+))/, localize)
-      localize(o, prefix, o, o, selector.match(/[-\w]+/))
-      break
-    }
-
     // prefix is falsy when it is "", which means that we're
     // at the top level.
     // `o` is then treated as a `property:value` pair.
@@ -48,14 +38,13 @@ export function declarations(o, buf, prefix, vendors, localize, selector, /*var*
         return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, localize)
       }).join(',')
     }
-
 /*/-statements-/*/
     o = k + o + ';'
 
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
       buf.push('-' + vendors[kk] + '-' + o)
-    buf.push(o)
+    buf.push(o.replace(/^@/, 'at-'))
 /*/-statements-/*/
 /*/-inline-/*/
     // buf.push(k + o + ";");

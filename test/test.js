@@ -36,292 +36,292 @@ function randInt() {
   var j2c = require(lib)
 
   function checkinline(result, expected){
-    result = 'p{' + j2c.inline(result) + '}'
-    expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-      return 'p{' + s + '}'
-    })
-    check(result, expected)
-  }
+      result = 'p{' + j2c.inline(result) + '}'
+      expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+        return 'p{' + s + '}'
+      })
+      check(result, expected)
+    }
 
 
 
   //////////////////////////////
-  /**/  suite('Inline: ')  /**/
+  /**/      suite('Inline: ')  /**/
   //////////////////////////////
 
 
   test('a single property', function() {
-    checkinline(
-            {foo: 'bar'},
-            'foo:bar;'
-        )
-  })
+      checkinline(
+      {foo: 'bar'},
+      'foo:bar;'
+    )
+    })
 
   test('two properties', function() {
-    checkinline(
-            {foo: 'bar', baz: 'qux'},
-            'foo:bar;baz:qux;'
-        )
-  })
+      checkinline(
+      {foo: 'bar', baz: 'qux'},
+      'foo:bar;baz:qux;'
+    )
+    })
 
   test('two properties, ensure order', function() {
-    expect(j2c.inline({foo: 'bar', baz: 'qux'})).to.be('foo:bar;\nbaz:qux;')
-  })
+      expect(j2c.inline({foo: 'bar', baz: 'qux'})).to.be('foo:bar;\nbaz:qux;')
+    })
 
 
   test('array of values', function() {
-    checkinline(
-            {foo:['bar', 'baz']},
-            'foo:bar;foo:baz;'
-        )
-  })
+      checkinline(
+      {foo:['bar', 'baz']},
+      'foo:bar;foo:baz;'
+    )
+    })
 
   test('sub-properties', function(){
-    checkinline(
-            {foo: {bar: 'baz'}},
-            'foo-bar:baz;'
-        )
-  })
+      checkinline(
+      {foo: {bar: 'baz'}},
+      'foo-bar:baz;'
+      )
+    })
 
   test('multiple sub-properties', function(){
-    checkinline(
-            {foo: {bar$qux: 'baz'}},
-            'foo-bar:baz;foo-qux:baz;'
-        )
-  })
+      checkinline(
+      {foo: {bar$qux: 'baz'}},
+      'foo-bar:baz;foo-qux:baz;'
+      )
+    })
 
   test('multiple sub-properties, ensure order', function() {
-    expect(j2c.inline({foo$baz: 'qux'})).to.be('foo:qux;\nbaz:qux;')
-  })
+      expect(j2c.inline({foo$baz: 'qux'})).to.be('foo:qux;\nbaz:qux;')
+    })
 
 
 
   test('multiple sub-properties with a sub-sub-property', function(){
-    checkinline(
-            {foo: {bar$baz: {qux: 'quux'}}},
-            'foo-bar-qux:quux;foo-baz-qux:quux;'
-        )
-  })
+      checkinline(
+      {foo: {bar$baz: {qux: 'quux'}}},
+      'foo-bar-qux:quux;foo-baz-qux:quux;'
+    )
+    })
 
   test('multiple sub-properties with two sub-sub-properties', function(){
-    checkinline(
-            {foo: {bar$baz: {qux$quux: 'fred'}}},
-            'foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;'
-        )
-  })
+      checkinline(
+      {foo: {bar$baz: {qux$quux: 'fred'}}},
+      'foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;'
+    )
+    })
 
   test('convert underscores', function() {
-    checkinline(
-            {'f_o_o': 'bar'},
-            'f-o-o:bar;'
-        )
-  })
+      checkinline(
+      {'f_o_o': 'bar'},
+      'f-o-o:bar;'
+    )
+    })
 
   test('convert CamelCase', function() {
-    checkinline(
-            {'FoO': 'bar'},
-            '-fo-o:bar;'
-        )
-  })
+      checkinline(
+      {'FoO': 'bar'},
+      '-fo-o:bar;'
+    )
+    })
 
   test('String value', function() {
-    checkinline(
-            'foo:bar',
-            'foo:bar;'
-        )
-  })
+      checkinline(
+      'foo:bar',
+      'foo:bar;'
+    )
+    })
 
   test('Array of Strings values', function() {
-    checkinline(
-            ['foo:bar', 'foo:baz'],
-            'foo:bar;foo:baz'
-        )
-  })
+      checkinline(
+      ['foo:bar', 'foo:baz'],
+      'foo:bar;foo:baz'
+    )
+    })
 
   test('Array of mixed values at the root', function() {
-    checkinline(
-            ['foo:bar', {foo: 'baz'}],
-            'foo:bar;foo:baz'
-        )
-  })
+      checkinline(
+      ['foo:bar', {foo: 'baz'}],
+      'foo:bar;foo:baz'
+    )
+    })
 
   test('Array of mixed value and sub-property', function() {
-    checkinline(
-            {foo:['bar', {baz: 'qux'}]},
-            'foo:bar;foo-baz:qux'
-        )
-  })
+      checkinline(
+      {foo:['bar', {baz: 'qux'}]},
+      'foo:bar;foo-baz:qux'
+    )
+    })
 
   test('Prefixes by hand', function() {
-    checkinline(
-            {_o$_p$: {foo: 'bar'}},
-            '-o-foo:bar;-p-foo:bar;foo:bar;'
-        )
-  })
+      checkinline(
+      {_o$_p$: {foo: 'bar'}},
+      '-o-foo:bar;-p-foo:bar;foo:bar;'
+    )
+    })
 
   test('CSS *Hack', function() {
-        // tested manually because the crass normalization
-        // outputs an empty string.
-    expect(j2c.inline({'*foo': 'bar'})).to.be('*foo:bar;')
-  })
+    // tested manually because the crass normalization
+    // outputs an empty string.
+      expect(j2c.inline({'*foo': 'bar'})).to.be('*foo:bar;')
+    })
 
   test('CSS _Hack', function() {
-    checkinline(
-            ['_foo:bar', {_baz: 'qux'}],
-            '_foo:bar;-baz:qux;'
-        )
-  })
+      checkinline(
+      ['_foo:bar', {_baz: 'qux'}],
+      '_foo:bar;-baz:qux;'
+    )
+    })
 
   test('custom obj.valueOf', function() {
-    var bar = {valueOf:function(){return 'bar'}}
-    checkinline(
-            {foo:bar},
-            'foo:bar;'
-        )
-  })
+      var bar = {valueOf:function(){return 'bar'}}
+      checkinline(
+      {foo:bar},
+      'foo:bar;'
+    )
+    })
 
 
 
   /////////////////////////////////////
-  /**/  suite('Inline, nulls: ')  /**/
+  /**/      suite('Inline, nulls: ')  /**/
   /////////////////////////////////////
 
   test('null value', function() {
-    checkinline(
-            null,
-            ''
-        )
-  })
+      checkinline(
+      null,
+      ''
+    )
+    })
 
   test('null leafs', function() {
-    checkinline(
-            {foo:null},
-            ''
-        )
-  })
+      checkinline(
+      {foo:null},
+      ''
+    )
+    })
 
   test('undefined leafs', function() {
-    checkinline(
-            {foo:void 8},
-            ''
-        )
-  })
+      checkinline(
+      {foo:void 8},
+      ''
+    )
+    })
 
   test('null value', function() {
-    checkinline(
-            null,
-            ''
-        )
-  })
+      checkinline(
+      null,
+      ''
+    )
+    })
 
   test('undefined value', function() {
-    checkinline(
-            void 8,
-            ''
-        )
-  })
+      checkinline(
+      void 8,
+      ''
+      )
+    })
   test('null in Array', function() {
-    checkinline(
-            [null],
-            ''
-        )
-  })
+      checkinline(
+      [null],
+      ''
+    )
+    })
 
   test('undefined in Array', function() {
-    checkinline(
-            [void 8],
-            ''
-        )
-  })
+      checkinline(
+      [void 8],
+      ''
+    )
+    })
 
   /////////////////////////////////////////
-  /**/  suite('Inline namespaces: ')  /**/
+  /**/      suite('Inline namespaces: ')  /**/
   /////////////////////////////////////////
 
   test('namespaced animation', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
-    expect(result).to.be('animation:theFoo 1sec;')
-  })
+      var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
+      expect(result).to.be('animation:theFoo 1sec;')
+    })
 
   test('namespaced animation-name', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
-    expect(result).to.be('animation-name:theFoo;')
-  })
+      var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
+      expect(result).to.be('animation-name:theFoo;')
+    })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
-    expect(result).to.be('animation-name:theFoo, bar;')
-  })
+      var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
+      expect(result).to.be('animation-name:theFoo, bar;')
+    })
 
   test('two namespaced animations', function() {
-    var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
-    expect(result).to.be('animation:theFoo 1sec, theBar 2sec;')
-  })
+      var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
+      expect(result).to.be('animation:theFoo 1sec, theBar 2sec;')
+    })
 
 
 
   //////////////////////////////////////
-  /**/  suite('Inline plugins: ')  /**/
+  /**/      suite('Inline plugins: ')  /**/
   //////////////////////////////////////
 
   test('one plugin that does nothing', function() {
-    expect(''+j2c().use(function(){}).inline(
-            {foo: 'bar'}
-        )).to.be('foo:bar;')
-  })
+      expect(''+j2c().use(function(){}).inline(
+      {foo: 'bar'}
+    )).to.be('foo:bar;')
+    })
 
   test('one plugin that mutates the buffer', function() {
-    expect(''+j2c().use(
-            function(buf){
-              buf[0] = buf[0].replace('f','k')
-            }
-        ).inline(
-            {foo: 'bar'}
-        )).to.be('koo:bar;')
-  })
+      expect(''+j2c().use(
+      function(buf){
+        buf[0] = buf[0].replace('f','k')
+      }
+    ).inline(
+      {foo: 'bar'}
+    )).to.be('koo:bar;')
+    })
 
   test('one plugin that returns a new buffer', function() {
-    expect(''+j2c().use(
-            function(){
-              return ['hello:world;']
-            }
-        ).inline(
-            {foo: 'bar'}
-        )).to.be('hello:world;')
-  })
+      expect(''+j2c().use(
+      function(){
+        return ['hello:world;']
+      }
+    ).inline(
+      {foo: 'bar'}
+    )).to.be('hello:world;')
+    })
 
   test('two plugins that mutate the buffer', function() {
-    expect(''+j2c().use(
-            function(buf){
-              buf[0]=buf[0].replace('f', 'a')
-            },
-            function(buf){
-              buf[0]=buf[0].replace('a', 'm')
-            }
-        ).inline(
-            {foo: 'bar'}
-        )).to.be('moo:bar;')
-  })
+      expect(''+j2c().use(
+      function(buf){
+        buf[0]=buf[0].replace('f', 'a')
+      },
+      function(buf){
+        buf[0]=buf[0].replace('a', 'm')
+      }
+    ).inline(
+      {foo: 'bar'}
+    )).to.be('moo:bar;')
+    })
 
 
 
   //////////////////////////////////
-  /**/  suite('j2c.prefix: ')  /**/
+  /**/      suite('j2c.prefix: ')  /**/
   //////////////////////////////////
 
 
   test('1 x 1', function() {
-    var prod = j2c.prefix('foo', ['o'])
-    expect(prod[0]).to.be('-o-foo')
-    expect(prod[1]).to.be('foo')
-  })
+      var prod = j2c.prefix('foo', ['o'])
+      expect(prod[0]).to.be('-o-foo')
+      expect(prod[1]).to.be('foo')
+    })
 
   test('2 x 1', function() {
-    var prod = j2c.prefix('foo', ['o', 'p'])
-    expect(prod[0]).to.be('-o-foo')
-    expect(prod[1]).to.be('-p-foo')
-    expect(prod[2]).to.be('foo')
-  })
+      var prod = j2c.prefix('foo', ['o', 'p'])
+      expect(prod[0]).to.be('-o-foo')
+      expect(prod[1]).to.be('-p-foo')
+      expect(prod[2]).to.be('foo')
+    })
 
 });
 
@@ -340,9 +340,9 @@ function randInt() {
 
   test('direct sheet call', function(){
     check(
-            j2c.sheet({' p': {foo:5}}),
-            'p{foo:5}'
-        )
+      j2c.sheet({' p': {foo:5}}),
+      'p{foo:5}'
+    )
   })
 
 
@@ -354,80 +354,80 @@ function randInt() {
 
   test('basic', function() {
     check(
-            j2c.sheet({' p': {
-              foo: 'bar'
-            }}),
-            'p{foo:bar}'
-        )
+      j2c.sheet({' p': {
+        foo: 'bar'
+      }}),
+      'p{foo:bar}'
+    )
   })
 
   test('convert underscores', function() {
     check(
-            j2c.sheet({' p': {
-              foo_foo: 'bar'
-            }}),
-            'p{foo-foo:bar}'
-        )
+      j2c.sheet({' p': {
+        foo_foo: 'bar'
+      }}),
+      'p{foo-foo:bar}'
+    )
   })
 
   test('number values', function() {
     check(
-            j2c.sheet({' p': {
-              foo:5
-            }}),
-            'p{foo:5}'
-        )
+      j2c.sheet({' p': {
+        foo:5
+      }}),
+      'p{foo:5}'
+    )
   })
 
   test('composed property name', function() {
     check(
-            j2c.sheet({' p': {
-              foo: {bar: 'baz'}
-            }}),
+      j2c.sheet({' p': {
+        foo: {bar: 'baz'}
+      }}),
 
-            'p{foo-bar:baz}'
-        )
+      'p{foo-bar:baz}'
+    )
   })
 
   test('composed selector : child with a given class', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              ' .foo': {bar: 'baz'}
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        ' .foo': {bar: 'baz'}
+      }}}),
 
-            'p .foo{bar:baz}'
-        )
+      'p .foo{bar:baz}'
+    )
   })
 
   test('composed selector: add a class to the root', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              '.foo': {bar: 'baz'}
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        '.foo': {bar: 'baz'}
+      }}}),
 
-            'p.foo{bar:baz}'
-        )
+      'p.foo{bar:baz}'
+    )
   })
 
   test('manual vendor prefixes', function() {
     check(
-            j2c.sheet({' p': {
-              _o$_ms$_moz$_webkit$: {foo: 'bar'}
-            }}),
+      j2c.sheet({' p': {
+        _o$_ms$_moz$_webkit$: {foo: 'bar'}
+      }}),
 
-            'p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}'
-        )
+      'p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}'
+    )
   })
 
   test('mixing definitions and sub-selectors', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              foo: 'bar',
-              ' .foo': {bar: 'baz'}
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        foo: 'bar',
+        ' .foo': {bar: 'baz'}
+      }}}),
 
-            ['p .foo{bar:baz} p {foo:bar}', 'p {foo:bar} p .foo{bar:baz}']
-        )
+      ['p .foo{bar:baz} p {foo:bar}', 'p {foo:bar} p .foo{bar:baz}']
+    )
   })
 
 
@@ -439,59 +439,58 @@ function randInt() {
 
   test('1 x 2', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              ' .foo': {
-                ':before,:after': {
-                  foo: 'bar'
-                }
-              }
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        ' .foo': {
+          ':before,:after': {
+            foo: 'bar'
+          }
+        }
+      }}}),
 
-            'p .foo:before, p .foo:after {foo:bar}'
-        )
+      'p .foo:before, p .foo:after {foo:bar}'
+    )
   })
 
   test('2 x 1', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              ' .foo, .bar': {
-                ':before': {
-                  foo: 'bar'
-                }
-              }
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        ' .foo, .bar': {
+          ':before': {
+            foo: 'bar'
+          }
+        }
+      }}}),
 
-            'p .foo:before, p .bar:before {foo:bar}'
-        )
+      'p .foo:before, p .bar:before {foo:bar}'
+    )
   })
 
   test('2 x 2', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              ' .foo, .bar': {
-                ':before,:after': {
-                  foo: 'bar'
-                }
-              }
-            }}}),
+      j2c.sheet({'@global': {' p': {
+        ' .foo, .bar': {
+          ':before,:after': {
+            foo: 'bar'
+          }
+        }
+      }}}),
 
-            'p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
-        )
+      'p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
+    )
   })
 
 
   test('2 x 3 one of which is empty', function() {
     check(
-            j2c.sheet({'@global': {' p': {
-              ' .foo, .bar': {
-                ',:before,:after': {
-                  foo: 'bar'
-                }
-              }
-            }}}),
-
-            'p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
-        )
+      j2c.sheet({'@global': {' p': {
+        ' .foo, .bar': {
+          ',:before,:after': {
+            foo: 'bar'
+          }
+        }
+      }}}),
+      'p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
+    )
   })
 
 
@@ -503,37 +502,35 @@ function randInt() {
 
   test('composed selector: add a class to the root', function() {
     check(
-            j2c.sheet({' p': {
-              ':global(.foo) &': {bar: 'baz'}
-            }}),
-
-            '.foo p{bar:baz}'
-        )
+      j2c.sheet({' p': {
+        ':global(.foo) &': {bar: 'baz'}
+      }}),
+      '.foo p{bar:baz}'
+    )
   })
 
   test('& &', function() {
     check(
-            j2c.sheet({':global(.foo)': {
-              '& &': {
-                bar: 'baz'
-              }
-            }}),
-            '.foo .foo{bar:baz}'
-        )
+      j2c.sheet({':global(.foo)': {
+        '& &': {
+          bar: 'baz'
+        }
+      }}),
+      '.foo .foo{bar:baz}'
+    )
   })
 
   test('2 x 2', function() {
     check(
-            j2c.sheet({' p': {
-              ' :global(.foo), :global(.bar)': {
-                ' :global(.baz) &, :global(.qux)': {
-                  foo: 'bar'
-                }
-              }
-            }}),
-
-            '.baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}'
-        )
+      j2c.sheet({' p': {
+        ' :global(.foo), :global(.bar)': {
+          ' :global(.baz) &, :global(.qux)': {
+            foo: 'bar'
+          }
+        }
+      }}),
+      '.baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}'
+    )
   })
 
   //////////////////////////////////////////
@@ -543,62 +540,62 @@ function randInt() {
 
   test('String literal', function() {
     check(
-            j2c.sheet({' p': 'foo:bar'}),
-            'p{foo:bar}'
-        )
+      j2c.sheet({' p': 'foo:bar'}),
+      'p{foo:bar}'
+    )
   })
 
   test('String literal with two declarations', function() {
     check(
-            j2c.sheet({' p': 'foo:bar;baz:qux'}),
-            'p {foo:bar;baz:qux}'
-        )
+      j2c.sheet({' p': 'foo:bar;baz:qux'}),
+      'p {foo:bar;baz:qux}'
+    )
   })
 
   test('String literal starting with an underscore', function() {
     check(
-            j2c.sheet({' p': '_foo:bar'}),
-            'p {_foo:bar}'
-        )
+      j2c.sheet({' p': '_foo:bar'}),
+      'p {_foo:bar}'
+    )
   })
 
   test('Array of String literals', function() {
     check(
-            j2c.sheet({' p': ['foo:bar', 'foo:baz']}),
-            'p{foo:bar}p{foo:baz}'
-        )
+      j2c.sheet({' p': ['foo:bar', 'foo:baz']}),
+      'p{foo:bar}p{foo:baz}'
+    )
   })
 
 
   test('overloaded properties', function() {
     check(
-            j2c.sheet({' p': {
-              foo:['bar', 'baz']
-            }}),
-            'p{foo:bar;foo:baz}'
-        )
+      j2c.sheet({' p': {
+        foo:['bar', 'baz']
+      }}),
+      'p{foo:bar;foo:baz}'
+    )
   })
 
   test('overloaded sub-properties', function() {
     check(
-            j2c.sheet({' p': {
-              foo:[{bar: 'baz'}, {bar: 'qux'}]
-            }}),
-            'p{foo-bar:baz;foo-bar:qux}'
-        )
+      j2c.sheet({' p': {
+        foo:[{bar: 'baz'}, {bar: 'qux'}]
+      }}),
+      'p{foo-bar:baz;foo-bar:qux}'
+    )
   })
 
   test('nested Arrays', function(){
     check(
-            j2c.sheet({' p': [
-              [
-                    {bar: 'baz'},
-                    {bar: 'qux'}
-              ],
-              'bar:quux;'
-            ]}),
-            'p{bar:baz}p{bar:qux}p{bar:quux}'
-        )
+      j2c.sheet({' p': [
+        [
+          {bar: 'baz'},
+          {bar: 'qux'}
+        ],
+        'bar:quux;'
+      ]}),
+      'p{bar:baz}p{bar:qux}p{bar:quux}'
+    )
   })
 
 
@@ -630,73 +627,79 @@ function randInt() {
 
   test('standard at-rule with text value', function() {
     check(
-            j2c.sheet({' p': {
-              '@import': "'bar'"
-            }}),
+      j2c.sheet({' p': {
+        '@import': "'bar'"
+      }}),
 
-            "@import 'bar';"
-        )
+      "@import 'bar';"
+    )
   })
 
   test('standard at-rule with object value', function() {
     check(
-            j2c.sheet({' p': {
-              '@media foo': {bar: 'baz'}
-            }}),
+      j2c.sheet({' p': {
+        '@media foo': {bar: 'baz'}
+      }}),
 
-            '@media foo {p{bar:baz}}'
-        )
+      '@media foo {p{bar:baz}}'
+    )
   })
 
   test('several at-rules with object value', function() {
     check(
-            j2c.sheet({' p': {
-              '@media foo': {bar: 'baz'},
-              '@media foo2': {bar2: 'baz2'}
-            }}),
+      j2c.sheet({' p': {
+        '@media foo': {bar: 'baz'},
+        '@media foo2': {bar2: 'baz2'}
+      }}),
       [
         '@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}'
       ]
-        )
+    )
   })
 
   test('Array of at-rules with text values', function() {
     check(
-            j2c.sheet({' p': [
-                {'@import': "'bar'"},
-                {'@import': "'baz'"}
-            ]}),
-            "@import 'bar'; @import 'baz';"
-        )
+      j2c.sheet({' p': [
+        {'@import': "'bar'"},
+        {'@import': "'baz'"}
+      ]}),
+      "@import 'bar'; @import 'baz';"
+    )
   })
 
   test('nested at-rules', function() {
     check(
-            j2c.sheet({' p': {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
+      j2c.sheet({' p': {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
       [
         '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
       ]
-        )
+    )
   })
 
   test('@font-face', function(){
     check(
-            j2c.sheet({' p': {'@font-face': {foo: 'bar'}}}),
-            '@font-face{foo:bar}'
-        )
+      j2c.sheet({' p': {'@font-face': {foo: 'bar'}}}),
+      '@font-face{foo:bar}'
+    )
   })
 
   test('@keyframes', function(){
     check(
-            j2c.sheet({' p': {'@keyframes :global(qux)': {
-              ' from': {foo: 'bar'},
-              ' to': {foo: 'baz'}
-            }}}),
-      [
-        '@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}' +
-                '@keyframes qux{from{foo:bar}to{foo:baz}}'
-      ]
-        )
+      j2c.sheet({' p': {'@keyframes :global(qux)': {
+        ' from': {foo: 'bar'},
+        ' to': {foo: 'baz'}
+      }}}),
+      '@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}' +
+        '@keyframes qux{from{foo:bar}to{foo:baz}}'
+    )
+  })
+
+  test('invalid @foo becomes at-foo property', function(){
+    check(
+      j2c.sheet({'@foo': 'bar'}),
+      '*{at-foo:bar;}'
+    )
+
   })
 
   //////////////////////////////////////////////////
@@ -706,35 +709,35 @@ function randInt() {
 
   test('@font-face with a 1-element array', function(){
     check(
-            j2c.sheet({' p': {'@font-face':[{foo: 'bar'}]}}),
-            '@font-face{foo:bar}'
-        )
+      j2c.sheet({' p': {'@font-face':[{foo: 'bar'}]}}),
+      '@font-face{foo:bar}'
+    )
   })
 
   test('@font-face with a 2-elements array', function(){
     check(
-            j2c.sheet({' p': {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
-            '@font-face{foo:bar}@font-face{foo:baz}'
-        )
+      j2c.sheet({' p': {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
+      '@font-face{foo:bar}@font-face{foo:baz}'
+    )
   })
 
   test('@namespace with a 1-element array', function(){
     check(
-            j2c.sheet({'@namespace': ["'http://foo.example.com'"]}),
-            "@namespace 'http://foo.example.com';"
-        )
+      j2c.sheet({'@namespace': ["'http://foo.example.com'"]}),
+      "@namespace 'http://foo.example.com';"
+    )
   })
 
   test('@namespace with a 2-elements array', function(){
     check(
-            j2c.sheet({'@namespace': ["'http://foo.example.com'", " bar 'http://bar.example.com'"]}),
-            "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
-        )
+      j2c.sheet({'@namespace': ["'http://foo.example.com'", " bar 'http://bar.example.com'"]}),
+      "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
+    )
   })
 
-    //////////////////////////////////////
+    /////////////////////////////////////
     /*suite('Locals, Globals ')  /**/
-    //////////////////////////////////////
+    /////////////////////////////////////
 
 
   test('a local class', function(){
@@ -838,9 +841,9 @@ function randInt() {
   })
 
 
-    ////////////////////////////////////
+    ///////////////////////////////////
     /*suite('Foolproofing: ')  /**/
-    ////////////////////////////////////
+    ///////////////////////////////////
 
 
   test('property-like selector', function() {
@@ -848,8 +851,8 @@ function randInt() {
     try{
       j2c.sheet({'g,p': {animation_name: 'bit, bat'}})
     } catch(e) {
-      E = e
-    }
+        E = e
+      }
     expect(E).to.be.an(Error)
     expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
   })
@@ -860,16 +863,16 @@ function randInt() {
     try{
       j2c.sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
     } catch(e) {
-      E = e
-    }
+        E = e
+      }
     expect(E).to.be.an(Error)
     expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
   })
 
 
-    /////////////////////////////
+    ////////////////////////////
     /*suite('Order: ')  /**/
-    /////////////////////////////
+    ////////////////////////////
 
   test('two properties', function() {
     expect(''+j2c.sheet({' p': {foo: 'bar', baz: 'qux'}})).to.be(' p{\nfoo:bar;\nbaz:qux;\n}')
@@ -893,9 +896,9 @@ function randInt() {
     width = randInt()
 
     reference = normalize(
-            ' p.' + klass + '{foo:6;} p{' + prop +
-            ':5;} @media (min-width: ' + width + 'em){p{bar:7;}}'
-        )
+        ' p.' + klass + '{foo:6;} p{' + prop +
+        ':5;} @media (min-width: ' + width + 'em){p{bar:7;}}'
+      )
 
 
     o = {' p': {}}
@@ -949,61 +952,61 @@ function randInt() {
     }), "@namespace 'foo';p{foo:bar;}")
   })
 
-    //////////////////////////////////
+    /////////////////////////////////
     /*suite('Namespaces: ')  /**/
-    //////////////////////////////////
+    /////////////////////////////////
 
   test('namespaced class', function() {
     var css = j2c.sheet(
-            {foo: 'FOO'},
-            {'.foo': {foo: 'bar', baz: 'qux'}}
-        )
+        {foo: 'FOO'},
+        {'.foo': {foo: 'bar', baz: 'qux'}}
+      )
     check('' + css, '.FOO{foo:bar;baz:qux;}')
     expect(css.foo).to.be('FOO')
   })
 
   test('namespaced class wrapping a global block', function() {
     var css = j2c.sheet(
-            {foo: 'FOOO'},
-            {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
-        )
+        {foo: 'FOOO'},
+        {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
+      )
     check('' + css, '.FOOO.foo{foo:bar;baz:qux;}')
     expect(css.foo).to.be('FOOO')
   })
 
   test('namespaced @keyframes', function(){
     var css = j2c.sheet(
-            {bit: 'BOT'},
-            {'@keyframes bit': {}}
-        )
+        {bit: 'BOT'},
+        {'@keyframes bit': {}}
+      )
     expect(css.bit).to.be('BOT')
     expect(css + '').to.contain('@keyframes BOT{')
   })
 
   test('namespaced animation', function(){
     var css = j2c.sheet(
-            {bit: 'BOT'},
-            {' p': {animation: 'bit 1sec'}}
-        )
+        {bit: 'BOT'},
+        {' p': {animation: 'bit 1sec'}}
+      )
     expect(css.bit).to.be('BOT')
     check(css + '', 'p{animation:BOT 1sec;}')
   })
 
   test('namespaced animation-name', function() {
     var css = j2c.sheet(
-            {bit: 'BOT'},
-            {' p': {animation_name: 'bit'}}
-        )
+        {bit: 'BOT'},
+        {' p': {animation_name: 'bit'}}
+      )
     expect(css.bit).to.be('BOT')
     check(css + '', 'p{animation-name:BOT;}')
   })
 
-  //////////////////////////////
+  /////////////////////////////
   /**/  suite('extend: ')  /**/
-  //////////////////////////////
+  /////////////////////////////
 
   test('local extend', function() {
-    var css = j2c.sheet({'.bit': {extend:'.bat'}})
+    var css = j2c.sheet({'.bit': {'@extend':'.bat'}})
     expect(css.bit).to.contain('bit_j2c_')
     expect(css.bat).to.contain('bat_j2c_')
     expect(css.bat).not.to.contain('bit_j2c_')
@@ -1011,13 +1014,13 @@ function randInt() {
   })
 
   test('global extend', function() {
-    var css = j2c.sheet({'.bit': {extend:':global(.bat)'}})
+    var css = j2c.sheet({'.bit': {'@extend':':global(.bat)'}})
     expect(css.bit).to.contain('bit_j2c_')
     expect(css.bit).to.contain('bat ')
   })
 
-  test('two local extend', function() {
-    var css = j2c.sheet({'.bit': {extend:['.bat', '.bot']}})
+  test('two local extends', function() {
+    var css = j2c.sheet({'.bit': {'@extends':['.bat', '.bot']}})
     expect(css.bit).to.contain('bit_j2c_')
     expect(css.bat).to.contain('bat_j2c_')
     expect(css.bot).to.contain('bot_j2c_')
@@ -1026,51 +1029,73 @@ function randInt() {
     expect(css.bit).to.contain(css.bat + ' ' + css.bot + ' ')
   })
 
-  //TODO Add test to check for exceptions when trying to
-  // extend an inherited class or something other than a
-  // simple local class
+  test('extend applies only to the last class in the selector', function() {
+    var css = j2c.sheet({'.bot p .bit': {'@extend':'.bat'}})
+    expect(css.bit).to.contain('bit_j2c_')
+    expect(css.bat).to.contain('bat_j2c_')
+    expect(css.bot).to.contain('bot_j2c_')
+    expect(css.bat).not.to.contain('bit_j2c_')
+    expect(css.bit).to.contain(css.bat + ' ')
+    expect(css.bot).not.to.contain(css.bat + ' ')
+  })
 
-  ///////////////////////////////
+  test("if we can't find a class to extend, pass @extend as a property", function() {
+    var css = j2c.sheet({'p > a': {'@extend':'.bat'}})
+    expect(css.bat).to.be(undefined)
+    expect('' + css).to.contain('at-extend:.bat, no class to extend;')
+  })
+
+  test("extend doesn't extend into global selectors", function() {
+    // @extend thus extends the last local class in the stream
+    var css = j2c.sheet({'.bit :global(.bot)': {'@extend':'.bat'}})
+    expect(css.bit).to.contain('bit_j2c_')
+    expect(css.bat).to.be(undefined)
+    expect(css.bot).to.be(undefined)
+    expect(css.bit).not.to.contain(css.bat + ' ')
+    expect('' + css).to.contain('at-extend:.bat, no class to extend;')
+  })
+
+  //////////////////////////////
   /**/  suite('Plugins: ')  /**/
-  ///////////////////////////////
+  //////////////////////////////
 
   test('one plugin that does nothing', function() {
     check(''+j2c().use(function(){}).sheet(
-            {' p': {foo: 'bar'}}
-        ), 'p{foo:bar;}')
+      {' p': {foo: 'bar'}}
+    ), 'p{foo:bar;}')
   })
 
   test('one plugin that mutates the buffer', function() {
     check(''+j2c().use(
-            function(buf){
-              buf[0] = 'li{'
-            }
-        ).sheet(
-            {' p': {foo: 'bar'}}
-        ), 'li{foo:bar;}')
+      function(buf){
+        buf[0] = 'li{'
+      }
+    ).sheet(
+      {' p': {foo: 'bar'}}
+    ), 'li{foo:bar;}')
   })
 
   test('one plugin that returns a new buffer', function() {
     check(''+j2c().use(
-        function(){
-          return ['li{foo:bar;}']
-        }
-        ).sheet(
-            {' p': {foo: 'bar'}}
-        ), 'li{foo:bar;}')
+      function(){
+        return ['li{foo:bar;}']
+      }
+    ).sheet(
+      {' p': {foo: 'bar'}}
+    ), 'li{foo:bar;}')
   })
 
   test('two plugins that mutate the buffer', function() {
     check(''+j2c().use(
-            function(buf){
-              buf[0]=buf[0].replace('p', 'a')
-            },
-            function(buf){
-              buf[0]=buf[0].replace('a', 'i')
-            }
-        ).sheet(
-            {' p': {fop: 'bar'}}
-        ), 'i{fop:bar;}')
+      function(buf){
+        buf[0]=buf[0].replace('p', 'a')
+      },
+      function(buf){
+        buf[0]=buf[0].replace('a', 'i')
+      }
+    ).sheet(
+      {' p': {fop: 'bar'}}
+    ), 'i{fop:bar;}')
   })
 })
 

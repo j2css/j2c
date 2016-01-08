@@ -34,27 +34,31 @@ export default function j2c(res) {
       suffix = scope_root + counter++,
       locals = {},
       k, buf = []
-
+    // pick only non-numeric keys since `(NaN != NaN) === true`
     for (k in ns) if (k-0 != k-0 && own.call(ns, k)) {
       locals[k] = ns[k]
     }
     sheet(
       statements, buf, '', emptyArray /*vendors*/,
+      // Localize can either be called as `string.replace(regexp, localize)
+      // or standalone. It registers class and animation names in a single
+      // `locals` registry. localize and the regexps are designed to handle
+      // the various corner cases.
+      // it also handles `@extend` (it may be nice at some point to give that
+      // code its own function).
       function localize(match, space, global, dot, name) {
-        if(space === 'extend') {
-          // {extend: ...} handling.
+        if(space == 'e') {
+          // {@extend: ...} handling.
           // for code size, we reuse the names of the
           // standard regexp replacer. The names should read
-          // localize(parent, extend, /*var*/ nameList, _, name)
-          if (name in ns) throw new Error("can't extend inherited class '." + name + "'")
-          global = locals[name]
-          locals[name] =
-            global.slice(0, global.lastIndexOf(' ') + 1) +
+          // localize(parent, extend = 'e', child, /*var*/ nameList)
+          dot = locals[global]
+          locals[global] =
+            dot.slice(0, dot.lastIndexOf(' ') + 1) +
             match + ' ' +
-            global.slice(global.lastIndexOf(' ') + 1)
-          return
+            dot.slice(dot.lastIndexOf(' ') + 1)
         } else if (global) {
-          return space+global
+          return space + global
         }
         if (!locals[name]) locals[name] = name + suffix
         return space + dot + locals[name].match(/\S+$/)
@@ -77,7 +81,7 @@ export default function j2c(res) {
       '', // prefix
       emptyArray, // vendors
       function localize(match, space, global, dot, name) {
-        if (global) return space+global
+        if (global) return space + global
         if (!locals[name]) return name
         return space + dot + locals[name]
       })
