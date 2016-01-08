@@ -1,6 +1,6 @@
 {
   "name": "j2c",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
