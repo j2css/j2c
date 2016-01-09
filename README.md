@@ -11,7 +11,7 @@ CSS in JS on steroids.
 
 `j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
 
-Like SASS LESS and Stylus, `j2c` supports:
+Like SASS, LESS and Stylus, `j2c` supports:
 
 - mixins
 - `@extend`
