@@ -1,19 +1,43 @@
-# j2c
+# j2c [![npm][npm_img]][npm_url] [![.min.gz][size_img]
 
-[![Join the chat at https://gitter.im/j2css/j2c](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/j2css/j2c?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status][trav_img]][trav_url]
+[![Coverage Status][cov_img]][cov_url]
+[![Dependency Status][deps_img]][deps_url]
+[![bitHound Score][bithound_img]][bithound_url]
 
-A tiny CSS in JS solution. 1.45 KiB mingzipped.
+[![Join the chat at https://gitter.im/j2css/j2c][gitter_img]][gitter_url]
 
-Supports local classes by default, mixins and extensions, at-rules and nested selectors. Composable. Extensible.
+CSS in JS on steroids.
 
-Advanced CSS features, like nested conditional at-rules (anywhere in the stylesheet, like SASS), `@namespace`, `@font-face`, `@keyframes` (with automatic `@-webkit-keyframes`) are present out of the box.
+`j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
+
+Like SASS LESS and Stylus, `j2c` supports:
+
+- mixins
+- `@extend`
+- nested selectors
+
+All standard CSS at-rules are available out of the box, most importantly:
+
+- `@media` and `@supports` can be nested anywhere in the sheet
+- `@keyframes` (with automatic generation of `@-webkit-keyframes`)
+- `@font-face`
 
 The [home page](http://j2c.py.gy) has a few interactive demos.
 
-[![Build Status](https://travis-ci.org/j2css/j2c.svg?branch=master)](https://travis-ci.org/j2css/j2c)
-[![Coverage Status](https://coveralls.io/repos/j2css/j2c/badge.svg?branch=master)](https://coveralls.io/r/j2css/j2c?branch=master)
-[![Dependency Status](https://david-dm.org/j2css/j2c.svg)](https://david-dm.org/j2css/j2c)
-[![bitHound Score](https://www.bithound.io/github/j2css/j2c/badges/score.svg)](https://www.bithound.io/github/j2css/j2c/)
+[trav_img]: https://travis-ci.org/j2css/j2c.svg?branch=master
+[trav_url]: https://travis-ci.org/j2css/j2c
+[cov_img]: https://coveralls.io/repos/j2css/j2c/badge.svg?branch=master
+[cov_url]: https://coveralls.io/r/j2css/j2c?branch=master
+[npm_img]: https://img.shields.io/npm/v/npm.svg
+[npm_url]: https://npmjs.com/package/j2c
+[size_img]: https://badges.herokuapp.com/size/npm/j2c/dist/j2c.global.min.js.gz?label=.min.gz
+[deps_img]: https://david-dm.org/j2css/j2c.svg
+[deps_url]: https://david-dm.org/j2css/j2c
+[bithound_img]: https://www.bithound.io/github/j2css/j2c/badges/score.svg
+[bithound_url]: https://www.bithound.io/github/j2css/j2c/
+[gitter_img]: https://badges.gitter.im/Join%20Chat.svg
+[gitter_url]: https://gitter.im/j2css/j2c
 
 ## Table of Contents
 
@@ -53,8 +77,6 @@ There are also separate builds for `AMD`, `ES6` and a global `window.j2c` in the
 ## Usage
 
 `j2c` can be used to either assemble inline declarations or full style sheets with, by default, locally unique class names.
-
-Like SASS LESS and Stylus, `j2c` supports mixins, `@extend, and nested at-rules and selectors.
 
 Here's an example of locallized class names (as pioneered AFAIK by [JSS](https://github.com/jsstyles/jss)):
 
