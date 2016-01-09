@@ -25,7 +25,6 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
       - [Mixins](#mixins)
     - [Vendor prefixes:](#vendor-prefixes)
   - [For building a style sheet: `j2c.sheet(rules)`](#for-building-a-style-sheet-j2csheetrules)
-    - [Telling selectors and properties apart](#telling-selectors-and-properties-apart)
     - [Combining multiple selectors](#combining-multiple-selectors)
     - [At-rules](#at-rules)
     - [Mixins and @extend](#mixins-and-extend)
@@ -55,7 +54,7 @@ There are also separate builds for `AMD`, `ES6` and a global `window.j2c` in the
 
 `j2c` can be used to either assemble inline declarations or full style sheets with, by default, locally unique class names.
 
-Like SASS LESS and Stylus, `j2c` supports nested at-rules and selectors, and mixins.
+Like SASS LESS and Stylus, `j2c` supports mixins, `@extend, and nested at-rules and selectors.
 
 Here's an example of locallized class names (as pioneered AFAIK by [JSS](https://github.com/jsstyles/jss)):
 
@@ -271,20 +270,6 @@ ul.foo_j2c_fgdl0s2a5fmle5g56rbuax71_0{
 
 Were `s.foo === "foo_j2c_fgdl0s2a5fmle5g56rbuax71_0 "`
 
-#### Selector syntax (telling then and properties apart)
-
-tl;dr: always prefix element selectors with a space.
-
-`j2c` considers that an object key matching `/^[-_0-9A-Za-z$]+$/` is a property, and everything else is a (sub-)selector. Since underscores are converted to dashes, it means that property names can be left unquoted in the source, while (sub-)selectors have to be quoted.
-
-White space in selectors is significant. `{".foo": {".bar":{...}}}` applies to `.foo.bar` while
-
-Element selectors like `p` or `body` match the property pattern and must thus be preceded by a space.
-
-Selectors are concatenated as is, while properties are concatenated with hyphens. `{" ul": {" li": {padding: {left:10}}}}` becomes ` ul li{padding-left:10px;}`. `{" p":{".foo":{color:"red"}}}`, is translated to ` p.foo:{color:red;}`.
-
-The properties at a given selector level are guaganteed to appear in the CSS output before the ones of sub-selectors and before those present in nested @-rules.
-
 #### Global class and animation names.
 
 You can define or refer to global names using the `@global{}` pseudo at-rule, and the `:global()` function. This will thus preserve the `.foo`, `.bar` and `baz` names:
@@ -387,7 +372,7 @@ j2c.sheet([
 
 Mixins and `@extend` make `j2c` sheets composable. Both techniques can be combined.
 
-##### Mixins
+##### Mixins and source objects composition
 
 For mixins, arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins) to create mixins, that can return either at-rules, selectors, properties or a mix thereof.
 
