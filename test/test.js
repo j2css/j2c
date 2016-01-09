@@ -26,6 +26,8 @@ function randInt() {
   return Math.random().toString().substr(2, 3)
 }
 
+function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
+
 [
   '../dist/j2c.commonjs',
   '../dist/j2c.commonjs.min'
@@ -240,22 +242,22 @@ function randInt() {
 
   test('namespaced animation', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
-    expect(result).to.be('animation:theFoo 1sec;')
+    expect(result).to.be(webkitify('animation:theFoo 1sec;'))
   })
 
   test('namespaced animation-name', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
-    expect(result).to.be('animation-name:theFoo;')
+    expect(result).to.be(webkitify('animation-name:theFoo;'))
   })
 
   test('namespaced and non-namespaced animation-name', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
-    expect(result).to.be('animation-name:theFoo, bar;')
+    expect(result).to.be(webkitify('animation-name:theFoo, bar;'))
   })
 
   test('two namespaced animations', function() {
     var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
-    expect(result).to.be('animation:theFoo 1sec, theBar 2sec;')
+    expect(result).to.be(webkitify('animation:theFoo 1sec, theBar 2sec;'))
   })
 
 
@@ -989,7 +991,7 @@ function randInt() {
         {p: {animation: 'bit 1sec'}}
       )
     expect(css.bit).to.be('BOT')
-    check(css + '', 'p{animation:BOT 1sec;}')
+    check(css + '', 'p{' + webkitify('animation:BOT 1sec;') + '}')
   })
 
   test('namespaced animation-name', function() {
@@ -998,7 +1000,7 @@ function randInt() {
         {p: {animation_name: 'bit'}}
       )
     expect(css.bit).to.be('BOT')
-    check(css + '', 'p{animation-name:BOT;}')
+    check(css + '', 'p{' + webkitify('animation-name:BOT;') + '}')
   })
 
   /////////////////////////////

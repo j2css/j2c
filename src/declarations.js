@@ -37,6 +37,7 @@ export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk
       o = o.split(',').map(function(o){
         return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, localize)
       }).join(',')
+      vendors = ['webkit']
     }
 /*/-statements-/*/
     o = k + o + ';'
