@@ -94,11 +94,8 @@ export function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk,
       } else {
         // nested sub-selectors
         sheet(v, buf,
-          /* if prefix and/or k have a coma */
           /,/.test(prefix) || /,/.test(k) ?
-          /* then */
             cartesian(prefix.split(','), k.split(','), prefix).join(',') :
-          /* else */
             concat(prefix, k, prefix),
           vendors,
           localize

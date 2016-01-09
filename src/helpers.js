@@ -27,7 +27,7 @@ function cartesian(a,b, selectorP, res, i, j) {
 }
 
 function concat(a, b, selectorP) {
-  if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'")
+  if (selectorP && /^[-\w$]+$/.test(b)) throw new Error("invalid selector '" + b +  "'")
   return selectorP && /&/.test(b) ? b.replace(/&/g, a) : a + b
 }
 /* /-statements-/*/

@@ -25,7 +25,7 @@ function cartesian(a,b, selectorP, res, i, j) {
 }
 
 function concat(a, b, selectorP) {
-  if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'")
+  if (selectorP && /^[-\w$]+$/.test(b)) throw new Error("invalid selector '" + b +  "'")
   return selectorP && /&/.test(b) ? b.replace(/&/g, a) : a + b
 }
 
@@ -175,11 +175,8 @@ function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk, v, dec
       } else {
         // nested sub-selectors
         sheet(v, buf,
-          /* if prefix and/or k have a coma */
           /,/.test(prefix) || /,/.test(k) ?
-          /* then */
             cartesian(prefix.split(','), k.split(','), prefix).join(',') :
-          /* else */
             concat(prefix, k, prefix),
           vendors,
           localize

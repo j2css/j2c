@@ -27,7 +27,7 @@ var j2c = (function () { 'use strict';
   }
 
   function concat(a, b, selectorP) {
-    if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'")
+    if (selectorP && /^[-\w$]+$/.test(b)) throw new Error("invalid selector '" + b +  "'")
     return selectorP && /&/.test(b) ? b.replace(/&/g, a) : a + b
   }
 
@@ -177,11 +177,8 @@ var j2c = (function () { 'use strict';
         } else {
           // nested sub-selectors
           sheet(v, buf,
-            /* if prefix and/or k have a coma */
             /,/.test(prefix) || /,/.test(k) ?
-            /* then */
               cartesian(prefix.split(','), k.split(','), prefix).join(',') :
-            /* else */
               concat(prefix, k, prefix),
             vendors,
             localize
