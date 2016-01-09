@@ -105,7 +105,7 @@ function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk, v, dec
     decl = {}
     for (k in statements) {
       v = statements[k]
-      if (/^[-\w$]+$/.test(k)) {
+      if (prefix && /^[-\w$]+$/.test(k)) {
         // It is a declaration. Save it for later.
         decl[k] = v
       } else if (/^@/.test(k)) {
@@ -180,9 +180,9 @@ function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk, v, dec
           /* if prefix and/or k have a coma */
           prefix.indexOf(',') + k.indexOf(',') + 2 ?
           /* then */
-            cartesian(prefix.split(','), k.split(','), 1).join(',') :
+            cartesian(prefix.split(','), k.split(','), prefix).join(',') :
           /* else */
-            concat(prefix, k, 1),
+            concat(prefix, k, prefix),
           vendors,
           localize
         )

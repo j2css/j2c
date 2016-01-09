@@ -340,7 +340,7 @@ function randInt() {
 
   test('direct sheet call', function(){
     check(
-      j2c.sheet({' p': {foo:5}}),
+      j2c.sheet({p: {foo:5}}),
       'p{foo:5}'
     )
   })
@@ -354,7 +354,7 @@ function randInt() {
 
   test('basic', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo: 'bar'
       }}),
       'p{foo:bar}'
@@ -363,7 +363,7 @@ function randInt() {
 
   test('convert underscores', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo_foo: 'bar'
       }}),
       'p{foo-foo:bar}'
@@ -372,7 +372,7 @@ function randInt() {
 
   test('number values', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo:5
       }}),
       'p{foo:5}'
@@ -381,7 +381,7 @@ function randInt() {
 
   test('composed property name', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo: {bar: 'baz'}
       }}),
 
@@ -391,7 +391,7 @@ function randInt() {
 
   test('composed selector : child with a given class', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         ' .foo': {bar: 'baz'}
       }}}),
 
@@ -401,7 +401,7 @@ function randInt() {
 
   test('composed selector: add a class to the root', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         '.foo': {bar: 'baz'}
       }}}),
 
@@ -411,7 +411,7 @@ function randInt() {
 
   test('manual vendor prefixes', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         _o$_ms$_moz$_webkit$: {foo: 'bar'}
       }}),
 
@@ -421,7 +421,7 @@ function randInt() {
 
   test('mixing definitions and sub-selectors', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         foo: 'bar',
         ' .foo': {bar: 'baz'}
       }}}),
@@ -439,7 +439,7 @@ function randInt() {
 
   test('1 x 2', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         ' .foo': {
           ':before,:after': {
             foo: 'bar'
@@ -453,7 +453,7 @@ function randInt() {
 
   test('2 x 1', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         ' .foo, .bar': {
           ':before': {
             foo: 'bar'
@@ -467,7 +467,7 @@ function randInt() {
 
   test('2 x 2', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         ' .foo, .bar': {
           ':before,:after': {
             foo: 'bar'
@@ -482,7 +482,7 @@ function randInt() {
 
   test('2 x 3 one of which is empty', function() {
     check(
-      j2c.sheet({'@global': {' p': {
+      j2c.sheet({'@global': {p: {
         ' .foo, .bar': {
           ',:before,:after': {
             foo: 'bar'
@@ -502,7 +502,7 @@ function randInt() {
 
   test('composed selector: add a class to the root', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         ':global(.foo) &': {bar: 'baz'}
       }}),
       '.foo p{bar:baz}'
@@ -522,7 +522,7 @@ function randInt() {
 
   test('2 x 2', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         ' :global(.foo), :global(.bar)': {
           ' :global(.baz) &, :global(.qux)': {
             foo: 'bar'
@@ -540,28 +540,28 @@ function randInt() {
 
   test('String literal', function() {
     check(
-      j2c.sheet({' p': 'foo:bar'}),
+      j2c.sheet({p: 'foo:bar'}),
       'p{foo:bar}'
     )
   })
 
   test('String literal with two declarations', function() {
     check(
-      j2c.sheet({' p': 'foo:bar;baz:qux'}),
+      j2c.sheet({p: 'foo:bar;baz:qux'}),
       'p {foo:bar;baz:qux}'
     )
   })
 
   test('String literal starting with an underscore', function() {
     check(
-      j2c.sheet({' p': '_foo:bar'}),
+      j2c.sheet({p: '_foo:bar'}),
       'p {_foo:bar}'
     )
   })
 
   test('Array of String literals', function() {
     check(
-      j2c.sheet({' p': ['foo:bar', 'foo:baz']}),
+      j2c.sheet({p: ['foo:bar', 'foo:baz']}),
       'p{foo:bar}p{foo:baz}'
     )
   })
@@ -569,7 +569,7 @@ function randInt() {
 
   test('overloaded properties', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo:['bar', 'baz']
       }}),
       'p{foo:bar;foo:baz}'
@@ -578,7 +578,7 @@ function randInt() {
 
   test('overloaded sub-properties', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         foo:[{bar: 'baz'}, {bar: 'qux'}]
       }}),
       'p{foo-bar:baz;foo-bar:qux}'
@@ -587,7 +587,7 @@ function randInt() {
 
   test('nested Arrays', function(){
     check(
-      j2c.sheet({' p': [
+      j2c.sheet({p: [
         [
           {bar: 'baz'},
           {bar: 'qux'}
@@ -600,23 +600,23 @@ function randInt() {
 
 
 
-    //   ///////////////////////////////////////////
-    //  /**/  suite("Sheet auto prefixes: ");  /**/
-    // ///////////////////////////////////////////
+  //   ///////////////////////////////////////////
+  //  /**/  suite("Sheet auto prefixes: ");  /**/
+  // ///////////////////////////////////////////
 
-    // test("String literal", function() {
-    //     check(
-    //         j2c.sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
-    //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
-    //     );
-    // });
+  // test("String literal", function() {
+  //     check(
+  //         j2c.sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
+  //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
+  //     );
+  // });
 
-    // test("Array of Strings", function() {
-    //     check(
-    //         j2c.sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
-    //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
-    //     );
-    // });
+  // test("Array of Strings", function() {
+  //     check(
+  //         j2c.sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
+  //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
+  //     );
+  // });
 
 
 
@@ -627,7 +627,7 @@ function randInt() {
 
   test('standard at-rule with text value', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         '@import': "'bar'"
       }}),
 
@@ -637,7 +637,7 @@ function randInt() {
 
   test('standard at-rule with object value', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         '@media foo': {bar: 'baz'}
       }}),
 
@@ -647,7 +647,7 @@ function randInt() {
 
   test('several at-rules with object value', function() {
     check(
-      j2c.sheet({' p': {
+      j2c.sheet({p: {
         '@media foo': {bar: 'baz'},
         '@media foo2': {bar2: 'baz2'}
       }}),
@@ -659,7 +659,7 @@ function randInt() {
 
   test('Array of at-rules with text values', function() {
     check(
-      j2c.sheet({' p': [
+      j2c.sheet({p: [
         {'@import': "'bar'"},
         {'@import': "'baz'"}
       ]}),
@@ -669,7 +669,7 @@ function randInt() {
 
   test('nested at-rules', function() {
     check(
-      j2c.sheet({' p': {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
+      j2c.sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
       [
         '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
       ]
@@ -678,14 +678,14 @@ function randInt() {
 
   test('@font-face', function(){
     check(
-      j2c.sheet({' p': {'@font-face': {foo: 'bar'}}}),
+      j2c.sheet({p: {'@font-face': {foo: 'bar'}}}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@keyframes', function(){
     check(
-      j2c.sheet({' p': {'@keyframes :global(qux)': {
+      j2c.sheet({p: {'@keyframes :global(qux)': {
         ' from': {foo: 'bar'},
         ' to': {foo: 'baz'}
       }}}),
@@ -709,14 +709,14 @@ function randInt() {
 
   test('@font-face with a 1-element array', function(){
     check(
-      j2c.sheet({' p': {'@font-face':[{foo: 'bar'}]}}),
+      j2c.sheet({p: {'@font-face':[{foo: 'bar'}]}}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@font-face with a 2-elements array', function(){
     check(
-      j2c.sheet({' p': {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
+      j2c.sheet({p: {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
       '@font-face{foo:bar}@font-face{foo:baz}'
     )
   })
@@ -735,9 +735,9 @@ function randInt() {
     )
   })
 
-    /////////////////////////////////////
-    /*suite('Locals, Globals ')  /**/
-    /////////////////////////////////////
+  /////////////////////////////////////
+  /**/  suite('Locals, Globals ')  /**/
+  /////////////////////////////////////
 
 
   test('a local class', function(){
@@ -790,44 +790,44 @@ function randInt() {
   })
 
   test('a @keyframe nested in a @global at-rule', function() {
-    var css = j2c.sheet({'@global': {'@keyframes bat': {'foo':6}}})
+    var css = j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
     expect(css.bat).to.be(undefined)
     expect(css + '').to.contain('@keyframes bat{')
   })
 
   test('one animation', function(){
-    var css = j2c.sheet({' p': {animation: 'bit 1sec'}})
+    var css = j2c.sheet({p: {animation: 'bit 1sec'}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css + '').to.contain('animation:' + css.bit +' ')
   })
 
   test('a global animation', function() {
-    var css = j2c.sheet({' p': {animation: ':global(bit) 1sec'}})
+    var css = j2c.sheet({p: {animation: ':global(bit) 1sec'}})
     expect(css.bit).to.be(undefined)
     expect(css + '').to.contain('animation:bit ')
   })
 
   test('an animation nested in a @global at-rule', function() {
-    var css = j2c.sheet({'@global': {' p': {animation: 'bit 1sec'}}})
+    var css = j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
     expect(css.bit).to.be(undefined)
     expect(css + '').to.contain('animation:bit ')
   })
 
   test('one animation-name', function() {
-    var css = j2c.sheet({' p': {animation_name: 'bit'}})
+    var css = j2c.sheet({p: {animation_name: 'bit'}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css + '').to.contain('animation-name:' + css.bit +';')
   })
 
   test('two animation-name', function() {
-    var css = j2c.sheet({' p': {animation_name: 'bit, bat'}})
+    var css = j2c.sheet({p: {animation_name: 'bit, bat'}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bit.slice(4)).to.be(css.bat.slice(4))
     expect(css + '').to.contain('animation-name:' + css.bit +', ' + css.bat)
   })
 
   test('two animation-name, one global', function() {
-    var css = j2c.sheet({' p': {animation_name: 'bit, :global(bat)'}})
+    var css = j2c.sheet({p: {animation_name: 'bit, :global(bat)'}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bat).to.be(undefined)
     expect(css + '').to.contain('animation-name:' + css.bit +', bat;')
@@ -841,15 +841,15 @@ function randInt() {
   })
 
 
-    ///////////////////////////////////
-    /*suite('Foolproofing: ')  /**/
-    ///////////////////////////////////
+  ///////////////////////////////////
+  /**/  suite('Foolproofing: ')  /**/
+  ///////////////////////////////////
 
 
   test('property-like selector', function() {
     var E
     try{
-      j2c.sheet({'g,p': {animation_name: 'bit, bat'}})
+      j2c.sheet({i:{'g,p': {animation_name: 'bit, bat'}}})
     } catch(e) {
       E = e
     }
@@ -870,16 +870,16 @@ function randInt() {
   })
 
 
-    ////////////////////////////
-    /*suite('Order: ')  /**/
-    ////////////////////////////
+  ////////////////////////////
+  /**/  suite('Order: ')  /**/
+  ////////////////////////////
 
   test('two properties', function() {
-    expect(''+j2c.sheet({' p': {foo: 'bar', baz: 'qux'}})).to.be(' p{\nfoo:bar;\nbaz:qux;\n}')
+    expect(''+j2c.sheet({p: {foo: 'bar', baz: 'qux'}})).to.be('p{\nfoo:bar;\nbaz:qux;\n}')
   })
 
   test('$ combiner', function() {
-    expect(''+j2c.sheet({' p': {foo$baz: 'qux'}})).to.be(' p{\nfoo:qux;\nbaz:qux;\n}')
+    expect(''+j2c.sheet({p: {foo$baz: 'qux'}})).to.be('p{\nfoo:qux;\nbaz:qux;\n}')
   })
 
 
@@ -896,50 +896,50 @@ function randInt() {
     width = randInt()
 
     reference = normalize(
-        ' p.' + klass + '{foo:6;} p{' + prop +
+        'p.' + klass + '{foo:6;} p{' + prop +
         ':5;} @media (min-width: ' + width + 'em){p{bar:7;}}'
       )
 
 
-    o = {' p': {}}
-    o[' p'][prop] = 5
-    o[' p']['.' + klass] = {foo:6}
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o = {p: {}}
+    o.p[prop] = 5
+    o.p['.' + klass] = {foo:6}
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
-    o = {' p': {}}
-    o[' p'][prop] = 5
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o[' p']['.'+klass] = {foo:6}
+    o = {p: {}}
+    o.p[prop] = 5
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o.p['.'+klass] = {foo:6}
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
-    o = {' p': {}}
-    o[' p']['.'+klass] = {foo:6}
-    o[' p'][prop] = 5
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o = {p: {}}
+    o.p['.'+klass] = {foo:6}
+    o.p[prop] = 5
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
-    o = {' p': {}}
-    o[' p']['.'+klass] = {foo:6}
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o[' p'][prop] = 5
+    o = {p: {}}
+    o.p['.'+klass] = {foo:6}
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o.p[prop] = 5
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
-    o = {' p': {}}
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o[' p']['.'+klass] = {foo:6}
-    o[' p'][prop] = 5
+    o = {p: {}}
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o.p['.'+klass] = {foo:6}
+    o.p[prop] = 5
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
-    o = {' p': {}}
-    o[' p']['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o[' p'][prop] = 5
-    o[' p']['.'+klass] = {foo:6}
+    o = {p: {}}
+    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
+    o.p[prop] = 5
+    o.p['.'+klass] = {foo:6}
 
     expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
@@ -948,13 +948,13 @@ function randInt() {
   test('@namespace then selector', function() {
     check(j2c.sheet({
       '@namespace': "'foo'",
-      ' p': {foo: 'bar'}
+      p: {foo: 'bar'}
     }), "@namespace 'foo';p{foo:bar;}")
   })
 
-    /////////////////////////////////
-    /*suite('Namespaces: ')  /**/
-    /////////////////////////////////
+  /////////////////////////////////
+  /**/  suite('Namespaces: ')  /**/
+  /////////////////////////////////
 
   test('namespaced class', function() {
     var css = j2c.sheet(
@@ -986,7 +986,7 @@ function randInt() {
   test('namespaced animation', function(){
     var css = j2c.sheet(
         {bit: 'BOT'},
-        {' p': {animation: 'bit 1sec'}}
+        {p: {animation: 'bit 1sec'}}
       )
     expect(css.bit).to.be('BOT')
     check(css + '', 'p{animation:BOT 1sec;}')
@@ -995,7 +995,7 @@ function randInt() {
   test('namespaced animation-name', function() {
     var css = j2c.sheet(
         {bit: 'BOT'},
-        {' p': {animation_name: 'bit'}}
+        {p: {animation_name: 'bit'}}
       )
     expect(css.bit).to.be('BOT')
     check(css + '', 'p{animation-name:BOT;}')
@@ -1061,7 +1061,7 @@ function randInt() {
 
   test('one plugin that does nothing', function() {
     check(''+j2c().use(function(){}).sheet(
-      {' p': {foo: 'bar'}}
+      {p: {foo: 'bar'}}
     ), 'p{foo:bar;}')
   })
 
@@ -1071,7 +1071,7 @@ function randInt() {
         buf[0] = 'li{'
       }
     ).sheet(
-      {' p': {foo: 'bar'}}
+      {p: {foo: 'bar'}}
     ), 'li{foo:bar;}')
   })
 
@@ -1081,7 +1081,7 @@ function randInt() {
         return ['li{foo:bar;}']
       }
     ).sheet(
-      {' p': {foo: 'bar'}}
+      {p: {foo: 'bar'}}
     ), 'li{foo:bar;}')
   })
 
@@ -1094,7 +1094,7 @@ function randInt() {
         buf[0]=buf[0].replace('a', 'i')
       }
     ).sheet(
-      {' p': {fop: 'bar'}}
+      {p: {fop: 'bar'}}
     ), 'i{fop:bar;}')
   })
 })
