@@ -16,7 +16,7 @@ export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk
     prefix = (prefix && prefix + '-')
     for (k in o) if (own.call(o, k)){
       v = o[k]
-      if (k.indexOf('$') + 1) {
+      if (/\$/.test(k)) {
         // "$" was found.
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
           declarations(v, buf, prefix + k[kk], vendors, localize)

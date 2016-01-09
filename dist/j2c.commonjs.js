@@ -28,7 +28,7 @@ function cartesian(a,b, selectorP, res, i, j) {
 
 function concat(a, b, selectorP) {
   if (selectorP && b.match(/^[-\w$]+$/)) throw new Error("invalid selector '" + b +  "'")
-  return selectorP && b.indexOf('&') + 1 ? b.replace(/&/g, a) : a + b
+  return selectorP && /&/.test(b) ? b.replace(/&/g, a) : a + b
 }
 
 function decamelize(match) {
@@ -47,7 +47,7 @@ function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk) {
     prefix = (prefix && prefix + '-')
     for (k in o) if (own.call(o, k)){
       v = o[k]
-      if (k.indexOf('$') + 1) {
+      if (/\$/.test(k)) {
         // "$" was found.
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
           declarations(v, buf, prefix + k[kk], vendors, localize)
@@ -178,7 +178,7 @@ function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk, v, dec
         // nested sub-selectors
         sheet(v, buf,
           /* if prefix and/or k have a coma */
-          prefix.indexOf(',') + k.indexOf(',') + 2 ?
+          /,/.test(prefix) || /,/.test(k) ?
           /* then */
             cartesian(prefix.split(','), k.split(','), prefix).join(',') :
           /* else */
