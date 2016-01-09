@@ -1,5 +1,21 @@
 # Change log
 
+## v0.10.0
+
+- at long last allow element selectors without a prepended space at the top level
+- autoprefix animation and animation-name with -webkit- too like we do for `@keyframes`.
+- Tweaks and cleanup
+
+## v0.9.0
+
+- Added @extend
+- Internal change: switched to rollup for build.
+- Dropped the inline-only version for now.
+
+## v0.8.3
+
+- Cosmetic release that fixed typos in the docs
+
 ## v0.8.2
 
 - cleanup
