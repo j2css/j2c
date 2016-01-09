@@ -1,11 +1,11 @@
-# j2c [![npm][npm_img]][npm_url] [![.min.gz][size_img]
+# j2c [![npm][npm_img]][npm_url] ![.min.gz][size_img]
 
+[![Join the chat at https://gitter.im/j2css/j2c][gitter_img]][gitter_url]
 [![Build Status][trav_img]][trav_url]
 [![Coverage Status][cov_img]][cov_url]
 [![Dependency Status][deps_img]][deps_url]
 [![bitHound Score][bithound_img]][bithound_url]
 
-[![Join the chat at https://gitter.im/j2css/j2c][gitter_img]][gitter_url]
 
 CSS in JS on steroids.
 
@@ -29,7 +29,7 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
 [trav_url]: https://travis-ci.org/j2css/j2c
 [cov_img]: https://coveralls.io/repos/j2css/j2c/badge.svg?branch=master
 [cov_url]: https://coveralls.io/r/j2css/j2c?branch=master
-[npm_img]: https://img.shields.io/npm/v/npm.svg
+[npm_img]: https://img.shields.io/npm/v/j2c.svg
 [npm_url]: https://npmjs.com/package/j2c
 [size_img]: https://badges.herokuapp.com/size/npm/j2c/dist/j2c.global.min.js.gz?label=.min.gz
 [deps_img]: https://david-dm.org/j2css/j2c.svg
