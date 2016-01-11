@@ -101,7 +101,8 @@ j2c.global = function(x) {
   return ':global(' + x + ')'
 }
 
-j2c.kv = function kv (k, v, o) {
+j2c.kv = kv
+function kv (k, v, o) {
   o = {}
   o[k] = v
   return o
@@ -112,7 +113,7 @@ j2c.at = function at (rule, params, block) {
     arguments.length < 3
   ) {
     var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
-    _at.toString = function(){return '@' + rule + ' ' + params)}
+    _at.toString = function(){return '@' + rule + ' ' + params}
     return _at
   }
   else return kv('@' + rule + ' ' + params, block)

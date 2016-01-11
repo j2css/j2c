@@ -44,6 +44,8 @@ function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk) {
       declarations(o[k], buf, prefix, vendors, localize)
     break
   case OBJECT:
+    // prefix is falsy iif it is the empty string, which means we're at the root
+    // of the declarations list.
     prefix = (prefix && prefix + '-')
     for (k in o) if (own.call(o, k)){
       v = o[k]
@@ -328,11 +330,13 @@ function kv (k, v, o) {
   return o
 }
 
-j2c.at = function(rule, params, block) {
+j2c.at = function at (rule, params, block) {
   if (
     arguments.length < 3
   ) {
-    return f.bind.apply(f, [null].concat([].slice.call(arguments,0)))
+    var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
+    _at.toString = function(){return '@' + rule + ' ' + params}
+    return _at
   }
   else return kv('@' + rule + ' ' + params, block)
 }

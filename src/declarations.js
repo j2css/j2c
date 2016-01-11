@@ -13,6 +13,8 @@ export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk
       declarations(o[k], buf, prefix, vendors, localize)
     break
   case OBJECT:
+    // prefix is falsy iif it is the empty string, which means we're at the root
+    // of the declarations list.
     prefix = (prefix && prefix + '-')
     for (k in o) if (own.call(o, k)){
       v = o[k]
