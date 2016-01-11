@@ -58,9 +58,12 @@ export function sheet(statements, buf, prefix, vendors, localize, /*var*/ k, kk,
           while (kk = findKlass.exec(prefix)) k = kk[4]
           /*eslint-enable no-cond-assign*/
 
-          // if in global context or no class in the selector,
-          // pass it down as a declaration.
-          if (k == null || !localize || /^@extends?$/.test(k)) {
+          if (
+            k == null || // the last class in the selector is a :global(.x)
+            !localize || // we're in a @global{} block
+            /^@extends?$/.test(k) // no class in the selector
+          ) {
+            // pass it down as a pseudo-declaration.
             decl['at-extend'] = v + ', no class to extend'
             continue
           }

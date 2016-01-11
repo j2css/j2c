@@ -142,9 +142,12 @@ define(function () { 'use strict';
             while (kk = findKlass.exec(prefix)) k = kk[4]
             /*eslint-enable no-cond-assign*/
 
-            // if in global context or no class in the selector,
-            // pass it down as a declaration.
-            if (k == null || !localize || /^@extends?$/.test(k)) {
+            if (
+              k == null || // the last class in the selector is a :global(.x)
+              !localize || // we're in a @global{} block
+              /^@extends?$/.test(k) // no class in the selector
+            ) {
+              // pass it down as a pseudo-declaration.
               decl['at-extend'] = v + ', no class to extend'
               continue
             }
@@ -313,6 +316,27 @@ define(function () { 'use strict';
     }
     return res
   }
+
+  j2c.global = function(x) {
+    return ':global(' + x + ')'
+  }
+
+  j2c.kv = kv
+  function kv (k, v, o) {
+    o = {}
+    o[k] = v
+    return o
+  }
+
+  j2c.at = function(rule, params, block) {
+    if (
+      arguments.length < 3
+    ) {
+      return f.bind.apply(f, [null].concat([].slice.call(arguments,0)))
+    }
+    else return kv('@' + rule + ' ' + params, block)
+  }
+
   j2c(j2c)
   delete j2c.use
 
