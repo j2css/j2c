@@ -5,12 +5,18 @@ function decamelize(match) {
 }
 
 // Handles the property:value; pairs.
-export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk) {
+export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
   if (o==null) return
+  if (/\$/.test(prefix)) {
+    for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
+      declarations(o, buf, prefix[kk], vendors, local, ns)
+    }
+    return
+  }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, vendors, localize)
+      declarations(o[k], buf, prefix, vendors, local, ns)
     break
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
@@ -19,11 +25,10 @@ export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk
     for (k in o) if (own.call(o, k)){
       v = o[k]
       if (/\$/.test(k)) {
-        // "$" was found.
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], vendors, localize)
+          declarations(v, buf, prefix + k[kk], vendors, local, ns)
       } else {
-        declarations(v, buf, prefix + k, vendors, localize)
+        declarations(v, buf, prefix + k, vendors, local, ns)
       }
     }
     break
@@ -35,9 +40,9 @@ export function declarations(o, buf, prefix, vendors, localize, /*var*/ k, v, kk
     // `o` is the value.
     k = (prefix && (prefix).replace(/_/g, '-').replace(/[A-Z]/g, decamelize) + ':')
 
-    if (localize && (k == 'animation-name:' || k == 'animation:')) {
+    if (local && (k == 'animation-name:' || k == 'animation:')) {
       o = o.split(',').map(function(o){
-        return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, localize)
+        return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
       }).join(',')
       vendors = ['webkit']
     }

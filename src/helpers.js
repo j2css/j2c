@@ -27,8 +27,13 @@ function cartesian(a,b, selectorP, res, i, j) {
 }
 
 function concat(a, b, selectorP) {
-  if (selectorP && /^[-\w$]+$/.test(b)) throw new Error("invalid selector '" + b +  "'")
-  return selectorP && /&/.test(b) ? b.replace(/&/g, a) : a + b
+  // `b.replace(/&/g, a)` is never falsy, since the
+  // 'a' of cartesian can't be the empty string
+  // in selector mode.
+  return selectorP && (
+    /^[-\w$]+$/.test(b) && ':-error-bad-sub-selector-' + b ||
+    /&/.test(b) && /* never falsy */ b.replace(/&/g, a)
+  ) || a + b
 }
 /* /-statements-/*/
 

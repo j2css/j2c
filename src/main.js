@@ -39,29 +39,23 @@ export default function j2c(res) {
       locals[k] = ns[k]
     }
     sheet(
-      statements, buf, '', emptyArray /*vendors*/,
-      // Localize can either be called as `string.replace(regexp, localize)
-      // or standalone. It registers class and animation names in a single
-      // `locals` registry. localize and the regexps are designed to handle
-      // the various corner cases.
-      // it also handles `@extend` (it may be nice at some point to give that
-      // code its own function).
-      function localize(match, space, global, dot, name) {
-        if(space == 'e') {
-          // {@extend: ...} handling.
-          // for code size, we reuse the names of the
-          // standard regexp replacer. The names should read
-          // localize(parent, extend = 'e', child, /*var*/ nameList)
-          dot = locals[global]
-          locals[global] =
-            dot.slice(0, dot.lastIndexOf(' ') + 1) +
-            match + ' ' +
-            dot.slice(dot.lastIndexOf(' ') + 1)
-        } else if (global) {
-          return space + global
+      statements, buf, '', '', emptyArray /*vendors*/,
+      1, // local
+      {
+        e: function extend(parent, child) {
+          var nameList = locals[child]
+          locals[child] =
+            nameList.slice(0, nameList.lastIndexOf(' ') + 1) +
+            parent + ' ' +
+            nameList.slice(nameList.lastIndexOf(' ') + 1)
+        },
+        l: function localize(match, space, global, dot, name) {
+          if (global) {
+            return space + global
+          }
+          if (!locals[name]) locals[name] = name + suffix
+          return space + dot + locals[name].match(/\S+$/)
         }
-        if (!locals[name]) locals[name] = name + suffix
-        return space + dot + locals[name].match(/\S+$/)
       }
     )
     /*jshint -W053 */
@@ -80,10 +74,13 @@ export default function j2c(res) {
       buf = [],
       '', // prefix
       emptyArray, // vendors
-      function localize(match, space, global, dot, name) {
-        if (global) return space + global
-        if (!locals[name]) return name
-        return space + dot + locals[name]
+      1,
+      {
+        l: function localize(match, space, global, dot, name) {
+          if (global) return space + global
+          if (!locals[name]) return name
+          return space + dot + locals[name]
+        }
       })
     return finalize(buf)
   }

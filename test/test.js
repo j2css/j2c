@@ -1,22 +1,25 @@
 /*eslint-env node, mocha */
 
 // used to normalize styles for reliable comparison.
-var crass = require('crass'),
-  expect = require('expect.js')
+var expect = require('expect.js'),
+  minifySelectors = require('postcss-minify-selectors'),
+  minifyParams = require('postcss-minify-params'),
+  perfectionist = require('perfectionist'),
+  postcss = require('postcss')([perfectionist({format:'compressed'}), minifySelectors(), minifyParams()])
 
 
 
-function normalize(s) { return crass.parse(s).toString() }
+function normalize(s) { return postcss.process(s).css }
 
 function check(result, expected){
   result = normalize(result)
 
     // since you can't rely on the order of JS object keys, sometimes, several "expected"
     // values must be provided.
-  expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-    return normalize(s)
-  })
-  expect(expected).to.contain(result)
+  // expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+  //   return normalize(s)
+  // })
+  expect(normalize(expected)).to.contain(result)
 }
 
 function randStr() {
@@ -699,7 +702,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('invalid @foo becomes at-foo property', function(){
     check(
       j2c.sheet({'@foo': 'bar'}),
-      '*{at-foo:bar;}'
+      '@-error-unsupported-at-rule "@foo";'
     )
 
   })
@@ -732,7 +735,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@namespace with a 2-elements array', function(){
     check(
-      j2c.sheet({'@namespace': ["'http://foo.example.com'", " bar 'http://bar.example.com'"]}),
+      j2c.sheet({'@namespace': ["'http://foo.example.com'", "bar 'http://bar.example.com'"]}),
       "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
     )
   })
@@ -745,56 +748,56 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('a local class', function(){
     var css = j2c.sheet({'.bit': {foo:5}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('.' + css.bit + '{\nfoo:5;\n}')
+    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
   })
 
   test('two local classes', function(){
     var css = j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bit.slice(4)).to.be(css.bat.slice(4))
-    expect(css + '').to.contain('.' + css.bit + '{\nfoo:5;\n}')
-    expect(css + '').to.contain('.' + css.bat + '{\nbar:6;\n}')
+    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
+    expect(css + '').to.contain('.' + css.bat + ' {\nbar:6;\n}')
   })
 
   test('a local and a global class', function(){
     var css = j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('.' + css.bit + '{\nfoo:5;\n}')
-    expect(css + '').to.contain('.bat{\nbar:6;\n}')
+    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
+    expect(css + '').to.contain('.bat {\nbar:6;\n}')
   })
 
   test('a local wrapping a global block', function(){
     var css = j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('.' + css.bit + '.bat{\nfoo:5;\n}')
+    expect(css + '').to.contain('.' + css.bit + '.bat {\nfoo:5;\n}')
   })
 
   test('two local classes, nested', function(){
     var css = j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bit.slice(4)).to.be(css.bat.slice(4))
-    expect(css + '').to.contain('.' + css.bit + '{\nfoo:5;\n}')
-    expect(css + '').to.contain('.' + css.bit +'.' + css.bat + '{\nbar:6;\n}')
+    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
+    expect(css + '').to.contain('.' + css.bit +'.' + css.bat + ' {\nbar:6;\n}')
   })
 
   test('@keyframes', function(){
     var css = j2c.sheet({'@keyframes bit': {}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('@keyframes ' + css.bit +'{')
+    expect(css + '').to.contain('@keyframes ' + css.bit +' {')
   })
 
   test('a global @keyframes', function() {
     var css = j2c.sheet({'@keyframes :global(bit)': {}})
     expect(css.bit).to.be(undefined)
-    expect(css + '').to.contain('@keyframes bit{')
+    expect(css + '').to.contain('@keyframes bit {')
   })
 
   test('a @keyframe nested in a @global at-rule', function() {
     var css = j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
     expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('@keyframes bat{')
+    expect(css + '').to.contain('@keyframes bat {')
   })
 
   test('one animation', function(){
@@ -839,7 +842,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     var css = j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
     expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
     expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain( css.bit +'.bat{')
+    expect(css + '').to.contain( css.bit +'.bat {')
   })
 
 
@@ -848,27 +851,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ///////////////////////////////////
 
 
-  test('property-like selector', function() {
-    var E
-    try{
-      j2c.sheet({i:{'g,p': {animation_name: 'bit, bat'}}})
-    } catch(e) {
-      E = e
-    }
-    expect(E).to.be.an(Error)
-    expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
-  })
-
 
   test('property-like sub-selector', function() {
-    var E
-    try{
-      j2c.sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
-    } catch(e) {
-      E = e
-    }
-    expect(E).to.be.an(Error)
-    expect(["invalid selector 'p'", "invalid selector 'g'"]).to.contain(E.message)
+    var sheet = j2c.sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
+
+    expect(''+sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
   })
 
 
@@ -877,11 +864,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ////////////////////////////
 
   test('two properties', function() {
-    expect(''+j2c.sheet({p: {foo: 'bar', baz: 'qux'}})).to.be('p{\nfoo:bar;\nbaz:qux;\n}')
+    expect(''+j2c.sheet({p: {foo: 'bar', baz: 'qux'}})).to.be('p {\nfoo:bar;\nbaz:qux;\n}')
   })
 
   test('$ combiner', function() {
-    expect(''+j2c.sheet({p: {foo$baz: 'qux'}})).to.be('p{\nfoo:qux;\nbaz:qux;\n}')
+    expect(''+j2c.sheet({p: {foo$baz: 'qux'}})).to.be('p {\nfoo:qux;\nbaz:qux;\n}')
   })
 
 
@@ -891,59 +878,46 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     // the insertion order is the iteration order in all
     // browsers and in node too.
   test('subselector > declaration > @media', function(){
-    var prop, klass, width, reference, o
+    var prop = randStr()
+    var klass = randStr()
+    var width = randInt()
 
-    prop = randStr()
-    klass = randStr()
-    width = randInt()
+    var permutations = [
+      [0, 1, 2],
+      [1, 2, 0],
+      [2, 0, 1],
+      [2, 1, 0],
+      [0, 2, 1],
+      [1, 0, 2]
+    ]
 
-    reference = normalize(
-        'p.' + klass + '{foo:6;} p{' + prop +
-        ':5;} @media (min-width: ' + width + 'em){p{bar:7;}}'
-      )
+    var jsKeys = [
+      prop,
+      '.' + klass,
+      '@media (min-width: ' + width + 'em)'
+    ]
 
+    var o = {}
+    o[prop] = 5
+    o['.' + klass] = {foo:6}
+    o['@media (min-width: ' + width + 'em)'] = {bar:7}
 
-    o = {p: {}}
-    o.p[prop] = 5
-    o.p['.' + klass] = {foo:6}
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
+    var rules = [
+      'p{' + prop + ':5;}',
+      'p.' + klass + '{foo:6;}',
+      '@media (min-width: ' + width + 'em){p{bar:7;}}'
+    ]
 
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
+    permutations.forEach(function(indices) {
+      var source = {p:{}}
+      var CSS = []
+      indices.forEach(function(i){
+        source.p[jsKeys[i]] = o[jsKeys[i]]
+        CSS.push(rules[i])
+      })
+      expect(normalize(j2c.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
+    })
 
-    o = {p: {}}
-    o.p[prop] = 5
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o.p['.'+klass] = {foo:6}
-
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
-
-    o = {p: {}}
-    o.p['.'+klass] = {foo:6}
-    o.p[prop] = 5
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
-
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
-
-    o = {p: {}}
-    o.p['.'+klass] = {foo:6}
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o.p[prop] = 5
-
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
-
-    o = {p: {}}
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o.p['.'+klass] = {foo:6}
-    o.p[prop] = 5
-
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
-
-    o = {p: {}}
-    o.p['@media (min-width: ' + width + 'em)'] = {bar:7}
-    o.p[prop] = 5
-    o.p['.'+klass] = {foo:6}
-
-    expect(normalize(j2c.sheet({'@global':o}))).to.be(reference)
 
   })
 
@@ -982,7 +956,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         {'@keyframes bit': {}}
       )
     expect(css.bit).to.be('BOT')
-    expect(css + '').to.contain('@keyframes BOT{')
+    expect(css + '').to.contain('@keyframes BOT {')
   })
 
   test('namespaced animation', function(){
@@ -1044,7 +1018,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test("if we can't find a class to extend, pass @extend as a property", function() {
     var css = j2c.sheet({'p > a': {'@extend':'.bat'}})
     expect(css.bat).to.be(undefined)
-    expect('' + css).to.contain('at-extend:.bat, no class to extend;')
+    expect('' + css).to.contain('@-error-no-class-to-extend-in "p > a";')
   })
 
   test("extend doesn't extend into global selectors", function() {
@@ -1054,7 +1028,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(css.bat).to.be(undefined)
     expect(css.bot).to.be(undefined)
     expect(css.bit).not.to.contain(css.bat + ' ')
-    expect('' + css).to.contain('at-extend:.bat, no class to extend;')
+    expect('' + css).to.contain('@-error-cannot-extend-in-global-context ".bit :global(.bot)";')
   })
 
   //////////////////////////////
