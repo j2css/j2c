@@ -1,9 +1,16 @@
 # Change log
 
+## v0.11.0
+
+- Refactor the innards so that the source order is completely respected in the output, including conditional at-rules.
+- Speed ++
+- Autoprefix all animation-* and transition.
+- Some error messages are now inserted in the result as -error-prefixed at-rules and :pseudo-classes.
+
 ## v0.10.0
 
-- at long last allow element selectors without a prepended space at the top level
-- autoprefix animation and animation-name with -webkit- too like we do for `@keyframes`.
+- At long last allow element selectors without a prepended space at the top level
+- Autoprefix animation and animation-name with -webkit- too like we do for `@keyframes`.
 - Tweaks and cleanup
 
 ## v0.9.0

@@ -375,21 +375,6 @@ becomes
 
 For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
-At-rules are guarateed to be inserted after the properties and sub-selectors at a given level. This prevents nested `@media` blocks to be overridden by declarations found out of them.
-
-If you need several media queries where the order of definition is important, or if you need at-rules that must be inserted at the top of a sheet, use arrays.
-
-```JavaScript
-j2c.sheet([
-  {"@import": "url(foo.css)"},
-  {"@namespace": "url(http://www.w3.org/1999/xhtml)"},
-  {"@namespace": "svg url(http://www.w3.org/2000/svg)"},
-  {
-    ".your": {sheet:"here"}
-  }
-])
-```
-
 #### Mixins and `@extend`
 
 Mixins and `@extend` make `j2c` sheets composable. Both techniques can be combined.
@@ -645,34 +630,21 @@ module.directive('j2cInline', function() {
 });
 ```
 
+## Error handling
+
+`j2c` at this point does little validation. When errors are encountered, it has no way to determine where in the source code the error occurred. To make it easier to pinpoint issues, the errors are inserted in the sheet as, for example `@-error-bad-at-rule "@medis";` or `:bad-sub-selector-foo`. This way you get the broader context of where the error occureed in the source.
+
 ## Limitations
 
 ### Selectors and properties order
 
-`j2c` relies on JS objects to define selectors and properties. The iteration order of object properties is officially undefined, but in practice it only differs in situations that do not really apply to `j2c`. As long as we're using non-numeric keys and we don't delete then re-add object properties, the iteration order is the output order.
+`j2c` relies on JS objects to define selectors and properties. The iteration order of object properties is officially undefined, but in practice it only differs in situations that do not apply to `j2c`. As long as we're using non-numeric keys and we don't delete then re-add object properties, the source object order is respected in the output.
 
-### At rules order
-
-At-rules, if present, are processed after selectors. This also applies to nested at-rules.
-
-If you want an at-rule to appear in source before normal rules, you can use an array:
-
-```JavaScript
-j2c.sheet(
-    [
-      {
-        "@namespace": "svg url(http://www.w3.org/2000/svg)"
-      }, {
-        "svg|a": {
-          // ...
-        }
-      }
-    ]
-```
-
-### No input validation
+### Little input validation
 
 `j2c` knows the bare minimum to output a valid stylesheet when provided with valid input. It will hapily accept invalid selectors, properties and values, and could in that case produce a broken stylesheet.
+
+At this point, it will 
 
 I may get around and write a validator companion, but I'm not there yet :-).
 
