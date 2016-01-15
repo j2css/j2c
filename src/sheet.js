@@ -2,8 +2,21 @@ import {type, ARRAY, OBJECT, STRING, cartesian, concat} from './helpers'
 import {declarations} from './declarations'
 import {at} from './at-rules'
 
-// Add rulesets and other CSS statements to the sheet.
-export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
+/**
+ * Add rulesets and other CSS statements to the sheet.
+ *
+ * @param {array|string|object} statements - a source object or sub-object.
+ * @param {string[]} buf - the buffer in which the final style sheet is built
+ * @param {string} prefix - the current selector or a prefix in case of nested rules
+ * @param {string} rawPrefix - as above, but without localization transformations
+ * @param {string} vendors - a list of vendor prefixes
+ * @Param {boolean} local - are we in @local or in @global scope?
+ * @param {object} ns - helper functions to populate or create the @local namespace
+ *                      and to @extend classes
+ * @param {function} ns.e - @extend helper
+ * @param {function} ns.l - @local helper
+ */
+ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
   var k, kk, v, inDeclaration
 
   switch (type.call(statements)) {

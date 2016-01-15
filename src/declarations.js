@@ -4,7 +4,21 @@ function decamelize(match) {
   return '-' + match.toLowerCase()
 }
 
-// Handles the property:value; pairs.
+/**
+ * Handles the property:value; pairs.
+ *
+ * @param {array|object|string} o - the declarations.
+ * @param {string[]} buf - the buffer in which the final style sheet is built.
+ * @param {string} prefix - the current property or a prefix in case of nested
+ *                          sub-properties.
+ * @param {string} vendors - a list of vendor prefixes.
+ * @Param {boolean} local - are we in @local or in @global scope.
+ * @param {object} ns - helper functions to populate or create the @local namespace
+ *                      and to @extend classes.
+ * @param {function} ns.e - @extend helper.
+ * @param {function} ns.l - @local helper.
+ */
+
 export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
   if (o==null) return
   if (/\$/.test(prefix)) {
