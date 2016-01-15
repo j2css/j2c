@@ -72,25 +72,26 @@ function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
     // `o` is then treated as a `property:value` pair.
     // otherwise, `prefix` is the property name, and
     // `o` is the value.
-    k = (prefix && (prefix).replace(/_/g, '-').replace(/[A-Z]/g, decamelize) + ':')
+    k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize)
 
-    if (local && (k == 'animation-name:' || k == 'animation:')) {
-      o = o.split(',').map(function(o){
+    if (local && (k == 'animation-name' || k == 'animation')) {
+      o = o.split(',').map(function (o) {
         return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
       }).join(',')
       vendors = ['webkit']
     }
-/*/-statements-/*/
-    o = k + o + ';\n'
+    // '@' in properties also triggers the *ielte7 hack
+    // Since plugins dispatch on the /^@/ for at-rules
+    // we swap the at for an asterisk
+    k = k.replace(/^@/, '*') 
 
+/*/-statements-/*/
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
-      buf.push('-', vendors[kk], '-', o)
-    buf.push(o.replace(/^@/, 'at-'))
+      buf.push('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
 /*/-statements-/*/
-/*/-inline-/*/
-    // buf.push(k + o + ";");
-/*/-inline-/*/
+
+    buf.push(k, k ? ':': '', o, ';\n')
 
   }
 }
