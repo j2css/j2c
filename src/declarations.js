@@ -47,11 +47,11 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
       vendors = ['webkit']
     }
 /*/-statements-/*/
-    o = k + o + ';'
+    o = k + o + ';\n'
 
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
-      buf.push('-' + vendors[kk] + '-' + o)
+      buf.push('-', vendors[kk], '-', o)
     buf.push(o.replace(/^@/, 'at-'))
 /*/-statements-/*/
 /*/-inline-/*/

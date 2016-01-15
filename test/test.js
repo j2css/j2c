@@ -70,7 +70,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('two properties, ensure order', function() {
-    expect(j2c.inline({foo: 'bar', baz: 'qux'})).to.be('foo:bar;\nbaz:qux;')
+    check(j2c.inline({foo: 'bar', baz: 'qux'}), 'foo:bar;\nbaz:qux;')
   })
 
 
@@ -96,7 +96,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('multiple sub-properties, ensure order', function() {
-    expect(j2c.inline({foo$baz: 'qux'})).to.be('foo:qux;\nbaz:qux;')
+    check(j2c.inline({foo$baz: 'qux'}), 'foo:qux;\nbaz:qux;')
   })
 
 
@@ -167,7 +167,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('CSS *Hack', function() {
     // tested manually because the crass normalization
     // outputs an empty string.
-    expect(j2c.inline({'*foo': 'bar'})).to.be('*foo:bar;')
+    check(j2c.inline({'*foo': 'bar'}), '*foo:bar;')
   })
 
   test('CSS _Hack', function() {
@@ -245,22 +245,22 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('namespaced animation', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
-    expect(result).to.be(webkitify('animation:theFoo 1sec;'))
+    check(result, webkitify('animation:theFoo 1sec;'))
   })
 
   test('namespaced animation-name', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
-    expect(result).to.be(webkitify('animation-name:theFoo;'))
+    check(result, webkitify('animation-name:theFoo;'))
   })
 
   test('namespaced and non-namespaced animation-name', function() {
     var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
-    expect(result).to.be(webkitify('animation-name:theFoo, bar;'))
+    check(result, webkitify('animation-name:theFoo, bar;'))
   })
 
   test('two namespaced animations', function() {
     var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
-    expect(result).to.be(webkitify('animation:theFoo 1sec, theBar 2sec;'))
+    check(result, webkitify('animation:theFoo 1sec, theBar 2sec;'))
   })
 
 
@@ -270,19 +270,19 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   /////////////////////////////////////
 
   test('one plugin that does nothing', function() {
-    expect(''+j2c().use(function(){}).inline(
+    check(''+j2c().use(function(){}).inline(
       {foo: 'bar'}
-    )).to.be('foo:bar;')
+    ), 'foo:bar;')
   })
 
   test('one plugin that mutates the buffer', function() {
-    expect(''+j2c().use(
+    check(''+j2c().use(
       function(buf){
         buf[0] = buf[0].replace('f','k')
       }
     ).inline(
       {foo: 'bar'}
-    )).to.be('koo:bar;')
+    ), 'koo:bar;')
   })
 
   test('one plugin that returns a new buffer', function() {
@@ -296,7 +296,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('two plugins that mutate the buffer', function() {
-    expect(''+j2c().use(
+    check(''+j2c().use(
       function(buf){
         buf[0]=buf[0].replace('f', 'a')
       },
@@ -305,7 +305,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       }
     ).inline(
       {foo: 'bar'}
-    )).to.be('moo:bar;')
+    ), 'moo:bar;')
   })
 
 
@@ -864,11 +864,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ////////////////////////////
 
   test('two properties', function() {
-    expect(''+j2c.sheet({p: {foo: 'bar', baz: 'qux'}})).to.be('p {\nfoo:bar;\nbaz:qux;\n}')
+    check(j2c.sheet({p: {foo: 'bar', baz: 'qux'}}), 'p {\nfoo:bar;\nbaz:qux;\n}')
   })
 
   test('$ combiner', function() {
-    expect(''+j2c.sheet({p: {foo$baz: 'qux'}})).to.be('p {\nfoo:qux;\nbaz:qux;\n}')
+    check(j2c.sheet({p: {foo$baz: 'qux'}}), 'p {\nfoo:qux;\nbaz:qux;\n}')
   })
 
 
@@ -1044,7 +1044,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('one plugin that mutates the buffer', function() {
     check(''+j2c().use(
       function(buf){
-        buf[0] = 'li{'
+        buf[0] = 'li'
       }
     ).sheet(
       {p: {foo: 'bar'}}

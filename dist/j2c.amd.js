@@ -83,11 +83,11 @@ define(function () { 'use strict';
         vendors = ['webkit']
       }
   /*/-statements-/*/
-      o = k + o + ';'
+      o = k + o + ';\n'
 
       // vendorify
       for (kk = 0; kk < vendors.length; kk++)
-        buf.push('-' + vendors[kk] + '-' + o)
+        buf.push('-', vendors[kk], '-', o)
       buf.push(o.replace(/^@/, 'at-'))
   /*/-statements-/*/
   /*/-inline-/*/
@@ -104,10 +104,10 @@ define(function () { 'use strict';
     if (/^@(?:namespace|import|charset)$/.test(k)) {
       if(type.call(v) == ARRAY){
         for (kk = 0; kk < v.length; kk++) {
-          buf.push(k + ' ' + v[kk] + ';')
+          buf.push(k, ' ', v[kk], ';\n')
         }
       } else {
-        buf.push(k + ' ' + v + ';')
+        buf.push(k, ' ', v, ';\n')
       }
     } else if (/^@keyframes /.test(k)) {
       k = local ? k.replace(
@@ -117,13 +117,13 @@ define(function () { 'use strict';
       ) : k
       // add a @-webkit-keyframes block too.
 
-      buf.push('@-webkit-' + k.slice(1) + ' {')
+      buf.push('@-webkit-', k.slice(1), ' {\n')
       sheet(v, buf, '', '', ['webkit'])
-      buf.push('}')
+      buf.push('}\n')
 
-      buf.push(k + ' {')
+      buf.push(k, ' {\n')
       sheet(v, buf, '', '', vendors, local, ns)
-      buf.push('}')
+      buf.push('}\n')
 
     } else if (/^@extends?$/.test(k)) {
 
@@ -133,11 +133,11 @@ define(function () { 'use strict';
       /*eslint-enable no-cond-assign*/
       if (k == null || !local) {
         // we're in a @global{} block
-        buf.push('@-error-cannot-extend-in-global-context ' + JSON.stringify(rawPrefix) +';')
+        buf.push('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
         return
       } else if (/^@extends?$/.test(k)) {
         // no class in the selector
-        buf.push('@-error-no-class-to-extend-in ' + JSON.stringify(rawPrefix) +';')
+        buf.push('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
         return
       }
       ns.e(
@@ -157,12 +157,12 @@ define(function () { 'use strict';
       sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
 
     } else if (/^@(?:media |supports |document )./.test(k)) {
-      buf.push(k + ' {')
+      buf.push(k, ' {\n')
       sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
-      buf.push('}')
+      buf.push('}\n')
 
     } else {
-      buf.push('@-error-unsupported-at-rule ' + JSON.stringify(k) + ';')
+      buf.push('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
     }
   }
 
@@ -183,19 +183,19 @@ define(function () { 'use strict';
         if (prefix && /^[-\w$]+$/.test(k)) {
           if (!inDeclaration) {
             inDeclaration = 1
-            buf.push(( prefix || '*' ) +' {')
+            buf.push(( prefix || '*' ), ' {\n')
           }
           declarations(v, buf, k, vendors, local, ns)
         } else if (/^@/.test(k)) {
           // Handle At-rules
-          inDeclaration = (inDeclaration && buf.push('}') && 0)
+          inDeclaration = (inDeclaration && buf.push('}\n') && 0)
 
           at(k, v, buf, prefix, rawPrefix, vendors, local, ns)
 
         } else {
           // selector or nested sub-selectors
 
-          inDeclaration = (inDeclaration && buf.push('}') && 0)
+          inDeclaration = (inDeclaration && buf.push('}\n') && 0)
 
           sheet(v, buf,
             (kk = /,/.test(prefix) || prefix && /,/.test(k)) ?
@@ -217,14 +217,14 @@ define(function () { 'use strict';
           )
         }
       }
-      if (inDeclaration) buf.push('}')
+      if (inDeclaration) buf.push('}\n')
       break
     case STRING:
       buf.push(
-          ( prefix || ':-error-no-selector' ) + ' {'
+          ( prefix || ':-error-no-selector' ) , ' {\n'
         )
       declarations(statements, buf, '', vendors, local, ns)
-      buf.push('}')
+      buf.push('}\n')
     }
   }
 
@@ -240,7 +240,7 @@ define(function () { 'use strict';
 
     function finalize(buf, i) {
       for (i = 0; i< extensions.length; i++) buf = extensions[i](buf) || buf
-      return buf.join('\n')
+      return buf.join('')
     }
 
     res.use = function() {

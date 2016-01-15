@@ -8,10 +8,10 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
   if (/^@(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
-        buf.push(k + ' ' + v[kk] + ';')
+        buf.push(k, ' ', v[kk], ';\n')
       }
     } else {
-      buf.push(k + ' ' + v + ';')
+      buf.push(k, ' ', v, ';\n')
     }
   } else if (/^@keyframes /.test(k)) {
     k = local ? k.replace(
@@ -21,13 +21,13 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     ) : k
     // add a @-webkit-keyframes block too.
 
-    buf.push('@-webkit-' + k.slice(1) + ' {')
+    buf.push('@-webkit-', k.slice(1), ' {\n')
     sheet(v, buf, '', '', ['webkit'])
-    buf.push('}')
+    buf.push('}\n')
 
-    buf.push(k + ' {')
+    buf.push(k, ' {\n')
     sheet(v, buf, '', '', vendors, local, ns)
-    buf.push('}')
+    buf.push('}\n')
 
   } else if (/^@extends?$/.test(k)) {
 
@@ -37,11 +37,11 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     /*eslint-enable no-cond-assign*/
     if (k == null || !local) {
       // we're in a @global{} block
-      buf.push('@-error-cannot-extend-in-global-context ' + JSON.stringify(rawPrefix) +';')
+      buf.push('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
       return
     } else if (/^@extends?$/.test(k)) {
       // no class in the selector
-      buf.push('@-error-no-class-to-extend-in ' + JSON.stringify(rawPrefix) +';')
+      buf.push('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
       return
     }
     ns.e(
@@ -61,11 +61,11 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
 
   } else if (/^@(?:media |supports |document )./.test(k)) {
-    buf.push(k + ' {')
+    buf.push(k, ' {\n')
     sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
-    buf.push('}')
+    buf.push('}\n')
 
   } else {
-    buf.push('@-error-unsupported-at-rule ' + JSON.stringify(k) + ';')
+    buf.push('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
   }
 }

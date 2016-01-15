@@ -15,7 +15,7 @@ export default function j2c(res) {
 
   function finalize(buf, i) {
     for (i = 0; i< extensions.length; i++) buf = extensions[i](buf) || buf
-    return buf.join('\n')
+    return buf.join('')
   }
 
   res.use = function() {

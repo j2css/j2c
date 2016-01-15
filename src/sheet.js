@@ -19,19 +19,19 @@ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
-          buf.push(( prefix || '*' ) + ' {')
+          buf.push(( prefix || '*' ), ' {\n')
         }
         declarations(v, buf, k, vendors, local, ns)
       } else if (/^@/.test(k)) {
         // Handle At-rules
-        inDeclaration = (inDeclaration && buf.push('}') && 0)
+        inDeclaration = (inDeclaration && buf.push('}\n') && 0)
 
         at(k, v, buf, prefix, rawPrefix, vendors, local, ns)
 
       } else {
         // selector or nested sub-selectors
 
-        inDeclaration = (inDeclaration && buf.push('}') && 0)
+        inDeclaration = (inDeclaration && buf.push('}\n') && 0)
 
         sheet(v, buf,
           (kk = /,/.test(prefix) || prefix && /,/.test(k)) ?
@@ -53,13 +53,13 @@ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
         )
       }
     }
-    if (inDeclaration) buf.push('}')
+    if (inDeclaration) buf.push('}\n')
     break
   case STRING:
     buf.push(
-        ( prefix || ':-error-no-selector' ) + ' {'
+        ( prefix || ':-error-no-selector' ) , ' {\n'
       )
     declarations(statements, buf, '', vendors, local, ns)
-    buf.push('}')
+    buf.push('}\n')
   }
 }
