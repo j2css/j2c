@@ -40,7 +40,21 @@ define(function () { 'use strict';
     return '-' + match.toLowerCase()
   }
 
-  // Handles the property:value; pairs.
+  /**
+   * Handles the property:value; pairs.
+   *
+   * @param {array|object|string} o - the declarations.
+   * @param {string[]} buf - the buffer in which the final style sheet is built.
+   * @param {string} prefix - the current property or a prefix in case of nested
+   *                          sub-properties.
+   * @param {string} vendors - a list of vendor prefixes.
+   * @Param {boolean} local - are we in @local or in @global scope.
+   * @param {object} ns - helper functions to populate or create the @local namespace
+   *                      and to @extend classes.
+   * @param {function} ns.e - @extend helper.
+   * @param {function} ns.l - @local helper.
+   */
+
   function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
     if (o==null) return
     if (/\$/.test(prefix)) {
@@ -80,12 +94,14 @@ define(function () { 'use strict';
         o = o.split(',').map(function (o) {
           return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
         }).join(',')
-        vendors = ['webkit']
       }
+      if (/^animation|^transition/.test(k)) vendors = ['webkit']
       // '@' in properties also triggers the *ielte7 hack
       // Since plugins dispatch on the /^@/ for at-rules
       // we swap the at for an asterisk
-      k = k.replace(/^@/, '*') 
+      // http://browserhacks.com/#hack-6d49e92634f26ae6d6e46b3ebc10019a
+
+      k = k.replace(/^@/, '*')
 
   /*/-statements-/*/
       // vendorify
@@ -99,6 +115,24 @@ define(function () { 'use strict';
   }
 
   var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
+
+  /**
+   * Hanldes at-rules
+   *
+   * @param {string} k - The at-rule name, and, if takes both parameters and a
+   *                     block, the parameters.
+   * @param {string[]} buf - the buffer in which the final style sheet is built
+   * @param {string[]} v - Either parameters for block-less rules or their block
+   *                       for the others.
+   * @param {string} prefix - the current selector or a prefix in case of nested rules
+   * @param {string} rawPrefix - as above, but without localization transformations
+   * @param {string} vendors - a list of vendor prefixes
+   * @Param {boolean} local - are we in @local or in @global scope?
+   * @param {object} ns - helper functions to populate or create the @local namespace
+   *                      and to @extend classes
+   * @param {function} ns.e - @extend helper
+   * @param {function} ns.l - @local helper
+   */
 
   function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     var kk
@@ -167,8 +201,21 @@ define(function () { 'use strict';
     }
   }
 
-  // Add rulesets and other CSS statements to the sheet.
-  function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
+  /**
+   * Add rulesets and other CSS statements to the sheet.
+   *
+   * @param {array|string|object} statements - a source object or sub-object.
+   * @param {string[]} buf - the buffer in which the final style sheet is built
+   * @param {string} prefix - the current selector or a prefix in case of nested rules
+   * @param {string} rawPrefix - as above, but without localization transformations
+   * @param {string} vendors - a list of vendor prefixes
+   * @Param {boolean} local - are we in @local or in @global scope?
+   * @param {object} ns - helper functions to populate or create the @local namespace
+   *                      and to @extend classes
+   * @param {function} ns.e - @extend helper
+   * @param {function} ns.l - @local helper
+   */
+   function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
     var k, kk, v, inDeclaration
 
     switch (type.call(statements)) {
