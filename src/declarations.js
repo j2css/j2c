@@ -58,11 +58,13 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
       o = o.split(',').map(function (o) {
         return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
       }).join(',')
-      vendors = ['webkit']
     }
+    if (/^animation|^transition/.test(k)) vendors = ['webkit']
     // '@' in properties also triggers the *ielte7 hack
     // Since plugins dispatch on the /^@/ for at-rules
     // we swap the at for an asterisk
+    // http://browserhacks.com/#hack-6d49e92634f26ae6d6e46b3ebc10019a
+
     k = k.replace(/^@/, '*')
 
 /*/-statements-/*/
