@@ -7,15 +7,19 @@
 [![bitHound Score][bithound_img]][bithound_url]
 
 
-CSS in JS on steroids.
+A lean, no hassle CSS in JS solution.
 
-`j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
+Scales from standalone use to isomorphic apps. Compatible with any framework/view library.
+
+Supports building either inline styles of full style sheets.
+
+In `sheet` mode, `j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
 
 Like SASS, LESS and Stylus, `j2c` supports:
 
 - mixins
 - `@extend`
-- nested selectors
+- nested selectors (in `sheet` mode)
 
 All standard CSS at-rules are available out of the box, most importantly:
 
@@ -54,6 +58,7 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
     - [Mixins and @extend](#mixins-and-extend)
     - [CSS Hacks](#css-hacks)
 - [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
+- [Isomorphic app support](#isomorphic-app-support)
 - [Limitations](#limitations)
 - [TODO](#todo)
 - [License: MIT](#license-mit)
@@ -629,6 +634,10 @@ module.directive('j2cInline', function() {
   };
 });
 ```
+
+## Isomorphic app support
+
+Since `j2c` relies on the view library/framework for DOM insertion, it supports the isomorphic scenarios the same way your view solution does (see the previous section). Caveat: local class names will be regenerated on hydration, which means that styles will have to be computed twice by the browser.
 
 ## Error handling
 
