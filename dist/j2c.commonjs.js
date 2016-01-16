@@ -215,7 +215,7 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
  * @param {function} ns.e - @extend helper
  * @param {function} ns.l - @local helper
  */
- function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
+function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
   var k, kk, v, inDeclaration
 
   switch (type.call(statements)) {
