@@ -5,7 +5,8 @@ var
   own =  emptyObject.hasOwnProperty,
   OBJECT = type.call(emptyObject),
   ARRAY =  type.call(emptyArray),
-  STRING = type.call('')
+  STRING = type.call(''),
+  FUNCTION = type.call(type)
 
 /*/-inline-/*/
 // function cartesian(a, b, res, i, j) {
@@ -37,4 +38,4 @@ function concat(a, b, selectorP) {
 }
 /* /-statements-/*/
 
-export {emptyObject, emptyArray, type, own, OBJECT, ARRAY, STRING, cartesian, concat}
+export {emptyObject, emptyArray, type, own, OBJECT, ARRAY, STRING, FUNCTION, cartesian, concat}

@@ -41,7 +41,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   var j2c = require(lib)
 
   function checkinline(result, expected){
-    result = 'p{' + j2c.inline(result) + '}'
+    result = 'p{' + j2c().inline(result) + '}'
     expected = (expected instanceof Array ? expected : [expected]).map(function(s){
       return 'p{' + s + '}'
     })
@@ -70,7 +70,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('two properties, ensure order', function() {
-    check(j2c.inline({foo: 'bar', baz: 'qux'}), 'foo:bar;\nbaz:qux;')
+    check(j2c().inline({foo: 'bar', baz: 'qux'}), 'foo:bar;\nbaz:qux;')
   })
 
 
@@ -96,7 +96,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('multiple sub-properties, ensure order', function() {
-    check(j2c.inline({foo$baz: 'qux'}), 'foo:qux;\nbaz:qux;')
+    check(j2c().inline({foo$baz: 'qux'}), 'foo:qux;\nbaz:qux;')
   })
 
 
@@ -167,7 +167,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('CSS *Hack', function() {
     // tested manually because the crass normalization
     // outputs an empty string.
-    check(j2c.inline({'*foo': 'bar'}), '*foo:bar;')
+    check(j2c().inline({'*foo': 'bar'}), '*foo:bar;')
   })
 
   test('CSS _Hack', function() {
@@ -244,22 +244,27 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ////////////////////////////////////////
 
   test('namespaced animation', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation:'foo 1sec'})
+    var result = j2c({namespace: {foo:'theFoo'}}).inline({animation:'foo 1sec'})
     check(result, webkitify('animation:theFoo 1sec;'))
   })
 
   test('namespaced animation-name', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo'})
+    var result = j2c({namespace: {foo:'theFoo'}}).inline({animation_name:'foo'})
     check(result, webkitify('animation-name:theFoo;'))
   })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var result = j2c.inline({foo:'theFoo'}, {animation_name:'foo, bar'})
-    check(result, webkitify('animation-name:theFoo, bar;'))
+    var _j2c = j2c({namespace: {foo:'theFoo'}})
+    var result = _j2c.inline({animation_name:'foo, bar'})
+    check(result, webkitify('animation-name:theFoo, ' + _j2c.names.bar + ';'))
   })
 
   test('two namespaced animations', function() {
-    var result = j2c.inline({foo:'theFoo', bar:'theBar'}, {animation:'foo 1sec, bar 2sec'})
+    var result = j2c(
+      {namespace: {foo:'theFoo', bar:'theBar'}}
+    ).inline(
+      {animation:'foo 1sec, bar 2sec'}
+    )
     check(result, webkitify('animation:theFoo 1sec, theBar 2sec;'))
   })
 
@@ -270,39 +275,39 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   /////////////////////////////////////
 
   test('one plugin that does nothing', function() {
-    check(''+j2c().use(function(){}).inline(
+    check(j2c().use({postprocess: function(){}}).inline(
       {foo: 'bar'}
     ), 'foo:bar;')
   })
 
   test('one plugin that mutates the buffer', function() {
-    check(''+j2c().use(
-      function(buf){
+    check(j2c().use(
+      {postprocess: function(buf){
         buf[0] = buf[0].replace('f','k')
-      }
+      }}
     ).inline(
       {foo: 'bar'}
     ), 'koo:bar;')
   })
 
   test('one plugin that returns a new buffer', function() {
-    expect(''+j2c().use(
-      function(){
+    expect(j2c().use(
+      {postprocess: function(){
         return ['hello:world;']
-      }
+      }}
     ).inline(
       {foo: 'bar'}
     )).to.be('hello:world;')
   })
 
   test('two plugins that mutate the buffer', function() {
-    check(''+j2c().use(
-      function(buf){
+    check(j2c().use(
+      {postprocess: function(buf){
         buf[0]=buf[0].replace('f', 'a')
-      },
-      function(buf){
+      }},
+      {postprocess: function(buf){
         buf[0]=buf[0].replace('a', 'm')
-      }
+      }}
     ).inline(
       {foo: 'bar'}
     ), 'moo:bar;')
@@ -310,42 +315,33 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
 
 
-  /////////////////////////////////
-  /**/  suite('j2c.prefix: ')  /**/
-  /////////////////////////////////
+  // /////////////////////////////////
+  // /**/  suite('j2c().prefix: ')  /**/
+  // /////////////////////////////////
 
 
-  test('1 x 1', function() {
-    var prod = j2c.prefix('foo', ['o'])
-    expect(prod[0]).to.be('-o-foo')
-    expect(prod[1]).to.be('foo')
-  })
+  // test('1 x 1', function() {
+  //   var prod = j2c().prefix('foo', ['o'])
+  //   expect(prod[0]).to.be('-o-foo')
+  //   expect(prod[1]).to.be('foo')
+  // })
 
-  test('2 x 1', function() {
-    var prod = j2c.prefix('foo', ['o', 'p'])
-    expect(prod[0]).to.be('-o-foo')
-    expect(prod[1]).to.be('-p-foo')
-    expect(prod[2]).to.be('foo')
-  })
-
-});
-
-
-
-
-['../dist/j2c.commonjs', '../dist/j2c.commonjs.min'].forEach(function(lib){
-  var j2c = require(lib)
-
+  // test('2 x 1', function() {
+  //   var prod = j2c().prefix('foo', ['o', 'p'])
+  //   expect(prod[0]).to.be('-o-foo')
+  //   expect(prod[1]).to.be('-p-foo')
+  //   expect(prod[2]).to.be('foo')
+  // })
 
 
   ////////////////////////////////
-  /**/  suite('j2c.sheet: ')  /**/
+  /**/  suite('j2c().sheet: ')  /**/
   ////////////////////////////////
 
 
   test('direct sheet call', function(){
     check(
-      j2c.sheet({p: {foo:5}}),
+      j2c().sheet({p: {foo:5}}),
       'p{foo:5}'
     )
   })
@@ -359,7 +355,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('basic', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo: 'bar'
       }}),
       'p{foo:bar}'
@@ -368,7 +364,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('convert underscores', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo_foo: 'bar'
       }}),
       'p{foo-foo:bar}'
@@ -377,7 +373,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('number values', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo:5
       }}),
       'p{foo:5}'
@@ -386,7 +382,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('composed property name', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo: {bar: 'baz'}
       }}),
 
@@ -396,7 +392,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('composed selector : child with a given class', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         ' .foo': {bar: 'baz'}
       }}}),
 
@@ -406,7 +402,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('composed selector: add a class to the root', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         '.foo': {bar: 'baz'}
       }}}),
 
@@ -416,7 +412,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('manual vendor prefixes', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         _o$_ms$_moz$_webkit$: {foo: 'bar'}
       }}),
 
@@ -426,7 +422,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('mixing definitions and sub-selectors', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         foo: 'bar',
         ' .foo': {bar: 'baz'}
       }}}),
@@ -444,7 +440,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('1 x 2', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         ' .foo': {
           ':before,:after': {
             foo: 'bar'
@@ -458,7 +454,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('2 x 1', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         ' .foo, .bar': {
           ':before': {
             foo: 'bar'
@@ -472,7 +468,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('2 x 2', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         ' .foo, .bar': {
           ':before,:after': {
             foo: 'bar'
@@ -487,7 +483,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('2 x 3 one of which is empty', function() {
     check(
-      j2c.sheet({'@global': {p: {
+      j2c().sheet({'@global': {p: {
         ' .foo, .bar': {
           ',:before,:after': {
             foo: 'bar'
@@ -507,7 +503,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('composed selector: add a class to the root', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         ':global(.foo) &': {bar: 'baz'}
       }}),
       '.foo p{bar:baz}'
@@ -516,7 +512,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('& &', function() {
     check(
-      j2c.sheet({':global(.foo)': {
+      j2c().sheet({':global(.foo)': {
         '& &': {
           bar: 'baz'
         }
@@ -527,7 +523,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('2 x 2', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         ' :global(.foo), :global(.bar)': {
           ' :global(.baz) &, :global(.qux)': {
             foo: 'bar'
@@ -545,28 +541,28 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('String literal', function() {
     check(
-      j2c.sheet({p: 'foo:bar'}),
+      j2c().sheet({p: 'foo:bar'}),
       'p{foo:bar}'
     )
   })
 
   test('String literal with two declarations', function() {
     check(
-      j2c.sheet({p: 'foo:bar;baz:qux'}),
+      j2c().sheet({p: 'foo:bar;baz:qux'}),
       'p {foo:bar;baz:qux}'
     )
   })
 
   test('String literal starting with an underscore', function() {
     check(
-      j2c.sheet({p: '_foo:bar'}),
+      j2c().sheet({p: '_foo:bar'}),
       'p {_foo:bar}'
     )
   })
 
   test('Array of String literals', function() {
     check(
-      j2c.sheet({p: ['foo:bar', 'foo:baz']}),
+      j2c().sheet({p: ['foo:bar', 'foo:baz']}),
       'p{foo:bar}p{foo:baz}'
     )
   })
@@ -574,7 +570,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('overloaded properties', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo:['bar', 'baz']
       }}),
       'p{foo:bar;foo:baz}'
@@ -583,7 +579,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('overloaded sub-properties', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         foo:[{bar: 'baz'}, {bar: 'qux'}]
       }}),
       'p{foo-bar:baz;foo-bar:qux}'
@@ -592,7 +588,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('nested Arrays', function(){
     check(
-      j2c.sheet({p: [
+      j2c().sheet({p: [
         [
           {bar: 'baz'},
           {bar: 'qux'}
@@ -611,14 +607,14 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   // test("String literal", function() {
   //     check(
-  //         j2c.sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
+  //         j2c().sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
   //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
   //     );
   // });
 
   // test("Array of Strings", function() {
   //     check(
-  //         j2c.sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
+  //         j2c().sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
   //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
   //     );
   // });
@@ -632,7 +628,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('standard at-rule with text value', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         '@import': "'bar'"
       }}),
 
@@ -642,7 +638,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('standard at-rule with object value', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         '@media foo': {bar: 'baz'}
       }}),
 
@@ -652,7 +648,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('several at-rules with object value', function() {
     check(
-      j2c.sheet({p: {
+      j2c().sheet({p: {
         '@media foo': {bar: 'baz'},
         '@media foo2': {bar2: 'baz2'}
       }}),
@@ -664,7 +660,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('Array of at-rules with text values', function() {
     check(
-      j2c.sheet({p: [
+      j2c().sheet({p: [
         {'@import': "'bar'"},
         {'@import': "'baz'"}
       ]}),
@@ -674,7 +670,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('nested at-rules', function() {
     check(
-      j2c.sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
+      j2c().sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
       [
         '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
       ]
@@ -683,14 +679,14 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@font-face', function(){
     check(
-      j2c.sheet({p: {'@font-face': {foo: 'bar'}}}),
+      j2c().sheet({p: {'@font-face': {foo: 'bar'}}}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@keyframes', function(){
     check(
-      j2c.sheet({p: {'@keyframes :global(qux)': {
+      j2c().sheet({p: {'@keyframes :global(qux)': {
         ' from': {foo: 'bar'},
         ' to': {foo: 'baz'}
       }}}),
@@ -701,7 +697,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('invalid @foo becomes at-foo property', function(){
     check(
-      j2c.sheet({'@foo': 'bar'}),
+      j2c().sheet({'@foo': 'bar'}),
       '@-error-unsupported-at-rule "@foo";'
     )
 
@@ -714,28 +710,28 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@font-face with a 1-element array', function(){
     check(
-      j2c.sheet({p: {'@font-face':[{foo: 'bar'}]}}),
+      j2c().sheet({p: {'@font-face':[{foo: 'bar'}]}}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@font-face with a 2-elements array', function(){
     check(
-      j2c.sheet({p: {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
+      j2c().sheet({p: {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
       '@font-face{foo:bar}@font-face{foo:baz}'
     )
   })
 
   test('@namespace with a 1-element array', function(){
     check(
-      j2c.sheet({'@namespace': ["'http://foo.example.com'"]}),
+      j2c().sheet({'@namespace': ["'http://foo.example.com'"]}),
       "@namespace 'http://foo.example.com';"
     )
   })
 
   test('@namespace with a 2-elements array', function(){
     check(
-      j2c.sheet({'@namespace': ["'http://foo.example.com'", "bar 'http://bar.example.com'"]}),
+      j2c().sheet({'@namespace': ["'http://foo.example.com'", "bar 'http://bar.example.com'"]}),
       "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
     )
   })
@@ -746,103 +742,118 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
 
   test('a local class', function(){
-    var css = j2c.sheet({'.bit': {foo:5}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {foo:5}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
   })
 
   test('two local classes', function(){
-    var css = j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bit.slice(4)).to.be(css.bat.slice(4))
-    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
-    expect(css + '').to.contain('.' + css.bat + ' {\nbar:6;\n}')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+    expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
   })
 
   test('a local and a global class', function(){
-    var css = j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
-    expect(css + '').to.contain('.bat {\nbar:6;\n}')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+    expect(css).to.contain('.bat {\nbar:6;\n}')
   })
 
   test('a local wrapping a global block', function(){
-    var css = j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('.' + css.bit + '.bat {\nfoo:5;\n}')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
   })
 
   test('two local classes, nested', function(){
-    var css = j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bit.slice(4)).to.be(css.bat.slice(4))
-    expect(css + '').to.contain('.' + css.bit + ' {\nfoo:5;\n}')
-    expect(css + '').to.contain('.' + css.bit +'.' + css.bat + ' {\nbar:6;\n}')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+    expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
   })
 
   test('@keyframes', function(){
-    var css = j2c.sheet({'@keyframes bit': {}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('@keyframes ' + css.bit +' {')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'@keyframes bit': {}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(css).to.contain('@keyframes ' + names.bit +' {')
   })
 
   test('a global @keyframes', function() {
-    var css = j2c.sheet({'@keyframes :global(bit)': {}})
-    expect(css.bit).to.be(undefined)
-    expect(css + '').to.contain('@keyframes bit {')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'@keyframes :global(bit)': {}})
+    expect(names.bit).to.be(undefined)
+    expect(css).to.contain('@keyframes bit {')
   })
 
   test('a @keyframe nested in a @global at-rule', function() {
-    var css = j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
-    expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('@keyframes bat {')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain('@keyframes bat {')
   })
 
   test('one animation', function(){
-    var css = j2c.sheet({p: {animation: 'bit 1sec'}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('animation:' + css.bit +' ')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(css).to.contain('animation:' + names.bit +' ')
   })
 
   test('a global animation', function() {
-    var css = j2c.sheet({p: {animation: ':global(bit) 1sec'}})
-    expect(css.bit).to.be(undefined)
-    expect(css + '').to.contain('animation:bit ')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({p: {animation: ':global(bit) 1sec'}})
+    expect(names.bit).to.be(undefined)
+    expect(css).to.contain('animation:bit ')
   })
 
   test('an animation nested in a @global at-rule', function() {
-    var css = j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
-    expect(css.bit).to.be(undefined)
-    expect(css + '').to.contain('animation:bit ')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
+    expect(names.bit).to.be(undefined)
+    expect(css).to.contain('animation:bit ')
   })
 
   test('one animation-name', function() {
-    var css = j2c.sheet({p: {animation_name: 'bit'}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css + '').to.contain('animation-name:' + css.bit +';')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({p: {animation_name: 'bit'}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(css).to.contain('animation-name:' + names.bit +';')
   })
 
   test('two animation-name', function() {
-    var css = j2c.sheet({p: {animation_name: 'bit, bat'}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bit.slice(4)).to.be(css.bat.slice(4))
-    expect(css + '').to.contain('animation-name:' + css.bit +', ' + css.bat)
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
   })
 
   test('two animation-name, one global', function() {
-    var css = j2c.sheet({p: {animation_name: 'bit, :global(bat)'}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain('animation-name:' + css.bit +', bat;')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({p: {animation_name: 'bit, :global(bat)'}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain('animation-name:' + names.bit +', bat;')
   })
 
   test('a nested @global at-rule', function() {
-    var css = j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
-    expect(css.bit.slice(0, 8)).to.be('bit_j2c_')
-    expect(css.bat).to.be(undefined)
-    expect(css + '').to.contain( css.bit +'.bat {')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
+    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain( names.bit +'.bat {')
   })
 
 
@@ -853,9 +864,9 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
 
   test('property-like sub-selector', function() {
-    var sheet = j2c.sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
+    var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
 
-    expect(''+sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
+    expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
   })
 
 
@@ -864,11 +875,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ////////////////////////////
 
   test('two properties', function() {
-    check(j2c.sheet({p: {foo: 'bar', baz: 'qux'}}), 'p {\nfoo:bar;\nbaz:qux;\n}')
+    check(j2c().sheet({p: {foo: 'bar', baz: 'qux'}}), 'p {\nfoo:bar;\nbaz:qux;\n}')
   })
 
   test('$ combiner', function() {
-    check(j2c.sheet({p: {foo$baz: 'qux'}}), 'p {\nfoo:qux;\nbaz:qux;\n}')
+    check(j2c().sheet({p: {foo$baz: 'qux'}}), 'p {\nfoo:qux;\nbaz:qux;\n}')
   })
 
 
@@ -915,14 +926,14 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         source.p[jsKeys[i]] = o[jsKeys[i]]
         CSS.push(rules[i])
       })
-      expect(normalize(j2c.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
+      expect(normalize(j2c().sheet({'@global': source}))).to.be(normalize(CSS.join('')))
     })
 
 
   })
 
   test('@namespace then selector', function() {
-    check(j2c.sheet({
+    check(j2c().sheet({
       '@namespace': "'foo'",
       p: {foo: 'bar'}
     }), "@namespace 'foo';p{foo:bar;}")
@@ -933,48 +944,46 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   /////////////////////////////////
 
   test('namespaced class', function() {
-    var css = j2c.sheet(
-        {foo: 'FOO'},
-        {'.foo': {foo: 'bar', baz: 'qux'}}
-      )
-    check('' + css, '.FOO{foo:bar;baz:qux;}')
-    expect(css.foo).to.be('FOO')
+    var _j2c = j2c({namespace: {foo: 'FOOO'}}), names = _j2c.names
+    var css = _j2c.sheet(
+      {'.foo': {foo: 'bar', baz: 'qux'}}
+    )
+    check('' + css, '.FOOO{foo:bar;baz:qux;}')
+    expect(names.foo).to.be('FOOO')
   })
 
   test('namespaced class wrapping a global block', function() {
-    var css = j2c.sheet(
-        {foo: 'FOOO'},
-        {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
-      )
+    var _j2c = j2c({namespace: {foo: 'FOOO'}}), names = _j2c.names
+    var css = _j2c.sheet(
+      {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
+    )
     check('' + css, '.FOOO.foo{foo:bar;baz:qux;}')
-    expect(css.foo).to.be('FOOO')
+    expect(names.foo).to.be('FOOO')
   })
 
   test('namespaced @keyframes', function(){
-    var css = j2c.sheet(
-        {bit: 'BOT'},
+    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var css = _j2c.sheet(
         {'@keyframes bit': {}}
       )
-    expect(css.bit).to.be('BOT')
-    expect(css + '').to.contain('@keyframes BOT {')
+    expect(names.bit).to.be('BOT')
+    expect(css).to.contain('@keyframes BOT {')
   })
 
   test('namespaced animation', function(){
-    var css = j2c.sheet(
-        {bit: 'BOT'},
+    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var css = _j2c.sheet(
         {p: {animation: 'bit 1sec'}}
       )
-    expect(css.bit).to.be('BOT')
-    check(css + '', 'p{' + webkitify('animation:BOT 1sec;') + '}')
+    expect(names.bit).to.be('BOT')
+    check(css, 'p{' + webkitify('animation:BOT 1sec;') + '}')
   })
 
   test('namespaced animation-name', function() {
-    var css = j2c.sheet(
-        {bit: 'BOT'},
-        {p: {animation_name: 'bit'}}
-      )
-    expect(css.bit).to.be('BOT')
-    check(css + '', 'p{' + webkitify('animation-name:BOT;') + '}')
+    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var css = _j2c.sheet({p: {animation_name: 'bit'}})
+    expect(names.bit).to.be('BOT')
+    check(css, 'p{' + webkitify('animation-name:BOT;') + '}')
   })
 
   /////////////////////////////
@@ -982,52 +991,58 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   /////////////////////////////
 
   test('local extend', function() {
-    var css = j2c.sheet({'.bit': {'@extend':'.bat'}})
-    expect(css.bit).to.contain('bit_j2c_')
-    expect(css.bat).to.contain('bat_j2c_')
-    expect(css.bat).not.to.contain('bit_j2c_')
-    expect(css.bit).to.contain(css.bat + ' ')
+    var _j2c = j2c(), names = _j2c.names
+    _j2c.sheet({'.bit': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bat).not.to.contain('bit__j2c-')
+    expect(names.bit).to.contain(names.bat + ' ')
   })
 
   test('global extend', function() {
-    var css = j2c.sheet({'.bit': {'@extend':':global(.bat)'}})
-    expect(css.bit).to.contain('bit_j2c_')
-    expect(css.bit).to.contain('bat ')
+    var _j2c = j2c(), names = _j2c.names
+    _j2c.sheet({'.bit': {'@extend':':global(.bat)'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bit).to.contain('bat ')
   })
 
   test('two local extends', function() {
-    var css = j2c.sheet({'.bit': {'@extends':['.bat', '.bot']}})
-    expect(css.bit).to.contain('bit_j2c_')
-    expect(css.bat).to.contain('bat_j2c_')
-    expect(css.bot).to.contain('bot_j2c_')
-    expect(css.bat).not.to.contain('bit_j2c_')
-    expect(css.bot).not.to.contain('bit_j2c_')
-    expect(css.bit).to.contain(css.bat + ' ' + css.bot + ' ')
+    var _j2c = j2c(), names = _j2c.names
+    _j2c.sheet({'.bit': {'@extends':['.bat', '.bot']}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.bat).not.to.contain('bit__j2c-')
+    expect(names.bot).not.to.contain('bit__j2c-')
+    expect(names.bit).to.contain(names.bat + ' ' + names.bot + ' ')
   })
 
   test('extend applies only to the last class in the selector', function() {
-    var css = j2c.sheet({'.bot p .bit': {'@extend':'.bat'}})
-    expect(css.bit).to.contain('bit_j2c_')
-    expect(css.bat).to.contain('bat_j2c_')
-    expect(css.bot).to.contain('bot_j2c_')
-    expect(css.bat).not.to.contain('bit_j2c_')
-    expect(css.bit).to.contain(css.bat + ' ')
-    expect(css.bot).not.to.contain(css.bat + ' ')
+    var _j2c = j2c(), names = _j2c.names
+    _j2c.sheet({'.bot p .bit': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.bat).not.to.contain('bit__j2c-')
+    expect(names.bit).to.contain(names.bat + ' ')
+    expect(names.bot).not.to.contain(names.bat + ' ')
   })
 
   test("if we can't find a class to extend, pass @extend as a property", function() {
-    var css = j2c.sheet({'p > a': {'@extend':'.bat'}})
-    expect(css.bat).to.be(undefined)
-    expect('' + css).to.contain('@-error-no-class-to-extend-in "p > a";')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'p > a': {'@extend':'.bat'}})
+    expect(names.bat).to.be(undefined)
+    expect(css).to.contain('@-error-no-class-to-extend-in "p > a";')
   })
 
   test("extend doesn't extend into global selectors", function() {
     // @extend thus extends the last local class in the stream
-    var css = j2c.sheet({'.bit :global(.bot)': {'@extend':'.bat'}})
-    expect(css.bit).to.contain('bit_j2c_')
-    expect(css.bat).to.be(undefined)
-    expect(css.bot).to.be(undefined)
-    expect(css.bit).not.to.contain(css.bat + ' ')
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit :global(.bot)': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(names.bot).to.be(undefined)
+    expect(names.bit).not.to.contain(names.bat + ' ')
     expect('' + css).to.contain('@-error-cannot-extend-in-global-context ".bit :global(.bot)";')
   })
 
@@ -1036,39 +1051,39 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   //////////////////////////////
 
   test('one plugin that does nothing', function() {
-    check(''+j2c().use(function(){}).sheet(
+    check(j2c().use({postprocess: function(){}}).sheet(
       {p: {foo: 'bar'}}
     ), 'p{foo:bar;}')
   })
 
   test('one plugin that mutates the buffer', function() {
-    check(''+j2c().use(
-      function(buf){
+    check(j2c().use(
+      {postprocess: function(buf){
         buf[0] = 'li'
-      }
+      }}
     ).sheet(
       {p: {foo: 'bar'}}
     ), 'li{foo:bar;}')
   })
 
   test('one plugin that returns a new buffer', function() {
-    check(''+j2c().use(
-      function(){
+    check(j2c().use(
+      {postprocess: function(){
         return ['li{foo:bar;}']
-      }
+      }}
     ).sheet(
       {p: {foo: 'bar'}}
     ), 'li{foo:bar;}')
   })
 
   test('two plugins that mutate the buffer', function() {
-    check(''+j2c().use(
-      function(buf){
+    check(j2c().use(
+      {postprocess: function(buf){
         buf[0]=buf[0].replace('p', 'a')
-      },
-      function(buf){
+      }},
+      {postprocess: function(buf){
         buf[0]=buf[0].replace('a', 'i')
-      }
+      }}
     ).sheet(
       {p: {fop: 'bar'}}
     ), 'i{fop:bar;}')
