@@ -315,7 +315,7 @@ function j2c() {
     if (type.call(plugin) === FUNCTION) plugin = plugin(instance)
     if (!plugin) return
     for (var k in plugin) if (own.call(plugin, k)) switch(k) {
-    case 'namespace': registerLocals(plugin[k]); break
+    case 'names': registerLocals(plugin[k]); break
     case 'postprocess': registerPostprocessor(plugin[k]); break
     default: if (!( k in instance )) instance[k] = plugin[k]
     }
@@ -385,5 +385,8 @@ function j2c() {
 
   return instance
 }
+
+var _j2c = j2c()
+'sheet|sheets|inline|remove|names|flatIter'.split('|').map(function(m){j2c[m] = _j2c[m]})
 
 export default j2c;
