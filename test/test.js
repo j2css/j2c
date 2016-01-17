@@ -1092,6 +1092,5 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
 // TODO
 // test .use
-// test .remove and .sheets
 // test the default `j2c` instance as well
 
