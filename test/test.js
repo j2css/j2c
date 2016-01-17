@@ -244,24 +244,24 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   ////////////////////////////////////////
 
   test('namespaced animation', function() {
-    var result = j2c({namespace: {foo:'theFoo'}}).inline({animation:'foo 1sec'})
+    var result = j2c({names: {foo:'theFoo'}}).inline({animation:'foo 1sec'})
     check(result, webkitify('animation:theFoo 1sec;'))
   })
 
   test('namespaced animation-name', function() {
-    var result = j2c({namespace: {foo:'theFoo'}}).inline({animation_name:'foo'})
+    var result = j2c({names: {foo:'theFoo'}}).inline({animation_name:'foo'})
     check(result, webkitify('animation-name:theFoo;'))
   })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var _j2c = j2c({namespace: {foo:'theFoo'}})
+    var _j2c = j2c({names: {foo:'theFoo'}})
     var result = _j2c.inline({animation_name:'foo, bar'})
     check(result, webkitify('animation-name:theFoo, ' + _j2c.names.bar + ';'))
   })
 
   test('two namespaced animations', function() {
     var result = j2c(
-      {namespace: {foo:'theFoo', bar:'theBar'}}
+      {names: {foo:'theFoo', bar:'theBar'}}
     ).inline(
       {animation:'foo 1sec, bar 2sec'}
     )
@@ -944,7 +944,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   /////////////////////////////////
 
   test('namespaced class', function() {
-    var _j2c = j2c({namespace: {foo: 'FOOO'}}), names = _j2c.names
+    var _j2c = j2c({names: {foo: 'FOOO'}}), names = _j2c.names
     var css = _j2c.sheet(
       {'.foo': {foo: 'bar', baz: 'qux'}}
     )
@@ -953,7 +953,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('namespaced class wrapping a global block', function() {
-    var _j2c = j2c({namespace: {foo: 'FOOO'}}), names = _j2c.names
+    var _j2c = j2c({names: {foo: 'FOOO'}}), names = _j2c.names
     var css = _j2c.sheet(
       {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
     )
@@ -962,7 +962,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('namespaced @keyframes', function(){
-    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet(
         {'@keyframes bit': {}}
       )
@@ -971,7 +971,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('namespaced animation', function(){
-    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet(
         {p: {animation: 'bit 1sec'}}
       )
@@ -980,7 +980,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('namespaced animation-name', function() {
-    var _j2c = j2c({namespace: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit'}})
     expect(names.bit).to.be('BOT')
     check(css, 'p{' + webkitify('animation-name:BOT;') + '}')
@@ -1090,6 +1090,8 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 })
 
-
-
+// TODO
+// test .use
+// test .remove and .sheets
+// test the default `j2c` instance as well
 
