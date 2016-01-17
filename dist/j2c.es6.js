@@ -285,8 +285,6 @@ function flatIter (f) {
 function j2c() {
   var postprocessors = []
   var locals = {}
-  var sheets = []
-  var index = {}
 
   var instance = {
     flatIter: flatIter,
@@ -296,7 +294,6 @@ function j2c() {
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36),
-    sheets: sheets,
     use: function() {
       _use(emptyArray.slice.call(arguments))
       return instance
@@ -328,15 +325,6 @@ function j2c() {
     return buf.join('')
   }
 
-  instance.remove = function (sheet) {
-    if (!( sheet in index )) return
-    index[sheet]--
-    if (!index[sheet]) {
-      sheets.splice(sheets.indexOf(sheet), 0)
-      delete index[sheet]
-      return true
-    }
-  }
   var state = {
     e: function extend(parent, child) {
       var nameList = locals[child]
@@ -362,12 +350,6 @@ function j2c() {
       state
     )
     buf = postprocess(buf)
-    if (buf in index) {
-      index[buf]++
-    } else {
-      index[buf] = 1
-      sheets.push(buf)
-    }
     return buf
   }
 /*/-statements-/*/
