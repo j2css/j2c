@@ -105,10 +105,10 @@ function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
 /*/-statements-/*/
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
-      buf.push('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
+      buf.d('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
 /*/-statements-/*/
 
-    buf.push(k, k ? ':': '', o, ';\n')
+    buf.d(k, k ? ':': '', o, ';\n')
 
   }
 }
@@ -138,10 +138,10 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
   if (/^@(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
-        buf.push(k, ' ', v[kk], ';\n')
+        buf.a(k, ' ', v[kk], ';\n')
       }
     } else {
-      buf.push(k, ' ', v, ';\n')
+      buf.a(k, ' ', v, ';\n')
     }
   } else if (/^@keyframes /.test(k)) {
     k = local ? k.replace(
@@ -151,13 +151,13 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     ) : k
     // add a @-webkit-keyframes block too.
 
-    buf.push('@-webkit-', k.slice(1), ' {\n')
+    buf.a('@-webkit-', k.slice(1), ' {\n')
     sheet(v, buf, '', '', ['webkit'])
-    buf.push('}\n')
+    buf.c('}\n')
 
-    buf.push(k, ' {\n')
+    buf.a(k, ' {\n')
     sheet(v, buf, '', '', vendors, local, ns)
-    buf.push('}\n')
+    buf.c('}\n')
 
   } else if (/^@extends?$/.test(k)) {
 
@@ -167,11 +167,11 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     /*eslint-enable no-cond-assign*/
     if (k == null || !local) {
       // we're in a @global{} block
-      buf.push('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
+      buf.a('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
       return
     } else if (/^@extends?$/.test(k)) {
       // no class in the selector
-      buf.push('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
+      buf.a('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
       return
     }
     ns.e(
@@ -182,7 +182,17 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     )
 
   } else if (/^@(?:font-face$|viewport$|page )/.test(k)) {
-    sheet(v, buf, k, k, emptyArray)
+    if (type.call(v) === ARRAY) {
+      for (kk = 0; kk < v.length; kk++) {
+        buf.a(k, ' {\n')
+        declarations(v[kk], buf, '', vendors, local, ns)
+        buf.c('}\n')
+      }
+    } else {
+      buf.a(k, ' {\n')
+      declarations(v, buf, '', vendors, local, ns)
+      buf.c('}\n')
+    }
 
   } else if (/^@global$/.test(k)) {
     sheet(v, buf, prefix, rawPrefix, vendors, 0, ns)
@@ -191,12 +201,12 @@ function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
 
   } else if (/^@(?:media |supports |document )./.test(k)) {
-    buf.push(k, ' {\n')
+    buf.a(k, ' {\n')
     sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
-    buf.push('}\n')
+    buf.c('}\n')
 
   } else {
-    buf.push('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
+    buf.a('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
   }
 }
 
@@ -230,19 +240,19 @@ function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
-          buf.push(( prefix || '*' ), ' {\n')
+          buf.s(( prefix || '*' ), ' {\n')
         }
         declarations(v, buf, k, vendors, local, ns)
       } else if (/^@/.test(k)) {
         // Handle At-rules
-        inDeclaration = (inDeclaration && buf.push('}\n') && 0)
+        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
         at(k, v, buf, prefix, rawPrefix, vendors, local, ns)
 
       } else {
         // selector or nested sub-selectors
 
-        inDeclaration = (inDeclaration && buf.push('}\n') && 0)
+        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
         sheet(v, buf,
           (kk = /,/.test(prefix) || prefix && /,/.test(k)) ?
@@ -264,14 +274,14 @@ function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
         )
       }
     }
-    if (inDeclaration) buf.push('}\n')
+    if (inDeclaration) buf.c('}\n')
     break
   case STRING:
-    buf.push(
+    buf.s(
         ( prefix || ':-error-no-selector' ) , ' {\n'
       )
     declarations(statements, buf, '', vendors, local, ns)
-    buf.push('}\n')
+    buf.c('}\n')
   }
 }
 
@@ -283,6 +293,7 @@ function flatIter (f) {
 }
 
 function j2c() {
+  var filters = []
   var postprocessors = []
   var locals = {}
 
@@ -304,6 +315,10 @@ function j2c() {
     for (var k in ns) if (!( k in locals )) locals[k] = ns[k]
   })
 
+  var registerFilter = flatIter(function(filter) {
+    filters.push(filter)
+  })
+
   var registerPostprocessor = flatIter(function(pp) {
     postprocessors.push(pp)
   })
@@ -314,11 +329,29 @@ function j2c() {
     for (var k in plugin) if (own.call(plugin, k)) switch(k) {
     case 'names': registerLocals(plugin[k]); break
     case 'postprocess': registerPostprocessor(plugin[k]); break
+    case 'filter': registerFilter(plugin[k]); break
     default: if (!( k in instance )) instance[k] = plugin[k]
     }
   })
 
   _use(emptyArray.slice.call(arguments))
+
+
+  function makeBuf() {
+    var buf
+    function push() {
+      emptyArray.push.apply(buf.b, arguments)
+    }
+    buf = {
+      b: [],   // buf
+      a: push, // at-rules
+      s: push, // selector
+      d: push, // declaration
+      c: push  // close
+    }
+    // for (var i = 0; i < filters.length; i++) buf = filters[i](buf)
+    return buf
+  }
 
   function postprocess(buf, res, i) {
     for (i = 0; i< postprocessors.length; i++) buf = postprocessors[i](buf) || buf
@@ -343,26 +376,26 @@ function j2c() {
 /*/-statements-/*/
   instance.sheet = function(statements, buf) {
     sheet(
-      statements, buf = [],
+      statements, buf = makeBuf(),
       '', '',     // prefix and rawPRefix
       emptyArray, // vendors
       1,          // local, by default
       state
     )
-    buf = postprocess(buf)
+    buf = postprocess(buf.b)
     return buf
   }
 /*/-statements-/*/
   instance.inline = function (decl, buf) {
     declarations(
       decl,
-      buf = [],
+      buf = makeBuf(),
       '',         // prefix
       emptyArray, // vendors
       1,          //local
       state
     )
-    return postprocess(buf)
+    return postprocess(buf.b)
   }
 
   return instance
