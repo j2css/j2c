@@ -70,10 +70,10 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
 /*/-statements-/*/
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
-      buf.push('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
+      buf.d('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
 /*/-statements-/*/
 
-    buf.push(k, k ? ':': '', o, ';\n')
+    buf.d(k, k ? ':': '', o, ';\n')
 
   }
 }
