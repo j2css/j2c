@@ -1,5 +1,6 @@
-import {type, ARRAY, emptyArray} from './helpers'
+import {type, ARRAY} from './helpers'
 import {sheet} from './sheet'
+import {declarations} from './declarations'
 
 var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
 
@@ -26,10 +27,10 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
   if (/^@(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
-        buf.push(k, ' ', v[kk], ';\n')
+        buf.a(k, ' ', v[kk], ';\n')
       }
     } else {
-      buf.push(k, ' ', v, ';\n')
+      buf.a(k, ' ', v, ';\n')
     }
   } else if (/^@keyframes /.test(k)) {
     k = local ? k.replace(
@@ -39,13 +40,13 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     ) : k
     // add a @-webkit-keyframes block too.
 
-    buf.push('@-webkit-', k.slice(1), ' {\n')
+    buf.a('@-webkit-', k.slice(1), ' {\n')
     sheet(v, buf, '', '', ['webkit'])
-    buf.push('}\n')
+    buf.c('}\n')
 
-    buf.push(k, ' {\n')
+    buf.a(k, ' {\n')
     sheet(v, buf, '', '', vendors, local, ns)
-    buf.push('}\n')
+    buf.c('}\n')
 
   } else if (/^@extends?$/.test(k)) {
 
@@ -55,11 +56,11 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     /*eslint-enable no-cond-assign*/
     if (k == null || !local) {
       // we're in a @global{} block
-      buf.push('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
+      buf.a('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
       return
     } else if (/^@extends?$/.test(k)) {
       // no class in the selector
-      buf.push('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
+      buf.a('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
       return
     }
     ns.e(
@@ -70,7 +71,17 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     )
 
   } else if (/^@(?:font-face$|viewport$|page )/.test(k)) {
-    sheet(v, buf, k, k, emptyArray)
+    if (type.call(v) === ARRAY) {
+      for (kk = 0; kk < v.length; kk++) {
+        buf.a(k, ' {\n')
+        declarations(v[kk], buf, '', vendors, local, ns)
+        buf.c('}\n')
+      }
+    } else {
+      buf.a(k, ' {\n')
+      declarations(v, buf, '', vendors, local, ns)
+      buf.c('}\n')
+    }
 
   } else if (/^@global$/.test(k)) {
     sheet(v, buf, prefix, rawPrefix, vendors, 0, ns)
@@ -79,11 +90,11 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
 
   } else if (/^@(?:media |supports |document )./.test(k)) {
-    buf.push(k, ' {\n')
+    buf.a(k, ' {\n')
     sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
-    buf.push('}\n')
+    buf.c('}\n')
 
   } else {
-    buf.push('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
+    buf.a('@-error-unsupported-at-rule ', JSON.stringify(k), ';\n')
   }
 }
