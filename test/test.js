@@ -371,6 +371,15 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     )
   })
 
+  test('convert CamelCase', function() {
+    check(
+      j2c().sheet({p: {
+        fooFoo: 'bar'
+      }}),
+      'p{foo-foo:bar}'
+    )
+  })
+
   test('number values', function() {
     check(
       j2c().sheet({p: {
@@ -492,6 +501,30 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       }}}),
       'p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
     )
+  })
+
+  test("don't split on comas inside strings ...", function() {
+    check(j2c().sheet({
+      'a[foo="bar,baz"]': {
+        ' p': {qux: 5}
+      }
+    }), 'a[foo="bar,baz"] p {qux: 5}')
+  })
+
+  test("... nor split on comas inside parentheses ...", function() {
+    check(j2c().sheet({
+      'a:any(p, ul)': {
+        ' p': {qux: 5}
+      }
+    }), 'a:any(p, ul) p {qux: 5}')
+  })
+
+  test("... but split in between", function(){
+    check(j2c().sheet({
+      'a[foo="bar,baz"], a:any(p, ul)': {
+        ' p': {qux: 5}
+      }
+    }), 'a[foo="bar,baz"] p, a:any(p, ul) p {qux: 5}')
   })
 
 
