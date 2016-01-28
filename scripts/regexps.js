@@ -65,3 +65,30 @@ var selector = flags('g', sequence(
 ))
 
 console.log('selector / @global\n', selector)
+
+var selectorTokenizer = flags('g',
+    either(
+        /[(),]/,
+        sequence(
+            '"',
+            greedy('*',
+                either(
+                    /\\./,
+                    /[^"\n]/
+                )
+            ),
+            '"'
+        ),
+        sequence(
+            "'",
+            greedy('*',
+                either(
+                    /\\./,
+                    /[^'\n]/
+                )
+            ),
+            "'"
+        )
+    )
+)
+console.log('selectorTokenizer = ', selectorTokenizer)
