@@ -1,4 +1,4 @@
-import {type, ARRAY} from './helpers'
+import {type, ARRAY, splitSelector} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
 
@@ -23,7 +23,7 @@ var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
  */
 
 export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
-  var kk
+  var kk, i
   if (/^@(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
@@ -49,27 +49,32 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     buf.c('}\n')
 
   } else if (/^@extends?$/.test(k)) {
-
-    /*eslint-disable no-cond-assign*/
-    // pick the last class to be extended
-    while (kk = findClass.exec(rawPrefix)) k = kk[4]
-    /*eslint-enable no-cond-assign*/
-    if (k == null || !local) {
-      // we're in a @global{} block
-      buf.a('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
-      return
-    } else if (/^@extends?$/.test(k)) {
-      // no class in the selector
-      buf.a('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix), ';\n')
+    if (!local) {
+      buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
       return
     }
-    ns.e(
-      type.call(v) == ARRAY ? v.map(function (parent) {
-        return parent.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
-      }).join(' ') : v.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
-      k
-    )
-
+    rawPrefix = splitSelector(rawPrefix)
+    for(i = 0; i < rawPrefix.length; i++) {
+      /*eslint-disable no-cond-assign*/
+      // pick the last class to be extended
+      while (kk = findClass.exec(rawPrefix[i])) k = kk[4]
+      /*eslint-enable no-cond-assign*/
+      if (k == null) {
+        // the last class is a :global(.one)
+        buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix[i]), ';\n')
+        continue
+      } else if (/^@extends?$/.test(k)) {
+        // no class in the selector, therefore `k` hasn't been overwritten.
+        buf.c('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix[i]), ';\n')
+        continue
+      }
+      ns.e(
+        type.call(v) == ARRAY ? v.map(function (parent) {
+          return parent.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
+        }).join(' ') : v.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
+        k
+      )
+    }
   } else if (/^@(?:font-face$|viewport$|page )/.test(k)) {
     if (type.call(v) === ARRAY) {
       for (kk = 0; kk < v.length; kk++) {
