@@ -1033,40 +1033,44 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('local extend', function() {
     var _j2c = j2c(), names = _j2c.names
-    _j2c.sheet({'.bit': {'@extend':'.bat'}})
+    var css = _j2c.sheet({'.bit': {'@extend':'.bat'}})
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bat).not.to.contain('bit__j2c-')
     expect(names.bit).to.contain(names.bat + ' ')
+    expect(css).to.be('')
   })
 
   test('global extend', function() {
     var _j2c = j2c(), names = _j2c.names
-    _j2c.sheet({'.bit': {'@extend':':global(.bat)'}})
+    var css = _j2c.sheet({'.bit': {'@extend':':global(.bat)'}})
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bit).to.contain('bat ')
+    expect(css).to.be('')
   })
 
   test('two local extends', function() {
     var _j2c = j2c(), names = _j2c.names
-    _j2c.sheet({'.bit': {'@extends':['.bat', '.bot']}})
+    var css = _j2c.sheet({'.bit': {'@extends':['.bat', '.bot']}})
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.bat).not.to.contain('bit__j2c-')
     expect(names.bot).not.to.contain('bit__j2c-')
     expect(names.bit).to.contain(names.bat + ' ' + names.bot + ' ')
+    expect(css).to.be('')
   })
 
   test('extend applies only to the last class in the selector', function() {
     var _j2c = j2c(), names = _j2c.names
-    _j2c.sheet({'.bot p .bit': {'@extend':'.bat'}})
+    var css = _j2c.sheet({'.bot p .bit': {'@extend':'.bat'}})
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.bat).not.to.contain('bit__j2c-')
     expect(names.bit).to.contain(names.bat + ' ')
     expect(names.bot).not.to.contain(names.bat + ' ')
+    expect(css).to.be('')
   })
 
   test("if we can't find a class to extend, pass @extend as a property", function() {
@@ -1076,7 +1080,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(css).to.contain('@-error-no-class-to-extend-in "p > a";')
   })
 
-  test("extend doesn't extend into global selectors", function() {
+  test("@extend doesn't extend into global selectors", function() {
     // @extend thus extends the last local class in the stream
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit :global(.bot)': {'@extend':'.bat'}})
@@ -1084,7 +1088,64 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(names.bat).to.be(undefined)
     expect(names.bot).to.be(undefined)
     expect(names.bit).not.to.contain(names.bat + ' ')
-    expect('' + css).to.contain('@-error-cannot-extend-in-global-context ".bit :global(.bot)";')
+    expect(css).to.contain('@-error-cannot-extend-in-global-context ".bit :global(.bot)";')
+  })
+
+  test("@extend doesn't work global context", function() {
+    // @extend thus extends the last local class in the stream
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'@global': {'.bit .bot': {'@extend':'.bat'}}})
+    expect(names.bit).to.be(undefined)
+    expect(names.bat).to.be(undefined)
+    expect(names.bot).to.be(undefined)
+    expect(css).to.contain('@-error-cannot-extend-in-global-context ".bit .bot";')
+  })
+
+  test('@extend with a list of classes', function() {
+    // @extend thus extends the last local class in the stream
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit,.bot': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.bit).to.contain(names.bat + ' ')
+    expect(names.bot).to.contain(names.bat + ' ')
+    expect(css).to.be('')
+  })
+
+  test('@extend with a list of classes with complex selectors', function() {
+    // @extend thus extends the last local class in the stream
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'[foo=","].bit,/*,*/.bot': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.bit).to.contain(names.bat + ' ')
+    expect(names.bot).to.contain(names.bat + ' ')
+    expect(css).to.be('')
+  })
+
+  test('@extend with a list of selectors, one of them ending with a global class', function() {
+    // @extend thus extends the last local class in the stream
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'.bit,.bot:global(.but)': {'@extend':'.bat'}})
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.but).to.be(undefined)
+    expect(names.bit).to.contain(names.bat + ' ')
+    expect(names.bot).not.to.contain(names.bat + ' ')
+    expect(css).to.contain('@-error-cannot-extend-in-global-context ".bot:global(.but)";')
+  })
+
+  test('@extend with a list of selectors, one of them devoid of class', function() {
+    // @extend thus extends the last local class in the stream
+    var _j2c = j2c(), names = _j2c.names
+    var css = _j2c.sheet({'p a ul li,.bot': {'@extend':'.bat'}})
+    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bot).to.contain('bot__j2c-')
+    expect(names.bot).to.contain(names.bat + ' ')
+    expect(css).to.contain('@-error-no-class-to-extend-in "p a ul li";')
   })
 
   //////////////////////////////
