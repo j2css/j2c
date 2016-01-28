@@ -88,6 +88,11 @@ var selectorTokenizer = flags('g',
                 )
             ),
             "'"
+        ),
+        sequence(
+            '/*',
+            /[\s\S]*?/,
+            '*/'
         )
     )
 )
