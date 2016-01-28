@@ -511,7 +511,15 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     }), 'a[foo="bar,baz"] p {qux: 5}')
   })
 
-  test("... nor split on comas inside parentheses ...", function() {
+  test('... nor split on comas inside comments ...', function() {
+    check(j2c().sheet({
+      'a/*bar,baz*/': {
+        ' p': {qux: 5}
+      }
+    }), 'a/*bar,baz*/ p {qux: 5}')
+  })
+
+  test('... nor split on comas inside parentheses ...', function() {
     check(j2c().sheet({
       'a:any(p, ul)': {
         ' p': {qux: 5}
@@ -519,12 +527,12 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     }), 'a:any(p, ul) p {qux: 5}')
   })
 
-  test("... but split in between", function(){
+  test('... but split in between', function(){
     check(j2c().sheet({
-      'a[foo="bar,baz"], a:any(p, ul)': {
+      'a[foo="bar,baz"], a:any(p, ul), a/*bar,baz*/': {
         ' p': {qux: 5}
       }
-    }), 'a[foo="bar,baz"] p, a:any(p, ul) p {qux: 5}')
+    }), 'a[foo="bar,baz"] p, a:any(p, ul) p, a/*bar,baz*/ p {qux: 5}')
   })
 
 
