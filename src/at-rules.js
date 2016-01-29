@@ -2,8 +2,6 @@ import {type, ARRAY, splitSelector} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
 
-var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
-
 /**
  * Hanldes at-rules
  *
@@ -13,7 +11,7 @@ var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
  * @param {string[]} v - Either parameters for block-less rules or their block
  *                       for the others.
  * @param {string} prefix - the current selector or a prefix in case of nested rules
- * @param {string} rawPrefix - as above, but without localization transformations
+ * @param {string} composes - as above, but without localization transformations
  * @param {string} vendors - a list of vendor prefixes
  * @Param {boolean} local - are we in @local or in @global scope?
  * @param {object} ns - helper functions to populate or create the @local namespace
@@ -22,8 +20,8 @@ var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
  * @param {function} ns.l - @local helper
  */
 
-export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
-  var kk, i
+export function at(k, v, buf, prefix, composes, vendors, local, ns){
+  var i, kk
   if (/^@(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
@@ -41,38 +39,35 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     // add a @-webkit-keyframes block too.
 
     buf.a('@-webkit-', k.slice(1), ' {\n')
-    sheet(v, buf, '', '', ['webkit'])
+    sheet(v, buf, '', 1, ['webkit'])
     buf.c('}\n')
 
     buf.a(k, ' {\n')
-    sheet(v, buf, '', '', vendors, local, ns)
+    sheet(v, buf, '', 1, vendors, local, ns)
     buf.c('}\n')
 
-  } else if (/^@extends?$/.test(k)) {
+  } else if (/^@composes$/.test(k)) {
     if (!local) {
-      buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
+      buf.a('@-error-at-composes-in-at-global;\n')
       return
     }
-    rawPrefix = splitSelector(rawPrefix)
-    for(i = 0; i < rawPrefix.length; i++) {
-      /*eslint-disable no-cond-assign*/
-      // pick the last class to be extended
-      while (kk = findClass.exec(rawPrefix[i])) k = kk[4]
-      /*eslint-enable no-cond-assign*/
+    if (!composes) {
+      buf.a('@-error-at-composes-no-nesting;\n')
+      return
+    }
+    composes = splitSelector(composes)
+    for(i = 0; i < composes.length; i++) {
+      k = /^\s*\.(\w+)\s*$/.exec(composes[i])
       if (k == null) {
         // the last class is a :global(.one)
-        buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix[i]), ';\n')
-        continue
-      } else if (/^@extends?$/.test(k)) {
-        // no class in the selector, therefore `k` hasn't been overwritten.
-        buf.c('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix[i]), ';\n')
+        buf.a('@-error-at-composes-bad-target ', JSON.stringify(composes[i]), ';\n')
         continue
       }
-      ns.e(
+      ns.c(
         type.call(v) == ARRAY ? v.map(function (parent) {
-          return parent.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
-        }).join(' ') : v.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
-        k
+          return parent.replace(/()(?::?global\(\s*\.?([-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
+        }).join(' ') : v.replace(/()(?::?global\(\s*\.?([-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
+        k[1]
       )
     }
   } else if (/^@(?:font-face$|viewport$|page )/.test(k)) {
@@ -89,14 +84,14 @@ export function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
     }
 
   } else if (/^@global$/.test(k)) {
-    sheet(v, buf, prefix, rawPrefix, vendors, 0, ns)
+    sheet(v, buf, prefix, 1, vendors, 0, ns)
 
   } else if (/^@local$/.test(k)) {
-    sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
+    sheet(v, buf, prefix, 1, vendors, 1, ns)
 
   } else if (/^@(?:media |supports |document )./.test(k)) {
     buf.a(k, ' {\n')
-    sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
+    sheet(v, buf, prefix, 1, vendors, local, ns)
     buf.c('}\n')
 
   } else {

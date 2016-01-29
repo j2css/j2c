@@ -18,8 +18,8 @@ In `sheet` mode, `j2c` follows a [**'local by default'**](https://medium.com/see
 Like SASS, LESS and Stylus, `j2c` supports:
 
 - mixins
-- `@extend`
 - nested selectors (in `sheet` mode)
+- `@composes`, and `@extends`-like mechanism
 
 All standard CSS at-rules are available out of the box, most importantly:
 
@@ -55,7 +55,7 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
   - [For building a style sheet: `j2c.sheet(rules)`](#for-building-a-style-sheet-j2csheetrules)
     - [Combining multiple selectors](#combining-multiple-selectors)
     - [At-rules](#at-rules)
-    - [Mixins and @extend](#mixins-and-extend)
+    - [Mixins and @composes](#mixins-and-composes)
     - [CSS Hacks](#css-hacks)
 - [Inserting a stylesheet in a document](#inserting-the-stylesheet-in-the-document)
 - [Isomorphic app support](#isomorphic-app-support)
@@ -380,43 +380,43 @@ becomes
 
 For `@keyframes` rules, a `@-webkit-keyframes` block is automatically created with auto-prefixed property names.
 
-#### Mixins and `@extend`
+#### Mixins and `@coposes`
 
-Mixins and `@extend` make `j2c` sheets composable. Both techniques can be combined.
+Mixins and `@composes` make `j2c` sheets composable. Both techniques can be combined.
 
 ##### Mixins and source objects composition
 
 For mixins, arrays works the same way at the selector level as they do at the property/value one. You can therefore use the [method described in the "inline" section](#mixins) to create mixins, that can return either at-rules, selectors, properties or a mix thereof.
 
-##### `@extend`
+##### `@composes`
 
-`j2c` also supports a SASS-like `@extend`, more powerful in some regards, but more limited in others.
+`j2c` also supports `@composes`, which works a bit like the SASS`@extend`, more powerful in some regards, but more limited in others.
 
 The limitation is that it can only deal with classes. Specifically:
 
 ```JS
-namespace = j2c.sheet({
-  '.red': {color: '#f00'}
-})
-
-sheet = j2c.sheet(namespace, {
+sheet = j2c.sheet({
+  '.red': {
+    color: '#f00'
+  },
   '.great': {
     fontSize: '3em'
   },
-  '.greatRed': {
-    '@extend': ['.great', '.red'] // you can also pass a single class
+  // `scarlet` here is the target of the composition, `great` and `red` are the sources.
+  '.scarlet': {
+    '@composes': ['.great', '.red'] // you can also pass a single class
   }
 })
 ```
 
-`sheet.greatRed` is now defined as `'great_j2c...  red_j2c...  greatRed_j2c...'` (class names truncated for readability).
+`sheet.scarlet` is now defined as `'great__j2c-xxx  red__j2c-xxx  scarlet__j2c-xxx'` (class names truncated for readability).
 
 The extra power comes from the fact that you can inherit from arbitrary classes, not just j2c-defined ones:
 
 ```JS
 sheet = j2c.sheet(namespace, {
   '.myButton': {
-    '@extend': ':global(.button)', // coming, say, form Bootstrap
+    '@composes': ':global(.button)', // coming, say, form Bootstrap
     color: theme.highlight
   }
 })
@@ -424,13 +424,9 @@ sheet = j2c.sheet(namespace, {
 
 Here, `sheet.myButton` is `'button  myButton_j2c...'`.
 
-While `@extend` can import from arbitrary classes, it only imports into local ones.
+While the `@composes` sources can be arbitrary classes, the target must be a local one. It will not work in global context.
 
-`@extend` works fine with nested selectors. If there are more than one class in a selector, `@extend` applies to the last (right-most) one.
-
-###### Invalid uses
-
-If the last or only selector is a `:global(.klass)`, in `@global` context, or in the absence of a class in the selector, `@extend` is turned into a `at-extend` property and inserted as-is in the sheet.
+`@composes` doesn't support nested selectors, and doesn't work in conditional at rules. Its target must lie at the first nesting level.
 
 #### CSS Hacks
 

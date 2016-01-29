@@ -146,8 +146,6 @@ define(function () { 'use strict';
     }
   }
 
-  var findClass = /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g
-
   /**
    * Hanldes at-rules
    *
@@ -157,7 +155,7 @@ define(function () { 'use strict';
    * @param {string[]} v - Either parameters for block-less rules or their block
    *                       for the others.
    * @param {string} prefix - the current selector or a prefix in case of nested rules
-   * @param {string} rawPrefix - as above, but without localization transformations
+   * @param {string} composes - as above, but without localization transformations
    * @param {string} vendors - a list of vendor prefixes
    * @Param {boolean} local - are we in @local or in @global scope?
    * @param {object} ns - helper functions to populate or create the @local namespace
@@ -166,8 +164,8 @@ define(function () { 'use strict';
    * @param {function} ns.l - @local helper
    */
 
-  function at(k, v, buf, prefix, rawPrefix, vendors, local, ns){
-    var kk, i
+  function at(k, v, buf, prefix, composes, vendors, local, ns){
+    var i, kk
     if (/^@(?:namespace|import|charset)$/.test(k)) {
       if(type.call(v) == ARRAY){
         for (kk = 0; kk < v.length; kk++) {
@@ -185,38 +183,35 @@ define(function () { 'use strict';
       // add a @-webkit-keyframes block too.
 
       buf.a('@-webkit-', k.slice(1), ' {\n')
-      sheet(v, buf, '', '', ['webkit'])
+      sheet(v, buf, '', 1, ['webkit'])
       buf.c('}\n')
 
       buf.a(k, ' {\n')
-      sheet(v, buf, '', '', vendors, local, ns)
+      sheet(v, buf, '', 1, vendors, local, ns)
       buf.c('}\n')
 
-    } else if (/^@extends?$/.test(k)) {
+    } else if (/^@composes$/.test(k)) {
       if (!local) {
-        buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix), ';\n')
+        buf.a('@-error-at-composes-in-at-global;\n')
         return
       }
-      rawPrefix = splitSelector(rawPrefix)
-      for(i = 0; i < rawPrefix.length; i++) {
-        /*eslint-disable no-cond-assign*/
-        // pick the last class to be extended
-        while (kk = findClass.exec(rawPrefix[i])) k = kk[4]
-        /*eslint-enable no-cond-assign*/
+      if (!composes) {
+        buf.a('@-error-at-composes-no-nesting;\n')
+        return
+      }
+      composes = splitSelector(composes)
+      for(i = 0; i < composes.length; i++) {
+        k = /^\s*\.(\w+)\s*$/.exec(composes[i])
         if (k == null) {
           // the last class is a :global(.one)
-          buf.c('@-error-cannot-extend-in-global-context ', JSON.stringify(rawPrefix[i]), ';\n')
-          continue
-        } else if (/^@extends?$/.test(k)) {
-          // no class in the selector, therefore `k` hasn't been overwritten.
-          buf.c('@-error-no-class-to-extend-in ', JSON.stringify(rawPrefix[i]), ';\n')
+          buf.a('@-error-at-composes-bad-target ', JSON.stringify(composes[i]), ';\n')
           continue
         }
-        ns.e(
+        ns.c(
           type.call(v) == ARRAY ? v.map(function (parent) {
-            return parent.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
-          }).join(' ') : v.replace(/()(?::global\(\s*(\.[-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
-          k
+            return parent.replace(/()(?::?global\(\s*\.?([-\w]+)\s*\)|()\.([-\w]+))/, ns.l)
+          }).join(' ') : v.replace(/()(?::?global\(\s*\.?([-\w]+)\s*\)|()\.([-\w]+))/, ns.l),
+          k[1]
         )
       }
     } else if (/^@(?:font-face$|viewport$|page )/.test(k)) {
@@ -233,14 +228,14 @@ define(function () { 'use strict';
       }
 
     } else if (/^@global$/.test(k)) {
-      sheet(v, buf, prefix, rawPrefix, vendors, 0, ns)
+      sheet(v, buf, prefix, 1, vendors, 0, ns)
 
     } else if (/^@local$/.test(k)) {
-      sheet(v, buf, prefix, rawPrefix, vendors, 1, ns)
+      sheet(v, buf, prefix, 1, vendors, 1, ns)
 
     } else if (/^@(?:media |supports |document )./.test(k)) {
       buf.a(k, ' {\n')
-      sheet(v, buf, prefix, rawPrefix, vendors, local, ns)
+      sheet(v, buf, prefix, 1, vendors, local, ns)
       buf.c('}\n')
 
     } else {
@@ -254,22 +249,22 @@ define(function () { 'use strict';
    * @param {array|string|object} statements - a source object or sub-object.
    * @param {string[]} buf - the buffer in which the final style sheet is built
    * @param {string} prefix - the current selector or a prefix in case of nested rules
-   * @param {string} rawPrefix - as above, but without localization transformations
+   * @param {string} composes - the potential target of a @composes rule, if any.
    * @param {string} vendors - a list of vendor prefixes
    * @Param {boolean} local - are we in @local or in @global scope?
    * @param {object} ns - helper functions to populate or create the @local namespace
-   *                      and to @extend classes
-   * @param {function} ns.e - @extend helper
+   *                      and to @composes classes
+   * @param {function} ns.e - @composes helper
    * @param {function} ns.l - @local helper
    */
-  function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
-    var k, kk, v, inDeclaration
+  function sheet(statements, buf, prefix, composes, vendors, local, ns) {
+    var k, v, inDeclaration
 
     switch (type.call(statements)) {
 
     case ARRAY:
       for (k = 0; k < statements.length; k++)
-        sheet(statements[k], buf, prefix, rawPrefix, vendors, local, ns)
+        sheet(statements[k], buf, prefix, composes, vendors, local, ns)
       break
 
     case OBJECT:
@@ -285,7 +280,7 @@ define(function () { 'use strict';
           // Handle At-rules
           inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-          at(k, v, buf, prefix, rawPrefix, vendors, local, ns)
+          at(k, v, buf, prefix, composes, vendors, local, ns)
 
         } else {
           // selector or nested sub-selectors
@@ -293,7 +288,7 @@ define(function () { 'use strict';
           inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
           sheet(v, buf,
-            (kk = /,/.test(prefix) || prefix && /,/.test(k)) ?
+            (/,/.test(prefix) || prefix && /,/.test(k)) ?
               cartesian(splitSelector(prefix), splitSelector( local ?
                 k.replace(
                   /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
@@ -304,9 +299,7 @@ define(function () { 'use strict';
                   /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
                 ) : k
               ), prefix),
-            kk ?
-              cartesian(splitSelector(rawPrefix), splitSelector(k), rawPrefix).join(',') :
-              concat(rawPrefix, k, rawPrefix),
+            composes || prefix ? '' : k,
             vendors,
             local, ns
           )
@@ -397,7 +390,7 @@ define(function () { 'use strict';
     }
 
     var state = {
-      e: function extend(parent, child) {
+      c: function composes(parent, child) {
         var nameList = locals[child]
         locals[child] =
           nameList.slice(0, nameList.lastIndexOf(' ') + 1) +

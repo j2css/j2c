@@ -76,7 +76,7 @@ export default function j2c() {
   }
 
   var state = {
-    e: function extend(parent, child) {
+    c: function composes(parent, child) {
       var nameList = locals[child]
       locals[child] =
         nameList.slice(0, nameList.lastIndexOf(' ') + 1) +
