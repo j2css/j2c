@@ -10,22 +10,22 @@ import {at} from './at-rules'
  * @param {array|string|object} statements - a source object or sub-object.
  * @param {string[]} buf - the buffer in which the final style sheet is built
  * @param {string} prefix - the current selector or a prefix in case of nested rules
- * @param {string} rawPrefix - as above, but without localization transformations
+ * @param {string} composes - the potential target of a @composes rule, if any.
  * @param {string} vendors - a list of vendor prefixes
  * @Param {boolean} local - are we in @local or in @global scope?
  * @param {object} ns - helper functions to populate or create the @local namespace
- *                      and to @extend classes
- * @param {function} ns.e - @extend helper
+ *                      and to @composes classes
+ * @param {function} ns.e - @composes helper
  * @param {function} ns.l - @local helper
  */
-export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
-  var k, kk, v, inDeclaration
+export function sheet(statements, buf, prefix, composes, vendors, local, ns) {
+  var k, v, inDeclaration
 
   switch (type.call(statements)) {
 
   case ARRAY:
     for (k = 0; k < statements.length; k++)
-      sheet(statements[k], buf, prefix, rawPrefix, vendors, local, ns)
+      sheet(statements[k], buf, prefix, composes, vendors, local, ns)
     break
 
   case OBJECT:
@@ -41,7 +41,7 @@ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
         // Handle At-rules
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-        at(k, v, buf, prefix, rawPrefix, vendors, local, ns)
+        at(k, v, buf, prefix, composes, vendors, local, ns)
 
       } else {
         // selector or nested sub-selectors
@@ -49,7 +49,7 @@ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
         sheet(v, buf,
-          (kk = /,/.test(prefix) || prefix && /,/.test(k)) ?
+          (/,/.test(prefix) || prefix && /,/.test(k)) ?
             cartesian(splitSelector(prefix), splitSelector( local ?
               k.replace(
                 /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
@@ -60,9 +60,7 @@ export function sheet(statements, buf, prefix, rawPrefix, vendors, local, ns) {
                 /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
               ) : k
             ), prefix),
-          kk ?
-            cartesian(splitSelector(rawPrefix), splitSelector(k), rawPrefix).join(',') :
-            concat(rawPrefix, k, rawPrefix),
+          composes || prefix ? '' : k,
           vendors,
           local, ns
         )
