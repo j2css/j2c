@@ -363,9 +363,6 @@ function j2c() {
     }
   })
 
-  _use(emptyArray.slice.call(arguments))
-
-
   function makeBuf(inline) {
     var buf
     function push() {
@@ -378,7 +375,7 @@ function j2c() {
       d: push, // declaration
       c: push  // close
     }
-    for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline)
+    for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline) || buf
     return buf
   }
 
@@ -426,6 +423,10 @@ function j2c() {
     )
     return postprocess(buf.b)
   }
+
+  // wait for the instance to be fully built before
+  // registering plugins.
+  _use(emptyArray.slice.call(arguments))
 
   return instance
 }
