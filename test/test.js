@@ -727,9 +727,9 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@keyframes', function(){
     check(
-      j2c().sheet({p: {'@keyframes :global(qux)': {
-        ' from': {foo: 'bar'},
-        ' to': {foo: 'baz'}
+      j2c().sheet({p: {'@keyframes global(qux)': {
+        from: {foo: 'bar'},
+        to: {foo: 'baz'}
       }}}),
       '@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}' +
         '@keyframes qux{from{foo:bar}to{foo:baz}}'
@@ -744,9 +744,25 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   })
 
-  //////////////////////////////////////////////////
+  /////////////////////////////////////////////
+  /**/  suite('At-rules with prefixes: ')  /**/
+  /////////////////////////////////////////////
+
+
+  test('@-webkit-keyframes', function(){
+    check(
+      j2c().sheet({p: {'@-webkit-keyframes global(qux)': {
+        from: {foo: 'bar'},
+        to: {foo: 'baz'}
+      }}}),
+      '@-webkit-keyframes qux{from{foo:bar}to{foo:baz}}'
+    )
+  })
+
+
+  /////////////////////////////////////////////////
   /**/  suite('At-rules with array values: ')  /**/
-  //////////////////////////////////////////////////
+  /////////////////////////////////////////////////
 
 
   test('@font-face with a 1-element array', function(){
@@ -833,7 +849,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('a global @keyframes', function() {
     var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'@keyframes :global(bit)': {}})
+    var css = _j2c.sheet({'@keyframes global(bit)': {}})
     expect(names.bit).to.be(undefined)
     expect(css).to.contain('@keyframes bit {')
   })
@@ -854,7 +870,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('a global animation', function() {
     var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation: ':global(bit) 1sec'}})
+    var css = _j2c.sheet({p: {animation: 'global(bit) 1sec'}})
     expect(names.bit).to.be(undefined)
     expect(css).to.contain('animation:bit ')
   })
@@ -883,7 +899,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('two animation-name, one global', function() {
     var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation_name: 'bit, :global(bat)'}})
+    var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
     expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('animation-name:' + names.bit +', bat;')
@@ -1041,7 +1057,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(css).to.be('')
   })
 
-  test('global extend', function() {
+  test('@composes with a global source', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@composes':':global(.bat)'}})
     expect(names.bit).to.contain('bit__j2c-')
@@ -1049,7 +1065,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(css).to.be('')
   })
 
-  test('two local extends', function() {
+  test('two local @composes', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@composes':['.bat', '.bot']}})
     expect(css).to.be('')
@@ -1061,7 +1077,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     expect(names.bit).to.contain(names.bat + ' ' + names.bot + ' ')
   })
 
-  test('extend applies only to the last class in the selector', function() {
+  test('@compose only accepts single class selectors as target', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bot p .bit': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target ".bot p .bit";')
