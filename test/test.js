@@ -429,9 +429,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     function filter(j2c) {
       expect(j2c).to.be.an(Object)
       expect(j2c.inline).to.be.a(Function)
+
       return {filter: function(buf) {
         expect(buf).to.be.an(Object)
         expect(buf.d).to.be.a(Function)
+
         var d = buf.d
         buf.d = function(prop, col, value, semi) {
           d('p'+prop, col, 'v'+value, semi)
@@ -931,15 +933,15 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('a local class', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
   })
 
   test('two local classes', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
-    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
   })
@@ -947,7 +949,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('a local and a global class', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.bat {\nbar:6;\n}')
@@ -956,7 +958,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('a local wrapping a global block', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
   })
@@ -964,8 +966,8 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('two local classes, nested', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
-    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
   })
@@ -973,7 +975,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('@keyframes', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'@keyframes bit': {}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(css).to.contain('@keyframes ' + names.bit +' {')
   })
 
@@ -994,7 +996,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('one animation', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(css).to.contain('animation:' + names.bit +' ')
   })
 
@@ -1015,22 +1017,22 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('one animation-name', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit'}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(css).to.contain('animation-name:' + names.bit +';')
   })
 
   test('two animation-name', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
-    expect(names.bit.slice(4)).to.be(names.bat.slice(4))
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
     expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
   })
 
   test('two animation-name, one global', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('animation-name:' + names.bit +', bat;')
   })
@@ -1038,7 +1040,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('a nested @global at-rule', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
-    expect(names.bit.slice(0, 9)).to.be('bit__j2c-')
+    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain( names.bit +'.bat {')
   })
