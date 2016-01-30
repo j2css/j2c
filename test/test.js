@@ -13,13 +13,7 @@ function normalize(s) { return postcss.process(s).css }
 
 function check(result, expected){
   result = normalize(result)
-
-    // since you can't rely on the order of JS object keys, sometimes, several "expected"
-    // values must be provided.
-  // expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-  //   return normalize(s)
-  // })
-  expect(normalize(expected)).to.contain(result)
+  expect(normalize(expected)).to.be(result)
 }
 
 function randStr() {
@@ -65,53 +59,84 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('two properties', function() {
     checkinline(
       {foo: 'bar', baz: 'qux'},
-      'foo:bar;baz:qux;'
+      'foo:bar; baz:qux;'
     )
   })
 
   test('two properties, ensure order', function() {
-    check(j2c().inline({foo: 'bar', baz: 'qux'}), 'foo:bar;\nbaz:qux;')
+    checkinline(
+      {foo: 'bar', baz: 'qux'},
+      'foo:bar; baz:qux;'
+    )
   })
-
 
   test('array of values', function() {
     checkinline(
       {foo:['bar', 'baz']},
-      'foo:bar;foo:baz;'
+      'foo:bar; foo:baz;'
     )
   })
 
-  test('sub-properties', function(){
+  test('one sub-property', function(){
     checkinline(
       {foo: {bar: 'baz'}},
-      'foo-bar:baz;'
+      'foo-bar: baz;'
     )
   })
 
-  test('multiple sub-properties', function(){
+  test('two declrations at the top level', function() {
+    checkinline(
+      {foo: 'qux', baz: 'qux'},
+      'foo:qux;baz:qux;'
+    )
+  })
+
+  test('two sub-properties', function(){
+    checkinline(
+      {foo: {bar: 'baz', qux: 'baz'}},
+      'foo-bar:baz; foo-qux:baz;'
+    )
+  })
+
+  test('two sub-properties with a sub-sub-property', function(){
+    checkinline(
+      {foo: {bar: {qux: 'quux'}, baz: {qix: 'qiix'}}},
+      'foo-bar-qux:quux; foo-baz-qix:qiix;'
+    )
+  })
+
+  test('$ operator in sub-property and sub-sub-property', function(){
+    checkinline(
+      {foo: {bar: {qux: 'fred', quux: 'frod'}, baz: {qix: 'frad', qiix: 'frud'}}},
+      'foo-bar-qux:fred; foo-bar-quux:frod; foo-baz-qix:frad; foo-baz-qiix:frud;'
+    )
+  })
+
+  test('$ operator at the top level', function() {
+    checkinline(
+      {foo$baz: 'qux'},
+      'foo:qux;baz:qux;'
+    )
+  })
+
+  test('$ operator in sub-properties', function(){
     checkinline(
       {foo: {bar$qux: 'baz'}},
-      'foo-bar:baz;foo-qux:baz;'
+      'foo-bar:baz; foo-qux:baz;'
     )
   })
 
-  test('multiple sub-properties, ensure order', function() {
-    check(j2c().inline({foo$baz: 'qux'}), 'foo:qux;\nbaz:qux;')
-  })
-
-
-
-  test('multiple sub-properties with a sub-sub-property', function(){
+  test('$ operator in a sub-property with a sub-sub-property', function(){
     checkinline(
       {foo: {bar$baz: {qux: 'quux'}}},
-      'foo-bar-qux:quux;foo-baz-qux:quux;'
+      'foo-bar-qux:quux; foo-baz-qux:quux;'
     )
   })
 
-  test('multiple sub-properties with two sub-sub-properties', function(){
+  test('$ operator in sub-property and sub-sub-property', function(){
     checkinline(
       {foo: {bar$baz: {qux$quux: 'fred'}}},
-      'foo-bar-qux:fred;foo-bar-quux:fred;foo-baz-qux:fred;foo-baz-quux:fred;'
+      'foo-bar-qux:fred; foo-bar-quux:fred; foo-baz-qux:fred; foo-baz-quux:fred;'
     )
   })
 
@@ -167,7 +192,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   test('CSS *Hack', function() {
     // tested manually because the crass normalization
     // outputs an empty string.
-    check(j2c().inline({'*foo': 'bar'}), '*foo:bar;')
+    checkinline(
+      {'*foo': 'bar'},
+      '*foo:bar;'
+    )
   })
 
   test('CSS _Hack', function() {
@@ -178,10 +206,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
   })
 
   test('custom obj.valueOf', function() {
-    var bar = {valueOf:function(){return 'bar'}}
+    var bar = {valueOf:function(){return 'theBAR'}}
     checkinline(
       {foo:bar},
-      'foo:bar;'
+      'foo:theBAR;'
     )
   })
 
@@ -212,10 +240,45 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     )
   })
 
-  test('null value', function() {
+  test('null leafs in array', function() {
     checkinline(
-      null,
+      {foo:[null]},
       ''
+    )
+  })
+
+  test('undefined leafs in array', function() {
+    checkinline(
+      {foo:[void 8]},
+      ''
+    )
+  })
+
+  test('null leafs in array, preceded by value', function() {
+    checkinline(
+      {foo:['bar', null]},
+      'foo:bar;'
+    )
+  })
+
+  test('undefined leafs in array, preceded by value', function() {
+    checkinline(
+      {foo:['bar', void 8]},
+      'foo:bar;'
+    )
+  })
+
+  test('null leafs in arry, followed by a value', function() {
+    checkinline(
+      {foo:[null, 'bar']},
+      'foo:bar;'
+    )
+  })
+
+  test('undefined leafs in arry, followed by a value', function() {
+    checkinline(
+      {foo:[void 8, 'bar']},
+      'foo:bar;'
     )
   })
 
@@ -225,6 +288,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       ''
     )
   })
+
   test('null in Array', function() {
     checkinline(
       [null],
@@ -239,24 +303,69 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     )
   })
 
+  test('null in Array followed by object', function() {
+    checkinline(
+      [null, {foo:'bar'}],
+      'foo:bar;'
+    )
+  })
+
+  test('undefined in Array followed by object', function() {
+    checkinline(
+      [void 8, {foo:'bar'}],
+      'foo:bar;'
+    )
+  })
+
+  test('object followed by null in Array', function() {
+    checkinline(
+      [{foo:'bar'}, null],
+      'foo:bar;'
+    )
+  })
+
+  test('object followed by undefined in Array', function() {
+    checkinline(
+      [{foo:'bar'}, void 8],
+      'foo:bar;'
+    )
+  })
+
+
+
   ////////////////////////////////////////
   /**/  suite('Inline namespaces: ')  /**/
   ////////////////////////////////////////
 
   test('namespaced animation', function() {
-    var result = j2c({names: {foo:'theFoo'}}).inline({animation:'foo 1sec'})
-    check(result, webkitify('animation:theFoo 1sec;'))
+    check(
+      j2c(
+        {names: {foo:'theFoo'}}
+      ).inline(
+        {animation:'foo 1sec'}
+      ),
+      webkitify('animation:theFoo 1sec;')
+    )
   })
 
   test('namespaced animation-name', function() {
-    var result = j2c({names: {foo:'theFoo'}}).inline({animation_name:'foo'})
-    check(result, webkitify('animation-name:theFoo;'))
+    check(
+      j2c(
+        {names: {foo:'theFoo'}}
+      ).inline(
+        {animation_name:'foo'}
+      ),
+      webkitify('animation-name:theFoo;')
+    )
   })
 
   test('namespaced and non-namespaced animation-name', function() {
     var _j2c = j2c({names: {foo:'theFoo'}})
     var result = _j2c.inline({animation_name:'foo, bar'})
-    check(result, webkitify('animation-name:theFoo, ' + _j2c.names.bar + ';'))
+    check(
+      result,
+      webkitify('animation-name:theFoo, ' + _j2c.names.bar + ';')
+    )
   })
 
   test('two namespaced animations', function() {
@@ -265,7 +374,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     ).inline(
       {animation:'foo 1sec, bar 2sec'}
     )
-    check(result, webkitify('animation:theFoo 1sec, theBar 2sec;'))
+    check(
+      result,
+      webkitify('animation:theFoo 1sec, theBar 2sec;')
+    )
   })
 
 
@@ -448,12 +560,13 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('mixing definitions and sub-selectors', function() {
     check(
-      j2c().sheet({'@global': {p: {
-        foo: 'bar',
-        ' .foo': {bar: 'baz'}
-      }}}),
-
-      ['p .foo{bar:baz} p {foo:bar}', 'p {foo:bar} p .foo{bar:baz}']
+      j2c().sheet({'@global': {
+        p: {
+          foo: 'bar',
+          ' .foo': {bar: 'baz'}
+        }
+      }}),
+      'p {foo:bar} p .foo{bar:baz}'
     )
   })
 
@@ -538,10 +651,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('... nor split on comas inside parentheses ...', function() {
     check(j2c().sheet({
-      'a:any(p, ul)': {
-        ' p': {qux: 5}
+      'p:any(a, ul)': {
+        ' li': {qux: 5}
       }
-    }), 'a:any(p, ul) p {qux: 5}')
+    }), 'p:any(a, ul) li {qux: 5}')
   })
 
   test('... but split in between', function(){
@@ -686,9 +799,9 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('standard at-rule with text value', function() {
     check(
-      j2c().sheet({p: {
+      j2c().sheet({
         '@import': "'bar'"
-      }}),
+      }),
 
       "@import 'bar';"
     )
@@ -718,10 +831,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('Array of at-rules with text values', function() {
     check(
-      j2c().sheet({p: [
+      j2c().sheet([
         {'@import': "'bar'"},
         {'@import': "'baz'"}
-      ]}),
+      ]),
       "@import 'bar'; @import 'baz';"
     )
   })
@@ -737,23 +850,23 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@font-face', function(){
     check(
-      j2c().sheet({p: {'@font-face': {foo: 'bar'}}}),
+      j2c().sheet({'@font-face': {foo: 'bar'}}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@keyframes', function(){
     check(
-      j2c().sheet({p: {'@keyframes global(qux)': {
+      j2c().sheet({'@keyframes global(qux)': {
         from: {foo: 'bar'},
         to: {foo: 'baz'}
-      }}}),
+      }}),
       '@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}' +
         '@keyframes qux{from{foo:bar}to{foo:baz}}'
     )
   })
 
-  test('invalid @foo becomes at-foo property', function(){
+  test('invalid @foo becomes @-error-unsupported-at-rule "@foo"', function(){
     check(
       j2c().sheet({'@foo': 'bar'}),
       '@-error-unsupported-at-rule "@foo";'
@@ -768,10 +881,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@-webkit-keyframes', function(){
     check(
-      j2c().sheet({p: {'@-webkit-keyframes global(qux)': {
+      j2c().sheet({'@-webkit-keyframes global(qux)': {
         from: {foo: 'bar'},
         to: {foo: 'baz'}
-      }}}),
+      }}),
       '@-webkit-keyframes qux{from{foo:bar}to{foo:baz}}'
     )
   })
@@ -784,14 +897,14 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
 
   test('@font-face with a 1-element array', function(){
     check(
-      j2c().sheet({p: {'@font-face':[{foo: 'bar'}]}}),
+      j2c().sheet({'@font-face':[{foo: 'bar'}]}),
       '@font-face{foo:bar}'
     )
   })
 
   test('@font-face with a 2-elements array', function(){
     check(
-      j2c().sheet({p: {'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}}),
+      j2c().sheet({'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}),
       '@font-face{foo:bar}@font-face{foo:baz}'
     )
   })
