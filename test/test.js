@@ -313,7 +313,24 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     ), 'moo:bar;')
   })
 
-
+  test('a declaration filter', function() {
+    function filter(j2c) {
+      expect(j2c).to.be.an(Object)
+      expect(j2c.inline).to.be.a(Function)
+      return {filter: function(buf) {
+        expect(buf).to.be.an(Object)
+        expect(buf.d).to.be.a(Function)
+        var d = buf.d
+        buf.d = function(prop, col, value, semi) {
+          d('p'+prop, col, 'v'+value, semi)
+        }
+      }}
+    }
+    check(
+      j2c(filter).inline({foo:'bar'}),
+      'pfoo:vbar;'
+    )
+  })
 
   // /////////////////////////////////
   // /**/  suite('j2c().prefix: ')  /**/
