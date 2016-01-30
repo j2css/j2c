@@ -56,7 +56,7 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
 
     if (local && (k == 'animation-name' || k == 'animation')) {
       o = o.split(',').map(function (o) {
-        return o.replace(/()(?::global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
+        return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
       }).join(',')
     }
     if (/^animation|^transition/.test(k)) vendors = ['webkit']
