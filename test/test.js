@@ -430,9 +430,10 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       expect(j2c).to.be.an(Object)
       expect(j2c.inline).to.be.a(Function)
 
-      return {filter: function(buf) {
+      return {filter: function(buf, inline) {
         expect(buf).to.be.an(Object)
         expect(buf.d).to.be.a(Function)
+        expect(inline).to.be(true)
 
         var d = buf.d
         buf.d = function(prop, col, value, semi) {
@@ -1359,9 +1360,59 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       {p: {fop: 'bar'}}
     ), 'i{fop:bar;}')
   })
+
+  test('a sheet filter', function() {
+    function filter(j2c) {
+      expect(j2c).to.be.an(Object)
+      expect(j2c.sheet).to.be.a(Function)
+
+      return {filter: function(buf, inline) {
+        expect(buf).to.be.an(Object)
+        expect(buf.a).to.be.a(Function)
+        expect(buf.b).to.be.a(Array)
+        expect(buf.c).to.be.a(Function)
+        expect(buf.d).to.be.a(Function)
+        expect(buf.s).to.be.a(Function)
+        expect(inline).to.be(false)
+
+        return {
+          a: function(name, _, arg, term) {
+            expect(_).to.match(/^\s*$/)
+            expect(term).to.match(/[{;]/)
+            buf.a(name+'o', _, 'a'+arg, term)
+          },
+          b: buf.b,
+          c: function(close) {
+            expect(close).to.contain('}')
+            buf.c(close)
+          },
+          d: function(prop, col, value, semi) {
+            expect(col).to.match(/:/)
+            expect(semi).to.match(/;/)
+            buf.d('p'+prop, col, 'v'+value, semi)
+          },
+          s: function(selector, brace) {
+            expect(brace).to.match(/\{/)
+            buf.s('h1, ' + selector, brace)
+          }
+        }
+      }}
+    }
+    check(
+      j2c(filter).sheet({'@global': {
+        '@import': 'foo',
+        p: {foo: 'bar'},
+        '@keyframes foo': {from:{foo:'baz'}}
+      }}),
+      '@importo afoo;h1,p{pfoo:vbar}' +
+      '@-webkit-keyframeso afoo{0%,h1{p-webkit-foo:vbaz;pfoo:vbaz}}' +
+      '@keyframeso afoo{0%,h1{pfoo:vbaz}}'
+    )
+  })
 })
 
+
+
 // TODO
-// test .use
 // test the default `j2c` instance as well
 

@@ -70,7 +70,7 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
 /*/-statements-/*/
     // vendorify
     for (kk = 0; kk < vendors.length; kk++)
-      buf.d('-', vendors[kk], '-', k, k ? ':': '', o, ';\n')
+      buf.d('-' + vendors[kk] +'-' + k, k ? ':': '', o, ';\n')
 /*/-statements-/*/
 
     buf.d(k, k ? ':': '', o, ';\n')

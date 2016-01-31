@@ -90,7 +90,7 @@ export default function j2c() {
 /*/-statements-/*/
   instance.sheet = function(statements, buf) {
     sheet(
-      statements, buf = makeBuf(),
+      statements, buf = makeBuf(false),
       '', '',     // prefix and rawPRefix
       emptyArray, // vendors
       1,          // local, by default
@@ -103,7 +103,7 @@ export default function j2c() {
   instance.inline = function (decl, buf) {
     declarations(
       decl,
-      buf = makeBuf(),
+      buf = makeBuf(true),
       '',         // prefix
       emptyArray, // vendors
       1,          //local
