@@ -21,7 +21,7 @@ import {declarations} from './declarations'
  */
 
 export function at(k, v, buf, prefix, composes, vendors, local, ns){
-  var i, kk
+  var i, kk, params
   if (/^@(?:-[-\w]+-)?(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
       for (kk = 0; kk < v.length; kk++) {
@@ -36,13 +36,15 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
       /( )(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/,
       ns.l
     ) : k
+    params = k.slice(k.indexOf(' ')+1)
+    k = k.slice(0, k.indexOf(' '))
     // add a @-webkit-keyframes block if no explicit prefix is present.
     if (/^@keyframes/.test(k)) {
-      buf.a('@-webkit-', k.slice(1), ' {\n')
+      buf.a('@-webkit-'+k.slice(1), ' ', params, ' {\n')
       sheet(v, buf, '', 1, ['webkit'])
       buf.c('}\n')
     }
-    buf.a(k, ' {\n')
+    buf.a(k, ' ', params, ' {\n')
     sheet(v, buf, '', 1, vendors, local, ns)
     buf.c('}\n')
 
@@ -71,14 +73,20 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
       )
     }
   } else if (/^@(?:-[-\w]+-)?(?:font-face$|viewport$|page )/.test(k)) {
+    if (/ /.test(k)) {
+      params = k.slice(k.indexOf(' ')+1)
+      k = k.slice(0, k.indexOf(' '))
+    } else {
+      params = ''
+    }
     if (type.call(v) === ARRAY) {
       for (kk = 0; kk < v.length; kk++) {
-        buf.a(k, ' {\n')
+        buf.a(k, params && ' ', params, ' {\n')
         declarations(v[kk], buf, '', vendors, local, ns)
         buf.c('}\n')
       }
     } else {
-      buf.a(k, ' {\n')
+      buf.a(k, params && ' ', params, ' {\n')
       declarations(v, buf, '', vendors, local, ns)
       buf.c('}\n')
     }
@@ -90,7 +98,9 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
     sheet(v, buf, prefix, 1, vendors, 1, ns)
 
   } else if (/^@(?:-[-\w]+-)?(?:media |supports |document )./.test(k)) {
-    buf.a(k, ' {\n')
+    params = k.slice(k.indexOf(' ')+1)
+    k = k.slice(0, k.indexOf(' '))
+    buf.a(k, ' ', params, ' {\n')
     sheet(v, buf, prefix, 1, vendors, local, ns)
     buf.c('}\n')
 
