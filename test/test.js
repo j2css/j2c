@@ -23,8 +23,6 @@ function randInt() {
   return Math.random().toString().substr(2, 3)
 }
 
-function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
-
 [
   '../dist/j2c.commonjs.min',
   '../dist/j2c.commonjs'
@@ -344,7 +342,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       ).inline(
         {animation:'foo 1sec'}
       ),
-      webkitify('animation:theFoo 1sec;')
+      'animation:theFoo 1sec;'
     )
   })
 
@@ -355,7 +353,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
       ).inline(
         {animation_name:'foo'}
       ),
-      webkitify('animation-name:theFoo;')
+      'animation-name:theFoo;'
     )
   })
 
@@ -364,7 +362,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     var result = _j2c.inline({animation_name:'foo, bar'})
     check(
       result,
-      webkitify('animation-name:theFoo, ' + _j2c.names.bar + ';')
+      'animation-name:theFoo, ' + _j2c.names.bar + ';'
     )
   })
 
@@ -376,7 +374,7 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
     )
     check(
       result,
-      webkitify('animation:theFoo 1sec, theBar 2sec;')
+      'animation:theFoo 1sec, theBar 2sec;'
     )
   })
 
@@ -435,9 +433,11 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         expect(buf.d).to.be.a(Function)
         expect(inline).to.be(true)
 
-        var d = buf.d
-        buf.d = function(prop, col, value, semi) {
-          d('p'+prop, col, 'v'+value, semi)
+        return {
+          b: buf.b,
+          d: function(prop, col, value, semi) {
+            buf.d('p'+prop, col, 'v'+value, semi)
+          }
         }
       }}
     }
@@ -864,7 +864,6 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         from: {foo: 'bar'},
         to: {foo: 'baz'}
       }}),
-      '@-webkit-keyframes qux{from{-webkit-foo:bar;foo:bar}to{-webkit-foo:baz;foo:baz}}' +
         '@keyframes qux{from{foo:bar}to{foo:baz}}'
     )
   })
@@ -1166,14 +1165,14 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         {p: {animation: 'bit 1sec'}}
       )
     expect(names.bit).to.be('BOT')
-    check(css, 'p{' + webkitify('animation:BOT 1sec;') + '}')
+    check(css, 'p{animation:BOT 1sec;}')
   })
 
   test('namespaced animation-name', function() {
     var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit'}})
     expect(names.bit).to.be('BOT')
-    check(css, 'p{' + webkitify('animation-name:BOT;') + '}')
+    check(css, 'p{animation-name:BOT;}')
   })
 
   /////////////////////////////
@@ -1404,9 +1403,9 @@ function webkitify(decl) {return '-webkit-' + decl + '\n' + decl}
         p: {foo: 'bar'},
         '@keyframes foo': {from:{foo:'baz'}}
       }}),
-      '@importo afoo;h1,p{pfoo:vbar}' +
-      '@-webkit-keyframeso afoo{0%,h1{p-webkit-foo:vbaz;pfoo:vbaz}}' +
-      '@keyframeso afoo{0%,h1{pfoo:vbaz}}'
+      '@importo afoo;' +
+      'h1, p {pfoo:vbar}' +
+      '@keyframeso afoo{h1, from{pfoo:vbaz}}'
     )
   })
 })

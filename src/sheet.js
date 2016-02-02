@@ -10,22 +10,21 @@ import {at} from './at-rules'
  * @param {array|string|object} statements - a source object or sub-object.
  * @param {string[]} buf - the buffer in which the final style sheet is built
  * @param {string} prefix - the current selector or a prefix in case of nested rules
- * @param {string} composes - the potential target of a @composes rule, if any.
- * @param {string} vendors - a list of vendor prefixes
- * @Param {boolean} local - are we in @local or in @global scope?
+ * @param {string} composes - the potential target of a @composes rule, if any
+ * @param {boolean} local - are we in @local or in @global scope?
  * @param {object} ns - helper functions to populate or create the @local namespace
  *                      and to @composes classes
  * @param {function} ns.e - @composes helper
  * @param {function} ns.l - @local helper
  */
-export function sheet(statements, buf, prefix, composes, vendors, local, ns) {
+export function sheet(statements, buf, prefix, composes, local, ns) {
   var k, v, inDeclaration
 
   switch (type.call(statements)) {
 
   case ARRAY:
     for (k = 0; k < statements.length; k++)
-      sheet(statements[k], buf, prefix, composes, vendors, local, ns)
+      sheet(statements[k], buf, prefix, composes, local, ns)
     break
 
   case OBJECT:
@@ -36,12 +35,12 @@ export function sheet(statements, buf, prefix, composes, vendors, local, ns) {
           inDeclaration = 1
           buf.s(( prefix || '*' ), ' {\n')
         }
-        declarations(v, buf, k, vendors, local, ns)
+        declarations(v, buf, k, local, ns)
       } else if (/^@/.test(k)) {
         // Handle At-rules
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-        at(k, v, buf, prefix, composes, vendors, local, ns)
+        at(k, v, buf, prefix, composes, local, ns)
 
       } else {
         // selector or nested sub-selectors
@@ -61,7 +60,6 @@ export function sheet(statements, buf, prefix, composes, vendors, local, ns) {
               ) : k
             ), prefix),
           composes || prefix ? '' : k,
-          vendors,
           local, ns
         )
       }
@@ -72,7 +70,7 @@ export function sheet(statements, buf, prefix, composes, vendors, local, ns) {
     buf.s(
         ( prefix || ':-error-no-selector' ) , ' {\n'
       )
-    declarations(statements, buf, '', vendors, local, ns)
+    declarations(statements, buf, '', local, ns)
     buf.c('}\n')
   }
 }

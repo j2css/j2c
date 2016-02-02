@@ -11,26 +11,25 @@ function decamelize(match) {
  * @param {string[]} buf - the buffer in which the final style sheet is built.
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
- * @param {string} vendors - a list of vendor prefixes.
- * @Param {boolean} local - are we in @local or in @global scope.
+ * @param {boolean} local - are we in @local or in @global scope.
  * @param {object} ns - helper functions to populate or create the @local namespace
  *                      and to @extend classes.
  * @param {function} ns.e - @extend helper.
  * @param {function} ns.l - @local helper.
  */
 
-export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
+export function declarations(o, buf, prefix, local, ns, /*var*/ k, v, kk) {
   if (o==null) return
   if (/\$/.test(prefix)) {
     for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
-      declarations(o, buf, prefix[kk], vendors, local, ns)
+      declarations(o, buf, prefix[kk], local, ns)
     }
     return
   }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, vendors, local, ns)
+      declarations(o[k], buf, prefix, local, ns)
     break
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
@@ -40,9 +39,9 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
       v = o[k]
       if (/\$/.test(k)) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], vendors, local, ns)
+          declarations(v, buf, prefix + k[kk], local, ns)
       } else {
-        declarations(v, buf, prefix + k, vendors, local, ns)
+        declarations(v, buf, prefix + k, local, ns)
       }
     }
     break
@@ -59,19 +58,11 @@ export function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, k
         return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
       }).join(',')
     }
-    if (/^animation|^transition/.test(k)) vendors = ['webkit']
     // '@' in properties also triggers the *ielte7 hack
     // Since plugins dispatch on the /^@/ for at-rules
     // we swap the at for an asterisk
     // http://browserhacks.com/#hack-6d49e92634f26ae6d6e46b3ebc10019a
-
     k = k.replace(/^@/, '*')
-
-/*/-statements-/*/
-    // vendorify
-    for (kk = 0; kk < vendors.length; kk++)
-      buf.d('-' + vendors[kk] +'-' + k, k ? ':': '', o, ';\n')
-/*/-statements-/*/
 
     buf.d(k, k ? ':': '', o, ';\n')
 

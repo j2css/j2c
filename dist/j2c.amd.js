@@ -79,26 +79,25 @@ define(function () { 'use strict';
    * @param {string[]} buf - the buffer in which the final style sheet is built.
    * @param {string} prefix - the current property or a prefix in case of nested
    *                          sub-properties.
-   * @param {string} vendors - a list of vendor prefixes.
-   * @Param {boolean} local - are we in @local or in @global scope.
+   * @param {boolean} local - are we in @local or in @global scope.
    * @param {object} ns - helper functions to populate or create the @local namespace
    *                      and to @extend classes.
    * @param {function} ns.e - @extend helper.
    * @param {function} ns.l - @local helper.
    */
 
-  function declarations(o, buf, prefix, vendors, local, ns, /*var*/ k, v, kk) {
+  function declarations(o, buf, prefix, local, ns, /*var*/ k, v, kk) {
     if (o==null) return
     if (/\$/.test(prefix)) {
       for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
-        declarations(o, buf, prefix[kk], vendors, local, ns)
+        declarations(o, buf, prefix[kk], local, ns)
       }
       return
     }
     switch ( type.call(o = o.valueOf()) ) {
     case ARRAY:
       for (k = 0; k < o.length; k++)
-        declarations(o[k], buf, prefix, vendors, local, ns)
+        declarations(o[k], buf, prefix, local, ns)
       break
     case OBJECT:
       // prefix is falsy iif it is the empty string, which means we're at the root
@@ -108,9 +107,9 @@ define(function () { 'use strict';
         v = o[k]
         if (/\$/.test(k)) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk))
-            declarations(v, buf, prefix + k[kk], vendors, local, ns)
+            declarations(v, buf, prefix + k[kk], local, ns)
         } else {
-          declarations(v, buf, prefix + k, vendors, local, ns)
+          declarations(v, buf, prefix + k, local, ns)
         }
       }
       break
@@ -127,19 +126,11 @@ define(function () { 'use strict';
           return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
         }).join(',')
       }
-      if (/^animation|^transition/.test(k)) vendors = ['webkit']
       // '@' in properties also triggers the *ielte7 hack
       // Since plugins dispatch on the /^@/ for at-rules
       // we swap the at for an asterisk
       // http://browserhacks.com/#hack-6d49e92634f26ae6d6e46b3ebc10019a
-
       k = k.replace(/^@/, '*')
-
-  /*/-statements-/*/
-      // vendorify
-      for (kk = 0; kk < vendors.length; kk++)
-        buf.d('-' + vendors[kk] +'-' + k, k ? ':': '', o, ';\n')
-  /*/-statements-/*/
 
       buf.d(k, k ? ':': '', o, ';\n')
 
@@ -155,16 +146,15 @@ define(function () { 'use strict';
    * @param {string[]} v - Either parameters for block-less rules or their block
    *                       for the others.
    * @param {string} prefix - the current selector or a prefix in case of nested rules
-   * @param {string} composes - as above, but without localization transformations
-   * @param {string} vendors - a list of vendor prefixes
-   * @Param {boolean} local - are we in @local or in @global scope?
+   * @param {string} composes - the potential target of a @composes rule, if any
+   * @param {boolean} local - are we in @local or in @global scope?
    * @param {object} ns - helper functions to populate or create the @local namespace
    *                      and to @extend classes
    * @param {function} ns.e - @extend helper
    * @param {function} ns.l - @local helper
    */
 
-  function at(k, v, buf, prefix, composes, vendors, local, ns){
+  function at(k, v, buf, prefix, composes, local, ns){
     var i, kk, params
     if (/^@(?:-[-\w]+-)?(?:namespace|import|charset)$/.test(k)) {
       if(type.call(v) == ARRAY){
@@ -182,23 +172,18 @@ define(function () { 'use strict';
       ) : k
       params = k.slice(k.indexOf(' ')+1)
       k = k.slice(0, k.indexOf(' '))
-      // add a @-webkit-keyframes block if no explicit prefix is present.
-      if (/^@keyframes/.test(k)) {
-        buf.a('@-webkit-'+k.slice(1), ' ', params, ' {\n')
-        sheet(v, buf, '', 1, ['webkit'])
-        buf.c('}\n')
-      }
+
       buf.a(k, ' ', params, ' {\n')
-      sheet(v, buf, '', 1, vendors, local, ns)
+      sheet(v, buf, '', 1, local, ns)
       buf.c('}\n')
 
     } else if (/^@composes$/.test(k)) {
       if (!local) {
-        buf.a('@-error-at-composes-in-at-global;\n')
+        buf.a('@-error-at-composes-in-at-global', '', '', ';\n')
         return
       }
       if (!composes) {
-        buf.a('@-error-at-composes-no-nesting;\n')
+        buf.a('@-error-at-composes-no-nesting', '', '', ';\n')
         return
       }
       composes = splitSelector(composes)
@@ -206,7 +191,7 @@ define(function () { 'use strict';
         k = /^\s*\.(\w+)\s*$/.exec(composes[i])
         if (k == null) {
           // the last class is a :global(.one)
-          buf.a('@-error-at-composes-bad-target ', JSON.stringify(composes[i]), ';\n')
+          buf.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
           continue
         }
         ns.c(
@@ -226,26 +211,26 @@ define(function () { 'use strict';
       if (type.call(v) === ARRAY) {
         for (kk = 0; kk < v.length; kk++) {
           buf.a(k, params && ' ', params, ' {\n')
-          declarations(v[kk], buf, '', vendors, local, ns)
+          declarations(v[kk], buf, '', local, ns)
           buf.c('}\n')
         }
       } else {
         buf.a(k, params && ' ', params, ' {\n')
-        declarations(v, buf, '', vendors, local, ns)
+        declarations(v, buf, '', local, ns)
         buf.c('}\n')
       }
 
     } else if (/^@global$/.test(k)) {
-      sheet(v, buf, prefix, 1, vendors, 0, ns)
+      sheet(v, buf, prefix, 1, 0, ns)
 
     } else if (/^@local$/.test(k)) {
-      sheet(v, buf, prefix, 1, vendors, 1, ns)
+      sheet(v, buf, prefix, 1, 1, ns)
 
     } else if (/^@(?:-[-\w]+-)?(?:media |supports |document )./.test(k)) {
       params = k.slice(k.indexOf(' ')+1)
       k = k.slice(0, k.indexOf(' '))
       buf.a(k, ' ', params, ' {\n')
-      sheet(v, buf, prefix, 1, vendors, local, ns)
+      sheet(v, buf, prefix, 1, local, ns)
       buf.c('}\n')
 
     } else {
@@ -259,22 +244,21 @@ define(function () { 'use strict';
    * @param {array|string|object} statements - a source object or sub-object.
    * @param {string[]} buf - the buffer in which the final style sheet is built
    * @param {string} prefix - the current selector or a prefix in case of nested rules
-   * @param {string} composes - the potential target of a @composes rule, if any.
-   * @param {string} vendors - a list of vendor prefixes
-   * @Param {boolean} local - are we in @local or in @global scope?
+   * @param {string} composes - the potential target of a @composes rule, if any
+   * @param {boolean} local - are we in @local or in @global scope?
    * @param {object} ns - helper functions to populate or create the @local namespace
    *                      and to @composes classes
    * @param {function} ns.e - @composes helper
    * @param {function} ns.l - @local helper
    */
-  function sheet(statements, buf, prefix, composes, vendors, local, ns) {
+  function sheet(statements, buf, prefix, composes, local, ns) {
     var k, v, inDeclaration
 
     switch (type.call(statements)) {
 
     case ARRAY:
       for (k = 0; k < statements.length; k++)
-        sheet(statements[k], buf, prefix, composes, vendors, local, ns)
+        sheet(statements[k], buf, prefix, composes, local, ns)
       break
 
     case OBJECT:
@@ -285,12 +269,12 @@ define(function () { 'use strict';
             inDeclaration = 1
             buf.s(( prefix || '*' ), ' {\n')
           }
-          declarations(v, buf, k, vendors, local, ns)
+          declarations(v, buf, k, local, ns)
         } else if (/^@/.test(k)) {
           // Handle At-rules
           inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-          at(k, v, buf, prefix, composes, vendors, local, ns)
+          at(k, v, buf, prefix, composes, local, ns)
 
         } else {
           // selector or nested sub-selectors
@@ -310,7 +294,6 @@ define(function () { 'use strict';
                 ) : k
               ), prefix),
             composes || prefix ? '' : k,
-            vendors,
             local, ns
           )
         }
@@ -321,7 +304,7 @@ define(function () { 'use strict';
       buf.s(
           ( prefix || ':-error-no-selector' ) , ' {\n'
         )
-      declarations(statements, buf, '', vendors, local, ns)
+      declarations(statements, buf, '', local, ns)
       buf.c('}\n')
     }
   }
@@ -387,7 +370,7 @@ define(function () { 'use strict';
         d: push, // declaration
         c: push  // close
       }
-      for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline) || buf
+      for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline)
       return buf
     }
 
@@ -416,7 +399,6 @@ define(function () { 'use strict';
       sheet(
         statements, buf = makeBuf(false),
         '', '',     // prefix and rawPRefix
-        emptyArray, // vendors
         1,          // local, by default
         state
       )
@@ -429,7 +411,6 @@ define(function () { 'use strict';
         decl,
         buf = makeBuf(true),
         '',         // prefix
-        emptyArray, // vendors
         1,          //local
         state
       )
