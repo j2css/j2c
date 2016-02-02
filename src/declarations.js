@@ -12,24 +12,24 @@ function decamelize(match) {
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
  * @param {boolean} local - are we in @local or in @global scope.
- * @param {object} ns - helper functions to populate or create the @local namespace
+ * @param {object} state - helper functions to populate or create the @local namespace
  *                      and to @extend classes.
- * @param {function} ns.e - @extend helper.
- * @param {function} ns.l - @local helper.
+ * @param {function} state.e - @extend helper.
+ * @param {function} state.l - @local helper.
  */
 
-export function declarations(o, buf, prefix, local, ns, /*var*/ k, v, kk) {
+export function declarations(o, buf, prefix, local, state, /*var*/ k, v, kk) {
   if (o==null) return
   if (/\$/.test(prefix)) {
     for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
-      declarations(o, buf, prefix[kk], local, ns)
+      declarations(o, buf, prefix[kk], local, state)
     }
     return
   }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, local, ns)
+      declarations(o[k], buf, prefix, local, state)
     break
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
@@ -39,9 +39,9 @@ export function declarations(o, buf, prefix, local, ns, /*var*/ k, v, kk) {
       v = o[k]
       if (/\$/.test(k)) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], local, ns)
+          declarations(v, buf, prefix + k[kk], local, state)
       } else {
-        declarations(v, buf, prefix + k, local, ns)
+        declarations(v, buf, prefix + k, local, state)
       }
     }
     break
@@ -55,7 +55,7 @@ export function declarations(o, buf, prefix, local, ns, /*var*/ k, v, kk) {
 
     if (local && (k == 'animation-name' || k == 'animation')) {
       o = o.split(',').map(function (o) {
-        return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, ns.l)
+        return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, state.l)
       }).join(',')
     }
     // '@' in properties also triggers the *ielte7 hack
