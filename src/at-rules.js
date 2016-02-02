@@ -11,16 +11,15 @@ import {declarations} from './declarations'
  * @param {string[]} v - Either parameters for block-less rules or their block
  *                       for the others.
  * @param {string} prefix - the current selector or a prefix in case of nested rules
- * @param {string} composes - as above, but without localization transformations
- * @param {string} vendors - a list of vendor prefixes
- * @Param {boolean} local - are we in @local or in @global scope?
+ * @param {string} composes - the potential target of a @composes rule, if any
+ * @param {boolean} local - are we in @local or in @global scope?
  * @param {object} ns - helper functions to populate or create the @local namespace
  *                      and to @extend classes
  * @param {function} ns.e - @extend helper
  * @param {function} ns.l - @local helper
  */
 
-export function at(k, v, buf, prefix, composes, vendors, local, ns){
+export function at(k, v, buf, prefix, composes, local, ns){
   var i, kk, params
   if (/^@(?:-[-\w]+-)?(?:namespace|import|charset)$/.test(k)) {
     if(type.call(v) == ARRAY){
@@ -38,23 +37,18 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
     ) : k
     params = k.slice(k.indexOf(' ')+1)
     k = k.slice(0, k.indexOf(' '))
-    // add a @-webkit-keyframes block if no explicit prefix is present.
-    if (/^@keyframes/.test(k)) {
-      buf.a('@-webkit-'+k.slice(1), ' ', params, ' {\n')
-      sheet(v, buf, '', 1, ['webkit'])
-      buf.c('}\n')
-    }
+
     buf.a(k, ' ', params, ' {\n')
-    sheet(v, buf, '', 1, vendors, local, ns)
+    sheet(v, buf, '', 1, local, ns)
     buf.c('}\n')
 
   } else if (/^@composes$/.test(k)) {
     if (!local) {
-      buf.a('@-error-at-composes-in-at-global;\n')
+      buf.a('@-error-at-composes-in-at-global', '', '', ';\n')
       return
     }
     if (!composes) {
-      buf.a('@-error-at-composes-no-nesting;\n')
+      buf.a('@-error-at-composes-no-nesting', '', '', ';\n')
       return
     }
     composes = splitSelector(composes)
@@ -62,7 +56,7 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
       k = /^\s*\.(\w+)\s*$/.exec(composes[i])
       if (k == null) {
         // the last class is a :global(.one)
-        buf.a('@-error-at-composes-bad-target ', JSON.stringify(composes[i]), ';\n')
+        buf.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
         continue
       }
       ns.c(
@@ -82,26 +76,26 @@ export function at(k, v, buf, prefix, composes, vendors, local, ns){
     if (type.call(v) === ARRAY) {
       for (kk = 0; kk < v.length; kk++) {
         buf.a(k, params && ' ', params, ' {\n')
-        declarations(v[kk], buf, '', vendors, local, ns)
+        declarations(v[kk], buf, '', local, ns)
         buf.c('}\n')
       }
     } else {
       buf.a(k, params && ' ', params, ' {\n')
-      declarations(v, buf, '', vendors, local, ns)
+      declarations(v, buf, '', local, ns)
       buf.c('}\n')
     }
 
   } else if (/^@global$/.test(k)) {
-    sheet(v, buf, prefix, 1, vendors, 0, ns)
+    sheet(v, buf, prefix, 1, 0, ns)
 
   } else if (/^@local$/.test(k)) {
-    sheet(v, buf, prefix, 1, vendors, 1, ns)
+    sheet(v, buf, prefix, 1, 1, ns)
 
   } else if (/^@(?:-[-\w]+-)?(?:media |supports |document )./.test(k)) {
     params = k.slice(k.indexOf(' ')+1)
     k = k.slice(0, k.indexOf(' '))
     buf.a(k, ' ', params, ' {\n')
-    sheet(v, buf, prefix, 1, vendors, local, ns)
+    sheet(v, buf, prefix, 1, local, ns)
     buf.c('}\n')
 
   } else {
