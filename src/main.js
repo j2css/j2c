@@ -63,7 +63,7 @@ export default function j2c() {
       d: push, // declaration
       c: push  // close
     }
-    for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline) || buf
+    for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline)
     return buf
   }
 
@@ -92,7 +92,6 @@ export default function j2c() {
     sheet(
       statements, buf = makeBuf(false),
       '', '',     // prefix and rawPRefix
-      emptyArray, // vendors
       1,          // local, by default
       state
     )
@@ -105,7 +104,6 @@ export default function j2c() {
       decl,
       buf = makeBuf(true),
       '',         // prefix
-      emptyArray, // vendors
       1,          //local
       state
     )
