@@ -12,19 +12,19 @@ import {at} from './at-rules'
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {string} composes - the potential target of a @composes rule, if any
  * @param {boolean} local - are we in @local or in @global scope?
- * @param {object} ns - helper functions to populate or create the @local namespace
+ * @param {object} state - helper functions to populate or create the @local namespace
  *                      and to @composes classes
- * @param {function} ns.e - @composes helper
- * @param {function} ns.l - @local helper
+ * @param {function} state.e - @composes helper
+ * @param {function} state.l - @local helper
  */
-export function sheet(statements, buf, prefix, composes, local, ns) {
+export function sheet(statements, buf, prefix, composes, local, state) {
   var k, v, inDeclaration
 
   switch (type.call(statements)) {
 
   case ARRAY:
     for (k = 0; k < statements.length; k++)
-      sheet(statements[k], buf, prefix, composes, local, ns)
+      sheet(statements[k], buf, prefix, composes, local, state)
     break
 
   case OBJECT:
@@ -35,12 +35,12 @@ export function sheet(statements, buf, prefix, composes, local, ns) {
           inDeclaration = 1
           buf.s(( prefix || '*' ), ' {\n')
         }
-        declarations(v, buf, k, local, ns)
+        declarations(v, buf, k, local, state)
       } else if (/^@/.test(k)) {
         // Handle At-rules
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-        at(k, v, buf, prefix, composes, local, ns)
+        at(k, v, buf, prefix, composes, local, state)
 
       } else {
         // selector or nested sub-selectors
@@ -51,16 +51,16 @@ export function sheet(statements, buf, prefix, composes, local, ns) {
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
             cartesian(splitSelector(prefix), splitSelector( local ?
               k.replace(
-                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
+                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, state.l
               ) : k
             ), prefix).join(',') :
             concat(prefix, ( local ?
               k.replace(
-                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, ns.l
+                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, state.l
               ) : k
             ), prefix),
           composes || prefix ? '' : k,
-          local, ns
+          local, state
         )
       }
     }
@@ -70,7 +70,7 @@ export function sheet(statements, buf, prefix, composes, local, ns) {
     buf.s(
         ( prefix || ':-error-no-selector' ) , ' {\n'
       )
-    declarations(statements, buf, '', local, ns)
+    declarations(statements, buf, '', local, state)
     buf.c('}\n')
   }
 }
