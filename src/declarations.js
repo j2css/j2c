@@ -18,7 +18,8 @@ function decamelize(match) {
  * @param {function} state.l - @local helper.
  */
 
-export function declarations(o, buf, prefix, local, state, /*var*/ k, v, kk) {
+export function declarations(o, buf, prefix, local, state) {
+  var k, v, kk
   if (o==null) return
   if (/\$/.test(prefix)) {
     for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
@@ -53,7 +54,7 @@ export function declarations(o, buf, prefix, local, state, /*var*/ k, v, kk) {
     // `o` is the value.
     k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize)
 
-    if (local && (k == 'animation-name' || k == 'animation')) {
+    if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
       o = o.split(',').map(function (o) {
         return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')

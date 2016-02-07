@@ -7,101 +7,73 @@ global.__proto__ = require('compose-regexp')
 var maybe = greedy.bind(null, '?')
 maybe()
 
-var animation = sequence(
-    capture(),
-    either(
-        sequence(
-            /:?/,
-            'global(',
-            /\s*/,
-            capture(/[-\w]+/),
-            /\s*/,
-            ')'
-        ),
-        sequence(
-            capture(),
-            capture(/[-\w]+/)
-        )
+var animation = either(
+    sequence(
+        /:?/,
+        'global(',
+        /\s*/,
+        capture(/[-\w]+/),
+        /\s*/,
+        ')'
+    ),
+    sequence(
+        capture(),
+        capture(/[-\w]+/)
     )
 )
 console.log('animation / animation-name\n', animation)
 
-var keyframes = sequence(
-    capture(' '),
-    either(
-        sequence(
-            /:?/,
-            'global(',
-            /\s*/,
-            capture(/[-\w]+/),
-            /\s*/,
-            ')'
-        ),
-        sequence(
-            capture(),
-            capture(/[-\w]+/)
-        )
+var keyframes = either(
+    sequence(
+        /:?/,
+        'global(',
+        /\s*/,
+        capture(/[-\w]+/),
+        /\s*/,
+        ')'
+    ),
+    sequence(
+        capture(),
+        capture(/[-\w]+/)
     )
 )
 
 console.log('@keyframes\n', keyframes)
 
-var selector = flags('g', sequence(
-    capture(''),
-    either(
-        sequence(
-            ':global(',
-            /\s*/,
-            capture(
-                '.',
-                /[-\w]+/
-            ),
-            /\s*/,
-            ')'
+var selector = flags('g', either(
+    sequence(
+        ':global(',
+        /\s*/,
+        capture(
+            '.',
+            /[-\w]+/
         ),
-        sequence(
-            capture('.'),
-            capture(/[-\w]+/)
-        )
+        /\s*/,
+        ')'
+    ),
+    sequence(
+        capture('.'),
+        capture(/[-\w]+/)
     )
 ))
 
 console.log('selector / @global\n', selector)
 
-var composes = sequence(
-    capture(''),
-    either(
-        sequence(
-            /:?/,
-            'global(',
-            /\s*\.?/,
-            capture(/[-\w]+/),
-            /\s*/,
-            ')'
-        ),
-        sequence(
-            capture(''),
-            /\.?/,
-            capture(/[-\w]+/)
-        )
+var composes = either(
+    sequence(
+        /:?/,
+        'global(',
+        /\s*\.?/,
+        capture(/[-\w]+/),
+        /\s*/,
+        ')'
+    ),
+    sequence(
+        capture(''),
+        /\.?/,
+        capture(/[-\w]+/)
     )
 )
-
-// /()
-//   (?:
-//     :?
-//     global\(
-//     \s*
-//     \.?
-//     ([-\w]+)
-//     \s*
-//     \)
-//   |
-//     ()
-//     \.
-//     ([-\w]+)
-//   )
-// /
 
 console.log('@composes\n', composes)
 
