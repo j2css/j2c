@@ -337,8 +337,8 @@ function randInt() {
 
   test('namespaced animation', function() {
     check(
-      j2c(
-        {names: {foo:'theFoo'}}
+      j2c().use(
+        {$names: {foo:'theFoo'}}
       ).inline(
         {animation:'foo 1sec'}
       ),
@@ -348,8 +348,8 @@ function randInt() {
 
   test('namespaced animation-name', function() {
     check(
-      j2c(
-        {names: {foo:'theFoo'}}
+      j2c().use(
+        {$names: {foo:'theFoo'}}
       ).inline(
         {animation_name:'foo'}
       ),
@@ -358,7 +358,7 @@ function randInt() {
   })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var _j2c = j2c({names: {foo:'theFoo'}})
+    var _j2c = j2c().use({$names: {foo:'theFoo'}})
     var result = _j2c.inline({animation_name:'foo, bar'})
     check(
       result,
@@ -367,8 +367,8 @@ function randInt() {
   })
 
   test('two namespaced animations', function() {
-    var result = j2c(
-      {names: {foo:'theFoo', bar:'theBar'}}
+    var result = j2c().use(
+      {$names: {foo:'theFoo', bar:'theBar'}}
     ).inline(
       {animation:'foo 1sec, bar 2sec'}
     )
@@ -385,14 +385,14 @@ function randInt() {
   /////////////////////////////////////
 
   test('one plugin that does nothing', function() {
-    check(j2c().use({postprocess: function(){}}).inline(
+    check(j2c().use({$postprocess: function(){}}).inline(
       {foo: 'bar'}
     ), 'foo:bar;')
   })
 
   test('one plugin that mutates the buffer', function() {
     check(j2c().use(
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0] = buf[0].replace('f','k')
       }}
     ).inline(
@@ -402,7 +402,7 @@ function randInt() {
 
   test('one plugin that returns a new buffer', function() {
     expect(j2c().use(
-      {postprocess: function(){
+      {$postprocess: function(){
         return ['hello:world;']
       }}
     ).inline(
@@ -412,10 +412,10 @@ function randInt() {
 
   test('two plugins that mutate the buffer', function() {
     check(j2c().use(
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0]=buf[0].replace('f', 'a')
       }},
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0]=buf[0].replace('a', 'm')
       }}
     ).inline(
@@ -428,7 +428,7 @@ function randInt() {
       expect(j2c).to.be.an(Object)
       expect(j2c.inline).to.be.a(Function)
 
-      return {filter: function(buf, inline) {
+      return {$filter: function(buf, inline) {
         expect(buf).to.be.an(Object)
         expect(buf.d).to.be.a(Function)
         expect(inline).to.be(true)
@@ -442,7 +442,7 @@ function randInt() {
       }}
     }
     check(
-      j2c(filter).inline({foo:'bar'}),
+      j2c().use(filter).inline({foo:'bar'}),
       'pfoo:vbar;'
     )
   })
@@ -1133,7 +1133,7 @@ function randInt() {
   /////////////////////////////////
 
   test('namespaced class', function() {
-    var _j2c = j2c({names: {foo: 'FOOO'}}), names = _j2c.names
+    var _j2c = j2c().use({$names: {foo: 'FOOO'}}), names = _j2c.names
     var css = _j2c.sheet(
       {'.foo': {foo: 'bar', baz: 'qux'}}
     )
@@ -1142,7 +1142,7 @@ function randInt() {
   })
 
   test('namespaced class wrapping a global block', function() {
-    var _j2c = j2c({names: {foo: 'FOOO'}}), names = _j2c.names
+    var _j2c = j2c().use({$names: {foo: 'FOOO'}}), names = _j2c.names
     var css = _j2c.sheet(
       {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
     )
@@ -1151,7 +1151,7 @@ function randInt() {
   })
 
   test('namespaced @keyframes', function(){
-    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c().use({$names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet(
         {'@keyframes bit': {}}
       )
@@ -1160,7 +1160,7 @@ function randInt() {
   })
 
   test('namespaced animation', function(){
-    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c().use({$names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet(
         {p: {animation: 'bit 1sec'}}
       )
@@ -1169,7 +1169,7 @@ function randInt() {
   })
 
   test('namespaced animation-name', function() {
-    var _j2c = j2c({names: {bit: 'BOT'}}), names = _j2c.names
+    var _j2c = j2c().use({$names: {bit: 'BOT'}}), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit'}})
     expect(names.bit).to.be('BOT')
     check(css, 'p{animation-name:BOT;}')
@@ -1322,14 +1322,14 @@ function randInt() {
   //////////////////////////////
 
   test('one plugin that does nothing', function() {
-    check(j2c().use({postprocess: function(){}}).sheet(
+    check(j2c().use({$postprocess: function(){}}).sheet(
       {p: {foo: 'bar'}}
     ), 'p{foo:bar;}')
   })
 
   test('one plugin that mutates the buffer', function() {
     check(j2c().use(
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0] = 'li'
       }}
     ).sheet(
@@ -1339,7 +1339,7 @@ function randInt() {
 
   test('one plugin that returns a new buffer', function() {
     check(j2c().use(
-      {postprocess: function(){
+      {$postprocess: function(){
         return ['li{foo:bar;}']
       }}
     ).sheet(
@@ -1349,10 +1349,10 @@ function randInt() {
 
   test('two plugins that mutate the buffer', function() {
     check(j2c().use(
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0]=buf[0].replace('p', 'a')
       }},
-      {postprocess: function(buf){
+      {$postprocess: function(buf){
         buf[0]=buf[0].replace('a', 'i')
       }}
     ).sheet(
@@ -1365,7 +1365,7 @@ function randInt() {
       expect(j2c).to.be.an(Object)
       expect(j2c.sheet).to.be.a(Function)
 
-      return {filter: function(buf, inline) {
+      return {$filter: function(buf, inline) {
         expect(buf).to.be.an(Object)
         expect(buf.a).to.be.a(Function)
         expect(buf.b).to.be.a(Array)
@@ -1398,7 +1398,7 @@ function randInt() {
       }}
     }
     check(
-      j2c(filter).sheet({'@global': {
+      j2c().use(filter).sheet({'@global': {
         '@import': 'foo',
         p: {foo: 'bar'},
         '@keyframes foo': {from:{foo:'baz'}}
