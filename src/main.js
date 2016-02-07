@@ -5,12 +5,10 @@ import {declarations} from './declarations'
 export default function j2c() {
   var filters = []
   var postprocessors = []
-  var locals = {}
-
   var instance = {
     flatIter: flatIter,
-    names: locals,
-    scopeRoot: '__j2c-' +
+    names: {},
+    suffix: '__j2c-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
@@ -23,7 +21,7 @@ export default function j2c() {
 
   var register = {
     $names: flatIter(function(ns) {
-      for (var k in ns) if (!( k in locals )) locals[k] = ns[k]
+      for (var k in ns) if (!( k in instance.names )) instance.names[k] = ns[k]
     }),
     $filter: flatIter(function(filter) {
       filters.push(filter)
@@ -65,16 +63,16 @@ export default function j2c() {
 
   var state = {
     c: function composes(parent, child) {
-      var nameList = locals[child]
-      locals[child] =
+      var nameList = instance.names[child]
+      instance.names[child] =
         nameList.slice(0, nameList.lastIndexOf(' ') + 1) +
         parent + ' ' +
         nameList.slice(nameList.lastIndexOf(' ') + 1)
     },
     l: function localize(match, global, dot, name) {
       if (global) return global
-      if (!locals[name]) locals[name] = name + instance.scopeRoot
-      return dot + locals[name].match(/\S+$/)
+      if (!instance.names[name]) instance.names[name] = name + instance.suffix
+      return dot + instance.names[name].match(/\S+$/)
     }
   }
 

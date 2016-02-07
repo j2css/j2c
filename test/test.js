@@ -800,17 +800,37 @@ function randInt() {
   ////////////////////////////////
 
 
-  test('standard at-rule with text value', function() {
+  test('@charset', function() {
     check(
       j2c().sheet({
-        '@import': "'bar'"
+        '@charset': '"UTF-8"'
       }),
 
-      "@import 'bar';"
+      '@charset "UTF-8";'
     )
   })
 
-  test('standard at-rule with object value', function() {
+  test('@import', function() {
+    check(
+      j2c().sheet({
+        '@import': 'url("bluish.css") projection, tv'
+      }),
+
+      '@import url("bluish.css") projection, tv;'
+    )
+  })
+
+  test('@namespace', function() {
+    check(
+      j2c().sheet({
+        '@namespace': 'prefix url(XML-namespace-URL)'
+      }),
+
+      '@namespace prefix url(XML-namespace-URL);'
+    )
+  })
+
+  test('@media', function() {
     check(
       j2c().sheet({p: {
         '@media foo': {bar: 'baz'}
@@ -820,7 +840,116 @@ function randInt() {
     )
   })
 
-  test('several at-rules with object value', function() {
+  test('@supports', function() {
+    check(
+      j2c().sheet({
+        '@supports not (text-align-last:justify)': {
+          'p': {
+            textAlignLast: 'justify'
+          }
+        }
+      }),
+
+      '@supports not (text-align-last:justify) {p {text-align-last:justify}}'
+    )
+  })
+
+  test('@document', function() {
+    check(
+      j2c().sheet({
+        '@document url(http://www.w3.org/)': {
+          ' body': {
+            color: 'purple'
+          }
+        }
+      }),
+
+      '@document url(http://www.w3.org/) {body {color: purple;}}'
+    )
+  })
+
+  test('@page', function() {
+    check(
+      j2c().sheet({
+        '@page :first': {
+          margin: '2in 3in'
+        }
+      }),
+
+      '@page :first {margin: 2in 3in;}'
+    )
+  })
+
+  test('@viewport', function() {
+    check(
+      j2c().sheet({
+        '@viewport': {
+          orientation: 'landscape'
+        }
+      }),
+
+      '@viewport {orientation: landscape;}'
+    )
+  })
+
+  test('global @counter-style', function() {
+    check(
+      j2c().sheet({
+        '@global': {
+          '@counter-style circled': {
+            system: 'fixed'
+          }
+        }
+      }),
+
+      '@counter-style circled {system: fixed;}'
+    )
+  })
+
+  test('local @counter-style', function() {
+    var _j2c = j2c()
+    check(
+      _j2c.sheet({
+        '@counter-style circled': {
+          system: 'fixed'
+        }
+      }),
+
+      '@counter-style ' + _j2c.names.circled + ' {system: fixed;}'
+    )
+  })
+
+  test('@font-feature-values', function() {
+    check(
+      j2c().sheet({
+        '@font-feature-values Font One': {
+          '@styleset': {
+            ident0: 2
+          },
+          '@swash': {
+            ident1: 2
+          },
+          '@ornaments': {
+            ident2: 2
+          },
+          '@annotation': {
+            ident3: 2
+          },
+          '@stylistic': {
+            ident4: 2
+          },
+          '@character-variant': {
+            ident5: 2
+          }
+        }
+      }),
+
+      '@font-feature-values Font One {@styleset{ident0: 2;}@swash{ident1: 2;}@ornaments{ident2: 2;}@annotation{ident3: 2;}@stylistic{ident4: 2;}@character-variant{ident5: 2;}}'
+    )
+  })
+
+
+  test('several @media with object value', function() {
     check(
       j2c().sheet({p: {
         '@media foo': {bar: 'baz'},
@@ -832,7 +961,7 @@ function randInt() {
     )
   })
 
-  test('Array of at-rules with text values', function() {
+  test('Array of @import with text values', function() {
     check(
       j2c().sheet([
         {'@import': "'bar'"},
@@ -842,7 +971,7 @@ function randInt() {
     )
   })
 
-  test('nested at-rules', function() {
+  test('nested @media', function() {
     check(
       j2c().sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
       [
@@ -933,15 +1062,15 @@ function randInt() {
   test('a local class', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
   })
 
   test('two local classes', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
-    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
+    expect(names.bat).to.be('bat' + _j2c.suffix)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
   })
@@ -949,7 +1078,7 @@ function randInt() {
   test('a local and a global class', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.bat {\nbar:6;\n}')
@@ -958,7 +1087,7 @@ function randInt() {
   test('a local wrapping a global block', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
   })
@@ -966,8 +1095,8 @@ function randInt() {
   test('two local classes, nested', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
-    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
+    expect(names.bat).to.be('bat' + _j2c.suffix)
     expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
   })
@@ -975,7 +1104,7 @@ function randInt() {
   test('@keyframes', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'@keyframes bit': {}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(css).to.contain('@keyframes ' + names.bit +' {')
   })
 
@@ -996,7 +1125,7 @@ function randInt() {
   test('one animation', function(){
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(css).to.contain('animation:' + names.bit +' ')
   })
 
@@ -1017,22 +1146,22 @@ function randInt() {
   test('one animation-name', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit'}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(css).to.contain('animation-name:' + names.bit +';')
   })
 
   test('two animation-name', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
-    expect(names.bat).to.be('bat' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
+    expect(names.bat).to.be('bat' + _j2c.suffix)
     expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
   })
 
   test('two animation-name, one global', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain('animation-name:' + names.bit +', bat;')
   })
@@ -1040,7 +1169,7 @@ function randInt() {
   test('a nested @global at-rule', function() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
-    expect(names.bit).to.be('bit' + _j2c.scopeRoot)
+    expect(names.bit).to.be('bit' + _j2c.suffix)
     expect(names.bat).to.be(undefined)
     expect(css).to.contain( names.bit +'.bat {')
   })
