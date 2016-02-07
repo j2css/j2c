@@ -55,7 +55,7 @@ export function declarations(o, buf, prefix, local, state, /*var*/ k, v, kk) {
 
     if (local && (k == 'animation-name' || k == 'animation')) {
       o = o.split(',').map(function (o) {
-        return o.replace(/()(?::?global\(\s*([-\w]+)\s*\)|()([-\w]+))/, state.l)
+        return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')
     }
     // '@' in properties also triggers the *ielte7 hack
