@@ -71,10 +71,10 @@ export default function j2c() {
         parent + ' ' +
         nameList.slice(nameList.lastIndexOf(' ') + 1)
     },
-    l: function localize(match, space, global, dot, name) {
-      if (global) return space + global
+    l: function localize(match, global, dot, name) {
+      if (global) return global
       if (!locals[name]) locals[name] = name + instance.scopeRoot
-      return space + dot + locals[name].match(/\S+$/)
+      return dot + locals[name].match(/\S+$/)
     }
   }
 
