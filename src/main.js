@@ -1,13 +1,6 @@
-import {own, emptyArray, type, ARRAY, FUNCTION} from './helpers'
+import {own, flatIter, emptyArray, type, FUNCTION} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
-
-function flatIter (f) {
-  return function iter(arg) {
-    if (type.call(arg) === ARRAY) for (var i= 0 ; i < arg.length; i ++) iter(arg[i])
-    else f(arg)
-  }
-}
 
 export default function j2c() {
   var filters = []
@@ -28,27 +21,25 @@ export default function j2c() {
     }
   }
 
-  var registerLocals= flatIter(function(ns) {
-    for (var k in ns) if (!( k in locals )) locals[k] = ns[k]
-  })
-
-  var registerFilter = flatIter(function(filter) {
-    filters.push(filter)
-  })
-
-  var registerPostprocessor = flatIter(function(pp) {
-    postprocessors.push(pp)
-  })
+  var register = {
+    $names: flatIter(function(ns) {
+      for (var k in ns) if (!( k in locals )) locals[k] = ns[k]
+    }),
+    $filter: flatIter(function(filter) {
+      filters.push(filter)
+    }),
+    $postprocess: flatIter(function(pp) {
+      postprocessors.push(pp)
+    })
+  }
 
   var _use = flatIter(function(plugin) {
     if (type.call(plugin) === FUNCTION) plugin = plugin(instance)
     if (!plugin) return
-    for (var k in plugin) if (own.call(plugin, k)) switch(k) {
-    case 'names': registerLocals(plugin[k]); break
-    case 'postprocess': registerPostprocessor(plugin[k]); break
-    case 'filter': registerFilter(plugin[k]); break
-    default: if (!( k in instance )) instance[k] = plugin[k]
-    }
+    for (var k in plugin) if (own.call(plugin, k)) if (/^\$/.test(k)){
+      if (k in register) register[k](plugin[k])
+    } else if (!( k in instance )) instance[k] = plugin[k]
+
   })
 
   function makeBuf(inline) {
@@ -109,10 +100,6 @@ export default function j2c() {
     )
     return postprocess(buf.b)
   }
-
-  // wait for the instance to be fully built before
-  // registering plugins.
-  _use(emptyArray.slice.call(arguments))
 
   return instance
 }
