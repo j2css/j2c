@@ -51,12 +51,12 @@ export function sheet(statements, buf, prefix, composes, local, state) {
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
             cartesian(splitSelector(prefix), splitSelector( local ?
               k.replace(
-                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, state.l
+                /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
               ) : k
             ), prefix).join(',') :
             concat(prefix, ( local ?
               k.replace(
-                /()(?::global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+))/g, state.l
+                /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
               ) : k
             ), prefix),
           composes || prefix ? '' : k,
