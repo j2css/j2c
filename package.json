@@ -13,7 +13,7 @@
     "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
     "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
-    "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls || npm run test"
+    "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"
   },
   "repository": {
     "type": "git",
