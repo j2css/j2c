@@ -262,7 +262,7 @@ define(function () { 'use strict';
       break
 
     case OBJECT:
-      for (k in statements) {
+      for (k in statements) if (own.call(statements, k)) {
         v = statements[k]
         if (prefix && /^[-\w$]+$/.test(k)) {
           if (!inDeclaration) {

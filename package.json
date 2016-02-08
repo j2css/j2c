@@ -4,16 +4,15 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "all": "npm run build && npm run eslint && npm run nyan",
+    "all": "npm run build && npm run eslint && npm run cover",
     "preversion": "npm run -s all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
     "build": "npm run -s clean && node scripts/build.js",
     "uglify": "uglifyjs dist/j2c.commonjs.js -c -m --comments > dist/j2c.commonjs.min.js && uglifyjs dist/j2c.amd.js -c -m --comments > dist/j2c.amd.min.js && uglifyjs dist/j2c.global.js -c -m --comments > dist/j2c.global.min.js",
     "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
     "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
-    "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
-    "cover": "istanbul cover _mocha -- -R spec --ui qunit",
+    "cover": "istanbul cover _mocha -- -R nyan --ui qunit",
     "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
   },
   "repository": {
