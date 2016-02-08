@@ -693,6 +693,28 @@ function randInt() {
     )
   })
 
+  test('& [bar="&"].baz', function() {
+    check(
+      j2c().sheet({':global(.foo)': {
+        '& [bar="&"]:global(.baz)': {
+          qux: 'quux'
+        }
+      }}),
+      '.foo [bar="&"].baz{qux:quux}'
+    )
+  })
+
+  test('& &, cartesian product', function() {
+    check(
+      j2c().sheet({'p,a': {
+        '& &': {
+          bar: 'baz'
+        }
+      }}),
+      'p p,p a,a p,a a {bar:baz}'
+    )
+  })
+
   test('2 x 2', function() {
     check(
       j2c().sheet({p: {
@@ -1173,17 +1195,17 @@ function randInt() {
   })
 
 
-  ///////////////////////////////////
-  /**/  suite('Foolproofing: ')  /**/
-  ///////////////////////////////////
+  // ///////////////////////////////////
+  // /**/  suite('Foolproofing: ')  /**/
+  // ///////////////////////////////////
 
 
 
-  test('property-like sub-selector', function() {
-    var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
+  // test('property-like sub-selector', function() {
+  //   var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
 
-    expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
-  })
+  //   expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
+  // })
 
 
   ////////////////////////////
