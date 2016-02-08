@@ -2,11 +2,35 @@ import {own, flatIter, emptyArray, type, FUNCTION} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
 
+function global(x) {
+  return ':global(' + x + ')'
+}
+
+
+function kv (k, v, o) {
+  o = {}
+  o[k] = v
+  return o
+}
+
+function at (rule, params, block) {
+  if (
+    arguments.length < 3
+  ) {
+    var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
+    _at.toString = function(){return '@' + rule + ' ' + params}
+    return _at
+  }
+  else return kv('@' + rule + ' ' + params, block)
+}
+
 export default function j2c() {
   var filters = []
   var postprocessors = []
   var instance = {
-    flatIter: flatIter,
+    at: at,
+    global: global,
+    kv: kv,
     names: {},
     suffix: '__j2c-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
@@ -103,4 +127,4 @@ export default function j2c() {
 }
 
 var _j2c = j2c()
-'sheet|sheets|inline|remove|names|flatIter'.split('|').map(function(m){j2c[m] = _j2c[m]})
+'sheet|inline|names|at|global|kv'.split('|').map(function(m){j2c[m] = _j2c[m]})

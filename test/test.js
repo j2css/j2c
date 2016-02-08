@@ -7,8 +7,6 @@ var expect = require('expect.js'),
   perfectionist = require('perfectionist'),
   postcss = require('postcss')([perfectionist({format:'compressed'}), minifySelectors(), minifyParams()])
 
-
-
 function normalize(s) { return postcss.process(s).css }
 
 function check(result, expected){

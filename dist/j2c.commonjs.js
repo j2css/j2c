@@ -165,7 +165,7 @@ function declarations(o, buf, prefix, local, state) {
  * @param {function} state.l - @local helper
  */
 
-function at(k, v, buf, prefix, composes, local, state){
+function at$1(k, v, buf, prefix, composes, local, state){
   var i, params
   if (/^@global$/.test(k)) {
     sheet(v, buf, prefix, 1, 0, state)
@@ -271,7 +271,7 @@ function sheet(statements, buf, prefix, composes, local, state) {
         // Handle At-rules
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-        at(k, v, buf, prefix, composes, local, state)
+        at$1(k, v, buf, prefix, composes, local, state)
 
       } else {
         // selector or nested sub-selectors
@@ -306,11 +306,35 @@ function sheet(statements, buf, prefix, composes, local, state) {
   }
 }
 
+function global(x) {
+  return ':global(' + x + ')'
+}
+
+
+function kv (k, v, o) {
+  o = {}
+  o[k] = v
+  return o
+}
+
+function at (rule, params, block) {
+  if (
+    arguments.length < 3
+  ) {
+    var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
+    _at.toString = function(){return '@' + rule + ' ' + params}
+    return _at
+  }
+  else return kv('@' + rule + ' ' + params, block)
+}
+
 function j2c() {
   var filters = []
   var postprocessors = []
   var instance = {
-    flatIter: flatIter,
+    at: at,
+    global: global,
+    kv: kv,
     names: {},
     suffix: '__j2c-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
@@ -407,6 +431,6 @@ function j2c() {
 }
 
 var _j2c = j2c()
-'sheet|sheets|inline|remove|names|flatIter'.split('|').map(function(m){j2c[m] = _j2c[m]})
+'sheet|inline|names|at|global|kv'.split('|').map(function(m){j2c[m] = _j2c[m]})
 
 module.exports = j2c;
