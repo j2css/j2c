@@ -1158,6 +1158,21 @@ function randInt() {
     expect(css).to.contain( names.bit +'.bat {')
   })
 
+  test('a @local rule nested in a @global block', function() {
+    check(
+      j2c().sheet({'@global':{
+        '.bit': {
+          '@local': {
+            ':global(.bat)': {'foo':6}
+          }
+        }
+      }}),
+      '.bit.bat {foo:6}'
+    )
+  })
+
+
+
 
   // ///////////////////////////////////
   // /**/  suite('Foolproofing: ')  /**/
