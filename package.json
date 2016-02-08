@@ -13,7 +13,8 @@
     "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
     "nyan": "mocha --ui qunit --reporter nyan",
     "test": "mocha --ui qunit",
-    "cover": "mocha --ui qunit --require blanket --reporter mocha-lcov-reporter | coveralls"
+    "cover": "istanbul cover _mocha -- -R spec --ui qunit",
+    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -35,12 +36,12 @@
   },
   "homepage": "http://j2c.py.gy",
   "devDependencies": {
-    "blanket": "^1.1.7",
     "compose-regexp": "^0.1.8",
     "coveralls": "^2.11.2",
     "eslint": "^1.10.3",
     "expect.js": "0.3.1",
     "in-publish": "^2.0.0",
+    "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
     "mocha-lcov-reporter": "^1.0.0",
     "perfectionist": "^2.1.2",
