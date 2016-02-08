@@ -1,4 +1,4 @@
-import {type, ARRAY, OBJECT, STRING, splitSelector, ampersand} from './helpers'
+import {type, ARRAY, OBJECT, STRING, ampersand, own, splitSelector} from './helpers'
 import {declarations} from './declarations'
 import {at} from './at-rules'
 
@@ -28,7 +28,7 @@ export function sheet(statements, buf, prefix, composes, local, state) {
     break
 
   case OBJECT:
-    for (k in statements) {
+    for (k in statements) if (own.call(statements, k)) {
       v = statements[k]
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {

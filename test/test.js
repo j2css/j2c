@@ -1,5 +1,8 @@
 /*eslint-env node, mocha */
 
+// ensure that we are not sensitive to additions to Object.prototype.
+Object.prototype.BADBAD = 5
+
 // used to normalize styles for reliable comparison.
 var expect = require('expect.js'),
   minifySelectors = require('postcss-minify-selectors'),
