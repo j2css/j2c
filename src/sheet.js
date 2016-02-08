@@ -1,4 +1,4 @@
-import {type, ARRAY, OBJECT, STRING, cartesian, concat, splitSelector} from './helpers'
+import {type, ARRAY, OBJECT, STRING, splitSelector, ampersand} from './helpers'
 import {declarations} from './declarations'
 import {at} from './at-rules'
 
@@ -18,7 +18,7 @@ import {at} from './at-rules'
  * @param {function} state.l - @local helper
  */
 export function sheet(statements, buf, prefix, composes, local, state) {
-  var k, v, inDeclaration
+  var k, v, inDeclaration, kk
 
   switch (type.call(statements)) {
 
@@ -33,7 +33,7 @@ export function sheet(statements, buf, prefix, composes, local, state) {
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
-          buf.s(( prefix || '*' ), ' {\n')
+          buf.s(( prefix || ':-error-no-selector' ), ' {\n')
         }
         declarations(v, buf, k, local, state)
       } else if (/^@/.test(k)) {
@@ -47,18 +47,34 @@ export function sheet(statements, buf, prefix, composes, local, state) {
 
         inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
+
         sheet(v, buf,
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
-            cartesian(splitSelector(prefix), splitSelector( local ?
+          /*0*/ (kk = splitSelector(prefix), splitSelector( local ?
               k.replace(
                 /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
               ) : k
-            ), prefix).join(',') :
-            concat(prefix, ( local ?
-              k.replace(
-                /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
-              ) : k
-            ), prefix),
+            ).map(function (k) {
+              return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
+                return kk + k
+              }).join(',')
+            }).join(',')) :
+          /*0*/ /&/.test(k) ?
+            /*1*/ ampersand(
+              local ?
+                k.replace(
+                  /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
+                ) :
+                k,
+              [prefix]
+            ) :
+            /*1*/ prefix + (
+              local ?
+                k.replace(
+                  /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
+                ) :
+                k
+              ),
           composes || prefix ? '' : k,
           local, state
         )
