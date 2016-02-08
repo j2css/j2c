@@ -349,7 +349,6 @@ function at (rule, params, block) {
 
 function j2c() {
   var filters = []
-  var postprocessors = []
   var instance = {
     at: at,
     global: global,
@@ -372,9 +371,6 @@ function j2c() {
     }),
     $filter: flatIter(function(filter) {
       filters.push(filter)
-    }),
-    $postprocess: flatIter(function(pp) {
-      postprocessors.push(pp)
     })
   }
 
@@ -403,11 +399,6 @@ function j2c() {
     return buf
   }
 
-  function postprocess(buf, res, i) {
-    for (i = 0; i< postprocessors.length; i++) buf = postprocessors[i](buf) || buf
-    return buf.join('')
-  }
-
   var state = {
     c: function composes(parent, child) {
       var nameList = instance.names[child]
@@ -431,8 +422,8 @@ function j2c() {
       1,          // local, by default
       state
     )
-    buf = postprocess(buf.b)
-    return buf
+
+    return buf.b.join('')
   }
 /*/-statements-/*/
   instance.inline = function (decl, buf) {
@@ -443,7 +434,7 @@ function j2c() {
       1,          //local
       state
     )
-    return postprocess(buf.b)
+    return buf.b.join('')
   }
 
   return instance

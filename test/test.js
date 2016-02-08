@@ -382,45 +382,6 @@ function randInt() {
   /**/  suite('Inline plugins: ')  /**/
   /////////////////////////////////////
 
-  test('one plugin that does nothing', function() {
-    check(j2c().use({$postprocess: function(){}}).inline(
-      {foo: 'bar'}
-    ), 'foo:bar;')
-  })
-
-  test('one plugin that mutates the buffer', function() {
-    check(j2c().use(
-      {$postprocess: function(buf){
-        buf[0] = buf[0].replace('f','k')
-      }}
-    ).inline(
-      {foo: 'bar'}
-    ), 'koo:bar;')
-  })
-
-  test('one plugin that returns a new buffer', function() {
-    expect(j2c().use(
-      {$postprocess: function(){
-        return ['hello:world;']
-      }}
-    ).inline(
-      {foo: 'bar'}
-    )).to.be('hello:world;')
-  })
-
-  test('two plugins that mutate the buffer', function() {
-    check(j2c().use(
-      {$postprocess: function(buf){
-        buf[0]=buf[0].replace('f', 'a')
-      }},
-      {$postprocess: function(buf){
-        buf[0]=buf[0].replace('a', 'm')
-      }}
-    ).inline(
-      {foo: 'bar'}
-    ), 'moo:bar;')
-  })
-
   test('a declaration filter', function() {
     function filter(j2c) {
       expect(j2c).to.be.an(Object)
@@ -1469,45 +1430,6 @@ function randInt() {
   //////////////////////////////
   /**/  suite('Plugins: ')  /**/
   //////////////////////////////
-
-  test('one plugin that does nothing', function() {
-    check(j2c().use({$postprocess: function(){}}).sheet(
-      {p: {foo: 'bar'}}
-    ), 'p{foo:bar;}')
-  })
-
-  test('one plugin that mutates the buffer', function() {
-    check(j2c().use(
-      {$postprocess: function(buf){
-        buf[0] = 'li'
-      }}
-    ).sheet(
-      {p: {foo: 'bar'}}
-    ), 'li{foo:bar;}')
-  })
-
-  test('one plugin that returns a new buffer', function() {
-    check(j2c().use(
-      {$postprocess: function(){
-        return ['li{foo:bar;}']
-      }}
-    ).sheet(
-      {p: {foo: 'bar'}}
-    ), 'li{foo:bar;}')
-  })
-
-  test('two plugins that mutate the buffer', function() {
-    check(j2c().use(
-      {$postprocess: function(buf){
-        buf[0]=buf[0].replace('p', 'a')
-      }},
-      {$postprocess: function(buf){
-        buf[0]=buf[0].replace('a', 'i')
-      }}
-    ).sheet(
-      {p: {fop: 'bar'}}
-    ), 'i{fop:bar;}')
-  })
 
   test('a sheet filter', function() {
     function filter(j2c) {
