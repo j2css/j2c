@@ -6,29 +6,6 @@
 [![Dependency Status][deps_img]][deps_url]
 [![bitHound Score][bithound_img]][bithound_url]
 
-
-A lean, no hassle CSS in JS solution.
-
-Scales from standalone use to isomorphic apps. Compatible with any framework/view library.
-
-Supports building either inline styles of full style sheets.
-
-In `sheet` mode, `j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
-
-Like SASS, LESS and Stylus, `j2c` supports:
-
-- mixins
-- nested selectors (in `sheet` mode)
-- `@composes`, and `@extends`-like mechanism
-
-All standard CSS at-rules are available out of the box, most importantly:
-
-- `@media` and `@supports` can be nested anywhere in the sheet
-- `@keyframes` (with automatic generation of `@-webkit-keyframes`)
-- `@font-face`
-
-The [home page](http://j2c.py.gy) has a few interactive demos.
-
 [trav_img]: https://travis-ci.org/j2css/j2c.svg?branch=master
 [trav_url]: https://travis-ci.org/j2css/j2c
 [cov_img]: https://coveralls.io/repos/j2css/j2c/badge.svg?branch=master
@@ -42,6 +19,63 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
 [bithound_url]: https://www.bithound.io/github/j2css/j2c/
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter_url]: https://gitter.im/j2css/j2c
+
+A lean (2.0KB), no hassle CSS in JS solution.
+
+`j2c`:
+
+- supports all CSS features, and then some (most notably, local scope).
+- scales from standalone `<script src="j2c.global.js">` to isomorphic apps.
+- is compatible with any framework/view library. 
+- doesn't require any external tooling (`gulp`/`babel`/`browserify`/`webpack`).
+- Can be imported as an ES6 or CommonJS module, but also works in ES3 browsers (IE8-) with polyfills.
+
+### Why?
+
+For styling components, mostly. Especially if you plan to publish them standalone (your users won't have to worry about importing the style sheets, and you won't tie your lib to any build system).
+
+### Out of the box
+
+`j2c` supports building either inline styles of full style sheets (arbitrary CSS).
+
+In `sheet` mode, `j2c` follows a [**'local by default'**](https://medium.com/seek-ui-engineering/the-end-of-global-css-90d2a4a06284) approach to make it easier to write components without having to worry about class and animation names clashes.
+
+Like SASS, LESS and Stylus, `j2c` supports:
+
+- mixins
+- nested selectors and at-rules
+- `@composes`, an `@extends`-like mechanism inspired by @tivac's [Modular CSS]()
+
+All [standard CSS at-rules](https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule) are available out of the box, most importantly:
+
+- `@media` and `@supports`, which can be nested anywhere in the sheet, SASS-style.
+- `@keyframes`
+- `@font-face`
+
+### With plugins
+
+- Automatic vendor prefix insertion + #%-@$-%$-@$ KB. (Client-side only at the moment)
+- color manipulation
+- lengths arithmetics
+- A bare bones grid system
+
+### Convert CSS to `j2c`...
+
+... with the [`j2c` importer](http://j2c.py.gy/import.html).
+
+The [home page](http://j2c.py.gy) has a few interactive demos.
+
+### `j2c` is mostly done.
+
+At this point, the core (this very repo) is considered feature complete and should not evolve much if at all. We will add new at-rules as they are standardized, and will fix any bugs that are reported.
+
+### Thanks
+
+Thanks to 
+
+- @barneycarroll for the inspiration and initial feedback.
+- @ArthurClemens,  @StephanHoyer, @der-On, @dontwork, @futurist and @mithriljs-cn for the support and feedback.
+- @tivac for `@compose` which I stole from his [Modular CSS]() project.
 
 ## Table of Contents
 
