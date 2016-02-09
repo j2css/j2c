@@ -1,11 +1,10 @@
 var
   emptyArray = [],
   emptyObject = {},
-  emptyString = '',
   type = emptyObject.toString,
   ARRAY =  type.call(emptyArray),
   OBJECT = type.call(emptyObject),
-  STRING = type.call(emptyString),
+  STRING = type.call(''),
   FUNCTION = type.call(type),
   own =  emptyObject.hasOwnProperty
 
