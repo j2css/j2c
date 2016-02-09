@@ -38,14 +38,14 @@ export function sheet(statements, buf, prefix, composes, local, state) {
         declarations(v, buf, k, local, state)
       } else if (/^@/.test(k)) {
         // Handle At-rules
-        inDeclaration = (inDeclaration && (buf.c('}\n') || 1) && 0)
+        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
         at(k, v, buf, prefix, composes, local, state)
 
       } else {
         // selector or nested sub-selectors
 
-        inDeclaration = (inDeclaration && (buf.c('}\n') || 1) && 0)
+        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
 
         sheet(v, buf,
