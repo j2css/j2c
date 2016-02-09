@@ -13,7 +13,7 @@
     "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
     "test": "mocha --ui qunit",
     "cover": "istanbul cover _mocha -- -R nyan --ui qunit",
-    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
