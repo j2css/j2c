@@ -21,7 +21,7 @@ function at (rule, params, block) {
     _at.toString = function(){return '@' + rule + ' ' + params}
     return _at
   }
-  else return kv('@' + rule + ' ' + params, block)
+  else return kv('@' + rule +' ' + params, block)
 }
 
 export default function j2c() {
