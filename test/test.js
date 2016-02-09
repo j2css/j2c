@@ -637,7 +637,7 @@ function randInt() {
   //////////////////////////////////
 
 
-  test('composed selector: add a class to the root', function() {
+  test('.foo &', function() {
     check(
       j2c().sheet({p: {
         ':global(.foo) &': {bar: 'baz'}
@@ -689,6 +689,19 @@ function randInt() {
         }
       }}),
       '.baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}'
+    )
+  })
+
+  test('& in @global context', function() {
+    check(
+      j2c().sheet({'@global': {
+        '.foo': {
+          '& &': {
+            bar: 'baz'
+          }
+        }
+      }}),
+      '.foo .foo{bar:baz}'
     )
   })
 
@@ -1174,9 +1187,9 @@ function randInt() {
 
 
 
-  // ///////////////////////////////////
-  // /**/  suite('Foolproofing: ')  /**/
-  // ///////////////////////////////////
+  ///////////////////////////////////
+  /**/  suite('Foolproofing: ')  /**/
+  ///////////////////////////////////
 
 
 
@@ -1185,6 +1198,13 @@ function randInt() {
 
   //   expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
   // })
+
+  test('property-like sub-selector', function() {
+    check(
+      j2c().sheet('color:red'),
+      ':-error-no-selector {color:red} '
+    )
+  })
 
 
   ////////////////////////////
@@ -1449,6 +1469,50 @@ function randInt() {
   /**/  suite('Plugins: ')  /**/
   //////////////////////////////
 
+  test('an empty array as plugin', function() {
+    check(
+      j2c().use([]).sheet({p:{color:'red'}}),
+      'p{color:red;}'
+    )
+  })
+
+  test('an null plugin', function() {
+    check(
+      j2c().use(null).sheet({p:{color:'red'}}),
+      'p{color:red;}'
+    )
+  })
+
+  test('an invalid $plugin', function() {
+    var _j2c = j2c().use({$invalid:'foo'})
+    check(
+      _j2c.sheet({p:{color:'red'}}),
+      'p{color:red;}'
+    )
+    expect(_j2c).not.to.have.key('$invalid')
+  })
+
+  test('a plugin that sets a property on the instance', function() {
+    var _j2c = j2c().use({testProp:'foo'})
+    check(
+      _j2c.sheet({p:{color:'red'}}),
+      'p{color:red;}'
+    )
+    expect(_j2c).to.have.key('testProp')
+    expect(_j2c.testProp).to.be('foo')
+  })
+
+  test('a plugin that sets a property on the instance that already exists', function() {
+    var _j2c = j2c().use({sheet:'foo'})
+    expect(_j2c.sheet).not.to.be('foo')
+    check(
+      _j2c.sheet({p:{color:'red'}}),
+      'p{color:red;}'
+    )
+
+    expect(_j2c.sheet).not.to.be('foo')
+  })
+
   test('a sheet filter', function() {
     function filter(j2c) {
       expect(j2c).to.be.an(Object)
@@ -1497,6 +1561,78 @@ function randInt() {
       '@keyframeso afoo{h1, from{pfoo:vbaz}}'
     )
   })
+
+
+
+  /////////////////////////////
+  /**/  suite('Extras: ')  /**/
+  /////////////////////////////
+
+  test('j2c.kv()', function() {
+    expect(j2c.kv).to.be.a(Function)
+    expect(j2c().kv).to.be.a(Function)
+    expect(j2c.kv).to.be(j2c().kv)
+    var o = j2c.kv('k','v')
+    expect(o).to.have.key('k')
+    expect(o.k).to.be('v')
+  })
+
+  test('j2c.global()', function() {
+    expect(j2c.global).to.be.a(Function)
+    expect(j2c().global).to.be.a(Function)
+    expect(j2c.global).to.be(j2c().global)
+    expect(j2c.global('foo')).to.be(':global(foo)')
+  })
+
+  test('j2c.at(), basics', function() {
+    expect(j2c.at).to.be.a(Function)
+    expect(j2c().at).to.be.a(Function)
+    expect(j2c.at).to.be(j2c().at)
+  })
+
+  test('j2c.at(), as an object key', function() {
+    expect(j2c.at('foo', 'bar') + '').to.be('@foo bar')
+  })
+
+  test('j2c.at(), as an object key, curried', function() {
+    expect(j2c.at('foo')('bar') + '').to.be('@foo bar')
+    expect(j2c.at()('foo')('bar') + '').to.be('@foo bar')
+    expect(j2c.at('foo')()('bar') + '').to.be('@foo bar')
+    expect(j2c.at('foo')('bar')() + '').to.be('@foo bar')
+  })
+
+  test('j2c.at(), as an object generator', function() {
+    var atFoo = j2c.at('foo', 'bar', {baz:'qux'})
+    expect(atFoo).to.have.key('@foo bar')
+    expect(atFoo['@foo bar']).to.be.an(Object)
+    expect(atFoo['@foo bar']).to.have.key('baz')
+    expect(atFoo['@foo bar'].baz).to.be('qux')
+  })
+
+  test('j2c.at(), as an object generator, curried 1', function() {
+    var atFoo = j2c.at('foo')('bar', {baz:'qux'})
+    expect(atFoo).to.have.key('@foo bar')
+    expect(atFoo['@foo bar']).to.be.an(Object)
+    expect(atFoo['@foo bar']).to.have.key('baz')
+    expect(atFoo['@foo bar'].baz).to.be('qux')
+  })
+
+  test('j2c.at(), as an object generator, curried 2', function() {
+    var atFoo = j2c.at('foo', 'bar')({baz:'qux'})
+    expect(atFoo).to.have.key('@foo bar')
+    expect(atFoo['@foo bar']).to.be.an(Object)
+    expect(atFoo['@foo bar']).to.have.key('baz')
+    expect(atFoo['@foo bar'].baz).to.be('qux')
+  })
+
+  test('j2c.at(), as an object generator, curried 3', function() {
+    var atFoo = j2c.at('foo')('bar')({baz:'qux'})
+    expect(atFoo).to.have.key('@foo bar')
+    expect(atFoo['@foo bar']).to.be.an(Object)
+    expect(atFoo['@foo bar']).to.have.key('baz')
+    expect(atFoo['@foo bar'].baz).to.be('qux')
+  })
+
 })
 
 

@@ -268,19 +268,19 @@ var j2c = (function () {
         if (prefix && /^[-\w$]+$/.test(k)) {
           if (!inDeclaration) {
             inDeclaration = 1
-            buf.s(( prefix || ':-error-no-selector' ), ' {\n')
+            buf.s((prefix), ' {\n')
           }
           declarations(v, buf, k, local, state)
         } else if (/^@/.test(k)) {
           // Handle At-rules
-          inDeclaration = (inDeclaration && buf.c('}\n') && 0)
+          inDeclaration = (inDeclaration && (buf.c('}\n') || 1) && 0)
 
           at$1(k, v, buf, prefix, composes, local, state)
 
         } else {
           // selector or nested sub-selectors
 
-          inDeclaration = (inDeclaration && buf.c('}\n') && 0)
+          inDeclaration = (inDeclaration && (buf.c('}\n') || 1) && 0)
 
 
           sheet(v, buf,
@@ -345,7 +345,7 @@ var j2c = (function () {
       _at.toString = function(){return '@' + rule + ' ' + params}
       return _at
     }
-    else return kv('@' + rule + ' ' + params, block)
+    else return kv('@' + rule +' ' + params, block)
   }
 
   function j2c() {
