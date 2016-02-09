@@ -1219,12 +1219,6 @@ function randInt() {
     check(j2c().sheet({p: {foo$baz: 'qux'}}), 'p {\nfoo:qux;\nbaz:qux;\n}')
   })
 
-
-    // This was built with the assumption that
-    // objects are totally unordered which isn't true in JS
-    // As long as no properties are deleted and created again,
-    // the insertion order is the iteration order in all
-    // browsers and in node too.
   test('subselector > declaration > @media', function(){
     var prop = randStr()
     var klass = randStr()
@@ -1256,6 +1250,22 @@ function randInt() {
       '@media (min-width: ' + width + 'em){p{bar:7;}}'
     ]
 
+    var j2c_1 = j2c()
+    // This ensures that we don't rely on the falsy return value of the default
+    // buffer methods. This happens here becasue this test harnesses most if not
+    // all of the code paths where this may be relevant, especially in
+    // `src/sheet.js`
+    var j2c_2 = j2c().use({$filter:function (buf) {
+      return {
+        b:buf.b,
+        a: function() {buf.a.apply(buf,arguments);return true},
+        c: function() {buf.c.apply(buf,arguments);return true},
+        d: function() {buf.d.apply(buf,arguments);return true},
+        s: function() {buf.s.apply(buf,arguments);return true}
+      }
+    }})
+
+
     permutations.forEach(function(indices) {
       var source = {p:{}}
       var CSS = []
@@ -1263,10 +1273,9 @@ function randInt() {
         source.p[jsKeys[i]] = o[jsKeys[i]]
         CSS.push(rules[i])
       })
-      expect(normalize(j2c().sheet({'@global': source}))).to.be(normalize(CSS.join('')))
+      expect(normalize(j2c_1.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
+      expect(normalize(j2c_2.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
     })
-
-
   })
 
   test('@namespace then selector', function() {
