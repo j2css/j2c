@@ -139,7 +139,7 @@ function declarations(o, buf, prefix, local, state) {
         return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')
     }
-    
+
     buf.d(k, k ? ':': '', o, ';\n')
   }
 }
@@ -206,9 +206,9 @@ function at$1(k, v, buf, prefix, composes, local, state){
       buf.c('}\n')
     })(v)
 
-  } else if (/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(.+)/.test(k)) {
+  } else if (/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(\S.*)/.test(k)) {
 
-    params = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(.+)/)[1]
+    params = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(\S.*)/)[1]
 
     k = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)/)[0]
 
@@ -394,16 +394,12 @@ function j2c() {
 
   var state = {
     c: function composes(parent, child) {
-      var nameList = instance.names[child]
-      instance.names[child] =
-        nameList.slice(0, nameList.lastIndexOf(' ') + 1) +
-        parent + ' ' +
-        nameList.slice(nameList.lastIndexOf(' ') + 1)
+      instance.names[child] = instance.names[child] + ' ' + parent
     },
     l: function localize(match, global, dot, name) {
       if (global) return global
       if (!instance.names[name]) instance.names[name] = name + instance.suffix
-      return dot + instance.names[name].match(/\S+$/)
+      return dot + instance.names[name].match(/^\S+/)
     }
   }
 
