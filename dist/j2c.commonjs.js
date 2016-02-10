@@ -139,14 +139,8 @@ function declarations(o, buf, prefix, local, state) {
         return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')
     }
-    // '@' in properties also triggers the *ielte7 hack
-    // Since plugins dispatch on the /^@/ for at-rules
-    // we swap the at for an asterisk
-    // http://browserhacks.com/#hack-6d49e92634f26ae6d6e46b3ebc10019a
-    k = k.replace(/^@/, '*')
-
+    
     buf.d(k, k ? ':': '', o, ';\n')
-
   }
 }
 
