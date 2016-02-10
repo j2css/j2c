@@ -55,13 +55,6 @@ function randInt() {
     )
   })
 
-  test('two properties', function() {
-    checkinline(
-      {foo: 'bar', baz: 'qux'},
-      'foo:bar; baz:qux;'
-    )
-  })
-
   test('two properties, ensure order', function() {
     checkinline(
       {foo: 'bar', baz: 'qux'},
