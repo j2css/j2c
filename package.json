@@ -7,6 +7,7 @@
     "preversion": "npm run all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
     "all": "npm run build && npm run lint && npm run cover",
+    "dev": "npm run build && npm run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
     "test": "mocha --ui qunit",
