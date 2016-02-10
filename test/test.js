@@ -1335,7 +1335,7 @@ function randInt() {
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bat).not.to.contain('bit__j2c-')
-    expect(names.bit).to.contain(names.bat + ' ')
+    expect(names.bit).to.contain(' ' + names.bat)
     expect(css).to.be('')
   })
 
@@ -1343,7 +1343,7 @@ function randInt() {
     var _j2c = j2c(), names = _j2c.names
     var css = _j2c.sheet({'.bit': {'@composes':':global(.bat)'}})
     expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bit).to.contain('bat ')
+    expect(names.bit).to.contain(' bat')
     expect(css).to.be('')
   })
 
@@ -1356,7 +1356,7 @@ function randInt() {
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.bat).not.to.contain('bit__j2c-')
     expect(names.bot).not.to.contain('bit__j2c-')
-    expect(names.bit).to.contain(names.bat + ' ' + names.bot + ' ')
+    expect(names.bit).to.contain(' ' + names.bat + ' ' + names.bot)
   })
 
   test('@compose only accepts single class selectors as target', function() {
@@ -1406,8 +1406,8 @@ function randInt() {
     expect(names.bit).to.contain('bit__j2c-')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bot).to.contain('bot__j2c-')
-    expect(names.bit).to.contain(names.bat + ' ')
-    expect(names.bot).to.contain(names.bat + ' ')
+    expect(names.bit).to.contain(' ' + names.bat)
+    expect(names.bot).to.contain(' ' + names.bat)
   })
 
   // test('@composes with a list of classes with complex selectors', function() {
@@ -1431,8 +1431,8 @@ function randInt() {
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.but).to.be(undefined)
-    expect(names.bit).to.contain(names.bat + ' ')
-    expect(names.bot).not.to.contain(names.bat + ' ')
+    expect(names.bit).to.contain(' ' + names.bat)
+    expect(names.bot).not.to.contain(' ' + names.bat)
   })
 
   test('@composes with a list of selectors, one of them devoid of class', function() {
@@ -1442,7 +1442,7 @@ function randInt() {
     expect(css).to.contain('@-error-at-composes-bad-target "p a ul li";')
     expect(names.bat).to.contain('bat__j2c-')
     expect(names.bot).to.contain('bot__j2c-')
-    expect(names.bot).to.contain(names.bat + ' ')
+    expect(names.bot).to.contain(' ' + names.bat)
   })
 
   test('@composes target must be at the first level', function() {
