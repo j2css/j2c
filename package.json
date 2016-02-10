@@ -13,7 +13,7 @@
     "test": "mocha --ui qunit",
     "cover": "istanbul cover _mocha -- -R nyan --ui qunit && npm run -s check-coverage",
     "check-coverage": "istanbul check-coverage --branches 100",
-    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (cat ./coverage/lcov.info | coveralls || true) && npm run -s check-coverage"
+    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && npm run -s check-coverage"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
   },
   "homepage": "http://j2c.py.gy",
   "devDependencies": {
+    "codecov": "^1.0.1",
     "compose-regexp": "^0.1.8",
     "coveralls": "^2.11.2",
     "eslint": "^1.10.3",
