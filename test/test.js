@@ -40,1096 +40,1093 @@ function randInt() {
     function(){return J2C()}
   ].forEach(function(j2c){
 
+    function checkinline(result, expected){
+      result = 'p{' + j2c().inline(result) + '}'
+      expected = (expected instanceof Array ? expected : [expected]).map(function(s){
+        return 'p{' + s + '}'
+      })
+      check(result, expected)
+    }
 
-  function checkinline(result, expected){
-    result = 'p{' + j2c().inline(result) + '}'
-    expected = (expected instanceof Array ? expected : [expected]).map(function(s){
-      return 'p{' + s + '}'
+
+
+    /////////////////////////////
+    /**/  suite('Inline: ')  /**/
+    /////////////////////////////
+
+
+    test('a single property', function() {
+      checkinline(
+        {foo: 'bar'},
+        'foo:bar;'
+      )
     })
-    check(result, expected)
-  }
-
-
-
-  /////////////////////////////
-  /**/  suite('Inline: ')  /**/
-  /////////////////////////////
-
-
-  test('a single property', function() {
-    checkinline(
-      {foo: 'bar'},
-      'foo:bar;'
-    )
-  })
-
-  test('two properties, ensure order', function() {
-    checkinline(
-      {foo: 'bar', baz: 'qux'},
-      'foo:bar; baz:qux;'
-    )
-  })
-
-  test('array of values', function() {
-    checkinline(
-      {foo:['bar', 'baz']},
-      'foo:bar; foo:baz;'
-    )
-  })
-
-  test('one sub-property', function(){
-    checkinline(
-      {foo: {bar: 'baz'}},
-      'foo-bar: baz;'
-    )
-  })
-
-  test('two declrations at the top level', function() {
-    checkinline(
-      {foo: 'qux', baz: 'qux'},
-      'foo:qux;baz:qux;'
-    )
-  })
-
-  test('two sub-properties', function(){
-    checkinline(
-      {foo: {bar: 'baz', qux: 'baz'}},
-      'foo-bar:baz; foo-qux:baz;'
-    )
-  })
-
-  test('two sub-properties with a sub-sub-property', function(){
-    checkinline(
-      {foo: {bar: {qux: 'quux'}, baz: {qix: 'qiix'}}},
-      'foo-bar-qux:quux; foo-baz-qix:qiix;'
-    )
-  })
-
-  test('$ operator in sub-property and sub-sub-property', function(){
-    checkinline(
-      {foo: {bar: {qux: 'fred', quux: 'frod'}, baz: {qix: 'frad', qiix: 'frud'}}},
-      'foo-bar-qux:fred; foo-bar-quux:frod; foo-baz-qix:frad; foo-baz-qiix:frud;'
-    )
-  })
-
-  test('$ operator at the top level', function() {
-    checkinline(
-      {foo$baz: 'qux'},
-      'foo:qux;baz:qux;'
-    )
-  })
-
-  test('$ operator in sub-properties', function(){
-    checkinline(
-      {foo: {bar$qux: 'baz'}},
-      'foo-bar:baz; foo-qux:baz;'
-    )
-  })
-
-  test('$ operator in a sub-property with a sub-sub-property', function(){
-    checkinline(
-      {foo: {bar$baz: {qux: 'quux'}}},
-      'foo-bar-qux:quux; foo-baz-qux:quux;'
-    )
-  })
-
-  test('$ operator in sub-property and sub-sub-property', function(){
-    checkinline(
-      {foo: {bar$baz: {qux$quux: 'fred'}}},
-      'foo-bar-qux:fred; foo-bar-quux:fred; foo-baz-qux:fred; foo-baz-quux:fred;'
-    )
-  })
-
-  test('convert underscores', function() {
-    checkinline(
-      {'f_o_o': 'bar'},
-      'f-o-o:bar;'
-    )
-  })
-
-  test('convert CamelCase', function() {
-    checkinline(
-      {'FoO': 'bar'},
-      '-fo-o:bar;'
-    )
-  })
-
-  test('String value', function() {
-    checkinline(
-      'foo:bar',
-      'foo:bar;'
-    )
-  })
-
-  test('Array of Strings values', function() {
-    checkinline(
-      ['foo:bar', 'foo:baz'],
-      'foo:bar;foo:baz'
-    )
-  })
-
-  test('Array of mixed values at the root', function() {
-    checkinline(
-      ['foo:bar', {foo: 'baz'}],
-      'foo:bar;foo:baz'
-    )
-  })
-
-  test('Array of mixed value and sub-property', function() {
-    checkinline(
-      {foo:['bar', {baz: 'qux'}]},
-      'foo:bar;foo-baz:qux'
-    )
-  })
-
-  test('Prefixes by hand', function() {
-    checkinline(
-      {_o$_p$: {foo: 'bar'}},
-      '-o-foo:bar;-p-foo:bar;foo:bar;'
-    )
-  })
-
-  test('CSS *Hack', function() {
-    // tested manually because the crass normalization
-    // outputs an empty string.
-    checkinline(
-      {'*foo': 'bar'},
-      '*foo:bar;'
-    )
-  })
-
-  test('CSS _Hack', function() {
-    checkinline(
-      ['_foo:bar', {_baz: 'qux'}],
-      '_foo:bar;-baz:qux;'
-    )
-  })
-
-  test('custom obj.valueOf', function() {
-    var bar = {valueOf:function(){return 'theBAR'}}
-    checkinline(
-      {foo:bar},
-      'foo:theBAR;'
-    )
-  })
-
-
-
-  ////////////////////////////////////
-  /**/  suite('Inline, nulls: ')  /**/
-  ////////////////////////////////////
-
-  test('null value', function() {
-    checkinline(
-      null,
-      ''
-    )
-  })
-
-  test('null leafs', function() {
-    checkinline(
-      {foo:null},
-      ''
-    )
-  })
-
-  test('undefined leafs', function() {
-    checkinline(
-      {foo:void 8},
-      ''
-    )
-  })
-
-  test('null leafs in array', function() {
-    checkinline(
-      {foo:[null]},
-      ''
-    )
-  })
-
-  test('undefined leafs in array', function() {
-    checkinline(
-      {foo:[void 8]},
-      ''
-    )
-  })
-
-  test('null leafs in array, preceded by value', function() {
-    checkinline(
-      {foo:['bar', null]},
-      'foo:bar;'
-    )
-  })
-
-  test('undefined leafs in array, preceded by value', function() {
-    checkinline(
-      {foo:['bar', void 8]},
-      'foo:bar;'
-    )
-  })
-
-  test('null leafs in arry, followed by a value', function() {
-    checkinline(
-      {foo:[null, 'bar']},
-      'foo:bar;'
-    )
-  })
-
-  test('undefined leafs in arry, followed by a value', function() {
-    checkinline(
-      {foo:[void 8, 'bar']},
-      'foo:bar;'
-    )
-  })
-
-  test('undefined value', function() {
-    checkinline(
-      void 8,
-      ''
-    )
-  })
-
-  test('null in Array', function() {
-    checkinline(
-      [null],
-      ''
-    )
-  })
-
-  test('undefined in Array', function() {
-    checkinline(
-      [void 8],
-      ''
-    )
-  })
-
-  test('null in Array followed by object', function() {
-    checkinline(
-      [null, {foo:'bar'}],
-      'foo:bar;'
-    )
-  })
-
-  test('undefined in Array followed by object', function() {
-    checkinline(
-      [void 8, {foo:'bar'}],
-      'foo:bar;'
-    )
-  })
-
-  test('object followed by null in Array', function() {
-    checkinline(
-      [{foo:'bar'}, null],
-      'foo:bar;'
-    )
-  })
-
-  test('object followed by undefined in Array', function() {
-    checkinline(
-      [{foo:'bar'}, void 8],
-      'foo:bar;'
-    )
-  })
-
-
-  // /////////////////////////////////
-  // /**/  suite('j2c().prefix: ')  /**/
-  // /////////////////////////////////
-
-
-  // test('1 x 1', function() {
-  //   var prod = j2c().prefix('foo', ['o'])
-  //   expect(prod[0]).to.be('-o-foo')
-  //   expect(prod[1]).to.be('foo')
-  // })
-
-  // test('2 x 1', function() {
-  //   var prod = j2c().prefix('foo', ['o', 'p'])
-  //   expect(prod[0]).to.be('-o-foo')
-  //   expect(prod[1]).to.be('-p-foo')
-  //   expect(prod[2]).to.be('foo')
-  // })
-
-
-  ////////////////////////////////
-  /**/  suite('j2c().sheet: ')  /**/
-  ////////////////////////////////
-
-
-  test('direct sheet call', function(){
-    check(
-      j2c().sheet({p: {foo:5}}),
-      'p{foo:5}'
-    )
-  })
-
-
-
-  //////////////////////////////////
-  /**/  suite('Definitions: ')  /**/
-  //////////////////////////////////
-
-
-  test('basic', function() {
-    check(
-      j2c().sheet({p: {
-        foo: 'bar'
-      }}),
-      'p{foo:bar}'
-    )
-  })
-
-  test('convert underscores', function() {
-    check(
-      j2c().sheet({p: {
-        foo_foo: 'bar'
-      }}),
-      'p{foo-foo:bar}'
-    )
-  })
-
-  test('convert CamelCase', function() {
-    check(
-      j2c().sheet({p: {
-        fooFoo: 'bar'
-      }}),
-      'p{foo-foo:bar}'
-    )
-  })
-
-  test('number values', function() {
-    check(
-      j2c().sheet({p: {
-        foo:5
-      }}),
-      'p{foo:5}'
-    )
-  })
-
-  test('composed property name', function() {
-    check(
-      j2c().sheet({p: {
-        foo: {bar: 'baz'}
-      }}),
-
-      'p{foo-bar:baz}'
-    )
-  })
-
-  test('composed selector : child with a given class', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        ' .foo': {bar: 'baz'}
-      }}}),
-
-      'p .foo{bar:baz}'
-    )
-  })
-
-  test('composed selector: add a class to the root', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        '.foo': {bar: 'baz'}
-      }}}),
-
-      'p.foo{bar:baz}'
-    )
-  })
-
-  test('manual vendor prefixes', function() {
-    check(
-      j2c().sheet({p: {
-        _o$_ms$_moz$_webkit$: {foo: 'bar'}
-      }}),
-
-      'p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}'
-    )
-  })
-
-  test('mixing definitions and sub-selectors', function() {
-    check(
-      j2c().sheet({'@global': {
-        p: {
-          foo: 'bar',
+
+    test('two properties, ensure order', function() {
+      checkinline(
+        {foo: 'bar', baz: 'qux'},
+        'foo:bar; baz:qux;'
+      )
+    })
+
+    test('array of values', function() {
+      checkinline(
+        {foo:['bar', 'baz']},
+        'foo:bar; foo:baz;'
+      )
+    })
+
+    test('one sub-property', function(){
+      checkinline(
+        {foo: {bar: 'baz'}},
+        'foo-bar: baz;'
+      )
+    })
+
+    test('two declrations at the top level', function() {
+      checkinline(
+        {foo: 'qux', baz: 'qux'},
+        'foo:qux;baz:qux;'
+      )
+    })
+
+    test('two sub-properties', function(){
+      checkinline(
+        {foo: {bar: 'baz', qux: 'baz'}},
+        'foo-bar:baz; foo-qux:baz;'
+      )
+    })
+
+    test('two sub-properties with a sub-sub-property', function(){
+      checkinline(
+        {foo: {bar: {qux: 'quux'}, baz: {qix: 'qiix'}}},
+        'foo-bar-qux:quux; foo-baz-qix:qiix;'
+      )
+    })
+
+    test('$ operator in sub-property and sub-sub-property', function(){
+      checkinline(
+        {foo: {bar: {qux: 'fred', quux: 'frod'}, baz: {qix: 'frad', qiix: 'frud'}}},
+        'foo-bar-qux:fred; foo-bar-quux:frod; foo-baz-qix:frad; foo-baz-qiix:frud;'
+      )
+    })
+
+    test('$ operator at the top level', function() {
+      checkinline(
+        {foo$baz: 'qux'},
+        'foo:qux;baz:qux;'
+      )
+    })
+
+    test('$ operator in sub-properties', function(){
+      checkinline(
+        {foo: {bar$qux: 'baz'}},
+        'foo-bar:baz; foo-qux:baz;'
+      )
+    })
+
+    test('$ operator in a sub-property with a sub-sub-property', function(){
+      checkinline(
+        {foo: {bar$baz: {qux: 'quux'}}},
+        'foo-bar-qux:quux; foo-baz-qux:quux;'
+      )
+    })
+
+    test('$ operator in sub-property and sub-sub-property', function(){
+      checkinline(
+        {foo: {bar$baz: {qux$quux: 'fred'}}},
+        'foo-bar-qux:fred; foo-bar-quux:fred; foo-baz-qux:fred; foo-baz-quux:fred;'
+      )
+    })
+
+    test('convert underscores', function() {
+      checkinline(
+        {'f_o_o': 'bar'},
+        'f-o-o:bar;'
+      )
+    })
+
+    test('convert CamelCase', function() {
+      checkinline(
+        {'FoO': 'bar'},
+        '-fo-o:bar;'
+      )
+    })
+
+    test('String value', function() {
+      checkinline(
+        'foo:bar',
+        'foo:bar;'
+      )
+    })
+
+    test('Array of Strings values', function() {
+      checkinline(
+        ['foo:bar', 'foo:baz'],
+        'foo:bar;foo:baz'
+      )
+    })
+
+    test('Array of mixed values at the root', function() {
+      checkinline(
+        ['foo:bar', {foo: 'baz'}],
+        'foo:bar;foo:baz'
+      )
+    })
+
+    test('Array of mixed value and sub-property', function() {
+      checkinline(
+        {foo:['bar', {baz: 'qux'}]},
+        'foo:bar;foo-baz:qux'
+      )
+    })
+
+    test('Prefixes by hand', function() {
+      checkinline(
+        {_o$_p$: {foo: 'bar'}},
+        '-o-foo:bar;-p-foo:bar;foo:bar;'
+      )
+    })
+
+    test('CSS *Hack', function() {
+      // tested manually because the crass normalization
+      // outputs an empty string.
+      checkinline(
+        {'*foo': 'bar'},
+        '*foo:bar;'
+      )
+    })
+
+    test('CSS _Hack', function() {
+      checkinline(
+        ['_foo:bar', {_baz: 'qux'}],
+        '_foo:bar;-baz:qux;'
+      )
+    })
+
+    test('custom obj.valueOf', function() {
+      var bar = {valueOf:function(){return 'theBAR'}}
+      checkinline(
+        {foo:bar},
+        'foo:theBAR;'
+      )
+    })
+
+
+
+    ////////////////////////////////////
+    /**/  suite('Inline, nulls: ')  /**/
+    ////////////////////////////////////
+
+    test('null value', function() {
+      checkinline(
+        null,
+        ''
+      )
+    })
+
+    test('null leafs', function() {
+      checkinline(
+        {foo:null},
+        ''
+      )
+    })
+
+    test('undefined leafs', function() {
+      checkinline(
+        {foo:void 8},
+        ''
+      )
+    })
+
+    test('null leafs in array', function() {
+      checkinline(
+        {foo:[null]},
+        ''
+      )
+    })
+
+    test('undefined leafs in array', function() {
+      checkinline(
+        {foo:[void 8]},
+        ''
+      )
+    })
+
+    test('null leafs in array, preceded by value', function() {
+      checkinline(
+        {foo:['bar', null]},
+        'foo:bar;'
+      )
+    })
+
+    test('undefined leafs in array, preceded by value', function() {
+      checkinline(
+        {foo:['bar', void 8]},
+        'foo:bar;'
+      )
+    })
+
+    test('null leafs in arry, followed by a value', function() {
+      checkinline(
+        {foo:[null, 'bar']},
+        'foo:bar;'
+      )
+    })
+
+    test('undefined leafs in arry, followed by a value', function() {
+      checkinline(
+        {foo:[void 8, 'bar']},
+        'foo:bar;'
+      )
+    })
+
+    test('undefined value', function() {
+      checkinline(
+        void 8,
+        ''
+      )
+    })
+
+    test('null in Array', function() {
+      checkinline(
+        [null],
+        ''
+      )
+    })
+
+    test('undefined in Array', function() {
+      checkinline(
+        [void 8],
+        ''
+      )
+    })
+
+    test('null in Array followed by object', function() {
+      checkinline(
+        [null, {foo:'bar'}],
+        'foo:bar;'
+      )
+    })
+
+    test('undefined in Array followed by object', function() {
+      checkinline(
+        [void 8, {foo:'bar'}],
+        'foo:bar;'
+      )
+    })
+
+    test('object followed by null in Array', function() {
+      checkinline(
+        [{foo:'bar'}, null],
+        'foo:bar;'
+      )
+    })
+
+    test('object followed by undefined in Array', function() {
+      checkinline(
+        [{foo:'bar'}, void 8],
+        'foo:bar;'
+      )
+    })
+
+
+    // /////////////////////////////////
+    // /**/  suite('j2c().prefix: ')  /**/
+    // /////////////////////////////////
+
+
+    // test('1 x 1', function() {
+    //   var prod = j2c().prefix('foo', ['o'])
+    //   expect(prod[0]).to.be('-o-foo')
+    //   expect(prod[1]).to.be('foo')
+    // })
+
+    // test('2 x 1', function() {
+    //   var prod = j2c().prefix('foo', ['o', 'p'])
+    //   expect(prod[0]).to.be('-o-foo')
+    //   expect(prod[1]).to.be('-p-foo')
+    //   expect(prod[2]).to.be('foo')
+    // })
+
+
+    ////////////////////////////////
+    /**/  suite('j2c().sheet: ')  /**/
+    ////////////////////////////////
+
+
+    test('direct sheet call', function(){
+      check(
+        j2c().sheet({p: {foo:5}}),
+        'p{foo:5}'
+      )
+    })
+
+
+
+    //////////////////////////////////
+    /**/  suite('Definitions: ')  /**/
+    //////////////////////////////////
+
+
+    test('basic', function() {
+      check(
+        j2c().sheet({p: {
+          foo: 'bar'
+        }}),
+        'p{foo:bar}'
+      )
+    })
+
+    test('convert underscores', function() {
+      check(
+        j2c().sheet({p: {
+          foo_foo: 'bar'
+        }}),
+        'p{foo-foo:bar}'
+      )
+    })
+
+    test('convert CamelCase', function() {
+      check(
+        j2c().sheet({p: {
+          fooFoo: 'bar'
+        }}),
+        'p{foo-foo:bar}'
+      )
+    })
+
+    test('number values', function() {
+      check(
+        j2c().sheet({p: {
+          foo:5
+        }}),
+        'p{foo:5}'
+      )
+    })
+
+    test('composed property name', function() {
+      check(
+        j2c().sheet({p: {
+          foo: {bar: 'baz'}
+        }}),
+
+        'p{foo-bar:baz}'
+      )
+    })
+
+    test('composed selector : child with a given class', function() {
+      check(
+        j2c().sheet({'@global': {p: {
           ' .foo': {bar: 'baz'}
-        }
-      }}),
-      'p {foo:bar} p .foo{bar:baz}'
-    )
-  })
+        }}}),
 
+        'p .foo{bar:baz}'
+      )
+    })
 
+    test('composed selector: add a class to the root', function() {
+      check(
+        j2c().sheet({'@global': {p: {
+          '.foo': {bar: 'baz'}
+        }}}),
 
-  //////////////////////////////////////////////////
-  /**/  suite('Selector Cartesian product: ')  /**/
-  //////////////////////////////////////////////////
+        'p.foo{bar:baz}'
+      )
+    })
 
+    test('manual vendor prefixes', function() {
+      check(
+        j2c().sheet({p: {
+          _o$_ms$_moz$_webkit$: {foo: 'bar'}
+        }}),
 
-  test('1 x 2', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        ' .foo': {
-          ':before,:after': {
-            foo: 'bar'
+        'p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}'
+      )
+    })
+
+    test('mixing definitions and sub-selectors', function() {
+      check(
+        j2c().sheet({'@global': {
+          p: {
+            foo: 'bar',
+            ' .foo': {bar: 'baz'}
           }
-        }
-      }}}),
+        }}),
+        'p {foo:bar} p .foo{bar:baz}'
+      )
+    })
 
-      'p .foo:before, p .foo:after {foo:bar}'
-    )
-  })
 
-  test('2 x 1', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        ' .foo, .bar': {
-          ':before': {
-            foo: 'bar'
+
+    //////////////////////////////////////////////////
+    /**/  suite('Selector Cartesian product: ')  /**/
+    //////////////////////////////////////////////////
+
+
+    test('1 x 2', function() {
+      check(
+        j2c().sheet({'@global': {p: {
+          ' .foo': {
+            ':before,:after': {
+              foo: 'bar'
+            }
           }
-        }
-      }}}),
+        }}}),
 
-      'p .foo:before, p .bar:before {foo:bar}'
-    )
-  })
+        'p .foo:before, p .foo:after {foo:bar}'
+      )
+    })
 
-  test('2 x 2', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        ' .foo, .bar': {
-          ':before,:after': {
-            foo: 'bar'
+    test('2 x 1', function() {
+      check(
+        j2c().sheet({'@global': {p: {
+          ' .foo, .bar': {
+            ':before': {
+              foo: 'bar'
+            }
           }
-        }
-      }}}),
+        }}}),
 
-      'p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
-    )
-  })
+        'p .foo:before, p .bar:before {foo:bar}'
+      )
+    })
 
-
-  test('2 x 3 one of which is empty', function() {
-    check(
-      j2c().sheet({'@global': {p: {
-        ' .foo, .bar': {
-          ',:before,:after': {
-            foo: 'bar'
+    test('2 x 2', function() {
+      check(
+        j2c().sheet({'@global': {p: {
+          ' .foo, .bar': {
+            ':before,:after': {
+              foo: 'bar'
+            }
           }
-        }
-      }}}),
-      'p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
-    )
-  })
+        }}}),
 
-  test("don't split on comas inside strings ...", function() {
-    check(j2c().sheet({
-      'a[foo="bar,baz"]': {
-        ' p': {qux: 5}
-      }
-    }), 'a[foo="bar,baz"] p {qux: 5}')
-  })
-
-  test('... nor split on comas inside comments ...', function() {
-    check(j2c().sheet({
-      'a/*bar,baz*/': {
-        ' p': {qux: 5}
-      }
-    }), 'a/*bar,baz*/ p {qux: 5}')
-  })
-
-  test('... nor split on comas inside parentheses ...', function() {
-    check(j2c().sheet({
-      'p:any(a, ul)': {
-        ' li': {qux: 5}
-      }
-    }), 'p:any(a, ul) li {qux: 5}')
-  })
-
-  test('... but split in between', function(){
-    check(j2c().sheet({
-      'a[foo="bar,baz"], a:any(p, ul), a/*bar,baz*/': {
-        ' p': {qux: 5}
-      }
-    }), 'a[foo="bar,baz"] p, a:any(p, ul) p, a/*bar,baz*/ p {qux: 5}')
-  })
+        'p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
+      )
+    })
 
 
-
-  /////////////////////////////////
-  /**/  suite('Ampersand: ')  /**/
-  //////////////////////////////////
-
-
-  test('.foo &', function() {
-    check(
-      j2c().sheet({p: {
-        ':global(.foo) &': {bar: 'baz'}
-      }}),
-      '.foo p{bar:baz}'
-    )
-  })
-
-  test('& &', function() {
-    check(
-      j2c().sheet({':global(.foo)': {
-        '& &': {
-          bar: 'baz'
-        }
-      }}),
-      '.foo .foo{bar:baz}'
-    )
-  })
-
-  test('& [bar="&"].baz', function() {
-    check(
-      j2c().sheet({':global(.foo)': {
-        '& [bar="&"]:global(.baz)': {
-          qux: 'quux'
-        }
-      }}),
-      '.foo [bar="&"].baz{qux:quux}'
-    )
-  })
-
-  test('& &, cartesian product', function() {
-    check(
-      j2c().sheet({'p,a': {
-        '& &': {
-          bar: 'baz'
-        }
-      }}),
-      'p p,p a,a p,a a {bar:baz}'
-    )
-  })
-
-  test('2 x 2', function() {
-    check(
-      j2c().sheet({p: {
-        ' :global(.foo), :global(.bar)': {
-          ' :global(.baz) &, :global(.qux)': {
-            foo: 'bar'
+    test('2 x 3 one of which is empty', function() {
+      check(
+        j2c().sheet({'@global': {p: {
+          ' .foo, .bar': {
+            ',:before,:after': {
+              foo: 'bar'
+            }
           }
-        }
-      }}),
-      '.baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}'
-    )
-  })
+        }}}),
+        'p .foo, p .bar, p .foo:before, p .bar:before, p .foo:after, p .bar:after {foo:bar}'
+      )
+    })
 
-  test('& in @global context', function() {
-    check(
-      j2c().sheet({'@global': {
-        '.foo': {
+    test("don't split on comas inside strings ...", function() {
+      check(j2c().sheet({
+        'a[foo="bar,baz"]': {
+          ' p': {qux: 5}
+        }
+      }), 'a[foo="bar,baz"] p {qux: 5}')
+    })
+
+    test('... nor split on comas inside comments ...', function() {
+      check(j2c().sheet({
+        'a/*bar,baz*/': {
+          ' p': {qux: 5}
+        }
+      }), 'a/*bar,baz*/ p {qux: 5}')
+    })
+
+    test('... nor split on comas inside parentheses ...', function() {
+      check(j2c().sheet({
+        'p:any(a, ul)': {
+          ' li': {qux: 5}
+        }
+      }), 'p:any(a, ul) li {qux: 5}')
+    })
+
+    test('... but split in between', function(){
+      check(j2c().sheet({
+        'a[foo="bar,baz"], a:any(p, ul), a/*bar,baz*/': {
+          ' p': {qux: 5}
+        }
+      }), 'a[foo="bar,baz"] p, a:any(p, ul) p, a/*bar,baz*/ p {qux: 5}')
+    })
+
+
+
+    /////////////////////////////////
+    /**/  suite('Ampersand: ')  /**/
+    //////////////////////////////////
+
+
+    test('.foo &', function() {
+      check(
+        j2c().sheet({p: {
+          ':global(.foo) &': {bar: 'baz'}
+        }}),
+        '.foo p{bar:baz}'
+      )
+    })
+
+    test('& &', function() {
+      check(
+        j2c().sheet({':global(.foo)': {
           '& &': {
             bar: 'baz'
           }
-        }
-      }}),
-      '.foo .foo{bar:baz}'
-    )
-  })
+        }}),
+        '.foo .foo{bar:baz}'
+      )
+    })
 
-  //////////////////////////////////////////
-  /**/  suite('Strings and Arrays: ')  /**/
-  //////////////////////////////////////////
-
-
-  test('String literal', function() {
-    check(
-      j2c().sheet({p: 'foo:bar'}),
-      'p{foo:bar}'
-    )
-  })
-
-  test('String literal with two declarations', function() {
-    check(
-      j2c().sheet({p: 'foo:bar;baz:qux'}),
-      'p {foo:bar;baz:qux}'
-    )
-  })
-
-  test('String literal starting with an underscore', function() {
-    check(
-      j2c().sheet({p: '_foo:bar'}),
-      'p {_foo:bar}'
-    )
-  })
-
-  test('Array of String literals', function() {
-    check(
-      j2c().sheet({p: ['foo:bar', 'foo:baz']}),
-      'p{foo:bar}p{foo:baz}'
-    )
-  })
-
-
-  test('overloaded properties', function() {
-    check(
-      j2c().sheet({p: {
-        foo:['bar', 'baz']
-      }}),
-      'p{foo:bar;foo:baz}'
-    )
-  })
-
-  test('overloaded sub-properties', function() {
-    check(
-      j2c().sheet({p: {
-        foo:[{bar: 'baz'}, {bar: 'qux'}]
-      }}),
-      'p{foo-bar:baz;foo-bar:qux}'
-    )
-  })
-
-  test('nested Arrays', function(){
-    check(
-      j2c().sheet({p: [
-        [
-          {bar: 'baz'},
-          {bar: 'qux'}
-        ],
-        'bar:quux;'
-      ]}),
-      'p{bar:baz}p{bar:qux}p{bar:quux}'
-    )
-  })
-
-
-
-  //   ///////////////////////////////////////////
-  //  /**/  suite("Sheet auto prefixes: ");  /**/
-  // ///////////////////////////////////////////
-
-  // test("String literal", function() {
-  //     check(
-  //         j2c().sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
-  //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
-  //     );
-  // });
-
-  // test("Array of Strings", function() {
-  //     check(
-  //         j2c().sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
-  //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
-  //     );
-  // });
-
-
-
-  ////////////////////////////////
-  /**/  suite('At-rules: ')  /**/
-  ////////////////////////////////
-
-
-  test('@charset', function() {
-    check(
-      j2c().sheet({
-        '@charset': '"UTF-8"'
-      }),
-
-      '@charset "UTF-8";'
-    )
-  })
-
-  test('@import', function() {
-    check(
-      j2c().sheet({
-        '@import': 'url("bluish.css") projection, tv'
-      }),
-
-      '@import url("bluish.css") projection, tv;'
-    )
-  })
-
-  test('@namespace', function() {
-    check(
-      j2c().sheet({
-        '@namespace': 'prefix url(XML-namespace-URL)'
-      }),
-
-      '@namespace prefix url(XML-namespace-URL);'
-    )
-  })
-
-  test('@media', function() {
-    check(
-      j2c().sheet({p: {
-        '@media foo': {bar: 'baz'}
-      }}),
-
-      '@media foo {p{bar:baz}}'
-    )
-  })
-
-  test('@supports', function() {
-    check(
-      j2c().sheet({
-        '@supports not (text-align-last:justify)': {
-          'p': {
-            textAlignLast: 'justify'
+    test('& [bar="&"].baz', function() {
+      check(
+        j2c().sheet({':global(.foo)': {
+          '& [bar="&"]:global(.baz)': {
+            qux: 'quux'
           }
-        }
-      }),
+        }}),
+        '.foo [bar="&"].baz{qux:quux}'
+      )
+    })
 
-      '@supports not (text-align-last:justify) {p {text-align-last:justify}}'
-    )
-  })
-
-  test('@document', function() {
-    check(
-      j2c().sheet({
-        '@document url(http://www.w3.org/)': {
-          ' body': {
-            color: 'purple'
+    test('& &, cartesian product', function() {
+      check(
+        j2c().sheet({'p,a': {
+          '& &': {
+            bar: 'baz'
           }
-        }
-      }),
+        }}),
+        'p p,p a,a p,a a {bar:baz}'
+      )
+    })
 
-      '@document url(http://www.w3.org/) {body {color: purple;}}'
-    )
-  })
+    test('2 x 2', function() {
+      check(
+        j2c().sheet({p: {
+          ' :global(.foo), :global(.bar)': {
+            ' :global(.baz) &, :global(.qux)': {
+              foo: 'bar'
+            }
+          }
+        }}),
+        '.baz p .foo,.baz p .bar,p .foo .qux ,p .bar .qux {foo:bar}'
+      )
+    })
 
-  test('@page', function() {
-    check(
-      j2c().sheet({
-        '@page :first': {
-          margin: '2in 3in'
-        }
-      }),
+    test('& in @global context', function() {
+      check(
+        j2c().sheet({'@global': {
+          '.foo': {
+            '& &': {
+              bar: 'baz'
+            }
+          }
+        }}),
+        '.foo .foo{bar:baz}'
+      )
+    })
 
-      '@page :first {margin: 2in 3in;}'
-    )
-  })
+    //////////////////////////////////////////
+    /**/  suite('Strings and Arrays: ')  /**/
+    //////////////////////////////////////////
 
-  test('@viewport', function() {
-    check(
-      j2c().sheet({
-        '@viewport': {
-          orientation: 'landscape'
-        }
-      }),
 
-      '@viewport {orientation: landscape;}'
-    )
-  })
+    test('String literal', function() {
+      check(
+        j2c().sheet({p: 'foo:bar'}),
+        'p{foo:bar}'
+      )
+    })
 
-  test('global @counter-style', function() {
-    check(
-      j2c().sheet({
-        '@global': {
+    test('String literal with two declarations', function() {
+      check(
+        j2c().sheet({p: 'foo:bar;baz:qux'}),
+        'p {foo:bar;baz:qux}'
+      )
+    })
+
+    test('String literal starting with an underscore', function() {
+      check(
+        j2c().sheet({p: '_foo:bar'}),
+        'p {_foo:bar}'
+      )
+    })
+
+    test('Array of String literals', function() {
+      check(
+        j2c().sheet({p: ['foo:bar', 'foo:baz']}),
+        'p{foo:bar}p{foo:baz}'
+      )
+    })
+
+
+    test('overloaded properties', function() {
+      check(
+        j2c().sheet({p: {
+          foo:['bar', 'baz']
+        }}),
+        'p{foo:bar;foo:baz}'
+      )
+    })
+
+    test('overloaded sub-properties', function() {
+      check(
+        j2c().sheet({p: {
+          foo:[{bar: 'baz'}, {bar: 'qux'}]
+        }}),
+        'p{foo-bar:baz;foo-bar:qux}'
+      )
+    })
+
+    test('nested Arrays', function(){
+      check(
+        j2c().sheet({p: [
+          [
+            {bar: 'baz'},
+            {bar: 'qux'}
+          ],
+          'bar:quux;'
+        ]}),
+        'p{bar:baz}p{bar:qux}p{bar:quux}'
+      )
+    })
+
+
+
+    //   ///////////////////////////////////////////
+    //  /**/  suite("Sheet auto prefixes: ");  /**/
+    // ///////////////////////////////////////////
+
+    // test("String literal", function() {
+    //     check(
+    //         j2c().sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
+    //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
+    //     );
+    // });
+
+    // test("Array of Strings", function() {
+    //     check(
+    //         j2c().sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
+    //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
+    //     );
+    // });
+
+
+
+    ////////////////////////////////
+    /**/  suite('At-rules: ')  /**/
+    ////////////////////////////////
+
+
+    test('@charset', function() {
+      check(
+        j2c().sheet({
+          '@charset': '"UTF-8"'
+        }),
+
+        '@charset "UTF-8";'
+      )
+    })
+
+    test('@import', function() {
+      check(
+        j2c().sheet({
+          '@import': 'url("bluish.css") projection, tv'
+        }),
+
+        '@import url("bluish.css") projection, tv;'
+      )
+    })
+
+    test('@namespace', function() {
+      check(
+        j2c().sheet({
+          '@namespace': 'prefix url(XML-namespace-URL)'
+        }),
+
+        '@namespace prefix url(XML-namespace-URL);'
+      )
+    })
+
+    test('@media', function() {
+      check(
+        j2c().sheet({p: {
+          '@media foo': {bar: 'baz'}
+        }}),
+
+        '@media foo {p{bar:baz}}'
+      )
+    })
+
+    test('@supports', function() {
+      check(
+        j2c().sheet({
+          '@supports not (text-align-last:justify)': {
+            'p': {
+              textAlignLast: 'justify'
+            }
+          }
+        }),
+
+        '@supports not (text-align-last:justify) {p {text-align-last:justify}}'
+      )
+    })
+
+    test('@document', function() {
+      check(
+        j2c().sheet({
+          '@document url(http://www.w3.org/)': {
+            ' body': {
+              color: 'purple'
+            }
+          }
+        }),
+
+        '@document url(http://www.w3.org/) {body {color: purple;}}'
+      )
+    })
+
+    test('@page', function() {
+      check(
+        j2c().sheet({
+          '@page :first': {
+            margin: '2in 3in'
+          }
+        }),
+
+        '@page :first {margin: 2in 3in;}'
+      )
+    })
+
+    test('@viewport', function() {
+      check(
+        j2c().sheet({
+          '@viewport': {
+            orientation: 'landscape'
+          }
+        }),
+
+        '@viewport {orientation: landscape;}'
+      )
+    })
+
+    test('global @counter-style', function() {
+      check(
+        j2c().sheet({
+          '@global': {
+            '@counter-style circled': {
+              system: 'fixed'
+            }
+          }
+        }),
+
+        '@counter-style circled {system: fixed;}'
+      )
+    })
+
+    test('local @counter-style', function() {
+      var _j2c = j2c()
+      check(
+        _j2c.sheet({
           '@counter-style circled': {
             system: 'fixed'
           }
-        }
-      }),
+        }),
 
-      '@counter-style circled {system: fixed;}'
-    )
-  })
+        '@counter-style ' + _j2c.names.circled + ' {system: fixed;}'
+      )
+    })
 
-  test('local @counter-style', function() {
-    var _j2c = j2c()
-    check(
-      _j2c.sheet({
-        '@counter-style circled': {
-          system: 'fixed'
-        }
-      }),
-
-      '@counter-style ' + _j2c.names.circled + ' {system: fixed;}'
-    )
-  })
-
-  test('@font-feature-values', function() {
-    check(
-      j2c().sheet({
-        '@font-feature-values Font One': {
-          '@styleset': {
-            ident0: 2
-          },
-          '@swash': {
-            ident1: 2
-          },
-          '@ornaments': {
-            ident2: 2
-          },
-          '@annotation': {
-            ident3: 2
-          },
-          '@stylistic': {
-            ident4: 2
-          },
-          '@character-variant': {
-            ident5: 2
+    test('@font-feature-values', function() {
+      check(
+        j2c().sheet({
+          '@font-feature-values Font One': {
+            '@styleset': {
+              ident0: 2
+            },
+            '@swash': {
+              ident1: 2
+            },
+            '@ornaments': {
+              ident2: 2
+            },
+            '@annotation': {
+              ident3: 2
+            },
+            '@stylistic': {
+              ident4: 2
+            },
+            '@character-variant': {
+              ident5: 2
+            }
           }
-        }
-      }),
+        }),
 
-      '@font-feature-values Font One {@styleset{ident0: 2;}@swash{ident1: 2;}@ornaments{ident2: 2;}@annotation{ident3: 2;}@stylistic{ident4: 2;}@character-variant{ident5: 2;}}'
-    )
-  })
-
-
-  test('several @media with object value', function() {
-    check(
-      j2c().sheet({p: {
-        '@media foo': {bar: 'baz'},
-        '@media foo2': {bar2: 'baz2'}
-      }}),
-      [
-        '@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}'
-      ]
-    )
-  })
-
-  test('Array of @import with text values', function() {
-    check(
-      j2c().sheet([
-        {'@import': "'bar'"},
-        {'@import': "'baz'"}
-      ]),
-      "@import 'bar'; @import 'baz';"
-    )
-  })
-
-  test('nested @media', function() {
-    check(
-      j2c().sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
-      [
-        '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
-      ]
-    )
-  })
-
-  test('@font-face', function(){
-    check(
-      j2c().sheet({'@font-face': {foo: 'bar'}}),
-      '@font-face{foo:bar}'
-    )
-  })
-
-  test('@keyframes', function(){
-    check(
-      j2c().sheet({'@keyframes global(qux)': {
-        from: {foo: 'bar'},
-        to: {foo: 'baz'}
-      }}),
-        '@keyframes qux{from{foo:bar}to{foo:baz}}'
-    )
-  })
-
-  test('invalid @foo becomes @-error-unsupported-at-rule "@foo"', function(){
-    check(
-      j2c().sheet({'@foo': 'bar'}),
-      '@-error-unsupported-at-rule "@foo";'
-    )
-
-  })
-
-  /////////////////////////////////////////////
-  /**/  suite('At-rules with prefixes: ')  /**/
-  /////////////////////////////////////////////
+        '@font-feature-values Font One {@styleset{ident0: 2;}@swash{ident1: 2;}@ornaments{ident2: 2;}@annotation{ident3: 2;}@stylistic{ident4: 2;}@character-variant{ident5: 2;}}'
+      )
+    })
 
 
-  test('@-webkit-keyframes', function(){
-    check(
-      j2c().sheet({'@-webkit-keyframes global(qux)': {
-        from: {foo: 'bar'},
-        to: {foo: 'baz'}
-      }}),
-      '@-webkit-keyframes qux{from{foo:bar}to{foo:baz}}'
-    )
-  })
+    test('several @media with object value', function() {
+      check(
+        j2c().sheet({p: {
+          '@media foo': {bar: 'baz'},
+          '@media foo2': {bar2: 'baz2'}
+        }}),
+        [
+          '@media foo {p{bar:baz}} @media foo2 {p{bar2:baz2}}'
+        ]
+      )
+    })
+
+    test('Array of @import with text values', function() {
+      check(
+        j2c().sheet([
+          {'@import': "'bar'"},
+          {'@import': "'baz'"}
+        ]),
+        "@import 'bar'; @import 'baz';"
+      )
+    })
+
+    test('nested @media', function() {
+      check(
+        j2c().sheet({p: {'@media screen': {width:1000, '@media (max-width: 12cm)': {size:5}}}}),
+        [
+          '@media screen{p{width:1000}@media (max-width:12cm){p{size:5}}}'
+        ]
+      )
+    })
+
+    test('@font-face', function(){
+      check(
+        j2c().sheet({'@font-face': {foo: 'bar'}}),
+        '@font-face{foo:bar}'
+      )
+    })
+
+    test('@keyframes', function(){
+      check(
+        j2c().sheet({'@keyframes global(qux)': {
+          from: {foo: 'bar'},
+          to: {foo: 'baz'}
+        }}),
+          '@keyframes qux{from{foo:bar}to{foo:baz}}'
+      )
+    })
+
+    test('invalid @foo becomes @-error-unsupported-at-rule "@foo"', function(){
+      check(
+        j2c().sheet({'@foo': 'bar'}),
+        '@-error-unsupported-at-rule "@foo";'
+      )
+
+    })
+
+    /////////////////////////////////////////////
+    /**/  suite('At-rules with prefixes: ')  /**/
+    /////////////////////////////////////////////
 
 
-  /////////////////////////////////////////////////
-  /**/  suite('At-rules with array values: ')  /**/
-  /////////////////////////////////////////////////
+    test('@-webkit-keyframes', function(){
+      check(
+        j2c().sheet({'@-webkit-keyframes global(qux)': {
+          from: {foo: 'bar'},
+          to: {foo: 'baz'}
+        }}),
+        '@-webkit-keyframes qux{from{foo:bar}to{foo:baz}}'
+      )
+    })
 
 
-  test('@font-face with a 1-element array', function(){
-    check(
-      j2c().sheet({'@font-face':[{foo: 'bar'}]}),
-      '@font-face{foo:bar}'
-    )
-  })
-
-  test('@font-face with a 2-elements array', function(){
-    check(
-      j2c().sheet({'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}),
-      '@font-face{foo:bar}@font-face{foo:baz}'
-    )
-  })
-
-  test('@namespace with a 1-element array', function(){
-    check(
-      j2c().sheet({'@namespace': ["'http://foo.example.com'"]}),
-      "@namespace 'http://foo.example.com';"
-    )
-  })
-
-  test('@namespace with a 2-elements array', function(){
-    check(
-      j2c().sheet({'@namespace': ["'http://foo.example.com'", "bar 'http://bar.example.com'"]}),
-      "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
-    )
-  })
-
-  /////////////////////////////////////
-  /**/  suite('Locals, Globals ')  /**/
-  /////////////////////////////////////
+    /////////////////////////////////////////////////
+    /**/  suite('At-rules with array values: ')  /**/
+    /////////////////////////////////////////////////
 
 
-  test('a local class', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {foo:5}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-  })
+    test('@font-face with a 1-element array', function(){
+      check(
+        j2c().sheet({'@font-face':[{foo: 'bar'}]}),
+        '@font-face{foo:bar}'
+      )
+    })
 
-  test('two local classes', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be('bat' + _j2c.suffix)
-    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-    expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
-  })
+    test('@font-face with a 2-elements array', function(){
+      check(
+        j2c().sheet({'@font-face':[{foo: 'bar'}, {foo: 'baz'}]}),
+        '@font-face{foo:bar}@font-face{foo:baz}'
+      )
+    })
 
-  test('a local and a global class', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be(undefined)
-    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-    expect(css).to.contain('.bat {\nbar:6;\n}')
-  })
+    test('@namespace with a 1-element array', function(){
+      check(
+        j2c().sheet({'@namespace': ["'http://foo.example.com'"]}),
+        "@namespace 'http://foo.example.com';"
+      )
+    })
 
-  test('a local wrapping a global block', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be(undefined)
-    expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
-  })
+    test('@namespace with a 2-elements array', function(){
+      check(
+        j2c().sheet({'@namespace': ["'http://foo.example.com'", "bar 'http://bar.example.com'"]}),
+        "@namespace 'http://foo.example.com';@namespace bar 'http://bar.example.com';"
+      )
+    })
 
-  test('two local classes, nested', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be('bat' + _j2c.suffix)
-    expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-    expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
-  })
+    /////////////////////////////////////
+    /**/  suite('Locals, Globals ')  /**/
+    /////////////////////////////////////
 
-  test('@keyframes', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'@keyframes bit': {}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(css).to.contain('@keyframes ' + names.bit +' {')
-  })
 
-  test('a global @keyframes', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'@keyframes global(bit)': {}})
-    expect(names.bit).to.be(undefined)
-    expect(css).to.contain('@keyframes bit {')
-  })
+    test('a local class', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {foo:5}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+    })
 
-  test('a @keyframe nested in a @global at-rule', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
-    expect(names.bat).to.be(undefined)
-    expect(css).to.contain('@keyframes bat {')
-  })
+    test('two local classes', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be('bat' + _j2c.suffix)
+      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+      expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
+    })
 
-  test('one animation', function(){
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(css).to.contain('animation:' + names.bit +' ')
-  })
+    test('a local and a global class', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be(undefined)
+      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+      expect(css).to.contain('.bat {\nbar:6;\n}')
+    })
 
-  test('a global animation', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation: 'global(bit) 1sec'}})
-    expect(names.bit).to.be(undefined)
-    expect(css).to.contain('animation:bit ')
-  })
+    test('a local wrapping a global block', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be(undefined)
+      expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
+    })
 
-  test('an animation nested in a @global at-rule', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
-    expect(names.bit).to.be(undefined)
-    expect(css).to.contain('animation:bit ')
-  })
+    test('two local classes, nested', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be('bat' + _j2c.suffix)
+      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+      expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
+    })
 
-  test('one animation-name', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation_name: 'bit'}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(css).to.contain('animation-name:' + names.bit +';')
-  })
+    test('@keyframes', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'@keyframes bit': {}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(css).to.contain('@keyframes ' + names.bit +' {')
+    })
 
-  test('two animation-name', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be('bat' + _j2c.suffix)
-    expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
-  })
+    test('a global @keyframes', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'@keyframes global(bit)': {}})
+      expect(names.bit).to.be(undefined)
+      expect(css).to.contain('@keyframes bit {')
+    })
 
-  test('two animation-name, one global', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be(undefined)
-    expect(css).to.contain('animation-name:' + names.bit +', bat;')
-  })
+    test('a @keyframe nested in a @global at-rule', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
+      expect(names.bat).to.be(undefined)
+      expect(css).to.contain('@keyframes bat {')
+    })
 
-  test('a nested @global at-rule', function() {
-    var _j2c = j2c(), names = _j2c.names
-    var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
-    expect(names.bit).to.be('bit' + _j2c.suffix)
-    expect(names.bat).to.be(undefined)
-    expect(css).to.contain( names.bit +'.bat {')
-  })
+    test('one animation', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(css).to.contain('animation:' + names.bit +' ')
+    })
 
-  test('a @local rule nested in a @global block', function() {
-    check(
-      j2c().sheet({'@global':{
-        '.bit': {
-          '@local': {
-            ':global(.bat)': {'foo':6}
+    test('a global animation', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation: 'global(bit) 1sec'}})
+      expect(names.bit).to.be(undefined)
+      expect(css).to.contain('animation:bit ')
+    })
+
+    test('an animation nested in a @global at-rule', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
+      expect(names.bit).to.be(undefined)
+      expect(css).to.contain('animation:bit ')
+    })
+
+    test('one animation-name', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation_name: 'bit'}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(css).to.contain('animation-name:' + names.bit +';')
+    })
+
+    test('two animation-name', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be('bat' + _j2c.suffix)
+      expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
+    })
+
+    test('two animation-name, one global', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be(undefined)
+      expect(css).to.contain('animation-name:' + names.bit +', bat;')
+    })
+
+    test('a nested @global at-rule', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      expect(names.bat).to.be(undefined)
+      expect(css).to.contain( names.bit +'.bat {')
+    })
+
+    test('a @local rule nested in a @global block', function() {
+      check(
+        j2c().sheet({'@global':{
+          '.bit': {
+            '@local': {
+              ':global(.bat)': {'foo':6}
+            }
           }
-        }
-      }}),
-      '.bit.bat {foo:6}'
-    )
-  })
+        }}),
+        '.bit.bat {foo:6}'
+      )
+    })
 
 
 
 
-  ///////////////////////////////////
-  /**/  suite('Foolproofing: ')  /**/
-  ///////////////////////////////////
+    ///////////////////////////////////
+    /**/  suite('Foolproofing: ')  /**/
+    ///////////////////////////////////
 
 
 
-  // test('property-like sub-selector', function() {
-  //   var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
+    // test('property-like sub-selector', function() {
+    //   var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
 
-  //   expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
-  // })
+    //   expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
+    // })
 
-  test('property-like sub-selector', function() {
-    check(
-      j2c().sheet('color:red'),
-      ':-error-no-selector {color:red} '
-    )
-  })
-
-    
+    test('property-like sub-selector', function() {
+      check(
+        j2c().sheet('color:red'),
+        ':-error-no-selector {color:red} '
+      )
+    })
   })
 
 
