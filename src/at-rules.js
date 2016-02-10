@@ -64,9 +64,9 @@ export function at(k, v, buf, prefix, composes, local, state){
       buf.c('}\n')
     })(v)
 
-  } else if (/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(.+)/.test(k)) {
+  } else if (/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(\S.*)/.test(k)) {
 
-    params = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(.+)/)[1]
+    params = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(\S.*)/)[1]
 
     k = k.match(/^@(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)/)[0]
 

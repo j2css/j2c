@@ -78,16 +78,12 @@ export default function j2c() {
 
   var state = {
     c: function composes(parent, child) {
-      var nameList = instance.names[child]
-      instance.names[child] =
-        nameList.slice(0, nameList.lastIndexOf(' ') + 1) +
-        parent + ' ' +
-        nameList.slice(nameList.lastIndexOf(' ') + 1)
+      instance.names[child] = instance.names[child] + ' ' + parent
     },
     l: function localize(match, global, dot, name) {
       if (global) return global
       if (!instance.names[name]) instance.names[name] = name + instance.suffix
-      return dot + instance.names[name].match(/\S+$/)
+      return dot + instance.names[name].match(/^\S+/)
     }
   }
 
