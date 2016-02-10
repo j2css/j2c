@@ -4,16 +4,15 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "all": "npm run build && npm run eslint && npm run cover",
-    "preversion": "npm run -s all",
+    "preversion": "npm run all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
-    "build": "npm run -s clean && node scripts/build.js",
-    "uglify": "uglifyjs dist/j2c.commonjs.js -c -m --comments > dist/j2c.commonjs.min.js && uglifyjs dist/j2c.amd.js -c -m --comments > dist/j2c.amd.min.js && uglifyjs dist/j2c.global.js -c -m --comments > dist/j2c.global.min.js",
-    "clean": "rm -f dist/*.js && rm -f dist/inline/*.js",
-    "eslint": "echo \"linting...\" && eslint --fix src/*.js test/test.js scripts/*.js",
+    "all": "npm run build && npm run lint && npm run cover",
+    "build": "rm -f dist/*.js && node scripts/build.js",
+    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
     "test": "mocha --ui qunit",
-    "cover": "istanbul cover _mocha -- -R nyan --ui qunit",
-    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && cat ./coverage/lcov.info | coveralls"
+    "cover": "istanbul cover _mocha -- -R nyan --ui qunit && npm run -s check-coverage",
+    "check-coverage": "istanbul check-coverage --branches 100",
+    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (cat ./coverage/lcov.info | coveralls || true) && npm run -s check-coverage"
   },
   "repository": {
     "type": "git",
