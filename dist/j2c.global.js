@@ -431,7 +431,7 @@ var j2c = (function () {
   }
 
   var _j2c = j2c()
-  'sheet|inline|names|at|global|kv'.split('|').map(function(m){j2c[m] = _j2c[m]})
+  'sheet|inline|names|at|global|kv|suffix'.split('|').map(function(m){j2c[m] = _j2c[m]})
 
   return j2c;
 
