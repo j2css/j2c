@@ -74,7 +74,7 @@ At this point, the core (this very repo) is considered feature complete and shou
 Thanks to 
 
 - @barneycarroll for the inspiration and initial feedback.
-- @ArthurClemens,  @StephanHoyer, @der-On, @dontwork, @futurist and @mithriljs-cn for the support and feedback.
+- @ArthurClemens, @StephanHoyer, @der-On, @llambda, @dontwork, @futurist and @mithriljs-cn for the support and feedback.
 - @tivac for `@compose` which I stole from his [Modular CSS]() project.
 
 ## Table of Contents
