@@ -1652,5 +1652,5 @@ function randInt() {
 
 // TODO
 // - spy on String.prototype.replace and RegExp.prototype.*
-// to generate coverage reports for the branches hidden 
+// to generate coverage reports for the branches hidden
 // in these native functions.
