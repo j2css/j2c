@@ -520,12 +520,20 @@ function randInt() {
       )
     })
 
-    test("don't split on comas inside strings ...", function() {
+    test("don't split on comas inside double quoted strings ...", function() {
       check(j2c().sheet({
         'a[foo="bar,baz"]': {
           ' p': {qux: 5}
         }
       }), 'a[foo="bar,baz"] p {qux: 5}')
+    })
+
+    test('... nor split on comas inside single quoted strings ...', function() {
+      check(j2c().sheet({
+        "a[foo='bar,baz']": {
+          ' p': {qux: 5}
+        }
+      }), "a[foo='bar,baz'] p {qux: 5}")
     })
 
     test('... nor split on comas inside comments ...', function() {
@@ -587,6 +595,28 @@ function randInt() {
           }
         }}),
         '.foo [bar="&"].baz{qux:quux}'
+      )
+    })
+
+    test("& [bar='&'].baz", function() {
+      check(
+        j2c().sheet({':global(.foo)': {
+          '& [bar="&"]:global(.baz)': {
+            qux: 'quux'
+          }
+        }}),
+        '.foo [bar="&"].baz{qux:quux}'
+      )
+    })
+
+    test('& /*&*/.baz', function() {
+      check(
+        j2c().sheet({':global(.foo)': {
+          '&  /*&*/:global(.baz)': {
+            qux: 'quux'
+          }
+        }}),
+        '.foo /*&*/.baz{qux:quux}'
       )
     })
 
@@ -1492,13 +1522,13 @@ function randInt() {
   })
 
   ////////////////////////////////////////////////////
-  /**/  suite('$names plugins for J2C.inline()')  /**/
+  /**/  suite('names plugins for J2C.inline()')  /**/
   ////////////////////////////////////////////////////
 
   test('namespaced animation', function() {
     check(
       J2C().use(
-        {$names: {foo:'theFoo'}}
+        {names: {foo:'theFoo'}}
       ).inline(
         {animation:'foo 1sec'}
       ),
@@ -1509,7 +1539,7 @@ function randInt() {
   test('namespaced animation-name', function() {
     check(
       J2C().use(
-        {$names: {foo:'theFoo'}}
+        {names: {foo:'theFoo'}}
       ).inline(
         {animation_name:'foo'}
       ),
@@ -1518,7 +1548,7 @@ function randInt() {
   })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var _J2C = J2C().use({$names: {foo:'theFoo'}})
+    var _J2C = J2C().use({names: {foo:'theFoo'}})
     var result = _J2C.inline({animation_name:'foo, bar'})
     check(
       result,
@@ -1528,7 +1558,7 @@ function randInt() {
 
   test('two namespaced animations', function() {
     var result = J2C().use(
-      {$names: {foo:'theFoo', bar:'theBar'}}
+      {names: {foo:'theFoo', bar:'theBar'}}
     ).inline(
       {animation:'foo 1sec, bar 2sec'}
     )
@@ -1541,11 +1571,11 @@ function randInt() {
 
 
   ///////////////////////////////////////////////////
-  /**/  suite('$names plugins for J2C.sheet()')  /**/
+  /**/  suite('names plugins for J2C.sheet()')  /**/
   ///////////////////////////////////////////////////
 
   test('namespaced class', function() {
-    var _J2C = J2C().use({$names: {foo: 'FOOO'}}), names = _J2C.names
+    var _J2C = J2C().use({names: {foo: 'FOOO'}}), names = _J2C.names
     var css = _J2C.sheet(
       {'.foo': {foo: 'bar', baz: 'qux'}}
     )
@@ -1554,7 +1584,7 @@ function randInt() {
   })
 
   test('namespaced class wrapping a global block', function() {
-    var _J2C = J2C().use({$names: {foo: 'FOOO'}}), names = _J2C.names
+    var _J2C = J2C().use({names: {foo: 'FOOO'}}), names = _J2C.names
     var css = _J2C.sheet(
       {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
     )
@@ -1563,7 +1593,7 @@ function randInt() {
   })
 
   test('namespaced @keyframes', function(){
-    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet(
         {'@keyframes bit': {}}
       )
@@ -1572,7 +1602,7 @@ function randInt() {
   })
 
   test('namespaced animation', function(){
-    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet(
         {p: {animation: 'bit 1sec'}}
       )
@@ -1581,10 +1611,15 @@ function randInt() {
   })
 
   test('namespaced animation-name', function() {
-    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet({p: {animation_name: 'bit'}})
     expect(names.bit).to.be('BOT')
     check(css, 'p{animation-name:BOT;}')
+  })
+
+  test("don't overwrite an existing name", function() {
+    var _J2C = J2C().use({names: {bit: 'BOT'}}, {names: {bit: 'BUT'}}), names = _J2C.names
+    expect(names.bit).to.be('BOT')
   })
 
 
@@ -1665,6 +1700,50 @@ function randInt() {
       J2C().use(filter).inline({foo:'bar'}),
       'pfoo:vbar;'
     )
+  })
+
+  test('filter order', function() {
+    var acc = []
+    function filter(x) {
+      return {$filter: function(streams) {
+        return {
+          b: streams.b,
+          a: streams.a,
+          c: streams.c,
+          d: streams.d,
+          s: function(){
+            acc.push(x)
+            streams.s.apply(streams, arguments)
+          }
+        }
+      }}
+    }
+    J2C().use(filter(1), filter(2)).sheet({'.foo': 'bar:baz;'})
+    expect(acc.length).to.be(2)
+    expect(acc[0]).to.be(1)
+    expect(acc[1]).to.be(2)
+  })
+
+  test('filter dedupe', function() {
+    var acc = []
+    function filter(x) {
+      return {$filter: function(streams) {
+        return {
+          b: streams.b,
+          a: streams.a,
+          c: streams.c,
+          d: streams.d,
+          s: function(){
+            acc.push(x)
+            streams.s.apply(streams, arguments)
+          }
+        }
+      }}
+    }
+    var f = filter(1)
+    J2C().use(f, f).sheet({'.foo': 'bar:baz;'})
+    expect(acc.length).to.be(1)
+    expect(acc[0]).to.be(1)
   })
 })
 
