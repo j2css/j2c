@@ -1214,34 +1214,55 @@ function randInt() {
   /**/  suite('@composes: ')  /**/
   /////////////////////////////
 
-  test('@composes with a local source', function() {
+  test('@composes with a simple, dotted source', function() {
     var _J2C = J2C(), names = _J2C.names
-    var css = _J2C.sheet({'.bit': {'@composes':'.bat'}})
-    expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bat).to.contain('bat__j2c-')
-    expect(names.bat).not.to.contain('bit__j2c-')
-    expect(names.bit).to.contain(' ' + names.bat)
+    var css = _J2C.sheet({'.bit': {'@composes': '.bat'}})
     expect(css).to.be('')
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(names.bit).to.contain('bat')
   })
 
-  test('@composes with a global source', function() {
+  test('@composes with a simple, non-dotted source', function() {
     var _J2C = J2C(), names = _J2C.names
-    var css = _J2C.sheet({'.bit': {'@composes':':global(.bat)'}})
-    expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bit).to.contain(' bat')
+    var css = _J2C.sheet({'.bit': {'@composes': 'bat'}})
     expect(css).to.be('')
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(names.bit).to.contain('bat')
   })
 
-  test('two local @composes', function() {
+  test('@composes with an array of simple dotted sources', function() {
     var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'.bit': {'@composes':['.bat', '.bot']}})
     expect(css).to.be('')
     expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bat).to.contain('bat__j2c-')
-    expect(names.bot).to.contain('bot__j2c-')
-    expect(names.bat).not.to.contain('bit__j2c-')
-    expect(names.bot).not.to.contain('bit__j2c-')
-    expect(names.bit).to.contain(' ' + names.bat + ' ' + names.bot)
+    expect(names.bat).to.be(undefined)
+    expect(names.bot).to.be(undefined)
+    expect(names.bit).to.match(/\bbat\b/)
+    expect(names.bit).to.match(/\bbot\b/)
+  })
+
+  test('@composes with an single parameter that holds a space separated list of parents', function() {
+    var _J2C = J2C(), names = _J2C.names
+    var css = _J2C.sheet({'.bit': {'@composes':'b-at b_ot'}})
+    expect(css).to.be('')
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names['b-at']).to.be(undefined)
+    expect(names.b_ot).to.be(undefined)
+    expect(names.bit).to.match(/\bb-at\b/)
+    expect(names.bit).to.match(/\bb_ot\b/)
+  })
+
+  test('@composes with an array of simple dotted sources', function() {
+    var _J2C = J2C(), names = _J2C.names
+    var css = _J2C.sheet({'.bit': {'@composes':['.bat', '.bot']}})
+    expect(css).to.be('')
+    expect(names.bit).to.contain('bit__j2c-')
+    expect(names.bat).to.be(undefined)
+    expect(names.bot).to.be(undefined)
+    expect(names.bit).to.match(/\bbat\b/)
+    expect(names.bit).to.match(/\bbot\b/)
   })
 
   test('@compose only accepts single class selectors as target', function() {
@@ -1252,7 +1273,6 @@ function randInt() {
     expect(names.bat).to.be(undefined)
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.bit).not.to.contain(' ')
-    expect(names.bot).not.to.contain(' ')
   })
 
   test("@-error if compose can't find a target class", function() {
@@ -1289,10 +1309,10 @@ function randInt() {
     var css = _J2C.sheet({'.bit,.bot': {'@composes':'.bat'}})
     expect(css).to.be('')
     expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bat).to.be(undefined)
     expect(names.bot).to.contain('bot__j2c-')
-    expect(names.bit).to.contain(' ' + names.bat)
-    expect(names.bot).to.contain(' ' + names.bat)
+    expect(names.bit).to.match(/\bbat\b/)
+    expect(names.bot).to.match(/\bbat\b/)
   })
 
   // test('@composes with a list of classes with complex selectors', function() {
@@ -1313,11 +1333,11 @@ function randInt() {
     var css = _J2C.sheet({'.bit,.bot:global(.but)': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target ".bot:global(.but)";')
     expect(names.bit).to.contain('bit__j2c-')
-    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bat).to.be(undefined)
     expect(names.bot).to.contain('bot__j2c-')
     expect(names.but).to.be(undefined)
-    expect(names.bit).to.contain(' ' + names.bat)
-    expect(names.bot).not.to.contain(' ' + names.bat)
+    expect(names.bit).to.match(/\bbat\b/)
+    expect(names.bot).not.to.match(/\bbat\b/)
   })
 
   test('@composes with a list of selectors, one of them devoid of class', function() {
@@ -1325,9 +1345,9 @@ function randInt() {
     var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'p a ul li,.bot': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target "p a ul li";')
-    expect(names.bat).to.contain('bat__j2c-')
+    expect(names.bat).to.be(undefined)
     expect(names.bot).to.contain('bot__j2c-')
-    expect(names.bot).to.contain(' ' + names.bat)
+    expect(names.bot).to.match(/\bbat\b/)
   })
 
   test('@composes target must be at the first level', function() {
