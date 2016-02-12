@@ -1,4 +1,4 @@
-import {own, flatIter, emptyArray, type, FUNCTION} from './helpers'
+import {own, flatIter, emptyArray, type, FUNCTION, OBJECT} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
 
@@ -39,25 +39,26 @@ export default function j2c() {
     use: function() {
       _use(emptyArray.slice.call(arguments))
       return instance
+    },
+    $plugins: []
+  }
+
+  function _default(target, source) {
+    for (var k in source) if (own.call(source, k) && k.indexOf('$')) {
+      if (OBJECT == type.call(source[k]) && OBJECT == type.call(target[k])) _default(target[k], source[k])
+      else if (!(k in target)) target[k] = source[k]
     }
   }
 
-  var register = {
-    $names: flatIter(function(ns) {
-      for (var k in ns) if (!( k in instance.names )) instance.names[k] = ns[k]
-    }),
-    $filter: flatIter(function(filter) {
-      filters.push(filter)
-    })
-  }
-
   var _use = flatIter(function(plugin) {
+    if (instance.$plugins.indexOf(plugin)+1) return
+    instance.$plugins.push(plugin)
     if (type.call(plugin) === FUNCTION) plugin = plugin(instance)
     if (!plugin) return
-    for (var k in plugin) if (own.call(plugin, k)) if (/^\$/.test(k)){
-      if (k in register) register[k](plugin[k])
-    } else if (!( k in instance )) instance[k] = plugin[k]
-
+    flatIter(function(filter) {
+      filters.push(filter)
+    })(plugin.$filter||[])
+    _default(instance, plugin)
   })
 
   function makeBuf(inline) {
@@ -72,7 +73,7 @@ export default function j2c() {
       d: push, // declaration
       c: push  // close
     }
-    for (var i = 0; i < filters.length; i++) buf = filters[i](buf, inline)
+    for (var i = filters.length; i--;) buf = filters[i](buf, inline)
     return buf
   }
 
