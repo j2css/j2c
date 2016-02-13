@@ -86,45 +86,6 @@ export default function j2c() {
     return emit
   }
 
-  // } else if (/^.composes$/.test(k)) {
-  //   if (!local) {
-
-  //     return emit.a('@-error-at-composes-in-at-global', '', '', ';\n')
-
-  //   }
-  //   if (!composes) {
-
-  //     return emit.a('@-error-at-composes-no-nesting', '', '', ';\n')
-
-  //   }
-
-  //   params = (type.call(v) == ARRAY ? v.join(' ') : v).replace(/\./g, '')
-
-  //   // TODO: move this to the validation plugin.
-  //   // if(!/^\s*\w[-\w]*(?:\s+\w[-\w]*)*\s*$/.test(params)) {
-  //   //   return emit.a(
-  //   //     '@-error-at-composes-invalid-character', ' ',
-  //   //     JSON.stringify(params.match(/\b-|[^-\w\s]/)[0]) + ' in ' + JSON.stringify(v), ';\n')
-  //   // }
-
-  //   composes = splitSelector(composes)
-  //   for(i = 0; i < composes.length; i++) {
-  //     k = /^\s*\.(\w+)\s*$/.exec(composes[i])
-  //     if (k == null) {
-  //       // the last class is a :global(.one)
-
-  //       emit.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
-
-  //       continue
-  //     }
-
-  //     state.c(params, k[1]) //compose
-
-  //   }
-    // c: function composes(parent, child) {
-    //   instance.names[child] = instance.names[child] + ' ' + parent
-    // },
-
   instance.compose = function(target, source) {
     if(!/^-?[_A-Za-z][-\w]*$/.test(target))
       throw new Error('Bad target class ' + JSON.stringify(target))
