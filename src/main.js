@@ -51,30 +51,39 @@ export default function j2c() {
   }
 
   var _use = flatIter(function(plugin) {
-    if (instance.$plugins.indexOf(plugin)+1) return
+    // `~n` is falsy for `n === -1` and truthy otherwise.
+    // Works well to turn the  result of `a.indexOf(x)`
+    // into a value that reflects the presence of `x` in
+    // `a`.
+    if (~instance.$plugins.indexOf(plugin)) return
+
     instance.$plugins.push(plugin)
+
     if (type.call(plugin) === FUNCTION) plugin = plugin(instance)
+
     if (!plugin) return
+
     flatIter(function(filter) {
       filters.push(filter)
     })(plugin.$filter||[])
+
     _default(instance, plugin)
   })
 
-  function makeBuf(inline) {
-    var buf
+  function makeEmitter(inline) {
+    var buf = []
     function push() {
-      emptyArray.push.apply(buf.b, arguments)
+      emptyArray.push.apply(buf, arguments)
     }
-    buf = {
-      b: [],   // buf
+    var emit = {
+      x: function(raw){return raw ? buf : buf.join('')},   // buf
       a: push, // at-rules
       s: push, // selector
       d: push, // declaration
       c: push  // close
     }
-    for (var i = filters.length; i--;) buf = filters[i](buf, inline)
-    return buf
+    for (var i = filters.length; i--;) emit = filters[i](emit, inline)
+    return emit
   }
 
   var state = {
@@ -89,26 +98,27 @@ export default function j2c() {
   }
 
 /*/-statements-/*/
-  instance.sheet = function(statements, buf) {
+  instance.sheet = function(statements, emit) {
     sheet(
-      statements, buf = makeBuf(false),
-      '', '',     // prefix and rawPRefix
+      statements,
+      emit = makeEmitter(false),
+      '', '',     // prefix and compose
       1,          // local, by default
       state
     )
 
-    return buf.b.join('')
+    return emit.x()
   }
 /*/-statements-/*/
-  instance.inline = function (decl, buf) {
+  instance.inline = function (_declarations, emit) {
     declarations(
-      decl,
-      buf = makeBuf(true),
+      _declarations,
+      emit = makeEmitter(true),
       '',         // prefix
       1,          //local
       state
     )
-    return buf.b.join('')
+    return emit.x()
   }
 
   return instance
