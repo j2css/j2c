@@ -8,7 +8,7 @@ function decamelize(match) {
  * Handles the property:value; pairs.
  *
  * @param {array|object|string} o - the declarations.
- * @param {string[]} buf - the buffer in which the final style sheet is built.
+ * @param {string[]} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
  * @param {boolean} local - are we in @local or in @global scope.
@@ -18,19 +18,23 @@ function decamelize(match) {
  * @param {function} state.l - @local helper.
  */
 
-export function declarations(o, buf, prefix, local, state) {
+export function declarations(o, emit, prefix, local, state) {
   var k, v, kk
   if (o==null) return
   if (/\$/.test(prefix)) {
     for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
-      declarations(o, buf, prefix[kk], local, state)
+
+      declarations(o, emit, prefix[kk], local, state)
+
     }
     return
   }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, local, state)
+
+      declarations(o[k], emit, prefix, local, state)
+
     break
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
@@ -39,27 +43,38 @@ export function declarations(o, buf, prefix, local, state) {
     for (k in o) if (own.call(o, k)){
       v = o[k]
       if (/\$/.test(k)) {
-        for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], local, state)
+        for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
+
+          declarations(v, emit, prefix + k[kk], local, state)
+
+        }
       } else {
-        declarations(v, buf, prefix + k, local, state)
+
+        declarations(v, emit, prefix + k, local, state)
+
       }
     }
     break
   default:
     // prefix is falsy when it is "", which means that we're
     // at the top level.
-    // `o` is then treated as a `property:value` pair.
-    // otherwise, `prefix` is the property name, and
+    // `o` is then treated as a `property:value` pair, or a
+    // semi-colon-separated list thereof.
+    // Otherwise, `prefix` is the property name, and
     // `o` is the value.
+
+    // restore the dashes
     k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize)
 
     if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
+      // no need to tokenize here a plain `.split(',')` has all bases covered.
+      // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
         return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')
     }
 
-    buf.d(k, k ? ':': '', o, ';\n')
+    emit.d(k, k ? ':': '', o, ';\n')
+
   }
 }

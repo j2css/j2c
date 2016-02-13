@@ -1208,13 +1208,13 @@ function randInt() {
     // buffer methods. This happens here becasue this test harnesses most if not
     // all of the code paths where this may be relevant, especially in
     // `src/sheet.js`
-    var J2C_2 = J2C().use({$filter:function (buf) {
+    var J2C_2 = J2C().use({$filter:function (next) {
       return {
-        b:buf.b,
-        a: function() {buf.a.apply(buf,arguments);return true},
-        c: function() {buf.c.apply(buf,arguments);return true},
-        d: function() {buf.d.apply(buf,arguments);return true},
-        s: function() {buf.s.apply(buf,arguments);return true}
+        x:next.x,
+        a: function() {next.a.apply(next,arguments);return true},
+        c: function() {next.c.apply(next,arguments);return true},
+        d: function() {next.d.apply(next,arguments);return true},
+        s: function() {next.s.apply(next,arguments);return true}
       }
     }})
 
@@ -1312,9 +1312,7 @@ function randInt() {
     expect(names.bat).to.be(undefined)
   })
 
-  test("@composes can't target global selectors", function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test("@composes can't target global selectors", function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'.bit :global(.bot)': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target ".bit :global(.bot)";')
     expect(names.bit).to.contain('bit__j2c-')
@@ -1323,9 +1321,7 @@ function randInt() {
     expect(names.bit).not.to.contain(' ')
   })
 
-  test("@composes doesn't work global context", function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test("@composes doesn't work global context", function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'@global': {'.bit .bot': {'@composes':'.bat'}}})
     expect(css).to.contain('@-error-at-composes-in-at-global;')
     expect(names.bit).to.be(undefined)
@@ -1333,9 +1329,7 @@ function randInt() {
     expect(names.bot).to.be(undefined)
   })
 
-  test('@composes with a list of classes', function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test('@composes with a list of classes', function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'.bit,.bot': {'@composes':'.bat'}})
     expect(css).to.be('')
     expect(names.bit).to.contain('bit__j2c-')
@@ -1346,7 +1340,6 @@ function randInt() {
   })
 
   // test('@composes with a list of classes with complex selectors', function() {
-  //   // @composes thus extends the last local class in the stream
   //   var _J2C = J2C(), names = _J2C.names
   //   var css = _J2C.sheet({'[foo=","].bit,/*,*/.bot': {'@composes':'.bat'}})
   //   expect(css).to.be('')
@@ -1357,9 +1350,7 @@ function randInt() {
   //   expect(names.bot).to.contain(names.bat + ' ')
   // })
 
-  test('@composes with a list of selectors, one of them ending with a global class', function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test('@composes with a list of selectors, one of them ending with a global class', function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'.bit,.bot:global(.but)': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target ".bot:global(.but)";')
     expect(names.bit).to.contain('bit__j2c-')
@@ -1370,9 +1361,7 @@ function randInt() {
     expect(names.bot).not.to.match(/\bbat\b/)
   })
 
-  test('@composes with a list of selectors, one of them devoid of class', function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test('@composes with a list of selectors, one of them devoid of class', function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'p a ul li,.bot': {'@composes':'.bat'}})
     expect(css).to.contain('@-error-at-composes-bad-target "p a ul li";')
     expect(names.bat).to.be(undefined)
@@ -1380,9 +1369,7 @@ function randInt() {
     expect(names.bot).to.match(/\bbat\b/)
   })
 
-  test('@composes target must be at the first level', function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test('@composes target must be at the first level', function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'.bit': {'& &': {'@composes':'.bat'}}})
     expect(css).to.contain('@-error-at-composes-no-nesting;')
     expect(names.bat).to.be(undefined)
@@ -1390,9 +1377,7 @@ function randInt() {
     expect(names.bit).not.to.contain(' ')
   })
 
-  test('@composes in conditional at-rules fails', function() {
-    // @composes thus extends the last local class in the stream
-    var _J2C = J2C(), names = _J2C.names
+  test('@composes in conditional at-rules fails', function() {    var _J2C = J2C(), names = _J2C.names
     var css = _J2C.sheet({'@media screen': {'.bit': {'@composes':'.bat'}}})
     expect(css).to.contain('@-error-at-composes-no-nesting;')
     expect(names.bat).to.be(undefined)
@@ -1521,6 +1506,12 @@ function randInt() {
     expect(_J2C.sheet).not.to.be('foo')
   })
 
+  test('Plugin deduplication', function() {
+    var p = {}
+    var _J2C = J2C().use(p, p)
+    expect(_J2C.$plugins.length).to.be(1)
+  })
+
   ////////////////////////////////////////////////////
   /**/  suite('names plugins for J2C.inline()')  /**/
   ////////////////////////////////////////////////////
@@ -1634,34 +1625,41 @@ function randInt() {
       expect(J2C).to.be.an(Object)
       expect(J2C.sheet).to.be.a(Function)
 
-      return {$filter: function(buf, inline) {
-        expect(buf).to.be.an(Object)
-        expect(buf.a).to.be.a(Function)
-        expect(buf.b).to.be.a(Array)
-        expect(buf.c).to.be.a(Function)
-        expect(buf.d).to.be.a(Function)
-        expect(buf.s).to.be.a(Function)
+      return {$filter: function(next, inline) {
+        expect(next).to.be.an(Object)
+        expect(next.a).to.be.a(Function)
+        expect(next.x).to.be.a(Function)
+        expect(next.c).to.be.a(Function)
+        expect(next.d).to.be.a(Function)
+        expect(next.s).to.be.a(Function)
         expect(inline).to.be(false)
 
         return {
+          x: function() {
+            var buf = next.x(1)
+            expect(buf).to.be.an(Array)
+            expect(buf.length).not.to.be(0)
+            var txt = next.x()
+            expect(txt).to.be.a('string')
+            return txt
+          },
           a: function(name, _, arg, term) {
             expect(_).to.match(/^\s*$/)
             expect(term).to.match(/[{;]/)
-            buf.a(name+'o', _, 'a'+arg, term)
+            next.a(name+'o', _, 'a'+arg, term)
           },
-          b: buf.b,
           c: function(close) {
             expect(close).to.contain('}')
-            buf.c(close)
+            next.c(close)
           },
           d: function(prop, col, value, semi) {
             expect(col).to.match(/:/)
             expect(semi).to.match(/;/)
-            buf.d('p'+prop, col, 'v'+value, semi)
+            next.d('p'+prop, col, 'v'+value, semi)
           },
           s: function(selector, brace) {
             expect(brace).to.match(/\{/)
-            buf.s('h1, ' + selector, brace)
+            next.s('h1, ' + selector, brace)
           }
         }
       }}
@@ -1683,15 +1681,15 @@ function randInt() {
       expect(J2C).to.be.an(Object)
       expect(J2C.inline).to.be.a(Function)
 
-      return {$filter: function(buf, inline) {
-        expect(buf).to.be.an(Object)
-        expect(buf.d).to.be.a(Function)
+      return {$filter: function(next, inline) {
+        expect(next).to.be.an(Object)
+        expect(next.d).to.be.a(Function)
         expect(inline).to.be(true)
 
         return {
-          b: buf.b,
+          x: next.x,
           d: function(prop, col, value, semi) {
-            buf.d('p'+prop, col, 'v'+value, semi)
+            next.d('p'+prop, col, 'v'+value, semi)
           }
         }
       }}
@@ -1705,15 +1703,15 @@ function randInt() {
   test('filter order', function() {
     var acc = []
     function filter(x) {
-      return {$filter: function(streams) {
+      return {$filter: function(next) {
         return {
-          b: streams.b,
-          a: streams.a,
-          c: streams.c,
-          d: streams.d,
+          x: next.x,
+          a: next.a,
+          c: next.c,
+          d: next.d,
           s: function(){
             acc.push(x)
-            streams.s.apply(streams, arguments)
+            return next.s.apply(next, arguments)
           }
         }
       }}
@@ -1727,15 +1725,15 @@ function randInt() {
   test('filter dedupe', function() {
     var acc = []
     function filter(x) {
-      return {$filter: function(streams) {
+      return {$filter: function(next) {
         return {
-          b: streams.b,
-          a: streams.a,
-          c: streams.c,
-          d: streams.d,
+          x: next.x,
+          a: next.a,
+          c: next.c,
+          d: next.d,
           s: function(){
             acc.push(x)
-            streams.s.apply(streams, arguments)
+            next.s.apply(next, arguments)
           }
         }
       }}
@@ -1753,3 +1751,5 @@ function randInt() {
 // - spy on String.prototype.replace and RegExp.prototype.*
 // to generate coverage reports for the branches hidden
 // in these native functions.
+// - verify that all at-rules behave properly in filters
+// (wrt selectors and definitions)
