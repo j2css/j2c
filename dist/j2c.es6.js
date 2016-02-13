@@ -86,7 +86,7 @@ function decamelize(match) {
  * Handles the property:value; pairs.
  *
  * @param {array|object|string} o - the declarations.
- * @param {string[]} buf - the buffer in which the final style sheet is built.
+ * @param {string[]} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
  * @param {boolean} local - are we in @local or in @global scope.
@@ -96,19 +96,23 @@ function decamelize(match) {
  * @param {function} state.l - @local helper.
  */
 
-function declarations(o, buf, prefix, local, state) {
+function declarations(o, emit, prefix, local, state) {
   var k, v, kk
   if (o==null) return
   if (/\$/.test(prefix)) {
     for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
-      declarations(o, buf, prefix[kk], local, state)
+
+      declarations(o, emit, prefix[kk], local, state)
+
     }
     return
   }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
-      declarations(o[k], buf, prefix, local, state)
+
+      declarations(o[k], emit, prefix, local, state)
+
     break
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
@@ -117,28 +121,39 @@ function declarations(o, buf, prefix, local, state) {
     for (k in o) if (own.call(o, k)){
       v = o[k]
       if (/\$/.test(k)) {
-        for (kk in (k = k.split('$'))) if (own.call(k, kk))
-          declarations(v, buf, prefix + k[kk], local, state)
+        for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
+
+          declarations(v, emit, prefix + k[kk], local, state)
+
+        }
       } else {
-        declarations(v, buf, prefix + k, local, state)
+
+        declarations(v, emit, prefix + k, local, state)
+
       }
     }
     break
   default:
     // prefix is falsy when it is "", which means that we're
     // at the top level.
-    // `o` is then treated as a `property:value` pair.
-    // otherwise, `prefix` is the property name, and
+    // `o` is then treated as a `property:value` pair, or a
+    // semi-colon-separated list thereof.
+    // Otherwise, `prefix` is the property name, and
     // `o` is the value.
+
+    // restore the dashes
     k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize)
 
     if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
+      // no need to tokenize here a plain `.split(',')` has all bases covered.
+      // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
         return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
       }).join(',')
     }
 
-    buf.d(k, k ? ':': '', o, ';\n')
+    emit.d(k, k ? ':': '', o, ';\n')
+
   }
 }
 
@@ -147,7 +162,7 @@ function declarations(o, buf, prefix, local, state) {
  *
  * @param {string} k - The at-rule name, and, if takes both parameters and a
  *                     block, the parameters.
- * @param {string[]} buf - the buffer in which the final style sheet is built
+ * @param {string[]} emit - the contextual emitters to the final buffer
  * @param {string[]} v - Either parameters for block-less rules or their block
  *                       for the others.
  * @param {string} prefix - the current selector or a prefix in case of nested rules
@@ -159,27 +174,32 @@ function declarations(o, buf, prefix, local, state) {
  * @param {function} state.l - @local helper
  */
 
-function at$1(k, v, buf, prefix, composes, local, state){
+function at$1(k, v, emit, prefix, composes, local, state){
   var i, params
   if (/^.global$/.test(k)) {
-    sheet(v, buf, prefix, 1, 0, state)
+    sheet(v, emit, prefix, 1, 0, state)
 
   } else if (/^.local$/.test(k)) {
-    sheet(v, buf, prefix, 1, 1, state)
+
+    sheet(v, emit, prefix, 1, 1, state)
 
   } else if (/^.composes$/.test(k)) {
     if (!local) {
-      return buf.a('@-error-at-composes-in-at-global', '', '', ';\n')
+
+      return emit.a('@-error-at-composes-in-at-global', '', '', ';\n')
+
     }
     if (!composes) {
-      return buf.a('@-error-at-composes-no-nesting', '', '', ';\n')
+
+      return emit.a('@-error-at-composes-no-nesting', '', '', ';\n')
+
     }
 
     params = (type.call(v) == ARRAY ? v.join(' ') : v).replace(/\./g, '')
 
     // TODO: move this to the validation plugin.
     // if(!/^\s*\w[-\w]*(?:\s+\w[-\w]*)*\s*$/.test(params)) {
-    //   return buf.a(
+    //   return emit.a(
     //     '@-error-at-composes-invalid-character', ' ',
     //     JSON.stringify(params.match(/\b-|[^-\w\s]/)[0]) + ' in ' + JSON.stringify(v), ';\n')
     // }
@@ -189,22 +209,32 @@ function at$1(k, v, buf, prefix, composes, local, state){
       k = /^\s*\.(\w+)\s*$/.exec(composes[i])
       if (k == null) {
         // the last class is a :global(.one)
-        buf.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
+
+        emit.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
+
         continue
       }
-      state.c(params, k[1])
+
+      state.c(params, k[1]) //compose
+
     }
 
   } else if (/^.(?:-[\w]+-)?(?:namespace|import|charset)$/.test(k)) {
     flatIter(function(v) {
-      buf.a(k, ' ', v, ';\n')
+
+      emit.a(k, ' ', v, ';\n')
+
     })(v)
 
   } else if (/^.(?:-[\w]+-)?(?:font-face|viewport|swash|ornaments|annotation|stylistic|styleset|character-variant)$/.test(k)) {
     flatIter(function(v) {
-      buf.a(k, '', '', ' {\n')
-      declarations(v, buf, '', local, state)
-      buf.c('}\n')
+
+      emit.a(k, '', '', ' {\n')
+
+      declarations(v, emit, '', local, state)
+
+      emit.c('}\n')
+
     })(v)
 
   } else if (/^.(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)\b\s*(\S.*)/.test(k)) {
@@ -213,22 +243,33 @@ function at$1(k, v, buf, prefix, composes, local, state){
 
     k = k.match(/^.(?:-[\w]+-)?(?:media|supports|document|page|keyframes|counter-style|font-feature-values)/)[0]
 
-    if (local && /^.(?:-[\w]+-)?(?:keyframes|counter-style)/.test(k)) params = params.replace(
-      // generated by script/regexps.js
-      /:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/,
-      state.l
-    )
-
-    buf.a(k, ' ', params, ' {\n')
-    if (/.(?:-[\w]+-)?(?:page|counter-style)/.test(k)) {
-      declarations(v, buf, '', local, state)
-    } else {
-      sheet(v, buf, prefix, 1, local, state)
+    if (local && /^.(?:-[\w]+-)?(?:keyframes|counter-style)/.test(k)) {
+      params = params.replace(
+        // generated by script/regexps.js
+        /:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/,
+        state.l
+      )
     }
-    buf.c('}\n')
+
+
+    emit.a(k, ' ', params, ' {\n')
+
+    if (/.(?:-[\w]+-)?(?:page|counter-style)/.test(k)) {
+
+      declarations(v, emit, '', local, state)
+
+    } else {
+
+      sheet(v, emit, prefix, 1, local, state)
+
+    }
+
+    emit.c('}\n')
 
   } else {
-    buf.a('@-error-unsupported-at-rule', ' ', JSON.stringify(k), ';\n')
+
+    emit.a('@-error-unsupported-at-rule', ' ', JSON.stringify(k), ';\n')
+
   }
 }
 
@@ -236,7 +277,7 @@ function at$1(k, v, buf, prefix, composes, local, state){
  * Add rulesets and other CSS statements to the sheet.
  *
  * @param {array|string|object} statements - a source object or sub-object.
- * @param {string[]} buf - the buffer in which the final style sheet is built
+ * @param {string[]} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {string} composes - the potential target of a @composes rule, if any
  * @param {boolean} local - are we in @local or in @global scope?
@@ -245,14 +286,17 @@ function at$1(k, v, buf, prefix, composes, local, state){
  * @param {function} state.e - @composes helper
  * @param {function} state.l - @local helper
  */
-function sheet(statements, buf, prefix, composes, local, state) {
+function sheet(statements, emit, prefix, composes, local, state) {
   var k, v, inDeclaration, kk
 
   switch (type.call(statements)) {
 
   case ARRAY:
-    for (k = 0; k < statements.length; k++)
-      sheet(statements[k], buf, prefix, composes, local, state)
+    for (k = 0; k < statements.length; k++){
+
+      sheet(statements[k], emit, prefix, composes, local, state)
+
+    }
     break
 
   case OBJECT:
@@ -261,27 +305,33 @@ function sheet(statements, buf, prefix, composes, local, state) {
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
-          buf.s((prefix), ' {\n')
+
+          emit.s((prefix), ' {\n')
+
         }
-        declarations(v, buf, k, local, state)
+
+        declarations(v, emit, k, local, state)
+
       } else if (/^@/.test(k)) {
         // Handle At-rules
-        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
 
-        at$1(k, v, buf, prefix, composes, local, state)
+        inDeclaration = (inDeclaration && emit.c('}\n') && 0)
+
+        at$1(k, v, emit, prefix, composes, local, state)
 
       } else {
         // selector or nested sub-selectors
 
-        inDeclaration = (inDeclaration && buf.c('}\n') && 0)
+        inDeclaration = (inDeclaration && emit.c('}\n') && 0)
 
-
-        sheet(v, buf,
+        sheet(v, emit,
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
           /*0*/ (kk = splitSelector(prefix), splitSelector( local ?
+
               k.replace(
                 /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
               ) : k
+
             ).map(function (k) {
               return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
                 return kk + k
@@ -290,17 +340,21 @@ function sheet(statements, buf, prefix, composes, local, state) {
           /*0*/ /&/.test(k) ?
             /*1*/ ampersand(
               local ?
+
                 k.replace(
                   /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
                 ) :
+
                 k,
               [prefix]
             ) :
             /*1*/ prefix + (
               local ?
+
                 k.replace(
                   /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
                 ) :
+
                 k
               ),
           composes || prefix ? '' : k,
@@ -308,14 +362,18 @@ function sheet(statements, buf, prefix, composes, local, state) {
         )
       }
     }
-    if (inDeclaration) buf.c('}\n')
+
+    if (inDeclaration) emit.c('}\n')
+
     break
   case STRING:
-    buf.s(
-        ( prefix || ':-error-no-selector' ) , ' {\n'
-      )
-    declarations(statements, buf, '', local, state)
-    buf.c('}\n')
+    // CSS hacks or ouptut of `j2c.inline`.
+
+    emit.s(( prefix || ':-error-no-selector' ) , ' {\n')
+
+    declarations(statements, emit, '', local, state)
+
+    emit.c('}\n')
   }
 }
 
@@ -368,30 +426,39 @@ function j2c() {
   }
 
   var _use = flatIter(function(plugin) {
-    if (instance.$plugins.indexOf(plugin)+1) return
+    // `~n` is falsy for `n === -1` and truthy otherwise.
+    // Works well to turn the  result of `a.indexOf(x)`
+    // into a value that reflects the presence of `x` in
+    // `a`.
+    if (~instance.$plugins.indexOf(plugin)) return
+
     instance.$plugins.push(plugin)
+
     if (type.call(plugin) === FUNCTION) plugin = plugin(instance)
+
     if (!plugin) return
+
     flatIter(function(filter) {
       filters.push(filter)
     })(plugin.$filter||[])
+
     _default(instance, plugin)
   })
 
-  function makeBuf(inline) {
-    var buf
+  function makeEmitter(inline) {
+    var buf = []
     function push() {
-      emptyArray.push.apply(buf.b, arguments)
+      emptyArray.push.apply(buf, arguments)
     }
-    buf = {
-      b: [],   // buf
+    var emit = {
+      x: function(raw){return raw ? buf : buf.join('')},   // buf
       a: push, // at-rules
       s: push, // selector
       d: push, // declaration
       c: push  // close
     }
-    for (var i = filters.length; i--;) buf = filters[i](buf, inline)
-    return buf
+    for (var i = filters.length; i--;) emit = filters[i](emit, inline)
+    return emit
   }
 
   var state = {
@@ -406,26 +473,27 @@ function j2c() {
   }
 
 /*/-statements-/*/
-  instance.sheet = function(statements, buf) {
+  instance.sheet = function(statements, emit) {
     sheet(
-      statements, buf = makeBuf(false),
-      '', '',     // prefix and rawPRefix
+      statements,
+      emit = makeEmitter(false),
+      '', '',     // prefix and compose
       1,          // local, by default
       state
     )
 
-    return buf.b.join('')
+    return emit.x()
   }
 /*/-statements-/*/
-  instance.inline = function (decl, buf) {
+  instance.inline = function (_declarations, emit) {
     declarations(
-      decl,
-      buf = makeBuf(true),
+      _declarations,
+      emit = makeEmitter(true),
       '',         // prefix
       1,          //local
       state
     )
-    return buf.b.join('')
+    return emit.x()
   }
 
   return instance
