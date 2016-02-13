@@ -12,13 +12,10 @@ function decamelize(match) {
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
  * @param {boolean} local - are we in @local or in @global scope.
- * @param {object} state - helper functions to populate or create the @local namespace
- *                      and to @extend classes.
- * @param {function} state.e - @extend helper.
- * @param {function} state.l - @local helper.
+ * @param {function} localize - @local helper.
  */
 
-export function declarations(o, emit, prefix, local, state) {
+export function declarations(o, emit, prefix, local, localize) {
   var k, v, kk
   if (o==null) return
 
@@ -26,7 +23,7 @@ export function declarations(o, emit, prefix, local, state) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
 
-      declarations(o[k], emit, prefix, local, state)
+      declarations(o[k], emit, prefix, local, localize)
 
     break
   case OBJECT:
@@ -38,12 +35,12 @@ export function declarations(o, emit, prefix, local, state) {
       if (/\$/.test(k)) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(v, emit, prefix + k[kk], local, state)
+          declarations(v, emit, prefix + k[kk], local, localize)
 
         }
       } else {
 
-        declarations(v, emit, prefix + k, local, state)
+        declarations(v, emit, prefix + k, local, localize)
 
       }
     }
@@ -63,7 +60,9 @@ export function declarations(o, emit, prefix, local, state) {
       // no need to tokenize here a plain `.split(',')` has all bases covered.
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
-        return o.replace(/:?global\(\s*([-\w]+)\s*\)|()([-\w]+)/, state.l)
+
+        return o.replace(/:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, localize)
+
       }).join(',')
     }
 
