@@ -21,14 +21,7 @@ function decamelize(match) {
 export function declarations(o, emit, prefix, local, state) {
   var k, v, kk
   if (o==null) return
-  if (/\$/.test(prefix)) {
-    for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
 
-      declarations(o, emit, prefix[kk], local, state)
-
-    }
-    return
-  }
   switch ( type.call(o = o.valueOf()) ) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
