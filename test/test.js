@@ -1188,39 +1188,9 @@ function randInt() {
       expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' bar baz')
     })
 
-    test('j2c.composes with an list of class, one of which is barely valid', function() {
-      var _j2c = j2c()
-      _j2c.compose('foo', 'aba -_foo')
-      expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' aba -_foo')
-    })
-
     test('j2c.composes with a ill formed target', function() {
       var _j2c = j2c()
       expect(function(){_j2c.compose('fo/o', 'bar')}).to.throwException(/Bad target class "fo\/o"/)
-      expect(_j2c.names).not.to.have.property('foo')
-    })
-
-    test('j2c.composes with a pair of sources in a nested array, one of which is ill formed', function() {
-      var _j2c = j2c()
-      expect(function(){_j2c.compose('foo', [[['bar'],'ba/z']])}).to.throwException(/Bad source class "\/"/)
-      expect(_j2c.names).not.to.have.property('foo')
-    })
-
-    test('j2c.composes with an empty source', function() {
-      var _j2c = j2c()
-      expect(function(){_j2c.compose('foo', '')}).to.throwException(/Bad source class ""/)
-      expect(_j2c.names).not.to.have.property('foo')
-    })
-
-    test('j2c.composes with an list of class, one of which is invalid', function() {
-      var _j2c = j2c()
-      expect(function(){_j2c.compose('foo', 'aba --foo')}).to.throwException(/Bad source class " --"/)
-      expect(_j2c.names).not.to.have.property('foo')
-    })
-
-    test('j2c.composes with an list of class, the other of which is invalid', function() {
-      var _j2c = j2c()
-      expect(function(){_j2c.compose('foo', '--aba foo')}).to.throwException(/Bad source class "--"/)
       expect(_j2c.names).not.to.have.property('foo')
     })
   })
