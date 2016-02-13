@@ -465,11 +465,6 @@ var j2c = (function () {
       if(!/^-?[_A-Za-z][-\w]*$/.test(target))
         throw new Error('Bad target class ' + JSON.stringify(target))
 
-      flatIter(function(source) {
-        if(!/^\s*-?[_A-Za-z][-\w]*(?:\s+-?[_A-Za-z][-\w]*)*\s*$/.test(source))
-          throw new Error('Bad source class ' + JSON.stringify(source.match(/(?:^| )--|[^-\w\s]|^$/)[0]))
-      })(source)
-
       localize(0,0,0,target)
 
       flatIter(function(source) {
