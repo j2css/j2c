@@ -12,12 +12,9 @@ import {at} from './at-rules'
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {string} composes - the potential target of a @composes rule, if any
  * @param {boolean} local - are we in @local or in @global scope?
- * @param {object} state - helper functions to populate or create the @local namespace
- *                      and to @composes classes
- * @param {function} state.e - @composes helper
- * @param {function} state.l - @local helper
+ * @param {function} localize - @local helper
  */
-export function sheet(statements, emit, prefix, composes, local, state) {
+export function sheet(statements, emit, prefix, composes, local, localize) {
   var k, v, inDeclaration, kk
 
   switch (type.call(statements)) {
@@ -25,7 +22,7 @@ export function sheet(statements, emit, prefix, composes, local, state) {
   case ARRAY:
     for (k = 0; k < statements.length; k++){
 
-      sheet(statements[k], emit, prefix, composes, local, state)
+      sheet(statements[k], emit, prefix, composes, local, localize)
 
     }
     break
@@ -43,12 +40,12 @@ export function sheet(statements, emit, prefix, composes, local, state) {
         if (/\$/.test(k)) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-            declarations(v, emit, k[kk], local, state)
+            declarations(v, emit, k[kk], local, localize)
 
           }
         } else {
 
-          declarations(v, emit, k, local, state)
+          declarations(v, emit, k, local, localize)
 
         }
       } else if (/^@/.test(k)) {
@@ -56,7 +53,7 @@ export function sheet(statements, emit, prefix, composes, local, state) {
 
         inDeclaration = (inDeclaration && emit.c('}\n') && 0)
 
-        at(k, v, emit, prefix, composes, local, state)
+        at(k, v, emit, prefix, composes, local, localize)
 
       } else {
         // selector or nested sub-selectors
@@ -68,7 +65,7 @@ export function sheet(statements, emit, prefix, composes, local, state) {
           /*0*/ (kk = splitSelector(prefix), splitSelector( local ?
 
               k.replace(
-                /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
+                /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, localize
               ) : k
 
             ).map(function (k) {
@@ -81,7 +78,7 @@ export function sheet(statements, emit, prefix, composes, local, state) {
               local ?
 
                 k.replace(
-                  /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
+                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, localize
                 ) :
 
                 k,
@@ -91,13 +88,13 @@ export function sheet(statements, emit, prefix, composes, local, state) {
               local ?
 
                 k.replace(
-                  /:global\(\s*(\.[-\w]+)\s*\)|(\.)([-\w]+)/g, state.l
+                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, localize
                 ) :
 
                 k
               ),
           composes || prefix ? '' : k,
-          local, state
+          local, localize
         )
       }
     }
@@ -110,7 +107,7 @@ export function sheet(statements, emit, prefix, composes, local, state) {
 
     emit.s(( prefix || ':-error-no-selector' ) , ' {\n')
 
-    declarations(statements, emit, '', local, state)
+    declarations(statements, emit, '', local, localize)
 
     emit.c('}\n')
   }
