@@ -12,33 +12,16 @@ var animation = either(
         /:?/,
         'global(',
         /\s*/,
-        capture(/[-\w]+/),
+        capture(/[_A-Za-z][-\w]*/),
         /\s*/,
         ')'
     ),
     sequence(
         capture(),
-        capture(/[-\w]+/)
+        capture(/-?[_A-Za-z][-\w]*/)
     )
 )
-console.log('animation / animation-name\n', animation)
-
-var keyframes = either(
-    sequence(
-        /:?/,
-        'global(',
-        /\s*/,
-        capture(/[-\w]+/),
-        /\s*/,
-        ')'
-    ),
-    sequence(
-        capture(),
-        capture(/[-\w]+/)
-    )
-)
-
-console.log('@keyframes\n', keyframes)
+console.log('animation / animation-name / @keyframes\n', animation)
 
 var selector = flags('g', either(
     sequence(
@@ -46,36 +29,18 @@ var selector = flags('g', either(
         /\s*/,
         capture(
             '.',
-            /[-\w]+/
+            /-?[_A-Za-z][-\w]*/
         ),
         /\s*/,
         ')'
     ),
     sequence(
         capture('.'),
-        capture(/[-\w]+/)
+        capture(/-?[_A-Za-z][-\w]*/)
     )
 ))
 
 console.log('selector / @global\n', selector)
-
-var composes = either(
-    sequence(
-        /:?/,
-        'global(',
-        /\s*\.?/,
-        capture(/[-\w]+/),
-        /\s*/,
-        ')'
-    ),
-    sequence(
-        capture(''),
-        /\.?/,
-        capture(/[-\w]+/)
-    )
-)
-
-console.log('@composes\n', composes)
 
 var selectorTokenizer = flags('g',
     either(

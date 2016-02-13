@@ -86,15 +86,65 @@ export default function j2c() {
     return emit
   }
 
-  var state = {
-    c: function composes(parent, child) {
-      instance.names[child] = instance.names[child] + ' ' + parent
-    },
-    l: function localize(match, global, dot, name) {
-      if (global) return global
-      if (!instance.names[name]) instance.names[name] = name + instance.suffix
-      return dot + instance.names[name].match(/^\S+/)
-    }
+  // } else if (/^.composes$/.test(k)) {
+  //   if (!local) {
+
+  //     return emit.a('@-error-at-composes-in-at-global', '', '', ';\n')
+
+  //   }
+  //   if (!composes) {
+
+  //     return emit.a('@-error-at-composes-no-nesting', '', '', ';\n')
+
+  //   }
+
+  //   params = (type.call(v) == ARRAY ? v.join(' ') : v).replace(/\./g, '')
+
+  //   // TODO: move this to the validation plugin.
+  //   // if(!/^\s*\w[-\w]*(?:\s+\w[-\w]*)*\s*$/.test(params)) {
+  //   //   return emit.a(
+  //   //     '@-error-at-composes-invalid-character', ' ',
+  //   //     JSON.stringify(params.match(/\b-|[^-\w\s]/)[0]) + ' in ' + JSON.stringify(v), ';\n')
+  //   // }
+
+  //   composes = splitSelector(composes)
+  //   for(i = 0; i < composes.length; i++) {
+  //     k = /^\s*\.(\w+)\s*$/.exec(composes[i])
+  //     if (k == null) {
+  //       // the last class is a :global(.one)
+
+  //       emit.a('@-error-at-composes-bad-target', ' ', JSON.stringify(composes[i]), ';\n')
+
+  //       continue
+  //     }
+
+  //     state.c(params, k[1]) //compose
+
+  //   }
+    // c: function composes(parent, child) {
+    //   instance.names[child] = instance.names[child] + ' ' + parent
+    // },
+
+  instance.compose = function(target, source) {
+    if(!/^-?[_A-Za-z][-\w]*$/.test(target))
+      throw new Error('Bad target class ' + JSON.stringify(target))
+
+    flatIter(function(source) {
+      if(!/^\s*-?[_A-Za-z][-\w]*(?:\s+-?[_A-Za-z][-\w]*)*\s*$/.test(source))
+        throw new Error('Bad source class ' + JSON.stringify(source.match(/(?:^| )--|[^-\w\s]|^$/)[0]))
+    })(source)
+
+    localize(0,0,0,target)
+
+    flatIter(function(source) {
+      instance.names[target] = instance.names[target] + ' ' + source
+    })(source)
+  }
+
+  function localize(match, global, dot, name) {
+    if (global) return global
+    if (!instance.names[name]) instance.names[name] = name + instance.suffix
+    return dot + instance.names[name].match(/^\S+/)
   }
 
 /*/-statements-/*/
@@ -104,7 +154,7 @@ export default function j2c() {
       emit = makeEmitter(false),
       '', '',     // prefix and compose
       1,          // local, by default
-      state
+      localize
     )
 
     return emit.x()
@@ -116,7 +166,7 @@ export default function j2c() {
       emit = makeEmitter(true),
       '',         // prefix
       1,          //local
-      state
+      localize
     )
     return emit.x()
   }
@@ -125,4 +175,4 @@ export default function j2c() {
 }
 
 var _j2c = j2c()
-'sheet|inline|names|at|global|kv|suffix'.split('|').map(function(m){j2c[m] = _j2c[m]})
+'sheet|inline|names|at|global|kv|suffix|compose'.split('|').map(function(m){j2c[m] = _j2c[m]})
