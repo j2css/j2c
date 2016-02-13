@@ -40,9 +40,17 @@ export function sheet(statements, emit, prefix, composes, local, state) {
           emit.s((prefix), ' {\n')
 
         }
+        if (/\$/.test(k)) {
+          for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-        declarations(v, emit, k, local, state)
+            declarations(v, emit, k[kk], local, state)
 
+          }
+        } else {
+
+          declarations(v, emit, k, local, state)
+
+        }
       } else if (/^@/.test(k)) {
         // Handle At-rules
 

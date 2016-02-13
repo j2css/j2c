@@ -102,14 +102,7 @@ var j2c = (function () {
   function declarations(o, emit, prefix, local, state) {
     var k, v, kk
     if (o==null) return
-    if (/\$/.test(prefix)) {
-      for (kk in (prefix = prefix.split('$'))) if (own.call(prefix, kk)) {
 
-        declarations(o, emit, prefix[kk], local, state)
-
-      }
-      return
-    }
     switch ( type.call(o = o.valueOf()) ) {
     case ARRAY:
       for (k = 0; k < o.length; k++)
@@ -312,9 +305,17 @@ var j2c = (function () {
             emit.s((prefix), ' {\n')
 
           }
+          if (/\$/.test(k)) {
+            for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(v, emit, k, local, state)
+              declarations(v, emit, k[kk], local, state)
 
+            }
+          } else {
+
+            declarations(v, emit, k, local, state)
+
+          }
         } else if (/^@/.test(k)) {
           // Handle At-rules
 
