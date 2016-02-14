@@ -66,8 +66,9 @@ export function sheet(statements, emit, prefix, composes, local, localize) {
 
               k.replace(
                 /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, localize
-              ) : k
+              ) :
 
+              k
             ).map(function (k) {
               return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
                 return kk + k
