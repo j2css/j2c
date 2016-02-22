@@ -1,6 +1,6 @@
 import {type, ARRAY, OBJECT, STRING, ampersand, own, splitSelector} from './helpers'
 import {declarations} from './declarations'
-import {at} from './at-rules'
+import {atRules} from './at-rules'
 
 
 
@@ -53,7 +53,7 @@ export function sheet(statements, emit, prefix, composes, local, localize) {
 
         inDeclaration = (inDeclaration && emit.c('}\n') && 0)
 
-        at(k, v, emit, prefix, composes, local, localize)
+        atRules(k, v, emit, prefix, composes, local, localize)
 
       } else {
         // selector or nested sub-selectors
