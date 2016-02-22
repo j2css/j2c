@@ -954,6 +954,14 @@ function randInt() {
 
     })
 
+    test('invalid @ becomes @-error-unsupported-at-rule "@"', function(){
+      check(
+        j2c().sheet({'@': 'bar'}),
+        '@-error-unsupported-at-rule "@";'
+      )
+
+    })
+
     /////////////////////////////////////////////
     /**/  suite('At-rules with prefixes: ')  /**/
     /////////////////////////////////////////////
@@ -1137,7 +1145,18 @@ function randInt() {
     })
 
 
+    /////////////////////////////
+    /**/  suite('@mixin: ')  /**/
+    /////////////////////////////
 
+
+
+    test('top-level @mixin', function() {
+      check(
+        j2c().sheet({'@mixin':{'p': {color: 'red'}}}),
+        'p {color:red;}'
+      )
+    })
 
     ///////////////////////////////////
     /**/  suite('Foolproofing: ')  /**/
@@ -1154,7 +1173,7 @@ function randInt() {
     test('property-like sub-selector', function() {
       check(
         j2c().sheet('color:red'),
-        ':-error-no-selector {color:red} '
+        ':-error-no-selector {color:red}'
       )
     })
 
@@ -1632,6 +1651,68 @@ function randInt() {
     expect(acc.length).to.be(1)
     expect(acc[0]).to.be(1)
   })
+
+  ////////////////////////////////////
+  /**/  suite('$at plugins')  /**/
+  ////////////////////////////////////
+
+
+  test('one $at filter', function() {
+    function plugin(name) {
+      return {$at: function(match, v, emit, prefix, composes, local, localize, sheet, declarations){
+        expect(match).to.be.an(Array)
+        // `v` can be many things
+        expect(emit).to.be.an(Object)
+        expect(emit).to.have.key('a')
+        expect(prefix).to.be.a('string')
+        // `composes` can be many things
+        // `local` can be many things, the only things that matters is its truthiness
+        expect(localize).to.be.a(Function)
+        expect(sheet).to.be.a(Function)
+        expect(declarations).to.be.a(Function)
+        if (match[2] !== name) return false
+        emit.a(match[1], ' ', v, ';\n')
+        return true
+      }}
+    }
+    check(
+      J2C().use(plugin('foo')).sheet({
+        '@foo': 'bar',
+        '@bar': 'baz',
+        '@baz': 'qux'
+      }),
+      '@foo bar; @-error-unsupported-at-rule "@bar"; @-error-unsupported-at-rule "@baz";'
+    )
+  })
+
+  test('two $at filters', function() {
+    function plugin(name) {
+      return {$at: function(match, v, emit, prefix, composes, local, localize, sheet, declarations){
+        expect(match).to.be.an(Array)
+        // `v` can be many things
+        expect(emit).to.be.an(Object)
+        expect(emit).to.have.key('a')
+        expect(prefix).to.be.a('string')
+        // `composes` can be many things
+        // `local` can be many things, the only things that matters is its truthiness
+        expect(localize).to.be.a(Function)
+        expect(sheet).to.be.a(Function)
+        expect(declarations).to.be.a(Function)
+        if (match[2] !== name) return false
+        emit.a(match[1], ' ', v, ';\n')
+        return true
+      }}
+    }
+    check(
+      J2C().use(plugin('foo'), plugin('bar')).sheet({
+        '@foo': 'bar',
+        '@bar': 'baz',
+        '@baz': 'qux'
+      }),
+      '@foo bar; @bar baz; @-error-unsupported-at-rule "@baz";'
+    )
+  })
+
 })
 
 
