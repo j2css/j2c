@@ -25,7 +25,7 @@ function at (rule, params, block) {
 }
 
 export default function j2c() {
-  var filters = []
+  var filters = [], atHandlers = []
   var instance = {
     at: at,
     global: global,
@@ -67,6 +67,10 @@ export default function j2c() {
       filters.push(filter)
     })(plugin.$filter||[])
 
+    flatIter(function(handler) {
+      atHandlers.push(handler)
+    })(plugin.$at||[])
+
     _default(instance, plugin)
   })
 
@@ -102,6 +106,8 @@ export default function j2c() {
     if (!instance.names[name]) instance.names[name] = name + instance.suffix
     return dot + instance.names[name].match(/^\S+/)
   }
+
+  localize.a = atHandlers
 
 /*/-statements-/*/
   instance.sheet = function(statements, emit) {
