@@ -803,20 +803,6 @@ function randInt() {
       )
     })
 
-    test('@document', function() {
-      check(
-        j2c().sheet({
-          '@document url(http://www.w3.org/)': {
-            ' body': {
-              color: 'purple'
-            }
-          }
-        }),
-
-        '@document url(http://www.w3.org/) {body {color: purple;}}'
-      )
-    })
-
     test('@page', function() {
       check(
         j2c().sheet({
@@ -828,75 +814,6 @@ function randInt() {
         '@page :first {margin: 2in 3in;}'
       )
     })
-
-    test('@viewport', function() {
-      check(
-        j2c().sheet({
-          '@viewport': {
-            orientation: 'landscape'
-          }
-        }),
-
-        '@viewport {orientation: landscape;}'
-      )
-    })
-
-    test('global @counter-style', function() {
-      check(
-        j2c().sheet({
-          '@global': {
-            '@counter-style circled': {
-              system: 'fixed'
-            }
-          }
-        }),
-
-        '@counter-style circled {system: fixed;}'
-      )
-    })
-
-    test('local @counter-style', function() {
-      var _j2c = j2c()
-      check(
-        _j2c.sheet({
-          '@counter-style circled': {
-            system: 'fixed'
-          }
-        }),
-
-        '@counter-style ' + _j2c.names.circled + ' {system: fixed;}'
-      )
-    })
-
-    test('@font-feature-values', function() {
-      check(
-        j2c().sheet({
-          '@font-feature-values Font One': {
-            '@styleset': {
-              ident0: 2
-            },
-            '@swash': {
-              ident1: 2
-            },
-            '@ornaments': {
-              ident2: 2
-            },
-            '@annotation': {
-              ident3: 2
-            },
-            '@stylistic': {
-              ident4: 2
-            },
-            '@character-variant': {
-              ident5: 2
-            }
-          }
-        }),
-
-        '@font-feature-values Font One {@styleset{ident0: 2;}@swash{ident1: 2;}@ornaments{ident2: 2;}@annotation{ident3: 2;}@stylistic{ident4: 2;}@character-variant{ident5: 2;}}'
-      )
-    })
-
 
     test('several @media with object value', function() {
       check(
@@ -1145,72 +1062,17 @@ function randInt() {
     })
 
 
-    /////////////////////////////
-    /**/  suite('@mixin: ')  /**/
-    /////////////////////////////
-
-
-
-    test('top-level @mixin', function() {
-      check(
-        j2c().sheet({'@mixin':{'p': {color: 'red'}}}),
-        'p {color:red;}'
-      )
-    })
 
     ///////////////////////////////////
     /**/  suite('Foolproofing: ')  /**/
     ///////////////////////////////////
 
 
-
-    // test('property-like sub-selector', function() {
-    //   var sheet = j2c().sheet({'.foo': {'g,p': {animation_name: 'bit, bat'}}})
-
-    //   expect(sheet).to.contain(':-error-bad-sub-selector-g,:-error-bad-sub-selector-p')
-    // })
-
     test('property-like sub-selector', function() {
       check(
         j2c().sheet('color:red'),
         ':-error-no-selector {color:red}'
       )
-    })
-
-
-
-    ///////////////////////////////////
-    /**/  suite('j2c.compose: ')  /**/
-    ///////////////////////////////////
-
-    test('j2c.composes with a single source', function() {
-      var _j2c = j2c()
-      _j2c.compose('foo', 'bar')
-      expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' bar')
-    })
-
-    test('j2c.composes with a single source made of two classes', function() {
-      var _j2c = j2c()
-      _j2c.compose('foo', 'bar baz')
-      expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' bar baz')
-    })
-
-    test('j2c.composes with a pair of sources in an array', function() {
-      var _j2c = j2c()
-      _j2c.compose('foo', ['bar', 'baz'])
-      expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' bar baz')
-    })
-
-    test('j2c.composes with a pair of sources in a nested array', function() {
-      var _j2c = j2c()
-      _j2c.compose('foo', [[['bar'], 'baz']])
-      expect(_j2c.names).to.have.property('foo', 'foo' + _j2c.suffix + ' bar baz')
-    })
-
-    test('j2c.composes with a ill formed target', function() {
-      var _j2c = j2c()
-      expect(function(){_j2c.compose('fo/o', 'bar')}).to.throwException(/Bad target class "fo\/o"/)
-      expect(_j2c.names).not.to.have.property('foo')
     })
   })
 
@@ -1659,17 +1521,23 @@ function randInt() {
 
   test('one $at filter', function() {
     function plugin(name) {
-      return {$at: function(match, v, emit, prefix, composes, local, localize, sheet, declarations){
+      return {$at: function(match, v, emit, prefix, inAtRule, local, state){
         expect(match).to.be.an(Array)
         // `v` can be many things
         expect(emit).to.be.an(Object)
         expect(emit).to.have.key('a')
         expect(prefix).to.be.a('string')
-        // `composes` can be many things
+        // `inAtRule` can be many things, the only things that matters is its truthiness
+        expect(!!inAtRule).to.be(false)
         // `local` can be many things, the only things that matters is its truthiness
-        expect(localize).to.be.a(Function)
-        expect(sheet).to.be.a(Function)
-        expect(declarations).to.be.a(Function)
+        expect(!!local).to.be(true)
+        expect(state).to.be.an(Object)
+        expect(state).to.have.key('A')
+        expect(state).to.have.key('a')
+        expect(state).to.have.key('d')
+        expect(state).to.have.key('l')
+        expect(state).to.have.key('n')
+        expect(state).to.have.key('s')
         if (match[2] !== name) return false
         emit.a(match[1], ' ', v, ';\n')
         return true
@@ -1687,17 +1555,7 @@ function randInt() {
 
   test('two $at filters', function() {
     function plugin(name) {
-      return {$at: function(match, v, emit, prefix, composes, local, localize, sheet, declarations){
-        expect(match).to.be.an(Array)
-        // `v` can be many things
-        expect(emit).to.be.an(Object)
-        expect(emit).to.have.key('a')
-        expect(prefix).to.be.a('string')
-        // `composes` can be many things
-        // `local` can be many things, the only things that matters is its truthiness
-        expect(localize).to.be.a(Function)
-        expect(sheet).to.be.a(Function)
-        expect(declarations).to.be.a(Function)
+      return {$at: function(match, v, emit){
         if (match[2] !== name) return false
         emit.a(match[1], ' ', v, ';\n')
         return true
