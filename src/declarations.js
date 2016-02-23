@@ -12,10 +12,10 @@ function decamelize(match) {
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
  * @param {boolean} local - are we in @local or in @global scope.
- * @param {function} localize - @local helper.
+ * @param {function} state - @local helper.
  */
 
-export function declarations(o, emit, prefix, local, localize) {
+export function declarations(o, emit, prefix, local, state) {
   var k, v, kk
   if (o==null) return
 
@@ -23,7 +23,7 @@ export function declarations(o, emit, prefix, local, localize) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
 
-      declarations(o[k], emit, prefix, local, localize)
+      declarations(o[k], emit, prefix, local, state)
 
     break
   case OBJECT:
@@ -35,12 +35,12 @@ export function declarations(o, emit, prefix, local, localize) {
       if (/\$/.test(k)) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(v, emit, prefix + k[kk], local, localize)
+          declarations(v, emit, prefix + k[kk], local, state)
 
         }
       } else {
 
-        declarations(v, emit, prefix + k, local, localize)
+        declarations(v, emit, prefix + k, local, state)
 
       }
     }
@@ -58,10 +58,10 @@ export function declarations(o, emit, prefix, local, localize) {
 
     if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
       // no need to tokenize here a plain `.split(',')` has all bases covered.
-      // We may 'localize' a comment, but it's not a big deal.
+      // We may 'state' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, localize)
+        return o.replace(/:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, state.l)
 
       }).join(',')
     }

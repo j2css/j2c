@@ -1,6 +1,7 @@
 import {own, flatIter, emptyArray, type, FUNCTION, OBJECT} from './helpers'
 import {sheet} from './sheet'
 import {declarations} from './declarations'
+import {atRules} from './at-rules'
 
 function global(x) {
   return ':global(' + x + ')'
@@ -74,7 +75,7 @@ export default function j2c() {
     _default(instance, plugin)
   })
 
-  function makeEmitter(inline) {
+  function makeEmitter(inline, state) {
     var buf = []
     function push() {
       emptyArray.push.apply(buf, arguments)
@@ -86,19 +87,8 @@ export default function j2c() {
       d: push, // declaration
       c: push  // close
     }
-    for (var i = filters.length; i--;) emit = filters[i](emit, inline)
+    for (var i = filters.length; i--;) emit = filters[i](emit, inline, state)
     return emit
-  }
-
-  instance.compose = function(target, source) {
-    if(!/^-?[_A-Za-z][-\w]*$/.test(target))
-      throw new Error('Bad target class ' + JSON.stringify(target))
-
-    localize(0,0,0,target)
-
-    flatIter(function(source) {
-      instance.names[target] = instance.names[target] + ' ' + source
-    })(source)
   }
 
   function localize(match, global, dot, name) {
@@ -111,24 +101,40 @@ export default function j2c() {
 
 /*/-statements-/*/
   instance.sheet = function(statements, emit) {
+    var state = {
+      s: sheet,
+      a: atRules,
+      d: declarations,
+      A: atHandlers,
+      l: localize,
+      n: instance.names
+    }
     sheet(
       statements,
-      emit = makeEmitter(false),
+      emit = makeEmitter(false, state),
       '', '',     // prefix and compose
       1,          // local, by default
-      localize
+      state
     )
 
     return emit.x()
   }
 /*/-statements-/*/
   instance.inline = function (_declarations, emit) {
+    var state = {
+      s: sheet,
+      a: atRules,
+      d: declarations,
+      A: atHandlers,
+      l: localize,
+      n: instance.names
+    }
     declarations(
       _declarations,
-      emit = makeEmitter(true),
+      emit = makeEmitter(true, state),
       '',         // prefix
       1,          //local
-      localize
+      state
     )
     return emit.x()
   }
@@ -137,4 +143,4 @@ export default function j2c() {
 }
 
 var _j2c = j2c()
-'sheet|inline|names|at|global|kv|suffix|compose'.split('|').map(function(m){j2c[m] = _j2c[m]})
+'sheet|inline|names|at|global|kv|suffix'.split('|').map(function(m){j2c[m] = _j2c[m]})
