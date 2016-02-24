@@ -5,31 +5,31 @@ import {atRules} from './at-rules'
 
 
 /**
- * Add rulesets and other CSS statements to the sheet.
+ * Add rulesets and other CSS tree to the sheet.
  *
- * @param {array|string|object} statements - a source object or sub-object.
- * @param {string[]} emit - the contextual emitters to the final buffer
+ * @param {object} parser - holds the parser-related methods and state
+ * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
- * @param {string} canCompose - are we allowed to @compose here?
+ * @param {array|string|object} tree - a source object or sub-object.
+ * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
- * @param {function} state - @local helper
  */
-export function sheet(statements, emit, prefix, canCompose, local, state) {
+export function sheet(parser, emit, prefix, tree, local, inAtRule) {
   var k, v, inDeclaration, kk
 
-  switch (type.call(statements)) {
+  switch (type.call(tree)) {
 
   case ARRAY:
-    for (k = 0; k < statements.length; k++){
+    for (k = 0; k < tree.length; k++){
 
-      sheet(statements[k], emit, prefix, canCompose, local, state)
+      sheet(parser, emit, prefix, tree[k], local, inAtRule)
 
     }
     break
 
   case OBJECT:
-    for (k in statements) if (own.call(statements, k)) {
-      v = statements[k]
+    for (k in tree) if (own.call(tree, k)) {
+      v = tree[k]
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
@@ -40,12 +40,12 @@ export function sheet(statements, emit, prefix, canCompose, local, state) {
         if (/\$/.test(k)) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-            declarations(v, emit, k[kk], local, state)
+            declarations(parser, emit, k[kk], v, local)
 
           }
         } else {
 
-          declarations(v, emit, k, local, state)
+          declarations(parser, emit, k, v, local)
 
         }
       } else if (/^@/.test(k)) {
@@ -53,19 +53,24 @@ export function sheet(statements, emit, prefix, canCompose, local, state) {
 
         inDeclaration = (inDeclaration && emit.c('}\n') && 0)
 
-        atRules(k, v, emit, prefix, canCompose, local, state)
+        atRules(parser, emit,
+          /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || ['@','@','',''],
+          v, prefix, local, inAtRule
+        )
 
       } else {
         // selector or nested sub-selectors
 
         inDeclaration = (inDeclaration && emit.c('}\n') && 0)
 
-        sheet(v, emit,
+        sheet(
+          parser, emit,
+          // prefix... Hefty. Ugly. Sadly necessary.
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
           /*0*/ (kk = splitSelector(prefix), splitSelector( local ?
 
               k.replace(
-                /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.l
+                /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
               ) :
 
               k
@@ -79,7 +84,7 @@ export function sheet(statements, emit, prefix, canCompose, local, state) {
               local ?
 
                 k.replace(
-                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.l
+                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
                 ) :
 
                 k,
@@ -89,13 +94,12 @@ export function sheet(statements, emit, prefix, canCompose, local, state) {
               local ?
 
                 k.replace(
-                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.l
+                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
                 ) :
 
                 k
               ),
-          canCompose,
-          local, state
+           v, local, inAtRule
         )
       }
     }
@@ -108,7 +112,7 @@ export function sheet(statements, emit, prefix, canCompose, local, state) {
 
     emit.s(( prefix || ':-error-no-selector' ) , ' {\n')
 
-    declarations(statements, emit, '', local, state)
+    declarations(parser, emit, '', tree, local)
 
     emit.c('}\n')
   }
