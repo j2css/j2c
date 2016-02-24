@@ -1521,7 +1521,7 @@ function randInt() {
 
   test('one $at plugin', function() {
     function plugin(name) {
-      return {$at: function(parser, emit, match, v, prefix, inAtRule, local){
+      return {$at: function(parser, emit, match, v, prefix, local, inAtRule){
         expect(match).to.be.an(Array)
         expect(parser).to.be.an(Object)
         expect(parser).to.have.key('A')
@@ -1530,14 +1530,18 @@ function randInt() {
         expect(parser).to.have.key('l')
         expect(parser).to.have.key('n')
         expect(parser).to.have.key('s')
+
         expect(emit).to.be.an(Object)
         expect(emit).to.have.key('a')
-        // `v` can be many things
+
+        expect(v).to.be('param')
+
         expect(prefix).to.be.a('string')
-        // `inAtRule` can be many things, the only things that matters is its truthiness
-        expect(!!inAtRule).to.be(false)
         // `local` can be many things, the only things that matters is its truthiness
         expect(!!local).to.be(true)
+        // `inAtRule` can be many things, the only things that matters is its truthiness
+        expect(!!inAtRule).to.be(false)
+
         if (match[2] !== name) return false
         emit.a(match[1], ' ', v, ';\n')
         return true
@@ -1545,11 +1549,11 @@ function randInt() {
     }
     check(
       J2C().use(plugin('foo')).sheet({
-        '@foo': 'bar',
-        '@bar': 'baz',
-        '@baz': 'qux'
+        '@foo': 'param',
+        '@bar': 'param',
+        '@baz': 'param'
       }),
-      '@foo bar; @-error-unsupported-at-rule "@bar"; @-error-unsupported-at-rule "@baz";'
+      '@foo param; @-error-unsupported-at-rule "@bar"; @-error-unsupported-at-rule "@baz";'
     )
   })
 
@@ -1571,7 +1575,23 @@ function randInt() {
     )
   })
 
-})
+  test('$at plugin has precedence over default at-rules', function() {
+    var plugin = {$at: function(parser, emit, match, v){
+      if (match[2] !== 'import') return false
+      emit.a('@intercepted', ' ', v, ';\n')
+      return true
+    }}
+
+    check(
+      J2C().use(plugin).sheet({
+        '@import': 'foo'
+      }),
+      '@intercepted foo;'
+    )
+  })
+}) // DONE!
+
+
 
 
 
@@ -1585,3 +1605,4 @@ function randInt() {
 // - test `inAtRule` from $at plugins (is it set appropriately?
 // - test the `parser` object from within $at and $filter plugins
 // - verify that custom at rules take precedence over default ones.
+// - test @keyframes nested in selector scope

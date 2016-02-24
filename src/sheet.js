@@ -19,17 +19,10 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
   switch (type.call(tree)) {
 
-  case ARRAY:
-    for (k = 0; k < tree.length; k++){
-
-      sheet(parser, emit, prefix, tree[k], local, inAtRule)
-
-    }
-    break
-
   case OBJECT:
     for (k in tree) if (own.call(tree, k)) {
       v = tree[k]
+
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
@@ -48,6 +41,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
           declarations(parser, emit, k, v, local)
 
         }
+
       } else if (/^@/.test(k)) {
         // Handle At-rules
 
@@ -67,30 +61,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
           parser, emit,
           // prefix... Hefty. Ugly. Sadly necessary.
           (/,/.test(prefix) || prefix && /,/.test(k)) ?
-          /*0*/ (kk = splitSelector(prefix), splitSelector( local ?
-
-              k.replace(
-                /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
-              ) :
-
-              k
-            ).map(function (k) {
-              return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
-                return kk + k
-              }).join(',')
-            }).join(',')) :
-          /*0*/ /&/.test(k) ?
-            /*1*/ ampersand(
-              local ?
-
-                k.replace(
-                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
-                ) :
-
-                k,
-              [prefix]
-            ) :
-            /*1*/ prefix + (
+            /*0*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
                 k.replace(
@@ -98,15 +69,49 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
                 ) :
 
                 k
-              ),
+            ).map(function (k) {
+              return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
+                return kk + k
+              }).join(',')
+            }).join(',')) :
+            /*0*/ /&/.test(k) ?
+              /*1*/ ampersand(
+                local ?
+
+                  k.replace(
+                    /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
+                  ) :
+
+                  k,
+                [prefix]
+              ) :
+              /*1*/ prefix + (
+                local ?
+
+                  k.replace(
+                    /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
+                  ) :
+
+                  k
+                ),
            v, local, inAtRule
         )
+
       }
     }
 
     if (inDeclaration) emit.c('}\n')
 
     break
+
+  case ARRAY:
+    for (k = 0; k < tree.length; k++){
+
+      sheet(parser, emit, prefix, tree[k], local, inAtRule)
+
+    }
+    break
+
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
 
