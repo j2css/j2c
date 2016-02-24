@@ -7,15 +7,15 @@ function decamelize(match) {
 /**
  * Handles the property:value; pairs.
  *
- * @param {array|object|string} o - the declarations.
- * @param {string[]} emit - the contextual emitters to the final buffer
+ * @param {object} parser - holds the parser-related methods and state
+ * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
+ * @param {array|object|string} o - the declarations.
  * @param {boolean} local - are we in @local or in @global scope.
- * @param {function} state - @local helper.
  */
 
-export function declarations(o, emit, prefix, local, state) {
+export function declarations(parser, emit, prefix, o, local) {
   var k, v, kk
   if (o==null) return
 
@@ -23,7 +23,7 @@ export function declarations(o, emit, prefix, local, state) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
 
-      declarations(o[k], emit, prefix, local, state)
+      declarations(parser, emit, prefix, o[k], local)
 
     break
   case OBJECT:
@@ -35,12 +35,12 @@ export function declarations(o, emit, prefix, local, state) {
       if (/\$/.test(k)) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(v, emit, prefix + k[kk], local, state)
+          declarations(parser, emit, prefix + k[kk], v, local)
 
         }
       } else {
 
-        declarations(v, emit, prefix + k, local, state)
+        declarations(parser, emit, prefix + k, v, local)
 
       }
     }
@@ -58,10 +58,10 @@ export function declarations(o, emit, prefix, local, state) {
 
     if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
       // no need to tokenize here a plain `.split(',')` has all bases covered.
-      // We may 'state' a comment, but it's not a big deal.
+      // We may 'parser' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, state.l)
+        return o.replace(/:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, parser.l)
 
       }).join(',')
     }
