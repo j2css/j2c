@@ -20,6 +20,13 @@ import {declarations} from './declarations'
  */
 
 export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
+
+  for (var i = 0; i < parser.A.length; i++) {
+
+    if (parser.A[i](parser, emit, k, v, prefix, local, inAtRule)) return
+
+  }
+
   if (!k[3] && /^global$/.test(k[2])) {
 
     sheet(parser, emit, prefix, v, 0, inAtRule)
@@ -76,9 +83,7 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
     emit.c('}\n')
 
   } else {
-    for (var i = 0; i < parser.A.length; i++) {
-      if (parser.A[i](parser, emit, k, v, prefix, local, inAtRule)) return
-    }
+
     emit.a('@-error-unsupported-at-rule', ' ', JSON.stringify(k[0]), ';\n')
 
   }
