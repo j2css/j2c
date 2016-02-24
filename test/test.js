@@ -1519,25 +1519,25 @@ function randInt() {
   ////////////////////////////////////
 
 
-  test('one $at filter', function() {
+  test('one $at plugin', function() {
     function plugin(name) {
-      return {$at: function(match, v, emit, prefix, inAtRule, local, state){
+      return {$at: function(parser, emit, match, v, prefix, inAtRule, local){
         expect(match).to.be.an(Array)
-        // `v` can be many things
+        expect(parser).to.be.an(Object)
+        expect(parser).to.have.key('A')
+        expect(parser).to.have.key('a')
+        expect(parser).to.have.key('d')
+        expect(parser).to.have.key('l')
+        expect(parser).to.have.key('n')
+        expect(parser).to.have.key('s')
         expect(emit).to.be.an(Object)
         expect(emit).to.have.key('a')
+        // `v` can be many things
         expect(prefix).to.be.a('string')
         // `inAtRule` can be many things, the only things that matters is its truthiness
         expect(!!inAtRule).to.be(false)
         // `local` can be many things, the only things that matters is its truthiness
         expect(!!local).to.be(true)
-        expect(state).to.be.an(Object)
-        expect(state).to.have.key('A')
-        expect(state).to.have.key('a')
-        expect(state).to.have.key('d')
-        expect(state).to.have.key('l')
-        expect(state).to.have.key('n')
-        expect(state).to.have.key('s')
         if (match[2] !== name) return false
         emit.a(match[1], ' ', v, ';\n')
         return true
@@ -1553,9 +1553,9 @@ function randInt() {
     )
   })
 
-  test('two $at filters', function() {
+  test('two $at plugins', function() {
     function plugin(name) {
-      return {$at: function(match, v, emit){
+      return {$at: function(parser, emit, match, v){
         if (match[2] !== name) return false
         emit.a(match[1], ' ', v, ';\n')
         return true
@@ -1582,3 +1582,6 @@ function randInt() {
 // - verify that all at-rules behave properly in filters
 // (wrt selectors and definitions)
 // - verify that CSS variables are not localized as if they were names.
+// - test `inAtRule` from $at plugins (is it set appropriately?
+// - test the `parser` object from within $at and $filter plugins
+// - verify that custom at rules take precedence over default ones.

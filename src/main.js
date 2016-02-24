@@ -18,7 +18,9 @@ function at (rule, params, block) {
   if (
     arguments.length < 3
   ) {
+    // inner curry!
     var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
+    // So that it can be used as a key in an ES6 object literal.
     _at.toString = function(){return '@' + rule + ' ' + params}
     return _at
   }
@@ -26,7 +28,8 @@ function at (rule, params, block) {
 }
 
 export default function j2c() {
-  var filters = [], atHandlers = []
+  var filters = []
+  var atHandlers = []
   var instance = {
     at: at,
     global: global,
@@ -75,7 +78,7 @@ export default function j2c() {
     _default(instance, plugin)
   })
 
-  function makeEmitter(inline, state) {
+  function makeEmitter(inline, parser) {
     var buf = []
     function push() {
       emptyArray.push.apply(buf, arguments)
@@ -87,7 +90,7 @@ export default function j2c() {
       d: push, // declaration
       c: push  // close
     }
-    for (var i = filters.length; i--;) emit = filters[i](emit, inline, state)
+    for (var i = filters.length; i--;) emit = filters[i](emit, inline, parser)
     return emit
   }
 
@@ -100,41 +103,41 @@ export default function j2c() {
   localize.a = atHandlers
 
 /*/-statements-/*/
-  instance.sheet = function(statements, emit) {
-    var state = {
-      s: sheet,
+  instance.sheet = function(tree) {
+    var parser = {
+      A: atHandlers,
       a: atRules,
       d: declarations,
-      A: atHandlers,
       l: localize,
-      n: instance.names
+      n: instance.names,
+      s: sheet
     }
+    var emit = makeEmitter(false, parser)
     sheet(
-      statements,
-      emit = makeEmitter(false, state),
-      '', '',     // prefix and compose
-      1,          // local, by default
-      state
+      parser,
+      emit,
+      '',    // prefix
+      tree,
+      1,      // local, by default
+      0     // inAtRule
     )
 
     return emit.x()
   }
 /*/-statements-/*/
-  instance.inline = function (_declarations, emit) {
-    var state = {
-      s: sheet,
-      a: atRules,
+  instance.inline = function (tree) {
+    var parser = {
       d: declarations,
-      A: atHandlers,
       l: localize,
       n: instance.names
     }
+    var emit = makeEmitter(true, parser)
     declarations(
-      _declarations,
-      emit = makeEmitter(true, state),
+      parser,
+      emit,
       '',         // prefix
-      1,          //local
-      state
+      tree,
+      1           //local
     )
     return emit.x()
   }
