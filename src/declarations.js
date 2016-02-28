@@ -66,7 +66,7 @@ export function declarations(parser, emit, prefix, o, local) {
       }).join(',')
     }
 
-    emit.d(k, k ? ':': '', o, ';\n')
+    emit.d(k, o)
 
   }
 }

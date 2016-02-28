@@ -38,18 +38,18 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:namespace|import|charset)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.a(k[0], ' ', v, ';\n')
+      emit.a(k[0], v)
 
     })(v)
 
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.a(k[1], '', '', ' {\n')
+      emit.a(k[1], '', 1)
 
       declarations(parser, emit, '', v, local)
 
-      emit.c('}\n')
+      emit.A(k[1], '')
 
     })(v)
 
@@ -64,7 +64,7 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
     }
 
 
-    emit.a(k[1], ' ', k[3], ' {\n')
+    emit.a(k[1], k[3], 1)
 
     if ('page' == k[2]) {
 
@@ -80,11 +80,11 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
 
     }
 
-    emit.c('}\n')
+    emit.A(k[1], k[3])
 
   } else {
 
-    emit.a('@-error-unsupported-at-rule', ' ', JSON.stringify(k[0]), ';\n')
+    emit.a('@-error-unsupported-at-rule', JSON.stringify(k[0]))
 
   }
 }

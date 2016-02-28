@@ -144,7 +144,7 @@ function declarations(parser, emit, prefix, o, local) {
       }).join(',')
     }
 
-    emit.d(k, k ? ':': '', o, ';\n')
+    emit.d(k, o)
 
   }
 }
@@ -185,18 +185,18 @@ function atRules(parser, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:namespace|import|charset)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.a(k[0], ' ', v, ';\n')
+      emit.a(k[0], v)
 
     })(v)
 
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.a(k[1], '', '', ' {\n')
+      emit.a(k[1], '', 1)
 
       declarations(parser, emit, '', v, local)
 
-      emit.c('}\n')
+      emit.A(k[1], '')
 
     })(v)
 
@@ -211,7 +211,7 @@ function atRules(parser, emit, k, v, prefix, local, inAtRule) {
     }
 
 
-    emit.a(k[1], ' ', k[3], ' {\n')
+    emit.a(k[1], k[3], 1)
 
     if ('page' == k[2]) {
 
@@ -227,11 +227,11 @@ function atRules(parser, emit, k, v, prefix, local, inAtRule) {
 
     }
 
-    emit.c('}\n')
+    emit.A(k[1], k[3])
 
   } else {
 
-    emit.a('@-error-unsupported-at-rule', ' ', JSON.stringify(k[0]), ';\n')
+    emit.a('@-error-unsupported-at-rule', JSON.stringify(k[0]))
 
   }
 }
@@ -257,9 +257,9 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
-          inDeclaration = 1
+          inDeclaration = prefix
 
-          emit.s((prefix), ' {\n')
+          emit.s(prefix)
 
         }
         if (/\$/.test(k)) {
@@ -277,7 +277,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
       } else if (/^@/.test(k)) {
         // Handle At-rules
 
-        inDeclaration = (inDeclaration && emit.c('}\n') && 0)
+        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
 
         atRules(parser, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || ['@','@','',''],
@@ -287,7 +287,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
       } else {
         // selector or nested sub-selectors
 
-        inDeclaration = (inDeclaration && emit.c('}\n') && 0)
+        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
 
         sheet(
           parser, emit,
@@ -332,7 +332,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
       }
     }
 
-    if (inDeclaration) emit.c('}\n')
+    if (inDeclaration) emit.S(inDeclaration)
 
     break
 
@@ -347,11 +347,11 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
 
-    emit.s(( prefix || ':-error-no-selector' ) , ' {\n')
+    emit.s(prefix || ':-error-no-selector')
 
     declarations(parser, emit, '', tree, local)
 
-    emit.c('}\n')
+    emit.S(prefix || ':-error-no-selector')
   }
 }
 
@@ -421,26 +421,24 @@ function j2c() {
 
     flatIter(function(filter) {
       filters.push(filter)
-    })(plugin.$filter||[])
+    })(plugin.$filter || emptyArray)
 
     flatIter(function(handler) {
       atHandlers.push(handler)
-    })(plugin.$at||[])
+    })(plugin.$at || emptyArray)
 
     _default(instance, plugin)
   })
 
   function makeEmitter(inline, parser) {
     var buf = []
-    function push() {
-      emptyArray.push.apply(buf, arguments)
-    }
     var emit = {
-      x: function(raw){return raw ? buf : buf.join('')},   // buf
-      a: push, // at-rules
-      s: push, // selector
-      d: push, // declaration
-      c: push  // close
+      x: function (raw){return raw ? buf : buf.join('')},
+      a: function (rule, argument, takesBlock) {buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')},
+      A: function () {buf.push('}\n')},
+      s: function (selector) {buf.push(selector, ' {\n')},
+      S: function () {buf.push('}\n')},
+      d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
     }
     for (var i = filters.length; i--;) emit = filters[i](emit, inline, parser)
     return emit
