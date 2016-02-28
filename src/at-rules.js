@@ -21,9 +21,9 @@ import {declarations} from './declarations'
 
 export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
 
-  for (var i = 0; i < parser.A.length; i++) {
+  for (var i = 0; i < parser.$a.length; i++) {
 
-    if (parser.A[i](parser, emit, k, v, prefix, local, inAtRule)) return
+    if (parser.$a[i](parser, emit, k, v, prefix, local, inAtRule)) return
 
   }
 

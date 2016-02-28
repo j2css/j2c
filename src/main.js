@@ -79,13 +79,33 @@ export default function j2c() {
   })
 
   function makeEmitter(inline, parser) {
+    var lastSelector = 0
     var buf = []
-    var emit = {
-      x: function (raw){return raw ? buf : buf.join('')},
-      a: function (rule, argument, takesBlock) {buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')},
-      A: function () {buf.push('}\n')},
-      s: function (selector) {buf.push(selector, ' {\n')},
-      S: function () {buf.push('}\n')},
+    var emit = inline? {
+      x: function (raw) {
+        return raw ? buf : buf.join('')
+      },
+      d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
+    } : {
+      x: function (raw) {
+        if (lastSelector) {buf.push('}\n');lastSelector = 0}
+        return raw ? buf : buf.join('')
+      },
+      a: function (rule, argument, takesBlock) {
+        if (lastSelector) {buf.push('}\n');lastSelector = 0}
+        buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
+      },
+      A: function () {
+        if (lastSelector) {buf.push('}\n');lastSelector = 0}
+        buf.push('}\n')
+      },
+      s: function (selector) {
+        if (selector !== lastSelector){
+          if (lastSelector) buf.push('}\n')
+          buf.push(selector, ' {\n')
+        }
+      },
+      S: function (selector) {lastSelector = selector},
       d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
     }
     for (var i = filters.length; i--;) emit = filters[i](emit, inline, parser)
@@ -103,7 +123,7 @@ export default function j2c() {
 /*/-statements-/*/
   instance.sheet = function(tree) {
     var parser = {
-      A: atHandlers,
+      $a: atHandlers,
       a: atRules,
       d: declarations,
       l: localize,
