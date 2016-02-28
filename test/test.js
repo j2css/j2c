@@ -1129,9 +1129,10 @@ function randInt() {
       return {
         x:next.x,
         a: function() {next.a.apply(next,arguments);return true},
-        c: function() {next.c.apply(next,arguments);return true},
+        A: function() {next.A.apply(next,arguments);return true},
         d: function() {next.d.apply(next,arguments);return true},
-        s: function() {next.s.apply(next,arguments);return true}
+        s: function() {next.s.apply(next,arguments);return true},
+        S: function() {next.S.apply(next,arguments);return true}
       }
     }})
 
@@ -1398,10 +1399,11 @@ function randInt() {
       return {$filter: function(next, inline) {
         expect(next).to.be.an(Object)
         expect(next.a).to.be.a(Function)
+        expect(next.A).to.be.a(Function)
         expect(next.x).to.be.a(Function)
-        expect(next.c).to.be.a(Function)
         expect(next.d).to.be.a(Function)
         expect(next.s).to.be.a(Function)
+        expect(next.S).to.be.a(Function)
         expect(inline).to.be(false)
 
         return {
@@ -1413,23 +1415,20 @@ function randInt() {
             expect(txt).to.be.a('string')
             return txt
           },
-          a: function(name, _, arg, term) {
-            expect(_).to.match(/^\s*$/)
-            expect(term).to.match(/[{;]/)
-            next.a(name+'o', _, 'a'+arg, term)
+          a: function(name, arg, hasBlock) {
+            next.a(name+'o', 'a'+arg, hasBlock)
           },
-          c: function(close) {
-            expect(close).to.contain('}')
-            next.c(close)
+          A: function(name, arg) {
+            next.A(name+'o', 'a'+arg)
           },
-          d: function(prop, col, value, semi) {
-            expect(col).to.match(/:/)
-            expect(semi).to.match(/;/)
-            next.d('p'+prop, col, 'v'+value, semi)
+          d: function(prop, value) {
+            next.d('p'+prop, 'v'+value)
           },
-          s: function(selector, brace) {
-            expect(brace).to.match(/\{/)
-            next.s('h1, ' + selector, brace)
+          s: function(selector) {
+            next.s('h1, ' + selector)
+          },
+          S: function(selector) {
+            next.S('h1, ' + selector)
           }
         }
       }}
@@ -1458,8 +1457,8 @@ function randInt() {
 
         return {
           x: next.x,
-          d: function(prop, col, value, semi) {
-            next.d('p'+prop, col, 'v'+value, semi)
+          d: function(prop, value) {
+            next.d('p'+prop, 'v'+value)
           }
         }
       }}
@@ -1477,12 +1476,13 @@ function randInt() {
         return {
           x: next.x,
           a: next.a,
-          c: next.c,
+          A: next.A,
           d: next.d,
           s: function(){
             acc.push(x)
             return next.s.apply(next, arguments)
-          }
+          },
+          S: next.S
         }
       }}
     }
@@ -1499,12 +1499,13 @@ function randInt() {
         return {
           x: next.x,
           a: next.a,
-          c: next.c,
+          A: next.A,
           d: next.d,
           s: function(){
             acc.push(x)
             next.s.apply(next, arguments)
-          }
+          },
+          S: next.S
         }
       }}
     }
@@ -1543,7 +1544,7 @@ function randInt() {
         expect(!!inAtRule).to.be(false)
 
         if (match[2] !== name) return false
-        emit.a(match[1], ' ', v, ';\n')
+        emit.a(match[1], v)
         return true
       }}
     }
@@ -1561,7 +1562,7 @@ function randInt() {
     function plugin(name) {
       return {$at: function(parser, emit, match, v){
         if (match[2] !== name) return false
-        emit.a(match[1], ' ', v, ';\n')
+        emit.a(match[1], v)
         return true
       }}
     }
@@ -1578,7 +1579,7 @@ function randInt() {
   test('$at plugin has precedence over default at-rules', function() {
     var plugin = {$at: function(parser, emit, match, v){
       if (match[2] !== 'import') return false
-      emit.a('@intercepted', ' ', v, ';\n')
+      emit.a('@intercepted', v)
       return true
     }}
 
