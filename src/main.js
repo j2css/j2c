@@ -69,26 +69,24 @@ export default function j2c() {
 
     flatIter(function(filter) {
       filters.push(filter)
-    })(plugin.$filter||[])
+    })(plugin.$filter || emptyArray)
 
     flatIter(function(handler) {
       atHandlers.push(handler)
-    })(plugin.$at||[])
+    })(plugin.$at || emptyArray)
 
     _default(instance, plugin)
   })
 
   function makeEmitter(inline, parser) {
     var buf = []
-    function push() {
-      emptyArray.push.apply(buf, arguments)
-    }
     var emit = {
-      x: function(raw){return raw ? buf : buf.join('')},   // buf
-      a: push, // at-rules
-      s: push, // selector
-      d: push, // declaration
-      c: push  // close
+      x: function (raw){return raw ? buf : buf.join('')},
+      a: function (rule, argument, takesBlock) {buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')},
+      A: function () {buf.push('}\n')},
+      s: function (selector) {buf.push(selector, ' {\n')},
+      S: function () {buf.push('}\n')},
+      d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
     }
     for (var i = filters.length; i--;) emit = filters[i](emit, inline, parser)
     return emit
