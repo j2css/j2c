@@ -686,7 +686,7 @@ function randInt() {
     test('Array of String literals', function() {
       check(
         j2c().sheet({p: ['foo:bar', 'foo:baz']}),
-        'p{foo:bar}p{foo:baz}'
+        'p{foo:bar;foo:baz}'
       )
     })
 
@@ -718,7 +718,7 @@ function randInt() {
           ],
           'bar:quux;'
         ]}),
-        'p{bar:baz}p{bar:qux}p{bar:quux}'
+        'p{bar:baz;bar:qux;bar:quux}'
       )
     })
 
@@ -1456,7 +1456,14 @@ function randInt() {
         expect(inline).to.be(true)
 
         return {
-          x: next.x,
+          x: function() {
+            var buf = next.x(1)
+            expect(buf).to.be.an(Array)
+            expect(buf.length).not.to.be(0)
+            var txt = next.x()
+            expect(txt).to.be.a('string')
+            return txt
+          },
           d: function(prop, value) {
             next.d('p'+prop, 'v'+value)
           }
@@ -1525,7 +1532,7 @@ function randInt() {
       return {$at: function(parser, emit, match, v, prefix, local, inAtRule){
         expect(match).to.be.an(Array)
         expect(parser).to.be.an(Object)
-        expect(parser).to.have.key('A')
+        expect(parser).to.have.key('$a')
         expect(parser).to.have.key('a')
         expect(parser).to.have.key('d')
         expect(parser).to.have.key('l')
