@@ -25,7 +25,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
-          inDeclaration = prefix
+          inDeclaration = 1
 
           emit.s(prefix)
 
@@ -44,8 +44,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       } else if (/^@/.test(k)) {
         // Handle At-rules
-
-        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
+        inDeclaration = 0
 
         atRules(parser, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || ['@','@','',''],
@@ -54,8 +53,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       } else {
         // selector or nested sub-selectors
-
-        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
+        inDeclaration = 0
 
         sheet(
           parser, emit,
@@ -100,8 +98,6 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
       }
     }
 
-    if (inDeclaration) emit.S(inDeclaration)
-
     break
 
   case ARRAY:
@@ -119,6 +115,5 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
     declarations(parser, emit, '', tree, local)
 
-    emit.S(prefix || ':-error-no-selector')
   }
 }
