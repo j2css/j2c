@@ -257,7 +257,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       if (prefix && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
-          inDeclaration = prefix
+          inDeclaration = 1
 
           emit.s(prefix)
 
@@ -276,8 +276,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       } else if (/^@/.test(k)) {
         // Handle At-rules
-
-        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
+        inDeclaration = 0
 
         atRules(parser, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || ['@','@','',''],
@@ -286,8 +285,7 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
       } else {
         // selector or nested sub-selectors
-
-        inDeclaration = (inDeclaration && emit.S(inDeclaration) && 0)
+        inDeclaration = 0
 
         sheet(
           parser, emit,
@@ -332,8 +330,6 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
       }
     }
 
-    if (inDeclaration) emit.S(inDeclaration)
-
     break
 
   case ARRAY:
@@ -351,7 +347,6 @@ function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
     declarations(parser, emit, '', tree, local)
 
-    emit.S(prefix || ':-error-no-selector')
   }
 }
 
@@ -380,7 +375,33 @@ function at (rule, params, block) {
 }
 
 function j2c() {
-  var filters = []
+  //
+  var filters = [function(next) {
+    var lastSelector
+    return {
+      i: function(){lastSelector = 0; next.i()},
+      x: function (raw) {
+        if (lastSelector) {next.S(); lastSelector = 0}
+        return next.x(raw)
+      },
+      a: function (rule, param, takesBlock) {
+        if (lastSelector) {next.S(); lastSelector = 0}
+        next.a(rule, param, takesBlock)
+      },
+      A: function (rule) {
+        if (lastSelector) {next.S(); lastSelector = 0}
+        next.A(rule)
+      },
+      s: function (selector) {
+        if (selector !== lastSelector){
+          if (lastSelector) next.S()
+          next.s(selector)
+          lastSelector = selector
+        }
+      },
+      d: next.d
+    }
+  }]
   var atHandlers = []
   var instance = {
     at: at,
@@ -406,6 +427,35 @@ function j2c() {
     }
   }
 
+  var buf
+  var $sink = {
+    i: function(){buf=[]},
+    x: function (raw) {return raw ? buf : buf.join('')},
+    a: function (rule, argument, takesBlock) {
+      buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
+    },
+    A: function ()            {buf.push('}\n')},
+    s: function (selector)    {buf.push(selector, ' {\n')},
+    S: function ()            {buf.push('}\n')},
+    d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
+  }
+  var streams = []
+
+  var parsers = [
+    {
+      $a: atHandlers,
+      a: atRules,
+      d: declarations,
+      l: localize,
+      n: instance.names,
+      s: sheet
+    }, {
+      d: declarations,
+      l: localize,
+      n: instance.names
+    }
+  ]
+
   var _use = flatIter(function(plugin) {
     // `~n` is falsy for `n === -1` and truthy otherwise.
     // Works well to turn the  result of `a.indexOf(x)`
@@ -427,41 +477,20 @@ function j2c() {
       atHandlers.push(handler)
     })(plugin.$at || emptyArray)
 
+    $sink = plugin.$sink || $sink
+
     _default(instance, plugin)
   })
 
-  function makeEmitter(inline, parser) {
-    var lastSelector = 0
-    var buf = []
-    var emit = inline? {
-      x: function (raw) {
-        return raw ? buf : buf.join('')
-      },
-      d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
-    } : {
-      x: function (raw) {
-        if (lastSelector) {buf.push('}\n');lastSelector = 0}
-        return raw ? buf : buf.join('')
-      },
-      a: function (rule, argument, takesBlock) {
-        if (lastSelector) {buf.push('}\n');lastSelector = 0}
-        buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
-      },
-      A: function () {
-        if (lastSelector) {buf.push('}\n');lastSelector = 0}
-        buf.push('}\n')
-      },
-      s: function (selector) {
-        if (selector !== lastSelector){
-          if (lastSelector) buf.push('}\n')
-          buf.push(selector, ' {\n')
-        }
-      },
-      S: function (selector) {lastSelector = selector},
-      d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
+  function getStream(inline) {
+    if (!streams.length) {
+      for(var i = 0; i < 2; i++){
+        filters[filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
+        for (var j = filters.length; j--;) streams[i] = filters[j](streams[i], !!i, parsers[i])
+      }
     }
-    for (var i = filters.length; i--;) emit = filters[i](emit, inline, parser)
-    return emit
+    var res = streams[inline]
+    return res
   }
 
   function localize(match, global, dot, name) {
@@ -474,17 +503,11 @@ function j2c() {
 
 /*/-statements-/*/
   instance.sheet = function(tree) {
-    var parser = {
-      $a: atHandlers,
-      a: atRules,
-      d: declarations,
-      l: localize,
-      n: instance.names,
-      s: sheet
-    }
-    var emit = makeEmitter(false, parser)
+    var emit = getStream(0)
+    // console.log(emit)
+    emit.i()
     sheet(
-      parser,
+      parsers[0],
       emit,
       '',    // prefix
       tree,
@@ -496,14 +519,11 @@ function j2c() {
   }
 /*/-statements-/*/
   instance.inline = function (tree) {
-    var parser = {
-      d: declarations,
-      l: localize,
-      n: instance.names
-    }
-    var emit = makeEmitter(true, parser)
+    var emit = getStream(1)
+    // console.log(emit)
+    emit.i()
     declarations(
-      parser,
+      parsers[1],
       emit,
       '',         // prefix
       tree,
