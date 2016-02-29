@@ -1089,7 +1089,7 @@ function randInt() {
     check(J2C().sheet({p: {foo$baz: 'qux'}}), 'p {\nfoo:qux;\nbaz:qux;\n}')
   })
 
-  test('subselector > declaration > @media', function(){
+  test('source order is respected when mixing declarations, subselectors and at rules', function(){
     var prop = randStr()
     var klass = randStr()
     var width = randInt()
@@ -1128,6 +1128,7 @@ function randInt() {
     var J2C_2 = J2C().use({$filter:function (next) {
       return {
         x:next.x,
+        i: function() {next.i.apply(next,arguments);return true},
         a: function() {next.a.apply(next,arguments);return true},
         A: function() {next.A.apply(next,arguments);return true},
         d: function() {next.d.apply(next,arguments);return true},
@@ -1398,13 +1399,15 @@ function randInt() {
 
       return {$filter: function(next, inline) {
         expect(next).to.be.an(Object)
-        expect(next.a).to.be.a(Function)
-        expect(next.A).to.be.a(Function)
+        expect(next.i).to.be.a(Function)
         expect(next.x).to.be.a(Function)
         expect(next.d).to.be.a(Function)
-        expect(next.s).to.be.a(Function)
-        expect(next.S).to.be.a(Function)
-        expect(inline).to.be(false)
+        if(!inline) {
+          expect(next.s).to.be.a(Function)
+          expect(next.S).to.be.a(Function)
+          expect(next.a).to.be.a(Function)
+          expect(next.A).to.be.a(Function)
+        }
 
         return {
           x: function() {
@@ -1414,6 +1417,10 @@ function randInt() {
             var txt = next.x()
             expect(txt).to.be.a('string')
             return txt
+          },
+          i: function() {
+            next.i()
+            expect(!!inline).to.be(false)
           },
           a: function(name, arg, hasBlock) {
             next.a(name+'o', 'a'+arg, hasBlock)
@@ -1452,8 +1459,15 @@ function randInt() {
 
       return {$filter: function(next, inline) {
         expect(next).to.be.an(Object)
+        expect(next.i).to.be.a(Function)
+        expect(next.x).to.be.a(Function)
         expect(next.d).to.be.a(Function)
-        expect(inline).to.be(true)
+        if(!inline) {
+          expect(next.s).to.be.a(Function)
+          expect(next.S).to.be.a(Function)
+          expect(next.a).to.be.a(Function)
+          expect(next.A).to.be.a(Function)
+        }
 
         return {
           x: function() {
@@ -1463,6 +1477,10 @@ function randInt() {
             var txt = next.x()
             expect(txt).to.be.a('string')
             return txt
+          },
+          i: function() {
+            next.i()
+            expect(!!inline).to.be(true)
           },
           d: function(prop, value) {
             next.d('p'+prop, 'v'+value)
@@ -1481,6 +1499,7 @@ function randInt() {
     function filter(x) {
       return {$filter: function(next) {
         return {
+          i: next.i,
           x: next.x,
           a: next.a,
           A: next.A,
@@ -1504,6 +1523,7 @@ function randInt() {
     function filter(x) {
       return {$filter: function(next) {
         return {
+          i: next.i,
           x: next.x,
           a: next.a,
           A: next.A,
