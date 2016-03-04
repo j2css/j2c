@@ -1,12 +1,11 @@
 import {own, flatIter, emptyArray, type, FUNCTION, OBJECT} from './helpers'
-import {sheet} from './sheet'
+import {sheet, closeSelectors} from './sheet'
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
 
 function global(x) {
   return ':global(' + x + ')'
 }
-
 
 function kv (k, v, o) {
   o = {}
@@ -28,34 +27,8 @@ function at (rule, params, block) {
 }
 
 export default function j2c() {
-  //
-  var filters = [function(next) {
-    var lastSelector
-    return {
-      i: function(){lastSelector = 0; next.i()},
-      x: function (raw) {
-        if (lastSelector) {next.S(); lastSelector = 0}
-        return next.x(raw)
-      },
-      a: function (rule, param, takesBlock) {
-        if (lastSelector) {next.S(); lastSelector = 0}
-        next.a(rule, param, takesBlock)
-      },
-      A: function (rule) {
-        if (lastSelector) {next.S(); lastSelector = 0}
-        next.A(rule)
-      },
-      s: function (selector) {
-        if (selector !== lastSelector){
-          if (lastSelector) next.S()
-          next.s(selector)
-          lastSelector = selector
-        }
-      },
-      d: next.d
-    }
-  }]
-  var atHandlers = []
+  var $filters = [closeSelectors]
+  var $atHandlers = []
   var instance = {
     at: at,
     global: global,
@@ -96,7 +69,7 @@ export default function j2c() {
 
   var parsers = [
     {
-      $a: atHandlers,
+      $a: $atHandlers,
       a: atRules,
       d: declarations,
       L: localizeReplacer,
@@ -125,11 +98,11 @@ export default function j2c() {
     if (!plugin) return
 
     flatIter(function(filter) {
-      filters.push(filter)
+      $filters.push(filter)
     })(plugin.$filter || emptyArray)
 
     flatIter(function(handler) {
-      atHandlers.push(handler)
+      $atHandlers.push(handler)
     })(plugin.$at || emptyArray)
 
     $sink = plugin.$sink || $sink
@@ -140,8 +113,8 @@ export default function j2c() {
   function getStream(inline) {
     if (!streams.length) {
       for(var i = 0; i < 2; i++){
-        filters[filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
-        for (var j = filters.length; j--;) streams[i] = filters[j](streams[i], !!i, parsers[i])
+        $filters[$filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
+        for (var j = $filters.length; j--;) streams[i] = $filters[j](streams[i], !!i, parsers[i])
       }
     }
     var res = streams[inline]

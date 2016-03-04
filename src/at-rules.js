@@ -31,6 +31,7 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
 
     sheet(parser, emit, prefix, v, 0, inAtRule)
 
+
   } else if (!k[3] && /^local$/.test(k[2])) {
 
     sheet(parser, emit, prefix, v, 1, inAtRule)
@@ -41,6 +42,7 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
       emit.a(k[0], v)
 
     })(v)
+
 
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
