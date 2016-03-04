@@ -928,10 +928,76 @@ function randInt() {
       )
     })
 
+    ////////////////////////////
+    /**/  suite('@coopt: ')  /**/
+    ////////////////////////////
+
+    test('basic usage', function(){
+      var _j2c = j2c()
+      expect(_j2c.sheet({'@coopt foo': 'bar'})).to.be('')
+      expect(_j2c.names).to.have.key('foo')
+      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
+    })
+
+    test('basic usage (with dots)', function(){
+      var _j2c = j2c()
+      expect(_j2c.sheet({'@coopt .foo': '.bar'})).to.be('')
+      expect(_j2c.names).to.have.key('foo')
+      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
+    })
+
+    test('array of cooptees', function(){
+      var _j2c = j2c()
+      expect(_j2c.sheet({'@coopt foo': ['.bar', 'baz']})).to.be('')
+      expect(_j2c.names).to.have.key('foo')
+      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar baz')
+    })
+
+    test('bad target name', function(){
+      var _j2c = j2c()
+      check(
+        _j2c.sheet({'@coopt /foo': '.bar'}),
+        '@-error-bad-at-coopt-target /foo;'
+      )
+      expect(_j2c.names).not.to.have.key('/foo')
+      expect(_j2c.names).not.to.have.key('foo')
+
+    })
+
+    test('bad parameter name', function(){
+      var _j2c = j2c()
+      check(
+        _j2c.sheet({'@coopt foo': '/bar'}),
+        '@-error-bad-at-coopt-parameter "/bar";'
+      )
+      expect(_j2c.names).not.to.have.key('foo')
+
+    })
+
+    test('forbidden in global scope', function(){
+      var _j2c = j2c()
+      check(
+        _j2c.sheet({'@global':{'@coopt foo': 'bar'}}),
+        '@-error-bad-at-coopt-placement "@coopt foo";'
+      )
+      expect(_j2c.names).not.to.have.key('foo')
+
+    })
+
+    test('forbidden in conditional scope', function(){
+      var _j2c = j2c()
+      check(
+        _j2c.sheet({'@media screen':{'@coopt foo': 'bar'}}),
+        '@media screen{@-error-bad-at-coopt-placement "@coopt foo";}'
+      )
+      expect(_j2c.names).not.to.have.key('foo')
+
+    })
+
+
     /////////////////////////////////////
     /**/  suite('Locals, Globals ')  /**/
     /////////////////////////////////////
-
 
     test('a local class', function(){
       var _j2c = j2c(), names = _j2c.names
