@@ -57,8 +57,10 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
         sheet(
           parser, emit,
-          // prefix... Hefty. Ugly. Sadly necessary.
-          (/,/.test(prefix) || prefix && /,/.test(k)) ?
+          // `prefix` ... Hefty. Ugly. Sadly necessary.
+          //
+          (prefix && (/,/.test(prefix) || /,/.test(k))) ?
+
             /*0*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
@@ -118,5 +120,41 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
 
     declarations(parser, emit, '', tree, local)
 
+  }
+}
+
+// The first entry in the filters array is actually the
+// last step of the compiler. It inserts closing braces
+// to close normal (non at-) rules (those that start with
+// a selector). Doing it earlier is impossible without
+// passing state around in unrelated code or ending up
+// with duplicated selectors when the source tree contains
+// arrays.
+// There's no `S` handler, because the core compiler never
+// calls it.
+export function closeSelectors(next, inline) {
+  var lastSelector
+  return inline ? next : {
+    i: function(){lastSelector = 0; next.i()},
+    x: function (raw) {
+      if (lastSelector) {next.S(); lastSelector = 0}
+      return next.x(raw)
+    },
+    a: function (rule, param, takesBlock) {
+      if (lastSelector) {next.S(); lastSelector = 0}
+      next.a(rule, param, takesBlock)
+    },
+    A: function (rule) {
+      if (lastSelector) {next.S(); lastSelector = 0}
+      next.A(rule)
+    },
+    s: function (selector) {
+      if (selector !== lastSelector){
+        if (lastSelector) next.S()
+        next.s(selector)
+        lastSelector = selector
+      }
+    },
+    d: next.d
   }
 }
