@@ -99,11 +99,13 @@ export default function j2c() {
       $a: atHandlers,
       a: atRules,
       d: declarations,
+      L: localizeReplacer,
       l: localize,
       n: instance.names,
       s: sheet
     }, {
       d: declarations,
+      L: localizeReplacer,
       l: localize,
       n: instance.names
     }
@@ -146,13 +148,15 @@ export default function j2c() {
     return res
   }
 
-  function localize(match, global, dot, name) {
-    if (global) return global
+  function localize(name) {
     if (!instance.names[name]) instance.names[name] = name + instance.suffix
-    return dot + instance.names[name].match(/^\S+/)
+    return instance.names[name].match(/^\S+/)
   }
 
-  localize.a = atHandlers
+  function localizeReplacer(match, string, global, dot, name) {
+    if (string || global) return string || global
+    return dot + localize(name)
+  }
 
 /*/-statements-/*/
   instance.sheet = function(tree) {
