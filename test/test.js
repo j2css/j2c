@@ -1565,7 +1565,7 @@ function randInt() {
 
         return {
           x: function() {
-            var buf = next.x(1)
+            var buf = next.x(true)
             expect(buf).to.be.an(Array)
             expect(buf.length).not.to.be(0)
             var txt = next.x()
