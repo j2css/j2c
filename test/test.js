@@ -940,6 +940,34 @@ function randInt() {
       expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
     })
 
+    test("a local class in a doubly quoted string shouldn't be localized", function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'[foo=".bit"]': {foo:5}})
+      expect(names.bit).to.be(undefined)
+      check(css, '[foo=".bit"]{foo:5;}')
+    })
+
+    test("a local class in a singly quoted string shouldn't be localized", function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({"[foo='.bit']": {foo:5}})
+      expect(names.bit).to.be(undefined)
+      check(css, "[foo='.bit']{foo:5;}")
+    })
+
+    test("a local class in a comment shouldn't be localized", function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'p/*.bit*/': {foo:5}})
+      expect(names.bit).to.be(undefined)
+      check(css, 'p/*.bit*/{foo:5;}')
+    })
+
+    test('Mixing strings and comments (regexp validation)', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({"/*'*/.bit/*'*/": {foo:5}})
+      expect(names.bit).to.be('bit' + _j2c.suffix)
+      check(css, "/*'*/." + names.bit + "/*'*/{foo:5;}")
+    })
+
     test('two local classes', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})

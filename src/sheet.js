@@ -63,7 +63,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
               local ?
 
                 k.replace(
-                  /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
+                  /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
                 ) :
 
                 k
@@ -72,22 +72,25 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
                 return kk + k
               }).join(',')
             }).join(',')) :
+
             /*0*/ /&/.test(k) ?
+
               /*1*/ ampersand(
                 local ?
 
                   k.replace(
-                    /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
                   ) :
 
                   k,
                 [prefix]
               ) :
+
               /*1*/ prefix + (
                 local ?
 
                   k.replace(
-                    /:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.l
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
                   ) :
 
                   k
