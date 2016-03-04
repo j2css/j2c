@@ -36,6 +36,31 @@ export function atRules(parser, emit, k, v, prefix, local, inAtRule) {
 
     sheet(parser, emit, prefix, v, 1, inAtRule)
 
+
+  } else if (k[3] && /^coopt$/.test(k[2])) {
+
+    if (!local || inAtRule) return emit.a('@-error-bad-at-coopt-placement' , JSON.stringify(k[0]), 0)
+
+    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.a('@-error-bad-at-coopt-target', k[3], 0)
+
+    i = []
+    flatIter(function(c, s){
+      s = c.toString()
+
+      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(s)) emit.a('@-error-bad-at-coopt-parameter', JSON.stringify(c), 0)
+
+      else i.push(s.replace(/\./g, ''))
+
+    })(v)
+
+    // we may end up with duplicate classes but AFAIK it has no consequences on specificity.
+    if (i.length) {
+      // console.log("========== I ===========\n", i)
+      parser.l(k[3] = k[3].replace(/\./g, ''))
+      parser.n[k[3]] += (' ' + i.join(' '))
+    }
+
+
   } else if (!k[3] && /^(?:namespace|import|charset)$/.test(k[2])) {
     flatIter(function(v) {
 
