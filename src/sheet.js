@@ -47,7 +47,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
         inDeclaration = 0
 
         atRules(parser, emit,
-          /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || ['@','@','',''],
+          /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, inAtRule
         )
 
