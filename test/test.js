@@ -1645,6 +1645,25 @@ function randInt() {
       '@intercepted foo;'
     )
   })
+
+  test('$at plugin that verifies malformed rules are properly passed unparsed', function() {
+    var plugin = {$at: function(parser, emit, match, v){
+
+      expect(match[0]).to.be('@; hey')
+      expect(match[1]).to.be('@')
+      expect(match[2]).to.be('')
+      expect(match[3]).to.be('')
+      expect(v).to.be('foo')
+      return true
+    }}
+
+    check(
+      J2C().use(plugin).sheet({
+        '@; hey': 'foo'
+      }),
+      ''
+    )
+  })
 }) // DONE!
 
 
