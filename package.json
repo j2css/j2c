@@ -13,7 +13,7 @@
     "test": "mocha --ui qunit",
     "cover": "istanbul cover _mocha -- -R nyan --ui qunit && npm run -s check-coverage",
     "check-coverage": "istanbul check-coverage --branches 100",
-    "travis": "istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && npm run -s check-coverage"
+    "travis": "npm run build && istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && npm run -s check-coverage"
   },
   "repository": {
     "type": "git",
