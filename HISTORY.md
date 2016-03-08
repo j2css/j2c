@@ -1,5 +1,9 @@
 # Change log
 
+## v0.11.1
+
+- patch bump to fix what `npm` installs by default (I erronously published `v1.0.0-0` on without `--tag next`)
+
 ## v0.11.0
 
 - Refactor the innards so that the source order is completely respected in the output, including conditional at-rules.
