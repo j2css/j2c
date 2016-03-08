@@ -1076,6 +1076,13 @@ function randInt() {
       expect(css).to.contain('@keyframes ' + names.bit +' {')
     })
 
+    test('@keyframes with a CSS variable as name', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({'@keyframes var(--foo)': {}})
+      expect(names).not.to.have.key('var')
+      expect(css).to.contain('@keyframes var(--foo) {')
+    })
+
     test('a global @keyframes', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@keyframes global(bit)': {}})
@@ -1111,6 +1118,13 @@ function randInt() {
       expect(css).to.contain('animation:bit ')
     })
 
+    test('one animation with a CSS variable', function(){
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation: 'var(--foo) 1sec'}})
+      expect(names).not.to.have.key('var')
+      expect(css).to.contain('animation:var(--foo) 1sec;')
+    })
+
     test('one animation-name', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation_name: 'bit'}})
@@ -1132,6 +1146,13 @@ function randInt() {
       expect(names.bit).to.be('bit' + _j2c.suffix)
       expect(names.bat).to.be(undefined)
       expect(css).to.contain('animation-name:' + names.bit +', bat;')
+    })
+
+    test('one animation-name with a CSS variable', function() {
+      var _j2c = j2c(), names = _j2c.names
+      var css = _j2c.sheet({p: {animation_name: 'var(--foo)'}})
+      expect(names).not.to.have.key('var')
+      expect(css).to.contain('animation-name:var(--foo);')
     })
 
     test('a nested @global at-rule', function() {
@@ -1737,13 +1758,21 @@ function randInt() {
 
 
 // TODO
+//
 // - spy on String.prototype.replace and RegExp.prototype.*
-// to generate coverage reports for the branches hidden
-// in these native functions.
+//   to generate coverage reports for the branches hidden
+//   in these native functions.
+//
 // - verify that all at-rules behave properly in filters
-// (wrt selectors and definitions)
-// - verify that CSS variables are not localized as if they were names.
-// - test `inAtRule` from $at plugins (is it set appropriately?
+//   (wrt selectors and definitions)
+//
+// - test `inAtRule` from $at plugins (is it set appropriately?)
+//
 // - test the `parser` object from within $at and $filter plugins
-// - verify that custom at rules take precedence over default ones.
+//
+// - verify that custom at rules take precedence over default ones
+//
 // - test @keyframes nested in selector scope
+//
+// - Attach new properties using `.use()`. Verify that old ones are not
+//   overwritten
