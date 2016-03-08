@@ -1385,7 +1385,7 @@ function randInt() {
   test('namespaced animation', function() {
     check(
       J2C().use(
-        {names: {foo:'theFoo'}}
+        {$names: {foo:'theFoo'}}
       ).inline(
         {animation:'foo 1sec'}
       ),
@@ -1396,7 +1396,7 @@ function randInt() {
   test('namespaced animation-name', function() {
     check(
       J2C().use(
-        {names: {foo:'theFoo'}}
+        {$names: {foo:'theFoo'}}
       ).inline(
         {animation_name:'foo'}
       ),
@@ -1405,7 +1405,7 @@ function randInt() {
   })
 
   test('namespaced and non-namespaced animation-name', function() {
-    var _J2C = J2C().use({names: {foo:'theFoo'}})
+    var _J2C = J2C().use({$names: {foo:'theFoo'}})
     var result = _J2C.inline({animation_name:'foo, bar'})
     check(
       result,
@@ -1415,7 +1415,7 @@ function randInt() {
 
   test('two namespaced animations', function() {
     var result = J2C().use(
-      {names: {foo:'theFoo', bar:'theBar'}}
+      {$names: {foo:'theFoo', bar:'theBar'}}
     ).inline(
       {animation:'foo 1sec, bar 2sec'}
     )
@@ -1432,7 +1432,7 @@ function randInt() {
   ///////////////////////////////////////////////////
 
   test('namespaced class', function() {
-    var _J2C = J2C().use({names: {foo: 'FOOO'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {foo: 'FOOO'}}), names = _J2C.names
     var css = _J2C.sheet(
       {'.foo': {foo: 'bar', baz: 'qux'}}
     )
@@ -1441,7 +1441,7 @@ function randInt() {
   })
 
   test('namespaced class wrapping a global block', function() {
-    var _J2C = J2C().use({names: {foo: 'FOOO'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {foo: 'FOOO'}}), names = _J2C.names
     var css = _J2C.sheet(
       {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
     )
@@ -1450,7 +1450,7 @@ function randInt() {
   })
 
   test('namespaced @keyframes', function(){
-    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet(
         {'@keyframes bit': {}}
       )
@@ -1459,7 +1459,7 @@ function randInt() {
   })
 
   test('namespaced animation', function(){
-    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet(
         {p: {animation: 'bit 1sec'}}
       )
@@ -1468,14 +1468,14 @@ function randInt() {
   })
 
   test('namespaced animation-name', function() {
-    var _J2C = J2C().use({names: {bit: 'BOT'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet({p: {animation_name: 'bit'}})
     expect(names.bit).to.be('BOT')
     check(css, 'p{animation-name:BOT;}')
   })
 
   test("don't overwrite an existing name", function() {
-    var _J2C = J2C().use({names: {bit: 'BOT'}}, {names: {bit: 'BUT'}}), names = _J2C.names
+    var _J2C = J2C().use({$names: {bit: 'BOT'}}, {names: {bit: 'BUT'}}), names = _J2C.names
     expect(names.bit).to.be('BOT')
   })
 

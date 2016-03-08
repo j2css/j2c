@@ -9,6 +9,12 @@ var
   own =  emptyObject.hasOwnProperty
 
 
+function _default(target, source) {
+  for (var k in source) if (own.call(source, k)) {
+    if (k.indexOf('$') && !(k in target)) target[k] = source[k]
+  }
+}
+
 function cartesian(a,b) {
   var res = [], i, j
   for (j in b) if(own.call(b, j))
@@ -83,7 +89,7 @@ function flatIter (f) {
 
 export {
   ARRAY, FUNCTION, OBJECT, STRING,
-  ampersand, cartesian,
+  ampersand, cartesian, _default,
   emptyArray, emptyObject,
   flatIter, own,
   splitSelector, type
