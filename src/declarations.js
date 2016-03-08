@@ -61,7 +61,7 @@ export function declarations(parser, emit, prefix, o, local) {
       // We may 'parser' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/($^)|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, parser.L)
+        return o.replace(/(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, parser.L)
 
       }).join(',')
     }
