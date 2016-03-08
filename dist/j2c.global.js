@@ -187,17 +187,17 @@ var j2c = (function () {
       sheet(parser, emit, prefix, v, 1, inAtRule)
 
 
-    } else if (k[3] && /^coopt$/.test(k[2])) {
+    } else if (k[3] && /^adopt$/.test(k[2])) {
 
-      if (!local || inAtRule) return emit.a('@-error-bad-at-coopt-placement' , JSON.stringify(k[0]), 0)
+      if (!local || inAtRule) return emit.a('@-error-bad-at-adopt-placement' , JSON.stringify(k[0]), 0)
 
-      if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.a('@-error-bad-at-coopt-target', k[3], 0)
+      if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.a('@-error-bad-at-adopter', k[3], 0)
 
       i = []
       flatIter(function(c, s){
         s = c.toString()
 
-        if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(s)) emit.a('@-error-bad-at-coopt-parameter', JSON.stringify(c), 0)
+        if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(s)) emit.a('@-error-bad-at-adoptee', JSON.stringify(c), 0)
 
         else i.push(s.replace(/\./g, ''))
 
@@ -385,13 +385,13 @@ var j2c = (function () {
     }
   }
 
-  // The first entry in the filters array is actually the
-  // last step of the compiler. It inserts closing braces
-  // to close normal (non at-) rules (those that start with
-  // a selector). Doing it earlier is impossible without
-  // passing state around in unrelated code or ending up
-  // with duplicated selectors when the source tree contains
-  // arrays.
+  // This is the first entry in the filters array, which is
+  // actually the last step of the compiler. It inserts
+  // closing braces to close normal (non at-) rules (those
+  // that start with a selector). Doing it earlier is
+  // impossible without passing state around in unrelated code
+  // or ending up with duplicated selectors when the source tree
+  // contains arrays.
   // There's no `S` handler, because the core compiler never
   // calls it.
   function closeSelectors(next, inline) {
