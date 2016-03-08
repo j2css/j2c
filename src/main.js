@@ -1,5 +1,5 @@
-import {own, flatIter, emptyArray, type, FUNCTION, OBJECT} from './helpers'
-import {sheet, closeSelectors} from './sheet'
+import {_default, emptyArray, emptyObject, flatIter, type, FUNCTION} from './helpers'
+import {closeSelectors, sheet} from './sheet'
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
 import {at, global, kv} from './extras'
@@ -23,13 +23,6 @@ export default function j2c() {
       return instance
     },
     $plugins: []
-  }
-
-  function _default(target, source) {
-    for (var k in source) if (own.call(source, k) && k.indexOf('$')) {
-      if (OBJECT == type.call(source[k]) && OBJECT == type.call(target[k])) _default(target[k], source[k])
-      else if (!(k in target)) target[k] = source[k]
-    }
   }
 
   var buf
@@ -83,6 +76,10 @@ export default function j2c() {
     flatIter(function(handler) {
       $atHandlers.push(handler)
     })(plugin.$at || emptyArray)
+
+    _default(instance.names, plugin.$names || emptyObject)
+
+    _use(plugin.$plugins || [])
 
     $sink = plugin.$sink || $sink
 
