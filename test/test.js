@@ -929,26 +929,26 @@ function randInt() {
     })
 
     ////////////////////////////
-    /**/  suite('@coopt: ')  /**/
+    /**/  suite('@adopt: ')  /**/
     ////////////////////////////
 
     test('basic usage', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@coopt foo': 'bar'})).to.be('')
+      expect(_j2c.sheet({'@adopt foo': 'bar'})).to.be('')
       expect(_j2c.names).to.have.key('foo')
       expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
     })
 
     test('basic usage (with dots)', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@coopt .foo': '.bar'})).to.be('')
+      expect(_j2c.sheet({'@adopt .foo': '.bar'})).to.be('')
       expect(_j2c.names).to.have.key('foo')
       expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
     })
 
-    test('array of cooptees', function(){
+    test('array of adoptees', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@coopt foo': ['.bar', 'baz']})).to.be('')
+      expect(_j2c.sheet({'@adopt foo': ['.bar', 'baz']})).to.be('')
       expect(_j2c.names).to.have.key('foo')
       expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar baz')
     })
@@ -956,8 +956,8 @@ function randInt() {
     test('bad target name', function(){
       var _j2c = j2c()
       check(
-        _j2c.sheet({'@coopt /foo': '.bar'}),
-        '@-error-bad-at-coopt-target /foo;'
+        _j2c.sheet({'@adopt /foo': '.bar'}),
+        '@-error-bad-at-adopter /foo;'
       )
       expect(_j2c.names).not.to.have.key('/foo')
       expect(_j2c.names).not.to.have.key('foo')
@@ -967,8 +967,8 @@ function randInt() {
     test('bad parameter name', function(){
       var _j2c = j2c()
       check(
-        _j2c.sheet({'@coopt foo': '/bar'}),
-        '@-error-bad-at-coopt-parameter "/bar";'
+        _j2c.sheet({'@adopt foo': '/bar'}),
+        '@-error-bad-at-adoptee "/bar";'
       )
       expect(_j2c.names).not.to.have.key('foo')
 
@@ -977,8 +977,8 @@ function randInt() {
     test('forbidden in global scope', function(){
       var _j2c = j2c()
       check(
-        _j2c.sheet({'@global':{'@coopt foo': 'bar'}}),
-        '@-error-bad-at-coopt-placement "@coopt foo";'
+        _j2c.sheet({'@global':{'@adopt foo': 'bar'}}),
+        '@-error-bad-at-adopt-placement "@adopt foo";'
       )
       expect(_j2c.names).not.to.have.key('foo')
 
@@ -987,8 +987,8 @@ function randInt() {
     test('forbidden in conditional scope', function(){
       var _j2c = j2c()
       check(
-        _j2c.sheet({'@media screen':{'@coopt foo': 'bar'}}),
-        '@media screen{@-error-bad-at-coopt-placement "@coopt foo";}'
+        _j2c.sheet({'@media screen':{'@adopt foo': 'bar'}}),
+        '@media screen{@-error-bad-at-adopt-placement "@adopt foo";}'
       )
       expect(_j2c.names).not.to.have.key('foo')
 

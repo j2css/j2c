@@ -2,8 +2,6 @@ import {type, ARRAY, OBJECT, STRING, ampersand, own, splitSelector} from './help
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
 
-
-
 /**
  * Add rulesets and other CSS tree to the sheet.
  *
@@ -123,13 +121,13 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
   }
 }
 
-// The first entry in the filters array is actually the
-// last step of the compiler. It inserts closing braces
-// to close normal (non at-) rules (those that start with
-// a selector). Doing it earlier is impossible without
-// passing state around in unrelated code or ending up
-// with duplicated selectors when the source tree contains
-// arrays.
+// This is the first entry in the filters array, which is
+// actually the last step of the compiler. It inserts
+// closing braces to close normal (non at-) rules (those
+// that start with a selector). Doing it earlier is
+// impossible without passing state around in unrelated code
+// or ending up with duplicated selectors when the source tree
+// contains arrays.
 // There's no `S` handler, because the core compiler never
 // calls it.
 export function closeSelectors(next, inline) {
