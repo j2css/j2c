@@ -5,6 +5,8 @@
 
 - Fix: Robust parsing of selectors. Comas, ampersands and class-like parts
   in strings are now ignored by the compiler.
+  `{'[foo=",&.bar"]': {color: 'red'}}` will be left untouched. Otherwise,
+  these operators still behave as usual.
 - Local scope is now per instance rather than per sheet.
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.
@@ -29,6 +31,8 @@
 - Prefixed at-rules are treated like their unprefixed counterparts.
 - Added the `at()`, `global()` and `kv()` helpers.
 - Added `@local` as a counterpart to `@global`.
+- `& > &` with a selector list as parent will perform their cartesian product
+  like SASS and LESS do.
 - 2.2Kb mingzipped (+ ~500 bytes).
 
 ## v0.11.1 (2016-03-8)
