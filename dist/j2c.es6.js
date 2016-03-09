@@ -6,10 +6,12 @@ var OBJECT = type.call(emptyObject);
 var STRING = type.call('');
 var FUNCTION = type.call(type);
 var own =  emptyObject.hasOwnProperty;
+var freeze = Object.freeze || function(o) {return o};
 function _default(target, source) {
   for (var k in source) if (own.call(source, k)) {
     if (k.indexOf('$') && !(k in target)) target[k] = source[k]
   }
+  return target
 }
 
 function cartesian(a,b) {
@@ -38,9 +40,9 @@ var selectorTokenizer = /[(),]|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\
 function splitSelector(selector) {
   var indices = [], res = [], inParen = 0, o
   /*eslint-disable no-cond-assign*/
-  while(o = selectorTokenizer.exec(selector)) {
+  while (o = selectorTokenizer.exec(selector)) {
   /*eslint-enable no-cond-assign*/
-    switch(o[0]){
+    switch (o[0]) {
     case '(': inParen++; break
     case ')': inParen--; break
     case ',': if (inParen) break; indices.push(o.index)
@@ -61,7 +63,7 @@ var ampersandTokenizer = /&|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/
 function ampersand (selector, parents) {
   var indices = [], split = [], res, o
   /*eslint-disable no-cond-assign*/
-  while(o = ampersandTokenizer.exec(selector)) {
+  while (o = ampersandTokenizer.exec(selector)) {
   /*eslint-enable no-cond-assign*/
     if (o[0] == '&') indices.push(o.index)
   }
@@ -469,14 +471,21 @@ function j2c() {
 
   var buf
   var $sink = {
+    // Init
     i: function(){buf=[]},
+    // done (eXit)
     x: function (raw) {return raw ? buf : buf.join('')},
+    // start At-rule
     a: function (rule, argument, takesBlock) {
       buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
     },
+    // end At-rule
     A: function ()            {buf.push('}\n')},
+    // start Selector
     s: function (selector)    {buf.push(selector, ' {\n')},
+    // end Selector
     S: function ()            {buf.push('}\n')},
+    // declaration
     d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
   }
   var streams = []
@@ -521,7 +530,7 @@ function j2c() {
 
     _default(instance.names, plugin.$names || emptyObject)
 
-    _use(plugin.$plugins || [])
+    _use(plugin.$plugins || emptyArray)
 
     $sink = plugin.$sink || $sink
 
@@ -532,7 +541,12 @@ function j2c() {
     if (!streams.length) {
       for(var i = 0; i < 2; i++){
         $filters[$filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
-        for (var j = $filters.length; j--;) streams[i] = $filters[j](streams[i], !!i, parsers[i])
+        for (var j = $filters.length; j--;) {
+          streams[i] = freeze(_default(
+            $filters[j](streams[i], !!i, parsers[i]),
+            streams[i]
+          ))
+        }
       }
     }
     var res = streams[inline]

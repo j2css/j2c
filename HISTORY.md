@@ -4,8 +4,25 @@
 
 - Fix: Robust parsing of selectors. Comas, ampersands and class-like parts
   in strings are now ignored by the compiler.
-  `{'[foo=",&.bar"]': {color: 'red'}}` will be left untouched. Otherwise,
-  these operators still behave as usual.
+
+  ```JS
+  j2c.sheet({'p':{'[foo="&,.bar"]': {color: 'red'}}})
+  ```
+
+  produces
+
+  ```CSS
+  p[foo="&,.bar"] {color:red}
+  ```
+
+  Whereas previous versions would produce
+
+  ```CSS
+  [foo="p,p.bar_j2c_ubv4pc_knzcqw_ngjme7_1usit1c_9"] {color: red;}
+  ```
+
+  Likewise, `':not(p, a, ul, li)'` (a CSS4 addition) will not be split.
+  
 - Local scope is now per instance rather than per sheet.
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.

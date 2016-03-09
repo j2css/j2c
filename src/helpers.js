@@ -6,13 +6,15 @@ var
   OBJECT = type.call(emptyObject),
   STRING = type.call(''),
   FUNCTION = type.call(type),
-  own =  emptyObject.hasOwnProperty
+  own =  emptyObject.hasOwnProperty,
+  freeze = Object.freeze || function(o) {return o}
 
 
 function _default(target, source) {
   for (var k in source) if (own.call(source, k)) {
     if (k.indexOf('$') && !(k in target)) target[k] = source[k]
   }
+  return target
 }
 
 function cartesian(a,b) {
@@ -41,9 +43,9 @@ var selectorTokenizer = /[(),]|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\
 function splitSelector(selector) {
   var indices = [], res = [], inParen = 0, o
   /*eslint-disable no-cond-assign*/
-  while(o = selectorTokenizer.exec(selector)) {
+  while (o = selectorTokenizer.exec(selector)) {
   /*eslint-enable no-cond-assign*/
-    switch(o[0]){
+    switch (o[0]) {
     case '(': inParen++; break
     case ')': inParen--; break
     case ',': if (inParen) break; indices.push(o.index)
@@ -64,7 +66,7 @@ var ampersandTokenizer = /&|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/
 function ampersand (selector, parents) {
   var indices = [], split = [], res, o
   /*eslint-disable no-cond-assign*/
-  while(o = ampersandTokenizer.exec(selector)) {
+  while (o = ampersandTokenizer.exec(selector)) {
   /*eslint-enable no-cond-assign*/
     if (o[0] == '&') indices.push(o.index)
   }
@@ -91,6 +93,6 @@ export {
   ARRAY, FUNCTION, OBJECT, STRING,
   ampersand, cartesian, _default,
   emptyArray, emptyObject,
-  flatIter, own,
+  flatIter, freeze, own,
   splitSelector, type
 }
