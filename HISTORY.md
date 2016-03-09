@@ -1,8 +1,39 @@
 # Change log
 
-## v0.11.1
+## v1.0.0 (WIP)
 
-- patch bump to fix what `npm` installs by default (I erronously published `v1.0.0-0` on without `--tag next`)
+
+- Fix: Robust parsing of selectors. Comas, ampersands and class-like parts
+  in strings are now ignored by the compiler.
+- Local scope is now per instance rather than per sheet.
+  - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
+    `String` objects.
+  - `j2c.names` holds the local -> global mappings for use in the (v)DOM.
+- Removed the partial auto-prefix insertion from the core.
+- Revamped the plugin system.
+  - Removed `$postprocess` plugins that were taking and returning the full
+    buffer.
+  - Introduced `$filter` system that can patch values on the fly on their
+    way between the compiler and the buffer.
+  - Introduced `$sink` plugin that allow to subvert the sheet building
+    process to implement systems like Radium or Descartes.
+  - Introduced `$at` filters that can handle at-rules beside the ones that
+    j2c supports out of the box.
+- Revamped the poorly named `@extend` into `@adopt`, based on @tivac's
+  Modular CSS `composes`. The semantics are too distant from either `@extend`
+  or `composes` to use their name witout introducing potential confusion,
+  hence the new name.
+
+  So: `j2c.sheet({'@adopt .foo': ['.bar']})` where foo is a local class that adopts the behavior of the global `.bar`.
+- Consecutive, identical selectors are deduped in the output.
+- Prefixed at-rules are treated like their unprefixed counterparts.
+- Added the `at()`, `global()` and `kv()` helpers.
+- Added `@local` as a counterpart to `@global`.
+- 2.2Kb mingzipped (+ ~500 bytes).
+
+## v0.11.1 (2016-03-8)
+
+- Patch bump to fix what `npm` installs by default (I erronously published `v1.0.0-0` on without `--tag next`)
 
 ## v0.11.0
 
