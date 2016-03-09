@@ -1549,8 +1549,8 @@ function randInt() {
           s: function(selector) {
             next.s('h1, ' + selector)
           },
-          S: function(selector) {
-            next.S('h1, ' + selector)
+          S: function() {
+            next.S()
           }
         }
       }}
@@ -1655,6 +1655,23 @@ function randInt() {
     J2C().use(f, f).sheet({'.foo': 'bar:baz;'})
     expect(acc.length).to.be(1)
     expect(acc[0]).to.be(1)
+  })
+
+  test('filter: ', function() {
+    var acc = []
+    check(
+      J2C().use({$filter: function(next) {
+        return {
+          s: function(selector){
+            acc.push(selector)
+            return next.s(selector + 're')
+          }
+        }
+      }}).sheet({'p': 'bar:baz;'}),
+      'pre{bar:baz}'
+    )
+    expect(acc.length).to.be(1)
+    expect(acc[0]).to.be('p')
   })
 
   ////////////////////////////////////

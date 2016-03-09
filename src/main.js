@@ -1,4 +1,4 @@
-import {_default, emptyArray, emptyObject, flatIter, type, FUNCTION} from './helpers'
+import {_default, emptyArray, emptyObject, flatIter, freeze, type, FUNCTION} from './helpers'
 import {closeSelectors, sheet} from './sheet'
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
@@ -27,14 +27,21 @@ export default function j2c() {
 
   var buf
   var $sink = {
+    // Init
     i: function(){buf=[]},
+    // done (eXit)
     x: function (raw) {return raw ? buf : buf.join('')},
+    // start At-rule
     a: function (rule, argument, takesBlock) {
       buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
     },
+    // end At-rule
     A: function ()            {buf.push('}\n')},
+    // start Selector
     s: function (selector)    {buf.push(selector, ' {\n')},
+    // end Selector
     S: function ()            {buf.push('}\n')},
+    // declaration
     d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
   }
   var streams = []
@@ -79,7 +86,7 @@ export default function j2c() {
 
     _default(instance.names, plugin.$names || emptyObject)
 
-    _use(plugin.$plugins || [])
+    _use(plugin.$plugins || emptyArray)
 
     $sink = plugin.$sink || $sink
 
@@ -90,7 +97,12 @@ export default function j2c() {
     if (!streams.length) {
       for(var i = 0; i < 2; i++){
         $filters[$filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
-        for (var j = $filters.length; j--;) streams[i] = $filters[j](streams[i], !!i, parsers[i])
+        for (var j = $filters.length; j--;) {
+          streams[i] = freeze(_default(
+            $filters[j](streams[i], !!i, parsers[i]),
+            streams[i]
+          ))
+        }
       }
     }
     var res = streams[inline]
