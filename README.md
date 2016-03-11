@@ -1,3 +1,7 @@
+# Warning, WIP: these docs haven't been updated to match the changes since v0.11
+
+See HISTORY.md for a high level overview of the differences.
+
 # j2c [![npm][npm_img]][npm_url] ![.min.gz][size_img]
 
 [![Join the chat at https://gitter.im/j2css/j2c][gitter_img]][gitter_url]
@@ -19,6 +23,7 @@
 [bithound_url]: https://www.bithound.io/github/j2css/j2c/
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter_url]: https://gitter.im/j2css/j2c
+
 
 A lean (2.0KB), no hassle CSS in JS solution.
 
