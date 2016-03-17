@@ -184,6 +184,10 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   }
 
+  // using `/^global$/.test(k[2])` rather that 'global' == k[2] gzips
+  // slightly better because of the regexps test further down.
+  // It is slightly less efficient but this isn't a critical path.
+
   if (!k[3] && /^global$/.test(k[2])) {
 
     rules(state, emit, prefix, v, 0, inAtRule)
@@ -201,10 +205,9 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
     if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.a('@-error-bad-at-adopter', k[3], 0)
 
     i = []
-    flatIter(function(adoptee, asString){
-      asString = adoptee.toString()
+    flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString)) emit.a('@-error-bad-at-adoptee', JSON.stringify(adoptee), 0)
+      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.a('@-error-bad-at-adoptee', JSON.stringify(adoptee), 0)
 
       else i.push(asString.replace(/\./g, ''))
 
@@ -334,7 +337,8 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
               local ?
 
                 k.replace(
-                  /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
+                  /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
+                  state.L
                 ) :
 
                 k
@@ -350,7 +354,8 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
                 local ?
 
                   k.replace(
-                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
+                    state.L
                   ) :
 
                   k,
@@ -361,7 +366,8 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
                 local ?
 
                   k.replace(
-                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
+                    state.L
                   ) :
 
                   k
