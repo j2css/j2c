@@ -5,14 +5,15 @@ import {atRules} from './at-rules'
 /**
  * Add rulesets and other CSS tree to the sheet.
  *
- * @param {object} parser - holds the parser-related methods and state
+ * @param {object} state - holds the localizer- and walker-related methods
+ *                         and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {array|string|object} tree - a source object or sub-object.
  * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
-export function sheet(parser, emit, prefix, tree, local, inAtRule) {
+export function rules(state, emit, prefix, tree, local, inAtRule) {
   var k, v, inDeclaration, kk
 
   switch (type.call(tree)) {
@@ -21,7 +22,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
     for (k in tree) if (own.call(tree, k)) {
       v = tree[k]
 
-      if (prefix && /^[-\w$]+$/.test(k)) {
+      if (prefix.length > 0 && /^[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
 
@@ -31,12 +32,12 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
         if (/\$/.test(k)) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-            declarations(parser, emit, k[kk], v, local)
+            declarations(state, emit, k[kk], v, local)
 
           }
         } else {
 
-          declarations(parser, emit, k, v, local)
+          declarations(state, emit, k, v, local)
 
         }
 
@@ -44,7 +45,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
         // Handle At-rules
         inDeclaration = 0
 
-        atRules(parser, emit,
+        atRules(state, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, inAtRule
         )
@@ -53,17 +54,17 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
         // selector or nested sub-selectors
         inDeclaration = 0
 
-        sheet(
-          parser, emit,
+        rules(
+          state, emit,
           // `prefix` ... Hefty. Ugly. Sadly necessary.
           //
-          (prefix && (/,/.test(prefix) || /,/.test(k))) ?
+          (prefix.length > 0 && (/,/.test(prefix) || /,/.test(k))) ?
 
             /*0*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
                 k.replace(
-                  /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
+                  /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
                 ) :
 
                 k
@@ -79,7 +80,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
                 local ?
 
                   k.replace(
-                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
                   ) :
 
                   k,
@@ -90,7 +91,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
                 local ?
 
                   k.replace(
-                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, parser.L
+                    /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g, state.L
                   ) :
 
                   k
@@ -106,7 +107,7 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
   case ARRAY:
     for (k = 0; k < tree.length; k++){
 
-      sheet(parser, emit, prefix, tree[k], local, inAtRule)
+      rules(state, emit, prefix, tree[k], local, inAtRule)
 
     }
     break
@@ -114,9 +115,9 @@ export function sheet(parser, emit, prefix, tree, local, inAtRule) {
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
 
-    emit.s(prefix || ':-error-no-selector')
+    emit.s(prefix.length > 0 ? prefix : ':-error-no-selector')
 
-    declarations(parser, emit, '', tree, local)
+    declarations(state, emit, '', tree, local)
 
   }
 }

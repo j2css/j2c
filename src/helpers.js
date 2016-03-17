@@ -10,7 +10,7 @@ var
   freeze = Object.freeze || function(o) {return o}
 
 
-function _default(target, source) {
+function Default(target, source) {
   for (var k in source) if (own.call(source, k)) {
     if (k.indexOf('$') && !(k in target)) target[k] = source[k]
   }
@@ -91,7 +91,7 @@ function flatIter (f) {
 
 export {
   ARRAY, FUNCTION, OBJECT, STRING,
-  ampersand, cartesian, _default,
+  ampersand, cartesian, Default,
   emptyArray, emptyObject,
   flatIter, freeze, own,
   splitSelector, type
