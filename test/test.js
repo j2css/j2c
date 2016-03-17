@@ -1657,7 +1657,7 @@ function randInt() {
     expect(acc[0]).to.be(1)
   })
 
-  test('filter: ', function() {
+  test('filter default', function() {
     var acc = []
     check(
       J2C().use({$filter: function(next) {
@@ -1681,15 +1681,15 @@ function randInt() {
 
   test('one $at plugin', function() {
     function plugin(name) {
-      return {$at: function(parser, emit, match, v, prefix, local, inAtRule){
+      return {$at: function(walker, emit, match, v, prefix, local, inAtRule){
         expect(match).to.be.an(Array)
-        expect(parser).to.be.an(Object)
-        expect(parser).to.have.key('$a')
-        expect(parser).to.have.key('a')
-        expect(parser).to.have.key('d')
-        expect(parser).to.have.key('l')
-        expect(parser).to.have.key('n')
-        expect(parser).to.have.key('s')
+        expect(walker).to.be.an(Object)
+        expect(walker).to.have.key('$a')
+        expect(walker).to.have.key('a')
+        expect(walker).to.have.key('d')
+        expect(walker).to.have.key('l')
+        expect(walker).to.have.key('n')
+        expect(walker).to.have.key('r')
 
         expect(emit).to.be.an(Object)
         expect(emit).to.have.key('a')
@@ -1719,7 +1719,7 @@ function randInt() {
 
   test('two $at plugins', function() {
     function plugin(name) {
-      return {$at: function(parser, emit, match, v){
+      return {$at: function(walker, emit, match, v){
         if (match[2] !== name) return false
         emit.a(match[1], v)
         return true
@@ -1736,7 +1736,7 @@ function randInt() {
   })
 
   test('$at plugin has precedence over default at-rules', function() {
-    var plugin = {$at: function(parser, emit, match, v){
+    var plugin = {$at: function(walker, emit, match, v){
       if (match[2] !== 'import') return false
       emit.a('@intercepted', v)
       return true
@@ -1751,7 +1751,7 @@ function randInt() {
   })
 
   test('$at plugin that verifies malformed rules are properly passed unparsed', function() {
-    var plugin = {$at: function(parser, emit, match, v){
+    var plugin = {$at: function(walker, emit, match, v){
 
       expect(match[0]).to.be('@; hey')
       expect(match[1]).to.be('@')
@@ -1785,7 +1785,7 @@ function randInt() {
 //
 // - test `inAtRule` from $at plugins (is it set appropriately?)
 //
-// - test the `parser` object from within $at and $filter plugins
+// - test the `walker` object from within $at and $filter plugins
 //
 // - verify that custom at rules take precedence over default ones
 //
