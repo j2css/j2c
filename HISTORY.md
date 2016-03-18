@@ -1,8 +1,9 @@
 # Change log
 
-## v0.11.1
+## v0.11.1 (2016-03-8) and v0.11.2
 
-- patch bump to fix what `npm` installs by default (I erronously published `v1.0.0-0` on without `--tag next`)
+- Patch bump to fix what `npm` installs by default (I erronously published `v1.0.0-x` on without `--tag next`, twice) Note to self, don't publish in the
+wee hours.
 
 ## v0.11.0
 
