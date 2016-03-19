@@ -45,7 +45,6 @@
     "postcss-minify-params": "^1.0.4",
     "postcss-minify-selectors": "^2.0.2",
     "rollup": "^0.25.2",
-    "surgicate": "0.0.3",
     "uglify-js": "^2.6.0"
   }
 }
