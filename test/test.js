@@ -620,6 +620,17 @@ function randInt() {
       )
     })
 
+    test(' /*&*/.baz', function() {
+      check(
+        j2c().sheet({':global(.foo)': {
+          ' /*&*/:global(.baz)': {
+            qux: 'quux'
+          }
+        }}),
+        '.foo /*&*/.baz{qux:quux}'
+      )
+    })
+
     test('& &, cartesian product', function() {
       check(
         j2c().sheet({'p,a': {
@@ -631,7 +642,7 @@ function randInt() {
       )
     })
 
-    test('2 x 2', function() {
+    test(' :global(.baz) &, :global(.qux)', function() {
       check(
         j2c().sheet({p: {
           ' :global(.foo), :global(.bar)': {

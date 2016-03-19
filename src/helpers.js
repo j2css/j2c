@@ -75,6 +75,7 @@ function ampersand (selector, parents) {
     selector = selector.slice(0, indices[o])
   }
   split.unshift(selector)
+  if (split.length === 1) split.unshift('')
   res = [split[0]]
   for (o = 1; o < split.length; o++) {
     res = cartesian(res, cartesian(parents, [split[o]]))
