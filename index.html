@@ -686,7 +686,7 @@ sheet = j2c.sheet({
 
 See? No name clash :-)
 
-You can put `sheet` in a `<style>` element, and use `sheet.foo` as a class
+You can put `sheet` in a `&lt;style>` element, and use `sheet.foo` as a class
 for your component/directive/whatever. `sheet.foo` will read something along
 `"foo_j2c_XXXX_N"`. Where the `XXXX_N` combo is globally unique.
 They are respectively a 128 bit random number and a counter.
@@ -762,7 +762,7 @@ post anything there :-)
 </pre></noscript>
 <div id="playground">Loading the docs...</div>
 <script src="combined.min.js"></script>
-<link rel="stylesheet" itemprop="stylesheet" href="codemirror.css"></link>
+<link rel="stylesheet" property="stylesheet" href="codemirror.css">
 <script>
 var unescape = (function() {
   /*
@@ -888,7 +888,7 @@ playground.innerHTML = md_renderer.render(md_parser.parse(rawdocs.firstChild.dat
 </div>
 <footer> Copyright &copy; 2015 <a href="mailto:j2c@py.gy">Pierre-Yves Gérardy</a></footer>
 
-<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600&text=Fork%20menGitHub' rel='stylesheet' type='text/css'>
+<link property="stylesheet" rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600&text=Fork%20menGitHub'>
 <div class="ghribbon"><a href="https://github.com/j2css/j2c">Fork me on GitHub</a></div>
 
 <script>
