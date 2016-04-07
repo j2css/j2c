@@ -5,6 +5,7 @@
 [![Coverage Status][cov_img]][cov_url]
 [![Dependency Status][deps_img]][deps_url]
 [![bitHound Score][bithound_img]][bithound_url]
+[![downloads][monthly_img]][monthly_url]
 
 
 A lean, no hassle CSS in JS solution.
@@ -35,6 +36,8 @@ The [home page](http://j2c.py.gy) has a few interactive demos.
 [cov_url]: https://coveralls.io/r/j2css/j2c?branch=master
 [npm_img]: https://img.shields.io/npm/v/j2c.svg
 [npm_url]: https://npmjs.com/package/j2c
+[monthly_url]: http://npm-stat.com/charts.html?package=j2c
+[monthly_img]: https://img.shields.io/npm/dm/j2c.svg
 [size_img]: https://badges.herokuapp.com/size/npm/j2c/dist/j2c.global.min.js.gz?label=.min.gz
 [deps_img]: https://david-dm.org/j2css/j2c.svg
 [deps_url]: https://david-dm.org/j2css/j2c
