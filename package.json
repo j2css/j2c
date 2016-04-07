@@ -30,7 +30,7 @@
   },
   "homepage": "http://j2c.py.gy",
   "devDependencies": {
-    "cash-global": "^0.2.0",
+    "cash-true": "0.0.2",
     "codecov": "^1.0.1",
     "commonmark": "^0.24.0",
     "compose-regexp": "^0.1.8",
