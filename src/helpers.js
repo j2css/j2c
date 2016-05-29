@@ -10,7 +10,7 @@ var
   freeze = Object.freeze || function(o) {return o}
 
 
-function Default(target, source) {
+function defaults(target, source) {
   for (var k in source) if (own.call(source, k)) {
     if (k.indexOf('$') && !(k in target)) target[k] = source[k]
   }
@@ -36,6 +36,7 @@ var selectorTokenizer = /[(),]|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\
 /**
  * This will split a coma-separated selector list into individual selectors,
  * ignoring comas in strings, comments and in :pseudo-selectors(parameter, lists).
+ *
  * @param {string} selector
  * @return {string[]}
  */
@@ -59,8 +60,7 @@ function splitSelector(selector) {
   return res
 }
 
-// This is like the `selectorTokenizer`, but for the `&` operator
-
+// Like the `selectorTokenizer`, but for the `&` operator
 var ampersandTokenizer = /&|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\//g
 
 function ampersand (selector, parents) {
@@ -92,7 +92,7 @@ function flatIter (f) {
 
 export {
   ARRAY, FUNCTION, OBJECT, STRING,
-  ampersand, cartesian, Default,
+  ampersand, cartesian, defaults,
   emptyArray, emptyObject,
   flatIter, freeze, own,
   splitSelector, type

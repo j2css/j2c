@@ -9,7 +9,7 @@ var STRING = type.call('');
 var FUNCTION = type.call(type);
 var own =  emptyObject.hasOwnProperty;
 var freeze = Object.freeze || function(o) {return o};
-function Default(target, source) {
+function defaults(target, source) {
   for (var k in source) if (own.call(source, k)) {
     if (k.indexOf('$') && !(k in target)) target[k] = source[k]
   }
@@ -35,6 +35,7 @@ var selectorTokenizer = /[(),]|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\
 /**
  * This will split a coma-separated selector list into individual selectors,
  * ignoring comas in strings, comments and in :pseudo-selectors(parameter, lists).
+ *
  * @param {string} selector
  * @return {string[]}
  */
@@ -58,8 +59,7 @@ function splitSelector(selector) {
   return res
 }
 
-// This is like the `selectorTokenizer`, but for the `&` operator
-
+// Like the `selectorTokenizer`, but for the `&` operator
 var ampersandTokenizer = /&|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\//g
 
 function ampersand (selector, parents) {
@@ -162,25 +162,26 @@ function declarations(state, emit, prefix, o, local) {
 }
 
 /**
- * Hanldes at-rules
+ * Handles a single at-rules
  *
  * @param {object} state - holds the localizer- and walker-related methods
  *                         and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {array} k - The parsed at-rule, including the parameters,
  *                    if takes both parameters and a block.
- * @param {string} prefix - the current selector or the selector prefix
- *                          in case of nested rules
  * @param {string|string[]|object|object[]} v - Either parameters for
  *                                              block-less rules or
  *                                              their block
  *                                              for the others.
+ * @param {string} prefix - the current selector or the selector prefix
+ *                          in case of nested rules
  * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
 
 function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
+  // First iterate over user-provided at-rules and return if one of them corresponds to the current one
   for (var i = 0; i < state.$a.length; i++) {
 
     if (state.$a[i](state, emit, k, v, prefix, local, inAtRule)) return
@@ -188,7 +189,7 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
   }
 
   // using `/^global$/.test(k[2])` rather that 'global' == k[2] gzips
-  // slightly better because of the regexps test further down.
+  // slightly better thanks to the regexps tests further down.
   // It is slightly less efficient but this isn't a critical path.
 
   if (!k[3] && /^global$/.test(k[2])) {
@@ -462,7 +463,7 @@ function at (rule, params, block) {
 
 function j2c() {
 
-  // palceholder for the buffer used by the `$sink` handlers
+  // the buffer that accumulates the output. Initialized in `$sink.i()`
   var buf
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
@@ -473,27 +474,31 @@ function j2c() {
     x: function (raw) {return raw ? buf : buf.join('')},
     // start At-rule
     a: function (rule, argument, takesBlock) {
-      buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
+      buf.push(rule, argument && ' ',argument, takesBlock ? ' {' : ';', _instance.endline)
     },
     // end At-rule
-    A: function ()            {buf.push('}\n')},
+    A: function ()            {buf.push('}', _instance.endline)},
     // start Selector
-    s: function (selector)    {buf.push(selector, ' {\n')},
+    s: function (selector)    {buf.push(selector, ' {', _instance.endline)},
     // end Selector
-    S: function ()            {buf.push('}\n')},
+    S: function ()            {buf.push('}', _instance.endline)},
     // declarations
-    d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
+    d: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
   }
 
+  // holds the `$filter` and `$at` handlers
   var $filters = [closeSelectors]
   var $atHandlers = []
 
+  // the public API (see the main docs)
   var _instance = {
     at: at,
     global: global,
     kv: kv,
     names: {},
+    endline: '\n',
     suffix: '__j2c-' +
+      // 128 bits of randomness
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
@@ -502,20 +507,43 @@ function j2c() {
       _use(emptyArray.slice.call(arguments))
       return _instance
     },
-    $plugins: []
+    $plugins: [],
+    sheet: function(tree) {
+      var emit = _createOrRetrieveStream(0)
+      emit.i()
+      rules(
+        _walkers[0],
+        emit,
+        '', // prefix
+        tree,
+        1,  // local, by defaults
+        0   // inAtRule
+      )
+
+      return emit.x()
+    },
+    inline: function (tree) {
+      var emit = _createOrRetrieveStream(1)
+      emit.i()
+      declarations(
+        _walkers[1],
+        emit,
+        '', // prefix
+        tree,
+        1   // local, by defaults
+      )
+      return emit.x()
+    }
   }
 
-  var _streams = []
-
-  // The `state` (for the core) / `walker` (for the plugins) tables.
-
+  // The `state` (for the core functions) / `walker` (for the plugins) tables.
   var _walkers = [
     // for j2c.sheet
     {
       // helpers for locaizing class and animation names
       L: _localizeReplacer, // second argument to String.prototype.replace
       l: _localize,         // mangles local names
-      n: _instance.names,    // local => mangled mapping
+      n: _instance.names,   // local => mangled mapping
       $a: $atHandlers,      // extra at-rules
       // The core walker methods, to be provided to plugins
       a: atRules,
@@ -531,36 +559,6 @@ function j2c() {
     }
   ]
 
-
-  // The main API functions
-
-  _instance.sheet = function(tree) {
-    var emit = _getStream(0)
-    emit.i()
-    rules(
-      _walkers[0],
-      emit,
-      '',    // prefix
-      tree,
-      1,      // local, by default
-      0     // inAtRule
-    )
-
-    return emit.x()
-  }
-
-  _instance.inline = function (tree) {
-    var emit = _getStream(1)
-    emit.i()
-    declarations(
-      _walkers[1],
-      emit,
-      '',         // prefix
-      tree,
-      1           //local
-    )
-    return emit.x()
-  }
 
   // inner helpers
 
@@ -585,39 +583,65 @@ function j2c() {
       $atHandlers.push(handler)
     })(plugin.$at || emptyArray)
 
-    Default(_instance.names, plugin.$names || emptyObject)
+    defaults(_instance.names, plugin.$names || emptyObject)
 
     _use(plugin.$plugins || emptyArray)
 
     $sink = plugin.$sink || $sink
 
-    Default(_instance, plugin)
+    defaults(_instance, plugin)
   })
 
-  function _getStream(inline) {
+
+  var _streams = []
+  /**
+   * returns the codegen streams, creating them if necessary
+   * @param
+   */
+  function _createOrRetrieveStream(inline) {
+    // build the stream processors if needed
     if (!_streams.length) {
-      for(var i = 0; i < 2; i++){
-        $filters[$filters.length - i] = function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink}
+      // append the $sink as the ultimate filter
+      $filters.push(function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink})
+      for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
         for (var j = $filters.length; j--;) {
-          _streams[i] = freeze(Default(
-            $filters[j](_streams[i], !!i, _walkers[i]),
-            _streams[i]
-          ))
+          _streams[i] = freeze(
+            defaults(
+              $filters[j](_streams[i], !!i, _walkers[i]),
+              _streams[i]
+            )
+          )
         }
       }
     }
-    var res = _streams[inline]
-    return res
+    return _streams[inline]
   }
 
+  /**
+   * Returns a localized version of a given name.
+   * Registers the pair in `instnace.name` if needed.
+   *
+   * @param {string} name - the name to localize
+   * @return {string} - the localized version
+   */
   function _localize(name) {
     if (!_instance.names[name]) _instance.names[name] = name + _instance.suffix
     return _instance.names[name].match(/^\S+/)
   }
 
-  function _localizeReplacer(match, string, global, dot, name) {
-    if (string || global) return string || global
-    return dot + _localize(name)
+  /**
+   * Used as second argument for str.replace(localizeRegex, replacer)
+   * `ignore`, `global` and `(dot, name)` are mutually exclusive
+   *
+   * @param {string} match - the whole match (ignored)
+   * @param {string|null} ignore - a comment or a string literal
+   * @param {string|null} global - a global name
+   * @param {string|null} dot - either '.' for a local class name or the empty string otherwise
+   * @param {string|null} name - the name to localize
+   * @return {string}
+   */
+  function _localizeReplacer(match, ignore, global, dot, name) {
+    return ignore || global || dot + _localize(name)
   }
 
   return _instance

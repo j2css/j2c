@@ -3,25 +3,26 @@ import {rules} from './rules'
 import {declarations} from './declarations'
 
 /**
- * Hanldes at-rules
+ * Handles a single at-rules
  *
  * @param {object} state - holds the localizer- and walker-related methods
  *                         and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {array} k - The parsed at-rule, including the parameters,
  *                    if takes both parameters and a block.
- * @param {string} prefix - the current selector or the selector prefix
- *                          in case of nested rules
  * @param {string|string[]|object|object[]} v - Either parameters for
  *                                              block-less rules or
  *                                              their block
  *                                              for the others.
+ * @param {string} prefix - the current selector or the selector prefix
+ *                          in case of nested rules
  * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
 
 export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
+  // First iterate over user-provided at-rules and return if one of them corresponds to the current one
   for (var i = 0; i < state.$a.length; i++) {
 
     if (state.$a[i](state, emit, k, v, prefix, local, inAtRule)) return
@@ -29,7 +30,7 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
   }
 
   // using `/^global$/.test(k[2])` rather that 'global' == k[2] gzips
-  // slightly better because of the regexps test further down.
+  // slightly better thanks to the regexps tests further down.
   // It is slightly less efficient but this isn't a critical path.
 
   if (!k[3] && /^global$/.test(k[2])) {
