@@ -14,7 +14,31 @@ function normalize(s) { return postcss.process(s).css }
 
 function check(result, expected){
   result = normalize(result)
-  expect(normalize(expected)).to.be(result)
+  equals(normalize(expected), result)
+}
+
+function doesnt_have_key(dict, key) {
+  expect(dict).not.to.have.key(key)
+}
+
+function has_key(dict, key) {
+  expect(dict).to.have.key(key)
+}
+
+function contains(dict, key) {
+  expect(dict).to.contain(key)
+}
+
+function equals(a, b) {
+  expect(a).to.be(b)
+}
+
+function differs(a, b) {
+  expect(a).not.to.be(b)
+}
+
+function has_type(a, b) {
+  expect(a).to.be.a(b)
 }
 
 function randStr() {
@@ -25,7 +49,7 @@ function randInt() {
 }
 
 [
-  '../dist/j2c.commonjs.min',
+  // '../dist/j2c.commonjs.min',
   '../dist/j2c.commonjs'
   // ,
   // '../dist/inline/j2c.commonjs',
@@ -338,15 +362,15 @@ function randInt() {
 
     // test('1 x 1', function() {
     //   var prod = j2c().prefix('foo', ['o'])
-    //   expect(prod[0]).to.be('-o-foo')
-    //   expect(prod[1]).to.be('foo')
+    //   equals(prod[0], '-o-foo')
+    //   equals(prod[1], 'foo')
     // })
 
     // test('2 x 1', function() {
     //   var prod = j2c().prefix('foo', ['o', 'p'])
-    //   expect(prod[0]).to.be('-o-foo')
-    //   expect(prod[1]).to.be('-p-foo')
-    //   expect(prod[2]).to.be('foo')
+    //   equals(prod[0], '-o-foo')
+    //   equals(prod[1], '-p-foo')
+    //   equals(prod[2], 'foo')
     // })
 
 
@@ -945,23 +969,23 @@ function randInt() {
 
     test('basic usage', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@adopt foo': 'bar'})).to.be('')
-      expect(_j2c.names).to.have.key('foo')
-      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
+      equals(_j2c.sheet({'@adopt foo': 'bar'}), '')
+      has_key(_j2c.names, 'foo')
+      equals(_j2c.names.foo, 'foo'+_j2c.suffix+' bar')
     })
 
     test('basic usage (with dots)', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@adopt .foo': '.bar'})).to.be('')
-      expect(_j2c.names).to.have.key('foo')
-      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar')
+      equals(_j2c.sheet({'@adopt .foo': '.bar'}), '')
+      has_key(_j2c.names, 'foo')
+      equals(_j2c.names.foo, 'foo'+_j2c.suffix+' bar')
     })
 
     test('array of adoptees', function(){
       var _j2c = j2c()
-      expect(_j2c.sheet({'@adopt foo': ['.bar', 'baz']})).to.be('')
-      expect(_j2c.names).to.have.key('foo')
-      expect(_j2c.names.foo).to.be('foo'+_j2c.suffix+' bar baz')
+      equals(_j2c.sheet({'@adopt foo': ['.bar', 'baz']}), '')
+      has_key(_j2c.names, 'foo')
+      equals(_j2c.names.foo, 'foo'+_j2c.suffix+' bar baz')
     })
 
     test('bad target name', function(){
@@ -970,8 +994,8 @@ function randInt() {
         _j2c.sheet({'@adopt /foo': '.bar'}),
         '@-error-bad-at-adopter /foo;'
       )
-      expect(_j2c.names).not.to.have.key('/foo')
-      expect(_j2c.names).not.to.have.key('foo')
+      doesnt_have_key(_j2c.names, '/foo')
+      doesnt_have_key(_j2c.names, 'foo')
 
     })
 
@@ -981,7 +1005,7 @@ function randInt() {
         _j2c.sheet({'@adopt foo': '/bar'}),
         '@-error-bad-at-adoptee "/bar";'
       )
-      expect(_j2c.names).not.to.have.key('foo')
+      doesnt_have_key(_j2c.names, 'foo')
 
     })
 
@@ -991,7 +1015,7 @@ function randInt() {
         _j2c.sheet({'@global':{'@adopt foo': 'bar'}}),
         '@-error-bad-at-adopt-placement "@adopt foo";'
       )
-      expect(_j2c.names).not.to.have.key('foo')
+      doesnt_have_key(_j2c.names, 'foo')
 
     })
 
@@ -1001,7 +1025,7 @@ function randInt() {
         _j2c.sheet({'@media screen':{'@adopt foo': 'bar'}}),
         '@media screen{@-error-bad-at-adopt-placement "@adopt foo";}'
       )
-      expect(_j2c.names).not.to.have.key('foo')
+      doesnt_have_key(_j2c.names, 'foo')
 
     })
 
@@ -1013,165 +1037,165 @@ function randInt() {
     test('a local class', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {foo:5}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
     })
 
     test("a local class in a doubly quoted string shouldn't be localized", function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'[foo=".bit"]': {foo:5}})
-      expect(names.bit).to.be(undefined)
+      equals(names.bit, undefined)
       check(css, '[foo=".bit"]{foo:5;}')
     })
 
     test("a local class in a singly quoted string shouldn't be localized", function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({"[foo='.bit']": {foo:5}})
-      expect(names.bit).to.be(undefined)
+      equals(names.bit, undefined)
       check(css, "[foo='.bit']{foo:5;}")
     })
 
     test("a local class in a comment shouldn't be localized", function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'p/*.bit*/': {foo:5}})
-      expect(names.bit).to.be(undefined)
+      equals(names.bit, undefined)
       check(css, 'p/*.bit*/{foo:5;}')
     })
 
     test('Mixing strings and comments (regexp validation)', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({"/*'*/.bit/*'*/": {foo:5}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
+      equals(names.bit, 'bit' + _j2c.suffix)
       check(css, "/*'*/." + names.bit + "/*'*/{foo:5;}")
     })
 
     test('two local classes', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {foo:5}, '.bat': {bar:6}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be('bat' + _j2c.suffix)
-      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-      expect(css).to.contain('.' + names.bat + ' {\nbar:6;\n}')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, 'bat' + _j2c.suffix)
+      contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
+      contains(css, '.' + names.bat + ' {\nbar:6;\n}')
     })
 
     test('a local and a global class', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {foo:5}, ':global(.bat)': {bar:6}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be(undefined)
-      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-      expect(css).to.contain('.bat {\nbar:6;\n}')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, undefined)
+      contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
+      contains(css, '.bat {\nbar:6;\n}')
     })
 
     test('a local wrapping a global block', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {'@global': {'.bat': {foo:5}}}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be(undefined)
-      expect(css).to.contain('.' + names.bit + '.bat {\nfoo:5;\n}')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, undefined)
+      contains(css, '.' + names.bit + '.bat {\nfoo:5;\n}')
     })
 
     test('two local classes, nested', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {foo:5, '.bat': {bar:6}}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be('bat' + _j2c.suffix)
-      expect(css).to.contain('.' + names.bit + ' {\nfoo:5;\n}')
-      expect(css).to.contain('.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, 'bat' + _j2c.suffix)
+      contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
+      contains(css, '.' + names.bit +'.' + names.bat + ' {\nbar:6;\n}')
     })
 
     test('@keyframes', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@keyframes bit': {}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(css).to.contain('@keyframes ' + names.bit +' {')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      contains(css, '@keyframes ' + names.bit +' {')
     })
 
     test('@keyframes with a CSS variable as name', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@keyframes var(--foo)': {}})
-      expect(names).not.to.have.key('var')
-      expect(css).to.contain('@keyframes var(--foo) {')
+      doesnt_have_key(names, 'var')
+      contains(css, '@keyframes var(--foo) {')
     })
 
     test('a global @keyframes', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@keyframes global(bit)': {}})
-      expect(names.bit).to.be(undefined)
-      expect(css).to.contain('@keyframes bit {')
+      equals(names.bit, undefined)
+      contains(css, '@keyframes bit {')
     })
 
     test('a @keyframe nested in a @global at-rule', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@global': {'@keyframes bat': {'from':{foo:6}}}})
-      expect(names.bat).to.be(undefined)
-      expect(css).to.contain('@keyframes bat {')
+      equals(names.bat, undefined)
+      contains(css, '@keyframes bat {')
     })
 
     test('one animation', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation: 'bit 1sec'}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(css).to.contain('animation:' + names.bit +' ')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      contains(css, 'animation:' + names.bit +' ')
     })
 
     test('a global animation', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation: 'global(bit) 1sec'}})
-      expect(names.bit).to.be(undefined)
-      expect(css).to.contain('animation:bit ')
+      equals(names.bit, undefined)
+      contains(css, 'animation:bit ')
     })
 
     test('an animation nested in a @global at-rule', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'@global': {p: {animation: 'bit 1sec'}}})
-      expect(names.bit).to.be(undefined)
-      expect(css).to.contain('animation:bit ')
+      equals(names.bit, undefined)
+      contains(css, 'animation:bit ')
     })
 
     test('one animation with a CSS variable', function(){
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation: 'var(--foo) 1sec'}})
-      expect(names).not.to.have.key('var')
-      expect(css).to.contain('animation:var(--foo) 1sec;')
+      doesnt_have_key(names, 'var')
+      contains(css, 'animation:var(--foo) 1sec;')
     })
 
     test('one animation-name', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation_name: 'bit'}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(css).to.contain('animation-name:' + names.bit +';')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      contains(css, 'animation-name:' + names.bit +';')
     })
 
     test('two animation-name', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation_name: 'bit, bat'}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be('bat' + _j2c.suffix)
-      expect(css).to.contain('animation-name:' + names.bit +', ' + names.bat)
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, 'bat' + _j2c.suffix)
+      contains(css, 'animation-name:' + names.bit +', ' + names.bat)
     })
 
     test('two animation-name, one global', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation_name: 'bit, global(bat)'}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be(undefined)
-      expect(css).to.contain('animation-name:' + names.bit +', bat;')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, undefined)
+      contains(css, 'animation-name:' + names.bit +', bat;')
     })
 
     test('one animation-name with a CSS variable', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({p: {animation_name: 'var(--foo)'}})
-      expect(names).not.to.have.key('var')
-      expect(css).to.contain('animation-name:var(--foo);')
+      doesnt_have_key(names, 'var')
+      contains(css, 'animation-name:var(--foo);')
     })
 
     test('a nested @global at-rule', function() {
       var _j2c = j2c(), names = _j2c.names
       var css = _j2c.sheet({'.bit': {'@global': {'.bat': {'foo':6}}}})
-      expect(names.bit).to.be('bit' + _j2c.suffix)
-      expect(names.bat).to.be(undefined)
-      expect(css).to.contain( names.bit +'.bat {')
+      equals(names.bit, 'bit' + _j2c.suffix)
+      equals(names.bat, undefined)
+      contains(css,  names.bit +'.bat {')
     })
 
     test('a @local rule nested in a @global block', function() {
@@ -1271,8 +1295,8 @@ function randInt() {
         source.p[jsKeys[i]] = o[jsKeys[i]]
         CSS.push(rules[i])
       })
-      expect(normalize(J2C_1.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
-      expect(normalize(J2C_2.sheet({'@global': source}))).to.be(normalize(CSS.join('')))
+      equals(normalize(J2C_1.sheet({'@global': source})), normalize(CSS.join('')))
+      equals(normalize(J2C_2.sheet({'@global': source})), normalize(CSS.join('')))
     })
   })
 
@@ -1290,68 +1314,68 @@ function randInt() {
   /////////////////////////////
 
   test('J2C.kv()', function() {
-    expect(J2C.kv).to.be.a(Function)
-    expect(J2C().kv).to.be.a(Function)
-    expect(J2C.kv).to.be(J2C().kv)
+    has_type(J2C.kv, Function)
+    has_type(J2C().kv, Function)
+    equals(J2C.kv, J2C().kv)
     var o = J2C.kv('k','v')
-    expect(o).to.have.key('k')
-    expect(o.k).to.be('v')
+    has_key(o, 'k')
+    equals(o.k, 'v')
   })
 
   test('J2C.global()', function() {
-    expect(J2C.global).to.be.a(Function)
-    expect(J2C().global).to.be.a(Function)
-    expect(J2C.global).to.be(J2C().global)
-    expect(J2C.global('foo')).to.be(':global(foo)')
+    has_type(J2C.global, Function)
+    has_type(J2C().global, Function)
+    equals(J2C.global, J2C().global)
+    equals(J2C.global('foo'), ':global(foo)')
   })
 
   test('J2C.at(), basics', function() {
-    expect(J2C.at).to.be.a(Function)
-    expect(J2C().at).to.be.a(Function)
-    expect(J2C.at).to.be(J2C().at)
+    has_type(J2C.at, Function)
+    has_type(J2C().at, Function)
+    equals(J2C.at, J2C().at)
   })
 
   test('J2C.at(), as an object key', function() {
-    expect(J2C.at('foo', 'bar') + '').to.be('@foo bar')
+    equals(J2C.at('foo', 'bar') + '', '@foo bar')
   })
 
   test('J2C.at(), as an object key, curried', function() {
-    expect(J2C.at('foo')('bar') + '').to.be('@foo bar')
-    expect(J2C.at()('foo')('bar') + '').to.be('@foo bar')
-    expect(J2C.at('foo')()('bar') + '').to.be('@foo bar')
-    expect(J2C.at('foo')('bar')() + '').to.be('@foo bar')
+    equals(J2C.at('foo')('bar') + '', '@foo bar')
+    equals(J2C.at()('foo')('bar') + '', '@foo bar')
+    equals(J2C.at('foo')()('bar') + '', '@foo bar')
+    equals(J2C.at('foo')('bar')() + '', '@foo bar')
   })
 
   test('J2C.at(), as an object generator', function() {
     var atFoo = J2C.at('foo', 'bar', {baz:'qux'})
-    expect(atFoo).to.have.key('@foo bar')
-    expect(atFoo['@foo bar']).to.be.an(Object)
-    expect(atFoo['@foo bar']).to.have.key('baz')
-    expect(atFoo['@foo bar'].baz).to.be('qux')
+    has_key(atFoo, '@foo bar')
+    has_type(atFoo['@foo bar'], Object)
+    has_key(atFoo['@foo bar'], 'baz')
+    equals(atFoo['@foo bar'].baz, 'qux')
   })
 
   test('J2C.at(), as an object generator, curried 1', function() {
     var atFoo = J2C.at('foo')('bar', {baz:'qux'})
-    expect(atFoo).to.have.key('@foo bar')
-    expect(atFoo['@foo bar']).to.be.an(Object)
-    expect(atFoo['@foo bar']).to.have.key('baz')
-    expect(atFoo['@foo bar'].baz).to.be('qux')
+    has_key(atFoo, '@foo bar')
+    has_type(atFoo['@foo bar'], Object)
+    has_key(atFoo['@foo bar'], 'baz')
+    equals(atFoo['@foo bar'].baz, 'qux')
   })
 
   test('J2C.at(), as an object generator, curried 2', function() {
     var atFoo = J2C.at('foo', 'bar')({baz:'qux'})
-    expect(atFoo).to.have.key('@foo bar')
-    expect(atFoo['@foo bar']).to.be.an(Object)
-    expect(atFoo['@foo bar']).to.have.key('baz')
-    expect(atFoo['@foo bar'].baz).to.be('qux')
+    has_key(atFoo, '@foo bar')
+    has_type(atFoo['@foo bar'], Object)
+    has_key(atFoo['@foo bar'], 'baz')
+    equals(atFoo['@foo bar'].baz, 'qux')
   })
 
   test('J2C.at(), as an object generator, curried 3', function() {
     var atFoo = J2C.at('foo')('bar')({baz:'qux'})
-    expect(atFoo).to.have.key('@foo bar')
-    expect(atFoo['@foo bar']).to.be.an(Object)
-    expect(atFoo['@foo bar']).to.have.key('baz')
-    expect(atFoo['@foo bar'].baz).to.be('qux')
+    has_key(atFoo, '@foo bar')
+    has_type(atFoo['@foo bar'], Object)
+    has_key(atFoo['@foo bar'], 'baz')
+    equals(atFoo['@foo bar'].baz, 'qux')
   })
 
 
@@ -1380,7 +1404,7 @@ function randInt() {
       _J2C.sheet({p:{color:'red'}}),
       'p{color:red;}'
     )
-    expect(_J2C).not.to.have.key('$invalid')
+    doesnt_have_key(_J2C, '$invalid')
   })
 
   test('a plugin that sets a property on the instance', function() {
@@ -1389,25 +1413,25 @@ function randInt() {
       _J2C.sheet({p:{color:'red'}}),
       'p{color:red;}'
     )
-    expect(_J2C).to.have.key('testProp')
-    expect(_J2C.testProp).to.be('foo')
+    has_key(_J2C, 'testProp')
+    equals(_J2C.testProp, 'foo')
   })
 
   test('a plugin that sets a property on the instance that already exists', function() {
     var _J2C = J2C().use({sheet:'foo'})
-    expect(_J2C.sheet).not.to.be('foo')
+    differs(_J2C.sheet, 'foo')
     check(
       _J2C.sheet({p:{color:'red'}}),
       'p{color:red;}'
     )
 
-    expect(_J2C.sheet).not.to.be('foo')
+    differs(_J2C.sheet, 'foo')
   })
 
   test('Plugin deduplication', function() {
     var p = {}
     var _J2C = J2C().use(p, p)
-    expect(_J2C.$plugins.length).to.be(1)
+    equals(_J2C.$plugins.length, 1)
   })
 
   ////////////////////////////////////////////////////
@@ -1469,7 +1493,7 @@ function randInt() {
       {'.foo': {foo: 'bar', baz: 'qux'}}
     )
     check('' + css, '.FOOO{foo:bar;baz:qux;}')
-    expect(names.foo).to.be('FOOO')
+    equals(names.foo, 'FOOO')
   })
 
   test('namespaced class wrapping a global block', function() {
@@ -1478,7 +1502,7 @@ function randInt() {
       {'.foo': {'@global': {'.foo': {foo: 'bar', baz: 'qux'}}}}
     )
     check('' + css, '.FOOO.foo{foo:bar;baz:qux;}')
-    expect(names.foo).to.be('FOOO')
+    equals(names.foo, 'FOOO')
   })
 
   test('namespaced @keyframes', function(){
@@ -1486,8 +1510,8 @@ function randInt() {
     var css = _J2C.sheet(
         {'@keyframes bit': {}}
       )
-    expect(names.bit).to.be('BOT')
-    expect(css).to.contain('@keyframes BOT {')
+    equals(names.bit, 'BOT')
+    contains(css, '@keyframes BOT {')
   })
 
   test('namespaced animation', function(){
@@ -1495,20 +1519,20 @@ function randInt() {
     var css = _J2C.sheet(
         {p: {animation: 'bit 1sec'}}
       )
-    expect(names.bit).to.be('BOT')
+    equals(names.bit, 'BOT')
     check(css, 'p{animation:BOT 1sec;}')
   })
 
   test('namespaced animation-name', function() {
     var _J2C = J2C().use({$names: {bit: 'BOT'}}), names = _J2C.names
     var css = _J2C.sheet({p: {animation_name: 'bit'}})
-    expect(names.bit).to.be('BOT')
+    equals(names.bit, 'BOT')
     check(css, 'p{animation-name:BOT;}')
   })
 
   test("don't overwrite an existing name", function() {
     var _J2C = J2C().use({$names: {bit: 'BOT'}}, {names: {bit: 'BUT'}}), names = _J2C.names
-    expect(names.bit).to.be('BOT')
+    equals(names.bit, 'BOT')
   })
 
 
@@ -1520,33 +1544,33 @@ function randInt() {
 
   test('a sheet filter', function() {
     function filter(J2C) {
-      expect(J2C).to.be.an(Object)
-      expect(J2C.sheet).to.be.a(Function)
+      has_type(J2C, Object)
+      has_type(J2C.sheet, Function)
 
       return {$filter: function(next, inline) {
-        expect(next).to.be.an(Object)
-        expect(next.i).to.be.a(Function)
-        expect(next.x).to.be.a(Function)
-        expect(next.d).to.be.a(Function)
+        has_type(next, Object)
+        has_type(next.i, Function)
+        has_type(next.x, Function)
+        has_type(next.d, Function)
         if(!inline) {
-          expect(next.s).to.be.a(Function)
-          expect(next.S).to.be.a(Function)
-          expect(next.a).to.be.a(Function)
-          expect(next.A).to.be.a(Function)
+          has_type(next.s, Function)
+          has_type(next.S, Function)
+          has_type(next.a, Function)
+          has_type(next.A, Function)
         }
 
         return {
           x: function() {
             var buf = next.x(1)
-            expect(buf).to.be.an(Array)
-            expect(buf.length).not.to.be(0)
+            has_type(buf, Array)
+            differs(buf.length, 0)
             var txt = next.x()
-            expect(txt).to.be.a('string')
+            has_type(txt, 'string')
             return txt
           },
           i: function() {
             next.i()
-            expect(!!inline).to.be(false)
+            equals(!!inline, false)
           },
           a: function(name, arg, hasBlock) {
             next.a(name+'o', 'a'+arg, hasBlock)
@@ -1580,33 +1604,33 @@ function randInt() {
 
   test('a declaration filter', function() {
     function filter(J2C) {
-      expect(J2C).to.be.an(Object)
-      expect(J2C.inline).to.be.a(Function)
+      has_type(J2C, Object)
+      has_type(J2C.inline, Function)
 
       return {$filter: function(next, inline) {
-        expect(next).to.be.an(Object)
-        expect(next.i).to.be.a(Function)
-        expect(next.x).to.be.a(Function)
-        expect(next.d).to.be.a(Function)
+        has_type(next, Object)
+        has_type(next.i, Function)
+        has_type(next.x, Function)
+        has_type(next.d, Function)
         if(!inline) {
-          expect(next.s).to.be.a(Function)
-          expect(next.S).to.be.a(Function)
-          expect(next.a).to.be.a(Function)
-          expect(next.A).to.be.a(Function)
+          has_type(next.s, Function)
+          has_type(next.S, Function)
+          has_type(next.a, Function)
+          has_type(next.A, Function)
         }
 
         return {
           x: function() {
             var buf = next.x(true)
-            expect(buf).to.be.an(Array)
-            expect(buf.length).not.to.be(0)
+            has_type(buf, Array)
+            differs(buf.length, 0)
             var txt = next.x()
-            expect(txt).to.be.a('string')
+            has_type(txt, 'string')
             return txt
           },
           i: function() {
             next.i()
-            expect(!!inline).to.be(true)
+            equals(!!inline, true)
           },
           d: function(prop, value) {
             next.d('p'+prop, 'v'+value)
@@ -1639,9 +1663,9 @@ function randInt() {
       }}
     }
     J2C().use(filter(1), filter(2)).sheet({'.foo': 'bar:baz;'})
-    expect(acc.length).to.be(2)
-    expect(acc[0]).to.be(1)
-    expect(acc[1]).to.be(2)
+    equals(acc.length, 2)
+    equals(acc[0], 1)
+    equals(acc[1], 2)
   })
 
   test('filter dedupe', function() {
@@ -1664,8 +1688,8 @@ function randInt() {
     }
     var f = filter(1)
     J2C().use(f, f).sheet({'.foo': 'bar:baz;'})
-    expect(acc.length).to.be(1)
-    expect(acc[0]).to.be(1)
+    equals(acc.length, 1)
+    equals(acc[0], 1)
   })
 
   test('filter default', function() {
@@ -1681,8 +1705,8 @@ function randInt() {
       }}).sheet({'p': 'bar:baz;'}),
       'pre{bar:baz}'
     )
-    expect(acc.length).to.be(1)
-    expect(acc[0]).to.be('p')
+    equals(acc.length, 1)
+    equals(acc[0], 'p')
   })
 
   ////////////////////////////////////
@@ -1693,25 +1717,25 @@ function randInt() {
   test('one $at plugin', function() {
     function plugin(name) {
       return {$at: function(walker, emit, match, v, prefix, local, inAtRule){
-        expect(match).to.be.an(Array)
-        expect(walker).to.be.an(Object)
-        expect(walker).to.have.key('$a')
-        expect(walker).to.have.key('a')
-        expect(walker).to.have.key('d')
-        expect(walker).to.have.key('l')
-        expect(walker).to.have.key('n')
-        expect(walker).to.have.key('r')
+        has_type(match, Array)
+        has_type(walker, Object)
+        has_key(walker, '$a')
+        has_key(walker, 'a')
+        has_key(walker, 'd')
+        has_key(walker, 'l')
+        has_key(walker, 'n')
+        has_key(walker, 'r')
 
-        expect(emit).to.be.an(Object)
-        expect(emit).to.have.key('a')
+        has_type(emit, Object)
+        has_key(emit, 'a')
 
-        expect(v).to.be('param')
+        equals(v, 'param')
 
-        expect(prefix).to.be.a('string')
+        has_type(prefix, 'string')
         // `local` can be many things, the only things that matters is its truthiness
-        expect(!!local).to.be(true)
+        equals(!!local, true)
         // `inAtRule` can be many things, the only things that matters is its truthiness
-        expect(!!inAtRule).to.be(false)
+        equals(!!inAtRule, false)
 
         if (match[2] !== name) return false
         emit.a(match[1], v)
@@ -1764,11 +1788,11 @@ function randInt() {
   test('$at plugin that verifies malformed rules are properly passed unparsed', function() {
     var plugin = {$at: function(walker, emit, match, v){
 
-      expect(match[0]).to.be('@; hey')
-      expect(match[1]).to.be('@')
-      expect(match[2]).to.be('')
-      expect(match[3]).to.be('')
-      expect(v).to.be('foo')
+      equals(match[0], '@; hey')
+      equals(match[1], '@')
+      equals(match[2], '')
+      equals(match[3], '')
+      equals(v, 'foo')
       return true
     }}
 
