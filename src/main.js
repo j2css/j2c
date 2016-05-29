@@ -18,16 +18,16 @@ export default function j2c() {
     x: function (raw) {return raw ? buf : buf.join('')},
     // start At-rule
     a: function (rule, argument, takesBlock) {
-      buf.push(rule, argument && ' ',argument, takesBlock ? ' {\n' : ';\n')
+      buf.push(rule, argument && ' ',argument, takesBlock ? ' {' : ';', _instance.endline)
     },
     // end At-rule
-    A: function ()            {buf.push('}\n')},
+    A: function ()            {buf.push('}', _instance.endline)},
     // start Selector
-    s: function (selector)    {buf.push(selector, ' {\n')},
+    s: function (selector)    {buf.push(selector, ' {', _instance.endline)},
     // end Selector
-    S: function ()            {buf.push('}\n')},
+    S: function ()            {buf.push('}', _instance.endline)},
     // declarations
-    d: function (prop, value) {buf.push(prop, prop && ':', value, ';\n')}
+    d: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
   }
 
   var $filters = [closeSelectors]
@@ -38,6 +38,7 @@ export default function j2c() {
     global: global,
     kv: kv,
     names: {},
+    endline: '\n',
     suffix: '__j2c-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
