@@ -26,7 +26,7 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
         if (!inDeclaration) {
           inDeclaration = 1
 
-          emit.s(prefix)
+          emit.rule(prefix)
 
         }
         if (/\$/.test(k)) {
@@ -56,16 +56,16 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
 
         rules(
           state, emit,
-          // `prefix` ... Hefty. Ugly. Sadly necessary.
-          //
-          (prefix.length > 0 && (/,/.test(prefix) || /,/.test(k))) ?
+          // build the selector `prefix` for the next iteration.
+          // ugly and full of redundant bits but so far the fastest/shortest.gz
+          /*0 if*/(prefix.length > 0 && (/,/.test(prefix) || /,/.test(k))) ?
 
-            /*0*/ (kk = splitSelector(prefix), splitSelector(
+            /*0 then*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
                 k.replace(
                   /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                  state.L
+                  state.localizeReplacer
                 ) :
 
                 k
@@ -75,26 +75,26 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
               }).join(',')
             }).join(',')) :
 
-            /*0*/ /&/.test(k) ?
+            /*0 else*/ /*1 if*/ /&/.test(k) ?
 
-              /*1*/ ampersand(
+              /*1 then*/ ampersand(
                 local ?
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.L
+                    state.localizeReplacer
                   ) :
 
                   k,
                 [prefix]
               ) :
 
-              /*1*/ prefix + (
+              /*1 else*/ prefix + (
                 local ?
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.L
+                    state.localizeReplacer
                   ) :
 
                   k
@@ -118,7 +118,7 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
 
-    emit.s(prefix.length > 0 ? prefix : ':-error-no-selector')
+    emit.rule(prefix.length > 0 ? prefix : ':-error-no-selector')
 
     declarations(state, emit, '', tree, local)
 
@@ -132,31 +132,30 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
 // impossible without passing state around in unrelated code
 // or ending up with duplicated selectors when the source tree
 // contains arrays.
-// There's no `S` handler, because the core compiler never
+// There's no `_rule` handler, because the core compiler never
 // calls it.
 export function closeSelectors(next, inline) {
   var lastSelector
   return inline ? next : {
-    i: function(){lastSelector = 0; next.i()},
-    x: function (raw) {
-      if (lastSelector) {next.S(); lastSelector = 0}
-      return next.x(raw)
+    init: function(){lastSelector = 0; next.init()},
+    done: function (raw) {
+      if (lastSelector) {next._rule(); lastSelector = 0}
+      return next.done(raw)
     },
-    a: function (rule, param, takesBlock) {
-      if (lastSelector) {next.S(); lastSelector = 0}
-      next.a(rule, param, takesBlock)
+    atrule: function (rule, param, takesBlock) {
+      if (lastSelector) {next._rule(); lastSelector = 0}
+      next.atrule(rule, param, takesBlock)
     },
-    A: function (rule) {
-      if (lastSelector) {next.S(); lastSelector = 0}
-      next.A(rule)
+    _atrule: function (rule) {
+      if (lastSelector) {next._rule(); lastSelector = 0}
+      next._atrule(rule)
     },
-    s: function (selector) {
+    rule: function (selector) {
       if (selector !== lastSelector){
-        if (lastSelector) next.S()
-        next.s(selector)
+        if (lastSelector) next._rule()
+        next.rule(selector)
         lastSelector = selector
       }
-    },
-    d: next.d
+    }
   }
 }

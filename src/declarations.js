@@ -62,12 +62,12 @@ export function declarations(state, emit, prefix, o, local) {
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, state.L)
+        return o.replace(/(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/, state.localizeReplacer)
 
       }).join(',')
     }
 
-    emit.d(k, o)
+    emit.decl(k, o)
 
   }
 }

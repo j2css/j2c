@@ -1271,19 +1271,20 @@ function randInt() {
     ]
 
     var J2C_1 = J2C()
-    // This ensures that we don't rely on the falsy return value of the default
-    // buffer methods. This happens here becasue this test harnesses most if not
-    // all of the code paths where this may be relevant, especially in
-    // `src/sheet.js`
+
+    // This second instance ensures that we don't rely on the falsy return value
+    // of the default buffer methods.
+    // This happens in this test because it vists most if not all of the code paths
+    // where this may be relevant, especially in `src/sheet.js`.
     var J2C_2 = J2C().use({$filter:function (next) {
       return {
-        x:next.x,
-        i: function() {next.i.apply(next,arguments);return true},
-        a: function() {next.a.apply(next,arguments);return true},
-        A: function() {next.A.apply(next,arguments);return true},
-        d: function() {next.d.apply(next,arguments);return true},
-        s: function() {next.s.apply(next,arguments);return true},
-        S: function() {next.S.apply(next,arguments);return true}
+        done:next.done,
+        init: function() {next.init.apply(next,arguments);return true},
+        atrule: function() {next.atrule.apply(next,arguments);return true},
+        _atrule: function() {next._atrule.apply(next,arguments);return true},
+        decl: function() {next.decl.apply(next,arguments);return true},
+        rule: function() {next.rule.apply(next,arguments);return true},
+        _rule: function() {next._rule.apply(next,arguments);return true}
       }
     }})
 
@@ -1549,43 +1550,43 @@ function randInt() {
 
       return {$filter: function(next, inline) {
         has_type(next, Object)
-        has_type(next.i, Function)
-        has_type(next.x, Function)
-        has_type(next.d, Function)
-        if(!inline) {
-          has_type(next.s, Function)
-          has_type(next.S, Function)
-          has_type(next.a, Function)
-          has_type(next.A, Function)
+        has_type(next.init, Function)
+        has_type(next.done, Function)
+        has_type(next.decl, Function)
+        if(!inline){
+          has_type(next.rule, Function)
+          has_type(next._rule, Function)
+          has_type(next.atrule, Function)
+          has_type(next._atrule, Function)
         }
 
         return {
-          x: function() {
-            var buf = next.x(1)
+          init: function() {
+            next.init()
+            equals(!!inline, false)
+          },
+          done: function() {
+            var buf = next.done(1)
             has_type(buf, Array)
             differs(buf.length, 0)
-            var txt = next.x()
+            var txt = next.done()
             has_type(txt, 'string')
             return txt
           },
-          i: function() {
-            next.i()
-            equals(!!inline, false)
+          atrule: function(name, arg, hasBlock) {
+            next.atrule(name+'o', 'a'+arg, hasBlock)
           },
-          a: function(name, arg, hasBlock) {
-            next.a(name+'o', 'a'+arg, hasBlock)
+          _atrule: function(name, arg) {
+            next._atrule(name+'o', 'a'+arg)
           },
-          A: function(name, arg) {
-            next.A(name+'o', 'a'+arg)
+          decl: function(prop, value) {
+            next.decl('p'+prop, 'v'+value)
           },
-          d: function(prop, value) {
-            next.d('p'+prop, 'v'+value)
+          rule: function(selector) {
+            next.rule('h1, ' + selector)
           },
-          s: function(selector) {
-            next.s('h1, ' + selector)
-          },
-          S: function() {
-            next.S()
+          _rule: function() {
+            next._rule()
           }
         }
       }}
@@ -1609,31 +1610,31 @@ function randInt() {
 
       return {$filter: function(next, inline) {
         has_type(next, Object)
-        has_type(next.i, Function)
-        has_type(next.x, Function)
-        has_type(next.d, Function)
-        if(!inline) {
-          has_type(next.s, Function)
-          has_type(next.S, Function)
-          has_type(next.a, Function)
-          has_type(next.A, Function)
+        has_type(next.init, Function)
+        has_type(next.done, Function)
+        has_type(next.decl, Function)
+        if(!inline){
+          has_type(next.rule, Function)
+          has_type(next._rule, Function)
+          has_type(next.atrule, Function)
+          has_type(next._atrule, Function)
         }
 
         return {
-          x: function() {
-            var buf = next.x(true)
+          init: function() {
+            next.init()
+            equals(!!inline, true)
+          },
+          done: function() {
+            var buf = next.done(true)
             has_type(buf, Array)
             differs(buf.length, 0)
-            var txt = next.x()
+            var txt = next.done()
             has_type(txt, 'string')
             return txt
           },
-          i: function() {
-            next.i()
-            equals(!!inline, true)
-          },
-          d: function(prop, value) {
-            next.d('p'+prop, 'v'+value)
+          decl: function(prop, value) {
+            next.decl('p'+prop, 'v'+value)
           }
         }
       }}
@@ -1649,16 +1650,10 @@ function randInt() {
     function filter(x) {
       return {$filter: function(next) {
         return {
-          i: next.i,
-          x: next.x,
-          a: next.a,
-          A: next.A,
-          d: next.d,
-          s: function(){
+          rule: function(){
             acc.push(x)
-            return next.s.apply(next, arguments)
-          },
-          S: next.S
+            return next.rule.apply(next, arguments)
+          }
         }
       }}
     }
@@ -1673,16 +1668,10 @@ function randInt() {
     function filter(x) {
       return {$filter: function(next) {
         return {
-          i: next.i,
-          x: next.x,
-          a: next.a,
-          A: next.A,
-          d: next.d,
-          s: function(){
+          rule: function(selector){
             acc.push(x)
-            next.s.apply(next, arguments)
-          },
-          S: next.S
+            next.rule(selector)
+          }
         }
       }}
     }
@@ -1697,9 +1686,9 @@ function randInt() {
     check(
       J2C().use({$filter: function(next) {
         return {
-          s: function(selector){
+          rule: function(selector){
             acc.push(selector)
-            return next.s(selector + 're')
+            return next.rule(selector + 're')
           }
         }
       }}).sheet({'p': 'bar:baz;'}),
@@ -1719,15 +1708,16 @@ function randInt() {
       return {$at: function(walker, emit, match, v, prefix, local, inAtRule){
         has_type(match, Array)
         has_type(walker, Object)
-        has_key(walker, '$a')
-        has_key(walker, 'a')
-        has_key(walker, 'd')
-        has_key(walker, 'l')
-        has_key(walker, 'n')
-        has_key(walker, 'r')
+        has_key(walker, '$atHandlers')
+        has_key(walker, 'atrule')
+        has_key(walker, 'rule')
+        has_key(walker, 'decl')
+        has_key(walker, 'localize')
+        has_key(walker, 'localizeReplacer')
+        has_key(walker, 'names')
 
         has_type(emit, Object)
-        has_key(emit, 'a')
+        has_key(emit, 'atrule')
 
         equals(v, 'param')
 
@@ -1738,7 +1728,7 @@ function randInt() {
         equals(!!inAtRule, false)
 
         if (match[2] !== name) return false
-        emit.a(match[1], v)
+        emit.atrule(match[1], v)
         return true
       }}
     }
@@ -1756,7 +1746,7 @@ function randInt() {
     function plugin(name) {
       return {$at: function(walker, emit, match, v){
         if (match[2] !== name) return false
-        emit.a(match[1], v)
+        emit.atrule(match[1], v)
         return true
       }}
     }
@@ -1773,7 +1763,7 @@ function randInt() {
   test('$at plugin has precedence over default at-rules', function() {
     var plugin = {$at: function(walker, emit, match, v){
       if (match[2] !== 'import') return false
-      emit.a('@intercepted', v)
+      emit.atrule('@intercepted', v)
       return true
     }}
 

@@ -12,22 +12,17 @@ export default function j2c() {
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
   var $sink = {
-    // Init
-    i: function(){buf=[]},
-    // done (eXit)
-    x: function (raw) {return raw ? buf : buf.join('')},
-    // start At-rule
-    a: function (rule, argument, takesBlock) {
+    init: function(){buf=[]},
+    done: function (raw) {return raw ? buf : buf.join('')},
+    atrule: function (rule, argument, takesBlock) {
       buf.push(rule, argument && ' ',argument, takesBlock ? ' {' : ';', _instance.endline)
     },
-    // end At-rule
-    A: function ()            {buf.push('}', _instance.endline)},
-    // start Selector
-    s: function (selector)    {buf.push(selector, ' {', _instance.endline)},
-    // end Selector
-    S: function ()            {buf.push('}', _instance.endline)},
-    // declarations
-    d: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
+    // end atrule
+    _atrule: function ()            {buf.push('}', _instance.endline)},
+    rule: function (selector)    {buf.push(selector, ' {', _instance.endline)},
+    // end rule
+    _rule: function ()            {buf.push('}', _instance.endline)},
+    decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
   }
 
   // holds the `$filter` and `$at` handlers
@@ -54,7 +49,7 @@ export default function j2c() {
     $plugins: [],
     sheet: function(tree) {
       var emit = _createOrRetrieveStream(0)
-      emit.i()
+      emit.init()
       rules(
         _walkers[0],
         emit,
@@ -64,11 +59,11 @@ export default function j2c() {
         0   // inAtRule
       )
 
-      return emit.x()
+      return emit.done()
     },
     inline: function (tree) {
       var emit = _createOrRetrieveStream(1)
-      emit.i()
+      emit.init()
       declarations(
         _walkers[1],
         emit,
@@ -76,7 +71,7 @@ export default function j2c() {
         tree,
         1   // local, by defaults
       )
-      return emit.x()
+      return emit.done()
     }
   }
 
@@ -85,21 +80,21 @@ export default function j2c() {
     // for j2c.sheet
     {
       // helpers for locaizing class and animation names
-      L: _localizeReplacer, // second argument to String.prototype.replace
-      l: _localize,         // mangles local names
-      n: _instance.names,   // local => mangled mapping
-      $a: $atHandlers,      // extra at-rules
+      localizeReplacer: _localizeReplacer, // second argument to String.prototype.replace
+      localize: _localize,                 // mangles local names
+      names: _instance.names,              // local => mangled mapping
+      $atHandlers: $atHandlers,            // extra at-rules
       // The core walker methods, to be provided to plugins
-      a: atRules,
-      d: declarations,
-      r: rules
+      atrule: atRules,
+      decl: declarations,
+      rule: rules
     },
     // likewise, for j2c.inline (idem with `$a`, `a` and `s` removed)
     {
-      L: _localizeReplacer,
-      l: _localize,
-      n: _instance.names,
-      d: declarations
+      localizeReplacer: _localizeReplacer,
+      localize: _localize,
+      names: _instance.names,
+      decl: declarations
     }
   ]
 
@@ -146,7 +141,7 @@ export default function j2c() {
     // build the stream processors if needed
     if (!_streams.length) {
       // append the $sink as the ultimate filter
-      $filters.push(function(_, inline) {return inline ? {i:$sink.i, d:$sink.d, x:$sink.x} : $sink})
+      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done} : $sink})
       for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
         for (var j = $filters.length; j--;) {
           _streams[i] = freeze(
