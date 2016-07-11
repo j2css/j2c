@@ -604,10 +604,9 @@ var j2cComponent = {
 var j2cComponent = {
     view: function(ctrl, args) {
         return m("style", {
-            sheet: args.sheet
-            config: function(el, isinit, vdom) {
+            config: function(el, isinit) {
                 if(!isinit) {
-                    stylize(el, vdom.attrs.sheet);
+                    stylize(el, args.sheet);
                 }
             }
         })
