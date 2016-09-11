@@ -1810,8 +1810,6 @@ function randInt() {
 //
 // - test `inAtRule` from $at plugins (is it set appropriately?)
 //
-// - test the `walker` object from within $at and $filter plugins
-//
 // - verify that custom at rules take precedence over default ones
 //
 // - test @keyframes nested in selector scope

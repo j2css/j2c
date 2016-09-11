@@ -601,7 +601,7 @@ define(function () { 'use strict';
           for (var j = $filters.length; j--;) {
             _streams[i] = freeze(
               defaults(
-                $filters[j](_streams[i], !!i, _walkers[i]),
+                $filters[j](_streams[i], !!i),
                 _streams[i]
               )
             )
