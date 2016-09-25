@@ -2,27 +2,6 @@
 
 ## v1.0.0 (WIP)
 
-- Fix: Robust parsing of selectors. Comas, ampersands and class-like parts
-  in strings are now ignored by the compiler.
-
-  ```JS
-  j2c.sheet({'p':{'[foo="&,.bar"]': {color: 'red'}}})
-  ```
-
-  produces
-
-  ```CSS
-  p[foo="&,.bar"] {color:red}
-  ```
-
-  Whereas previous versions would produce
-
-  ```CSS
-  [foo="p,p.bar_j2c_ubv4pc_knzcqw_ngjme7_1usit1c_9"] {color: red;}
-  ```
-
-  Likewise, `':not(p, a, ul, li)'` (a CSS4 addition) will not be split.
-  
 - Local scope is now per instance rather than per sheet.
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.
@@ -45,7 +24,7 @@
   So: `j2c.sheet({'@adopt .foo': ['.bar']})` where foo is a local class that
   adopts the behavior of the global `.bar`.
 - Consecutive, identical selectors are deduped in the output. Using mixins
-  won't cause
+  won't cause duplicate selectors anymore.
 - Prefixed at-rules are treated like their unprefixed counterparts.
 - Added the `at()`, `global()` and `kv()` helpers.
 - Added `@local` as a counterpart to `@global`.
@@ -71,7 +50,7 @@
   ```
 
   Likewise, `':not(p, a, ul, li)'` (a CSS4 addition) will not be split.
-
+- Added an extension mechanism.
 - 2.2Kb mingzipped (+ ~500 bytes).
 
 ## v0.11.1 (2016-03-8) and v0.11.2 (2016-03-17)

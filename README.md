@@ -26,7 +26,7 @@ See HISTORY.md for a high level overview of the differences.
 [gitter_url]: https://gitter.im/j2css/j2c
 
 
-A lean (2.0KB), no hassle CSS in JS solution.
+A lean (2.2KB), no hassle CSS in JS solution.
 
 `j2c`:
 
@@ -82,7 +82,7 @@ Thanks to
 
 - @barneycarroll for the inspiration and initial feedback.
 - @ArthurClemens, @StephanHoyer, @der-On, @llambda, @dontwork, @futurist and @mithriljs-cn for the support and feedback.
-- @tivac for `@compose` which I stole from his [Modular CSS]() project.
+- @tivac for `compose` which I stole from his [Modular CSS]() project.
 
 ## Table of Contents
 
