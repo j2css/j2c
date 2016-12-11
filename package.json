@@ -4,16 +4,16 @@
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
   "scripts": {
-    "preversion": "npm run all",
+    "preversion": "yarn run all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
-    "all": "npm run build && npm run lint && npm run cover",
-    "dev": "npm run build && npm run test",
+    "all": "yarn run build && yarn run lint && yarn run cover",
+    "dev": "yarn run build && yarn run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
     "test": "mocha --ui qunit",
-    "cover": "istanbul cover _mocha -- -R nyan --ui qunit && npm run -s check-coverage",
+    "cover": "istanbul cover _mocha -- -R nyan --ui qunit && yarn run check-coverage",
     "check-coverage": "istanbul check-coverage --branches -2",
-    "travis": "npm run build && istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && npm run -s check-coverage"
+    "travis": "yarn run build && istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && yarn run  check-coverage"
   },
   "repository": {
     "type": "git",
@@ -32,20 +32,21 @@
   "devDependencies": {
     "cash-true": "0.0.2",
     "codecov": "^1.0.1",
-    "commonmark": "^0.24.0",
+    "commonmark": "^0.27.0",
     "compose-regexp": "^0.1.8",
-    "eslint": "^2.2.0",
+    "eslint": "^3.12.0",
     "expect.js": "0.3.1",
     "in-publish": "^2.0.0",
     "istanbul": "^0.4.2",
-    "jsdom": "^8.1.0",
-    "mocha": "^2.3.4",
+    "jsdom": "^9.8.3",
+    "mocha": "^3.2.0",
     "mocha-lcov-reporter": "^1.0.0",
     "perfectionist": "^2.1.2",
     "postcss": "^5.0.14",
     "postcss-minify-params": "^1.0.4",
     "postcss-minify-selectors": "^2.0.2",
-    "rollup": "^0.25.2",
-    "uglify-js": "^2.6.0"
+    "rollup": "^0.36.4",
+    "uglify-js": "^2.6.0",
+    "yarn": "^0.18.0"
   }
 }

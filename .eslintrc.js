@@ -1,22 +1,24 @@
 module.exports = {
     rules: {
         indent: [
-            2, 2
+            "error", 2
         ],
         quotes: [
-            2,
+            "error",
             "single",
             "avoid-escape"
         ],
         "linebreak-style": [
-            2,
+            "error",
             "unix"
         ],
         semi: [
-            2,
+            "error",
             "never"
         ],
-        "no-trailing-spaces": [2]
+        "no-trailing-spaces": "error",
+        "comma-dangle": "error",
+        "no-native-reassign": "error"
     },
     parserOptions: {
         ecmaVersion: 6,
