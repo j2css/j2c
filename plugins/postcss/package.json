@@ -1,0 +1,33 @@
+{
+  "name": "j2c-plugin-postcss",
+  "version": "0.2.2",
+  "description": "A PostCSS adapter for j2c",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/j2css/j2c-plugin-postcss"
+  },
+  "keywords": [
+    "j2c",
+    "plugin",
+    "postcss"
+  ],
+  "author": "Pierre-Yves Gérardy",
+  "license": "MIT",
+  "dependencies": {
+    "postcss": "^5.0.16"
+  },
+  "devDependencies": {
+    "eslint": "^3.12.0",
+    "j2c": "^1.0.0-3",
+    "mithril": "git+https://git@github.com/lhorie/mithril.js.git#rewrite",
+    "autoprefixer": "6.3.6"
+  }
+}
