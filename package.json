@@ -10,10 +10,10 @@
     "dev": "yarn run build && yarn run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
-    "test": "mocha --ui qunit",
-    "cover": "istanbul cover _mocha -- -R nyan --ui qunit && yarn run check-coverage",
+    "test": "node test/test.js",
+    "cover": "istanbul cover --print both test/test.js && yarn run check-coverage",
     "check-coverage": "istanbul check-coverage --branches -2",
-    "travis": "yarn run build && istanbul cover _mocha --report lcovonly -- -R spec --ui qunit && (codecov || true) && yarn run  check-coverage"
+    "travis": "yarn run build && istanbul cover --print both test/test.js && (codecov || true) && yarn run  check-coverage"
   },
   "repository": {
     "type": "git",
@@ -35,12 +35,10 @@
     "commonmark": "^0.27.0",
     "compose-regexp": "^0.1.8",
     "eslint": "^3.12.0",
-    "expect.js": "0.3.1",
     "in-publish": "^2.0.0",
     "istanbul": "^0.4.2",
     "jsdom": "^9.8.3",
-    "mocha": "^3.2.0",
-    "mocha-lcov-reporter": "^1.0.0",
+    "ospec": "^1.2.1",
     "perfectionist": "^2.1.2",
     "postcss": "^5.0.14",
     "postcss-minify-params": "^1.0.4",
