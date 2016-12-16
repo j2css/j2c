@@ -1,0 +1,36 @@
+{
+  "name": "j2c-plugin-prefix-browser",
+  "version": "0.1.0",
+  "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm dist/*.js dist/*.gz && node scripts/build.js",
+    "extract": "node scripts/extract.js",
+    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "upstream": "node scripts/upstream.js"
+  },
+  "keywords": [
+    "prefixfree",
+    "prefix",
+    "css",
+    "j2c",
+    "css-in-js"
+  ],
+  "author": "Pierre-Yves Gérardy",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "acorn": "^2.7.0",
+    "babylon": "^6.4.2",
+    "compose-regexp": "^0.1.8",
+    "eslint": "^2.3.0",
+    "esprima": "^2.7.1",
+    "lodash.property": "^4.1.2",
+    "nodegit": "^0.8.0",
+    "recast": "^0.11.2",
+    "rimraf": "^2.5.0",
+    "rollup": "^0.25.4",
+    "uglify-js": "^2.6.2"
+  }
+}
