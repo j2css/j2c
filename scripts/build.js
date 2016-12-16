@@ -25,7 +25,7 @@ var fs = require('fs'),
     },
     { // not sure this one is necessary by now...
       rollupOptions:{
-        format: 'es6'
+        format: 'es'
       },
       name: 'es6',
       minify: false // ATM, uglify chokes on the export statement.

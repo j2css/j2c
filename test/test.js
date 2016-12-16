@@ -1,4 +1,4 @@
-/*eslint-env node, mocha */
+/*eslint-env node*/
 
 // ensure that we are not sensitive to additions to Object.prototype.
 Object.prototype.BADBAD = 5
