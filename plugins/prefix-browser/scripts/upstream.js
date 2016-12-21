@@ -4,7 +4,7 @@ var git    = require('nodegit')
 rimraf.sync('upstream/prefixfree')
 
 git
-  .Clone("https://github.com/leaverou/prefixfree.git", "upstream/prefixfree")
+  .Clone('https://github.com/leaverou/prefixfree.git', 'upstream/prefixfree')
   .then(
     function(/*repository*/) {
       process.exit(0)

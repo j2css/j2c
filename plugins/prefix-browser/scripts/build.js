@@ -11,7 +11,7 @@ var fs = require('fs'),
     {
       rollupOptions:{
         format: 'iife',
-        moduleName: 'j2cPrefixPlugin'
+        moduleName: 'j2cPrefixPluginBrowser'
       },
       name: 'global',
       minify: {saveGzip:true}
@@ -26,7 +26,7 @@ var fs = require('fs'),
     {
       rollupOptions:{
         format: 'amd',
-        name: 'j2c-prefix-plugin'
+        name: 'j2c-prefix-plugin-browser'
       },
       name: 'amd',
       minify: {save:true}
