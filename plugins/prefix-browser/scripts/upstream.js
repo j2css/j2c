@@ -1,3 +1,6 @@
+/*eslint-env node*/
+/*eslint no-console: 0*/
+
 var rimraf = require('rimraf')
 var git    = require('nodegit')
 

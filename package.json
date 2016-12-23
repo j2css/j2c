@@ -9,7 +9,7 @@
     "all": "yarn run build && yarn run lint && yarn run cover",
     "dev": "yarn run build && yarn run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
-    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
+    "lint": "eslint --fix .",
     "test": "node test/test.js",
     "cover": "istanbul cover --print both test/test.js && yarn run check-coverage",
     "check-coverage": "istanbul check-coverage --branches -2",

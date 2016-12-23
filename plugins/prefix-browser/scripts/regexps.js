@@ -1,3 +1,7 @@
+/*eslint-env node*/
+/*eslint no-console: 0*/
+/* global capture: false, either:false, greedy:false, sequence: false*/
+
 global.__proto__ = require('compose-regexp')
 
 // These regexes match strings, comments and the targets we really want to match.

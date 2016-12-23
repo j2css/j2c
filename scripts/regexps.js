@@ -1,11 +1,9 @@
 /*eslint-env node*/
 /*eslint no-console: 0*/
-/*eslint no-undef: 0*/
-
+/* global capture: false, either:false, flags: false, greedy:false, sequence: false*/
 global.__proto__ = require('compose-regexp')
 
-var maybe = greedy.bind(null, '?')
-maybe()
+// var maybe = greedy.bind(null, '?')
 
 var animation = either(
     sequence(

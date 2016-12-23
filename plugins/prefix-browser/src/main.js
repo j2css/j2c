@@ -1,3 +1,6 @@
+/*eslint no-inner-declarations: 0*/
+
+
 import {fixers} from './fixers.js'
 import './extracted/decorateFixers.js'
 
@@ -134,4 +137,4 @@ if (typeof getComputedStyle === 'function') {
   }
 }
 
-export default prefixPlugin
+export {prefixPlugin as default}
