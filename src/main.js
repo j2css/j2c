@@ -55,7 +55,7 @@ export default function j2c() {
         emit,
         '', // prefix
         tree,
-        1,  // local, by defaults
+        1,  // local, by default
         0   // inAtRule
       )
 
@@ -69,7 +69,7 @@ export default function j2c() {
         emit,
         '', // prefix
         tree,
-        1   // local, by defaults
+        1   // local, by default
       )
       return emit.done()
     }

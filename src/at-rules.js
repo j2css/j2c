@@ -10,6 +10,12 @@ import {declarations} from './declarations'
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {array} k - The parsed at-rule, including the parameters,
  *                    if takes both parameters and a block.
+ *                    k == [match, fullAtRule, atRuleType, params?]
+ *                    So in `@-webkit-keyframes foo`, we have
+ *                     - match = "@-webkit-keyframes foo"
+ *                     - fullAtRule = "@-webkit-keyframes"
+ *                     - atRuleType = "keyframes"
+ *                     - params = "foo"
  * @param {string|string[]|object|object[]} v - Either parameters for
  *                                              block-less rules or
  *                                              their block
