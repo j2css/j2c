@@ -86,401 +86,433 @@ function randInt() {
     }
 
 
-    o.spec('Inline: ', function() {
-      o('a single property', function() {
-        checkinline(
-          {
-            foo: 'bar'
-          },
-          'foo:bar;'
-        )
-      })
-
-      o('two properties, ensure order', function() {
-        checkinline(
-          {
-            foo: 'bar',
-            baz: 'qux'
-          },
-          'foo:bar; baz:qux;'
-        )
-      })
-
-      o('array of values', function() {
-        checkinline(
-          {
-            foo: ['bar', 'baz']
-          },
-          'foo:bar; foo:baz;'
-        )
-      })
-
-      o('one sub-property', function() {
-        checkinline(
-          {
-            foo: {
-              bar: 'baz'
-            }
-          },
-          'foo-bar: baz;'
-        )
-      })
-
-      o('two declrations at the top level', function() {
-        checkinline(
-          {
-            foo: 'qux',
-            baz: 'qux'
-          },
-          'foo:qux;baz:qux;'
-        )
-      })
-
-      o('two sub-properties', function() {
-        checkinline(
-          {
-            foo: {
-              bar: 'baz',
-              qux: 'baz'
-            }
-          },
-          'foo-bar:baz; foo-qux:baz;'
-        )
-      })
-
-      o('two sub-properties with a sub-sub-property', function() {
-        checkinline(
-          {
-            foo: {
-              bar: {
-                qux: 'quux'
-              },
-              baz: {
-                qix: 'qiix'
-              }
-            }
-          },
-          'foo-bar-qux:quux; foo-baz-qix:qiix;'
-        )
-      })
-
-      o('$ operator in sub-property and sub-sub-property', function() {
-        checkinline(
-          {
-            foo: {
-              bar: {
-                qux: 'fred',
-                quux: 'frod'
-              },
-              baz: {
-                qix: 'frad',
-                qiix: 'frud'
-              }
-            }
-          },
-          'foo-bar-qux:fred; foo-bar-quux:frod; foo-baz-qix:frad; foo-baz-qiix:frud;'
-        )
-      })
-
-      o('$ operator at the top level', function() {
-        checkinline(
-          {
-            foo$baz: 'qux'
-          },
-          'foo:qux;baz:qux;'
-        )
-      })
-
-      o('$ operator in sub-properties', function() {
-        checkinline(
-          {
-            foo: {
-              bar$qux: 'baz'
-            }
-          },
-          'foo-bar:baz; foo-qux:baz;'
-        )
-      })
-
-      o('$ operator in a sub-property with a sub-sub-property', function() {
-        checkinline(
-          {
-            foo: {
-              bar$baz: {
-                qux: 'quux'
-              }
-            }
-          },
-          'foo-bar-qux:quux; foo-baz-qux:quux;'
-        )
-      })
-
-      o('$ operator in sub-property and sub-sub-property', function() {
-        checkinline(
-          {
-            foo: {
-              bar$baz: {
-                qux$quux: 'fred'
-              }
-            }
-          },
-          'foo-bar-qux:fred; foo-bar-quux:fred; foo-baz-qux:fred; foo-baz-quux:fred;'
-        )
-      })
-
-      o('convert underscores', function() {
-        checkinline(
-          {
-            'f_o_o': 'bar'
-          },
-          'f-o-o:bar;'
-        )
-      })
-
-      o('convert CamelCase', function() {
-        checkinline(
-          {
-            'FoO': 'bar'
-          },
-          '-fo-o:bar;'
-        )
-      })
-
-      o('String value', function() {
-        checkinline(
-          'foo:bar',
-          'foo:bar;'
-        )
-      })
-
-      o('Array of Strings values', function() {
-        checkinline(
-          ['foo:bar', 'foo:baz'],
-          'foo:bar;foo:baz'
-        )
-      })
-
-      o('Array of mixed values at the root', function() {
-        checkinline(
-          ['foo:bar', {
-            foo: 'baz'
-          }],
-          'foo:bar;foo:baz'
-        )
-      })
-
-      o('Array of mixed value and sub-property', function() {
-        checkinline(
-          {
-            foo: ['bar', {
-              baz: 'qux'
-            }]
-          },
-          'foo:bar;foo-baz:qux'
-        )
-      })
-
-      o('Prefixes by hand', function() {
-        checkinline(
-          {
-            _o$_p$: {
+    o.spec('Inline', function() {
+      o.spec('Basic', function() {
+        o('a single property', function() {
+          checkinline(
+            {
               foo: 'bar'
+            },
+            'foo:bar;'
+          )
+        })
+
+        o('two properties, ensure order', function() {
+          checkinline(
+            {
+              foo: 'bar',
+              baz: 'qux'
+            },
+            'foo:bar; baz:qux;'
+          )
+        })
+
+        o('array of values', function() {
+          checkinline(
+            {
+              foo: ['bar', 'baz']
+            },
+            'foo:bar; foo:baz;'
+          )
+        })
+
+        o('one sub-property', function() {
+          checkinline(
+            {
+              foo: {
+                bar: 'baz'
+              }
+            },
+            'foo-bar: baz;'
+          )
+        })
+
+        o('two declrations at the top level', function() {
+          checkinline(
+            {
+              foo: 'qux',
+              baz: 'qux'
+            },
+            'foo:qux;baz:qux;'
+          )
+        })
+
+        o('two sub-properties', function() {
+          checkinline(
+            {
+              foo: {
+                bar: 'baz',
+                qux: 'baz'
+              }
+            },
+            'foo-bar:baz; foo-qux:baz;'
+          )
+        })
+
+        o('two sub-properties with a sub-sub-property', function() {
+          checkinline(
+            {
+              foo: {
+                bar: {
+                  qux: 'quux'
+                },
+                baz: {
+                  qix: 'qiix'
+                }
+              }
+            },
+            'foo-bar-qux:quux; foo-baz-qix:qiix;'
+          )
+        })
+
+        o('$ operator in sub-property and sub-sub-property', function() {
+          checkinline(
+            {
+              foo: {
+                bar: {
+                  qux: 'fred',
+                  quux: 'frod'
+                },
+                baz: {
+                  qix: 'frad',
+                  qiix: 'frud'
+                }
+              }
+            },
+            'foo-bar-qux:fred; foo-bar-quux:frod; foo-baz-qix:frad; foo-baz-qiix:frud;'
+          )
+        })
+
+        o('$ operator at the top level', function() {
+          checkinline(
+            {
+              foo$baz: 'qux'
+            },
+            'foo:qux;baz:qux;'
+          )
+        })
+
+        o('$ operator in sub-properties', function() {
+          checkinline(
+            {
+              foo: {
+                bar$qux: 'baz'
+              }
+            },
+            'foo-bar:baz; foo-qux:baz;'
+          )
+        })
+
+        o('$ operator in a sub-property with a sub-sub-property', function() {
+          checkinline(
+            {
+              foo: {
+                bar$baz: {
+                  qux: 'quux'
+                }
+              }
+            },
+            'foo-bar-qux:quux; foo-baz-qux:quux;'
+          )
+        })
+
+        o('$ operator in sub-property and sub-sub-property', function() {
+          checkinline(
+            {
+              foo: {
+                bar$baz: {
+                  qux$quux: 'fred'
+                }
+              }
+            },
+            'foo-bar-qux:fred; foo-bar-quux:fred; foo-baz-qux:fred; foo-baz-quux:fred;'
+          )
+        })
+
+        o('convert underscores', function() {
+          checkinline(
+            {
+              'f_o_o': 'bar'
+            },
+            'f-o-o:bar;'
+          )
+        })
+
+        o('convert CamelCase', function() {
+          checkinline(
+            {
+              'FoO': 'bar'
+            },
+            '-fo-o:bar;'
+          )
+        })
+
+        o('String value', function() {
+          checkinline(
+            'foo:bar',
+            'foo:bar;'
+          )
+        })
+
+        o('Array of Strings values', function() {
+          checkinline(
+            ['foo:bar', 'foo:baz'],
+            'foo:bar;foo:baz'
+          )
+        })
+
+        o('Array of mixed values at the root', function() {
+          checkinline(
+            ['foo:bar', {
+              foo: 'baz'
+            }],
+            'foo:bar;foo:baz'
+          )
+        })
+
+        o('Array of mixed value and sub-property', function() {
+          checkinline(
+            {
+              foo: ['bar', {
+                baz: 'qux'
+              }]
+            },
+            'foo:bar;foo-baz:qux'
+          )
+        })
+
+        o('Prefixes by hand', function() {
+          checkinline(
+            {
+              _o$_p$: {
+                foo: 'bar'
+              }
+            },
+            '-o-foo:bar;-p-foo:bar;foo:bar;'
+          )
+        })
+
+        o('CSS *Hack', function() {
+          // tested manually because the crass normalization
+          // outputs an empty string.
+          checkinline(
+            {
+              '*foo': 'bar'
+            },
+            '*foo:bar;'
+          )
+        })
+
+        o('CSS _Hack', function() {
+          checkinline(
+            ['_foo:bar', {
+              _baz: 'qux'
+            }],
+            '_foo:bar;-baz:qux;'
+          )
+        })
+
+        o('custom obj.valueOf', function() {
+          var bar = {
+            valueOf: function() {
+              return 'theBAR'
             }
-          },
-          '-o-foo:bar;-p-foo:bar;foo:bar;'
-        )
-      })
-
-      o('CSS *Hack', function() {
-        // tested manually because the crass normalization
-        // outputs an empty string.
-        checkinline(
-          {
-            '*foo': 'bar'
-          },
-          '*foo:bar;'
-        )
-      })
-
-      o('CSS _Hack', function() {
-        checkinline(
-          ['_foo:bar', {
-            _baz: 'qux'
-          }],
-          '_foo:bar;-baz:qux;'
-        )
-      })
-
-      o('custom obj.valueOf', function() {
-        var bar = {
-          valueOf: function() {
-            return 'theBAR'
           }
-        }
-        checkinline(
-          {
-            foo: bar
-          },
-          'foo:theBAR;'
-        )
-      })
-    })
-
-    o.spec('Inline, nulls: ', function() {
-      o('null value', function() {
-        checkinline(
-          null,
-          ''
-        )
+          checkinline(
+            {
+              foo: bar
+            },
+            'foo:theBAR;'
+          )
+        })
       })
 
-      o('null leafs', function() {
-        checkinline(
-          {
-            foo: null
-          },
-          ''
-        )
+      o.spec('Nulls', function() {
+        o('null value', function() {
+          checkinline(
+            null,
+            ''
+          )
+        })
+
+        o('null leafs', function() {
+          checkinline(
+            {
+              foo: null
+            },
+            ''
+          )
+        })
+
+        o('undefined leafs', function() {
+          checkinline(
+            {
+              foo: void 8
+            },
+            ''
+          )
+        })
+
+        o('null leafs in array', function() {
+          checkinline(
+            {
+              foo: [null]
+            },
+            ''
+          )
+        })
+
+        o('undefined leafs in array', function() {
+          checkinline(
+            {
+              foo: [void 8]
+            },
+            ''
+          )
+        })
+
+        o('null leafs in array, preceded by value', function() {
+          checkinline(
+            {
+              foo: ['bar', null]
+            },
+            'foo:bar;'
+          )
+        })
+
+        o('undefined leafs in array, preceded by value', function() {
+          checkinline(
+            {
+              foo: ['bar', void 8]
+            },
+            'foo:bar;'
+          )
+        })
+
+        o('null leafs in arry, followed by a value', function() {
+          checkinline(
+            {
+              foo: [null, 'bar']
+            },
+            'foo:bar;'
+          )
+        })
+
+        o('undefined leafs in arry, followed by a value', function() {
+          checkinline(
+            {
+              foo: [void 8, 'bar']
+            },
+            'foo:bar;'
+          )
+        })
+
+        o('undefined value', function() {
+          checkinline(
+            void 8,
+            ''
+          )
+        })
+
+        o('null in Array', function() {
+          checkinline(
+            [null],
+            ''
+          )
+        })
+
+        o('undefined in Array', function() {
+          checkinline(
+            [void 8],
+            ''
+          )
+        })
+
+        o('null in Array followed by object', function() {
+          checkinline(
+            [null, {
+              foo: 'bar'
+            }],
+            'foo:bar;'
+          )
+        })
+
+        o('undefined in Array followed by object', function() {
+          checkinline(
+            [void 8, {
+              foo: 'bar'
+            }],
+            'foo:bar;'
+          )
+        })
+
+        o('object followed by null in Array', function() {
+          checkinline(
+            [{
+              foo: 'bar'
+            }, null],
+            'foo:bar;'
+          )
+        })
+
+        o('object followed by undefined in Array', function() {
+          checkinline(
+            [{
+              foo: 'bar'
+            }, void 8],
+            'foo:bar;'
+          )
+        })
+
+
+        // /////////////////////////////////
+        // /**/  suite('j2c().prefix: ')  /**/
+        // /////////////////////////////////
+
+
+        // o('1 x 1', function() {
+        //   var prod = j2c().prefix('foo', ['o'])
+        //   equals(prod[0], '-o-foo')
+        //   equals(prod[1], 'foo')
+        // })
+
+        // o('2 x 1', function() {
+        //   var prod = j2c().prefix('foo', ['o', 'p'])
+        //   equals(prod[0], '-o-foo')
+        //   equals(prod[1], '-p-foo')
+        //   equals(prod[2], 'foo')
+        // })
       })
+      o.spec("localizing and config", function(){
+        o("works without a config object", function() {
+          var _j2c = j2c()
+          var css = _j2c.inline({animationName:'foo'})
+          
+          o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
+          o(_j2c.names.foo).equals('foo'+_j2c.suffix)
+        })
+        o("works with an empty config object", function() {
+          var _j2c = j2c()
+          var css = _j2c.inline({animationName:'foo'}, {})
 
-      o('undefined leafs', function() {
-        checkinline(
-          {
-            foo: void 8
-          },
-          ''
-        )
+          o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
+          o(_j2c.names.foo).equals('foo'+_j2c.suffix)
+        })
+        o("works with an global:false config", function() {
+          var _j2c = j2c()
+          var css = _j2c.inline({animationName:'foo'}, {global: false})
+
+          o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
+          o(_j2c.names.foo).equals('foo'+_j2c.suffix)
+        })
+        o("works with an global:true config", function() {
+          var _j2c = j2c()
+          var css = _j2c.inline({animationName:'foo'}, {global: true})
+
+          o(css).equals('animation-name:foo;\n')
+          o(_j2c.names.foo).equals(void 8)
+        })
       })
-
-      o('null leafs in array', function() {
-        checkinline(
-          {
-            foo: [null]
-          },
-          ''
-        )
-      })
-
-      o('undefined leafs in array', function() {
-        checkinline(
-          {
-            foo: [void 8]
-          },
-          ''
-        )
-      })
-
-      o('null leafs in array, preceded by value', function() {
-        checkinline(
-          {
-            foo: ['bar', null]
-          },
-          'foo:bar;'
-        )
-      })
-
-      o('undefined leafs in array, preceded by value', function() {
-        checkinline(
-          {
-            foo: ['bar', void 8]
-          },
-          'foo:bar;'
-        )
-      })
-
-      o('null leafs in arry, followed by a value', function() {
-        checkinline(
-          {
-            foo: [null, 'bar']
-          },
-          'foo:bar;'
-        )
-      })
-
-      o('undefined leafs in arry, followed by a value', function() {
-        checkinline(
-          {
-            foo: [void 8, 'bar']
-          },
-          'foo:bar;'
-        )
-      })
-
-      o('undefined value', function() {
-        checkinline(
-          void 8,
-          ''
-        )
-      })
-
-      o('null in Array', function() {
-        checkinline(
-          [null],
-          ''
-        )
-      })
-
-      o('undefined in Array', function() {
-        checkinline(
-          [void 8],
-          ''
-        )
-      })
-
-      o('null in Array followed by object', function() {
-        checkinline(
-          [null, {
-            foo: 'bar'
-          }],
-          'foo:bar;'
-        )
-      })
-
-      o('undefined in Array followed by object', function() {
-        checkinline(
-          [void 8, {
-            foo: 'bar'
-          }],
-          'foo:bar;'
-        )
-      })
-
-      o('object followed by null in Array', function() {
-        checkinline(
-          [{
-            foo: 'bar'
-          }, null],
-          'foo:bar;'
-        )
-      })
-
-      o('object followed by undefined in Array', function() {
-        checkinline(
-          [{
-            foo: 'bar'
-          }, void 8],
-          'foo:bar;'
-        )
-      })
-
-
-      // /////////////////////////////////
-      // /**/  suite('j2c().prefix: ')  /**/
-      // /////////////////////////////////
-
-
-      // o('1 x 1', function() {
-      //   var prod = j2c().prefix('foo', ['o'])
-      //   equals(prod[0], '-o-foo')
-      //   equals(prod[1], 'foo')
-      // })
-
-      // o('2 x 1', function() {
-      //   var prod = j2c().prefix('foo', ['o', 'p'])
-      //   equals(prod[0], '-o-foo')
-      //   equals(prod[1], '-p-foo')
-      //   equals(prod[2], 'foo')
-      // })
     })
 
     o.spec('j2c().sheet: ', function() {

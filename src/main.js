@@ -61,7 +61,7 @@ export default function j2c() {
 
       return emit.done()
     },
-    inline: function (tree) {
+    inline: function (tree, options) {
       var emit = _createOrRetrieveStream(1)
       emit.init()
       declarations(
@@ -69,7 +69,7 @@ export default function j2c() {
         emit,
         '', // prefix
         tree,
-        1   // local, by default
+        !(options && options.global)   // local, by default
       )
       return emit.done()
     }
