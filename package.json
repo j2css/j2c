@@ -45,6 +45,6 @@
     "postcss-minify-selectors": "^2.0.2",
     "rollup": "^0.36.4",
     "uglify-js": "^2.6.0",
-    "yarn": "^0.18.0"
+    "yarn": "^0.18.1"
   }
 }
