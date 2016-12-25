@@ -18,35 +18,7 @@ function normalize(s) {
 
 function check(result, expected) {
   result = normalize(result)
-  equals(normalize(expected), result)
-}
-
-function doesnt_have_key(dict, key) {
-  o(dict.hasOwnProperty(key)).equals(false)
-}
-
-function has_key(dict, key) {
-  o(dict.hasOwnProperty(key)).equals(true)
-}
-
-function contains(haystack, needle) {
-  o(haystack.indexOf(needle)).notEquals(-1)
-}
-
-function equals(a, b) {
-  o(a).equals(b)
-}
-
-function differs(a, b) {
-  o(a).notEquals(b)
-}
-
-function has_type(a, b) {
-  if (b === '' + b) {
-    o(typeof a).equals(b)
-  } else {
-    o(a instanceof b).equals(true)
-  }
+  o(normalize(expected)).equals(result)
 }
 
 function randStr() {
@@ -472,15 +444,15 @@ function randInt() {
 
         // o('1 x 1', function() {
         //   var prod = j2c().prefix('foo', ['o'])
-        //   equals(prod[0], '-o-foo')
-        //   equals(prod[1], 'foo')
+        //   o(prod[0]).equals('-o-foo')
+        //   o(prod[1]).equals('foo')
         // })
 
         // o('2 x 1', function() {
         //   var prod = j2c().prefix('foo', ['o', 'p'])
-        //   equals(prod[0], '-o-foo')
-        //   equals(prod[1], '-p-foo')
-        //   equals(prod[2], 'foo')
+        //   o(prod[0]).equals('-o-foo')
+        //   o(prod[1]).equals('-p-foo')
+        //   o(prod[2]).equals('foo')
         // })
       })
       o.spec('localizing and config', function(){
@@ -1227,29 +1199,29 @@ function randInt() {
     o.spec('@adopt: ', function() {
       o('basic usage', function() {
         var _j2c = j2c()
-        equals(_j2c.sheet({
+        o(_j2c.sheet({
           '@adopt foo': 'bar'
-        }), '')
-        has_key(_j2c.names, 'foo')
-        equals(_j2c.names.foo, 'foo' + _j2c.suffix + ' bar')
+        })).equals('')
+        o(_j2c.names.hasOwnProperty('foo')).equals(true)
+        o(_j2c.names.foo).equals('foo' + _j2c.suffix + ' bar')
       })
 
       o('basic usage (with dots)', function() {
         var _j2c = j2c()
-        equals(_j2c.sheet({
+        o(_j2c.sheet({
           '@adopt .foo': '.bar'
-        }), '')
-        has_key(_j2c.names, 'foo')
-        equals(_j2c.names.foo, 'foo' + _j2c.suffix + ' bar')
+        })).equals('')
+        o(_j2c.names.hasOwnProperty('foo')).equals(true)
+        o(_j2c.names.foo).equals('foo' + _j2c.suffix + ' bar')
       })
 
       o('array of adoptees', function() {
         var _j2c = j2c()
-        equals(_j2c.sheet({
+        o(_j2c.sheet({
           '@adopt foo': ['.bar', 'baz']
-        }), '')
-        has_key(_j2c.names, 'foo')
-        equals(_j2c.names.foo, 'foo' + _j2c.suffix + ' bar baz')
+        })).equals( '')
+        o(_j2c.names.hasOwnProperty('foo')).equals(true)
+        o(_j2c.names.foo).equals('foo' + _j2c.suffix + ' bar baz')
       })
 
       o('bad target name', function() {
@@ -1260,8 +1232,8 @@ function randInt() {
           }),
           '@-error-bad-at-adopter /foo;'
         )
-        doesnt_have_key(_j2c.names, '/foo')
-        doesnt_have_key(_j2c.names, 'foo')
+        o(_j2c.names.hasOwnProperty('/foo')).equals(false)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
 
       })
 
@@ -1273,7 +1245,7 @@ function randInt() {
           }),
           '@-error-bad-at-adoptee "/bar";'
         )
-        doesnt_have_key(_j2c.names, 'foo')
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
 
       })
 
@@ -1287,7 +1259,7 @@ function randInt() {
           }),
           '@-error-bad-at-adopt-placement "@adopt foo";'
         )
-        doesnt_have_key(_j2c.names, 'foo')
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
 
       })
 
@@ -1301,7 +1273,7 @@ function randInt() {
           }),
           '@media screen{@-error-bad-at-adopt-placement "@adopt foo";}'
         )
-        doesnt_have_key(_j2c.names, 'foo')
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
 
       })
     })
@@ -1315,8 +1287,8 @@ function randInt() {
             foo: 5
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(css.indexOf('.' + names.bit + ' {\nfoo:5;\n}')).notEquals(-1)
       })
 
       o("a local class in a doubly quoted string shouldn't be localized", function() {
@@ -1327,7 +1299,7 @@ function randInt() {
             foo: 5
           }
         })
-        equals(names.bit, undefined)
+        o(names.bit).equals(undefined)
         check(css, '[foo=".bit"]{foo:5;}')
       })
 
@@ -1339,7 +1311,7 @@ function randInt() {
             foo: 5
           }
         })
-        equals(names.bit, undefined)
+        o(names.bit).equals(undefined)
         check(css, "[foo='.bit']{foo:5;}")
       })
 
@@ -1351,7 +1323,7 @@ function randInt() {
             foo: 5
           }
         })
-        equals(names.bit, undefined)
+        o(names.bit).equals(undefined)
         check(css, 'p/*.bit*/{foo:5;}')
       })
 
@@ -1363,7 +1335,7 @@ function randInt() {
             foo: 5
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
+        o(names.bit).equals('bit' + _j2c.suffix)
         check(css, "/*'*/." + names.bit + "/*'*/{foo:5;}")
       })
 
@@ -1378,10 +1350,10 @@ function randInt() {
             bar: 6
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, 'bat' + _j2c.suffix)
-        contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
-        contains(css, '.' + names.bat + ' {\nbar:6;\n}')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals('bat' + _j2c.suffix)
+        o(css.indexOf('.' + names.bit + ' {\nfoo:5;\n}')).notEquals(-1)
+        o(css.indexOf('.' + names.bat + ' {\nbar:6;\n}')).notEquals(-1)
       })
 
       o('a local and a global class', function() {
@@ -1395,10 +1367,10 @@ function randInt() {
             bar: 6
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, undefined)
-        contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
-        contains(css, '.bat {\nbar:6;\n}')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals(undefined)
+        o(css.indexOf('.' + names.bit + ' {\nfoo:5;\n}')).notEquals(-1)
+        o(css.indexOf('.bat {\nbar:6;\n}')).notEquals(-1)
       })
 
       o('a local wrapping a global block', function() {
@@ -1413,9 +1385,9 @@ function randInt() {
             }
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, undefined)
-        contains(css, '.' + names.bit + '.bat {\nfoo:5;\n}')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals(undefined)
+        o(css.indexOf('.' + names.bit + '.bat {\nfoo:5;\n}')).notEquals(-1)
       })
 
       o('two local classes, nested', function() {
@@ -1429,10 +1401,10 @@ function randInt() {
             }
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, 'bat' + _j2c.suffix)
-        contains(css, '.' + names.bit + ' {\nfoo:5;\n}')
-        contains(css, '.' + names.bit + '.' + names.bat + ' {\nbar:6;\n}')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals('bat' + _j2c.suffix)
+        o(css.indexOf('.' + names.bit + ' {\nfoo:5;\n}')).notEquals(-1)
+        o(css.indexOf('.' + names.bit + '.' + names.bat + ' {\nbar:6;\n}')).notEquals(-1)
       })
 
       o('@keyframes', function() {
@@ -1441,8 +1413,8 @@ function randInt() {
         var css = _j2c.sheet({
           '@keyframes bit': {}
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        contains(css, '@keyframes ' + names.bit + ' {')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(css.indexOf('@keyframes ' + names.bit + ' {')).notEquals(-1)
       })
 
       o('@keyframes with a CSS variable as name', function() {
@@ -1451,8 +1423,8 @@ function randInt() {
         var css = _j2c.sheet({
           '@keyframes var(--foo)': {}
         })
-        doesnt_have_key(names, 'var')
-        contains(css, '@keyframes var(--foo) {')
+        o(names.hasOwnProperty('var')).equals(false)
+        o(css.indexOf('@keyframes var(--foo) {')).notEquals(-1)
       })
 
       o('a global @keyframes', function() {
@@ -1461,8 +1433,8 @@ function randInt() {
         var css = _j2c.sheet({
           '@keyframes global(bit)': {}
         })
-        equals(names.bit, undefined)
-        contains(css, '@keyframes bit {')
+        o(names.bit).equals(undefined)
+        o(css.indexOf('@keyframes bit {')).notEquals(-1)
       })
 
       o('a @keyframe nested in a @global at-rule', function() {
@@ -1477,8 +1449,8 @@ function randInt() {
             }
           }
         })
-        equals(names.bat, undefined)
-        contains(css, '@keyframes bat {')
+        o(names.bat).equals(undefined)
+        o(css.indexOf('@keyframes bat {')).notEquals(-1)
       })
 
       o('one animation', function() {
@@ -1489,8 +1461,8 @@ function randInt() {
             animation: 'bit 1sec'
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        contains(css, 'animation:' + names.bit + ' ')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(css.indexOf('animation:' + names.bit + ' ')).notEquals(-1)
       })
 
       o('a global animation', function() {
@@ -1501,8 +1473,8 @@ function randInt() {
             animation: 'global(bit) 1sec'
           }
         })
-        equals(names.bit, undefined)
-        contains(css, 'animation:bit ')
+        o(names.bit).equals(undefined)
+        o(css.indexOf('animation:bit ')).notEquals(-1)
       })
 
       o('an animation nested in a @global at-rule', function() {
@@ -1515,8 +1487,8 @@ function randInt() {
             }
           }
         })
-        equals(names.bit, undefined)
-        contains(css, 'animation:bit ')
+        o(names.bit).equals(undefined)
+        o(css.indexOf('animation:bit ')).notEquals(-1)
       })
 
       o('one animation with a CSS variable', function() {
@@ -1527,8 +1499,8 @@ function randInt() {
             animation: 'var(--foo) 1sec'
           }
         })
-        doesnt_have_key(names, 'var')
-        contains(css, 'animation:var(--foo) 1sec;')
+        o(names.hasOwnProperty('var')).equals(false)
+        o(css.indexOf('animation:var(--foo) 1sec;')).notEquals(-1)
       })
 
       o('one animation-name', function() {
@@ -1539,8 +1511,8 @@ function randInt() {
             animation_name: 'bit'
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        contains(css, 'animation-name:' + names.bit + ';')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(css.indexOf('animation-name:' + names.bit + ';')).notEquals(-1)
       })
 
       o('two animation-name', function() {
@@ -1551,9 +1523,9 @@ function randInt() {
             animation_name: 'bit, bat'
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, 'bat' + _j2c.suffix)
-        contains(css, 'animation-name:' + names.bit + ', ' + names.bat)
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals('bat' + _j2c.suffix)
+        o(css.indexOf('animation-name:' + names.bit + ', ' + names.bat)).notEquals(-1)
       })
 
       o('two animation-name, one global', function() {
@@ -1564,9 +1536,9 @@ function randInt() {
             animation_name: 'bit, global(bat)'
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, undefined)
-        contains(css, 'animation-name:' + names.bit + ', bat;')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals(undefined)
+        o(css.indexOf('animation-name:' + names.bit + ', bat;')).notEquals(-1)
       })
 
       o('one animation-name with a CSS variable', function() {
@@ -1577,8 +1549,8 @@ function randInt() {
             animation_name: 'var(--foo)'
           }
         })
-        doesnt_have_key(names, 'var')
-        contains(css, 'animation-name:var(--foo);')
+        o(names.hasOwnProperty('var')).equals(false)
+        o(css.indexOf('animation-name:var(--foo);')).notEquals(-1)
       })
 
       o('a nested @global at-rule', function() {
@@ -1593,9 +1565,9 @@ function randInt() {
             }
           }
         })
-        equals(names.bit, 'bit' + _j2c.suffix)
-        equals(names.bat, undefined)
-        contains(css, names.bit + '.bat {')
+        o(names.bit).equals('bit' + _j2c.suffix)
+        o(names.bat).equals(undefined)
+        o(css.indexOf(names.bit + '.bat {')).notEquals(-1)
       })
 
       o('a @local rule nested in a @global block', function() {
@@ -1664,12 +1636,12 @@ function randInt() {
         '@media (min-width: ' + width + 'em)'
       ]
 
-      var o = {}
-      o[prop] = 5
-      o['.' + klass] = {
+      var x = {}
+      x[prop] = 5
+      x['.' + klass] = {
         foo: 6
       }
-      o['@media (min-width: ' + width + 'em)'] = {
+      x['@media (min-width: ' + width + 'em)'] = {
         bar: 7
       }
 
@@ -1724,15 +1696,15 @@ function randInt() {
         }
         var CSS = []
         indices.forEach(function(i) {
-          source.p[jsKeys[i]] = o[jsKeys[i]]
+          source.p[jsKeys[i]] = x[jsKeys[i]]
           CSS.push(rules[i])
         })
-        equals(normalize(J2C_1.sheet({
+        o(normalize(J2C_1.sheet({
           '@global': source
-        })), normalize(CSS.join('')))
-        equals(normalize(J2C_2.sheet({
+        }))).equals(normalize(CSS.join('')))
+        o(normalize(J2C_2.sheet({
           '@global': source
-        })), normalize(CSS.join('')))
+        }))).equals(normalize(CSS.join('')))
       })
     })
 
@@ -1748,76 +1720,76 @@ function randInt() {
 
   o.spec('Extras: ', function() {
     o('J2C.kv()', function() {
-      has_type(J2C.kv, Function)
-      has_type(J2C().kv, Function)
-      equals(J2C.kv, J2C().kv)
-      var o = J2C.kv('k', 'v')
-      has_key(o, 'k')
-      equals(o.k, 'v')
+      o(J2C.kv instanceof Function).equals(true)('value should have been a Function')
+      o(J2C().kv instanceof Function).equals(true)('value should have been a Function')
+      o(J2C.kv).equals(J2C().kv)
+      var res = J2C.kv('k', 'v')
+      o(res.hasOwnProperty('k')).equals(true)
+      o(res.k).equals('v')
     })
 
     o('J2C.global()', function() {
-      has_type(J2C.global, Function)
-      has_type(J2C().global, Function)
-      equals(J2C.global, J2C().global)
-      equals(J2C.global('foo'), ':global(foo)')
+      o(J2C.global instanceof Function).equals(true)('value should have been a Function')
+      o(J2C().global instanceof Function).equals(true)('value should have been a Function')
+      o(J2C.global).equals(J2C().global)
+      o(J2C.global('foo')).equals(':global(foo)')
     })
 
     o('J2C.at(), basics', function() {
-      has_type(J2C.at, Function)
-      has_type(J2C().at, Function)
-      equals(J2C.at, J2C().at)
+      o(J2C.at instanceof Function).equals(true)('value should have been a Function')
+      o(J2C().at instanceof Function).equals(true)('value should have been a Function')
+      o(J2C.at).equals(J2C().at)
     })
 
     o('J2C.at(), as an object key', function() {
-      equals(J2C.at('foo', 'bar') + '', '@foo bar')
+      o(J2C.at('foo', 'bar') + '').equals('@foo bar')
     })
 
     o('J2C.at(), as an object key, curried', function() {
-      equals(J2C.at('foo')('bar') + '', '@foo bar')
-      equals(J2C.at()('foo')('bar') + '', '@foo bar')
-      equals(J2C.at('foo')()('bar') + '', '@foo bar')
-      equals(J2C.at('foo')('bar')() + '', '@foo bar')
+      o(J2C.at('foo')('bar') + '').equals('@foo bar')
+      o(J2C.at()('foo')('bar') + '').equals('@foo bar')
+      o(J2C.at('foo')()('bar') + '').equals('@foo bar')
+      o(J2C.at('foo')('bar')() + '').equals('@foo bar')
     })
 
     o('J2C.at(), as an object generator', function() {
       var atFoo = J2C.at('foo', 'bar', {
         baz: 'qux'
       })
-      has_key(atFoo, '@foo bar')
-      has_type(atFoo['@foo bar'], Object)
-      has_key(atFoo['@foo bar'], 'baz')
-      equals(atFoo['@foo bar'].baz, 'qux')
+      o(atFoo.hasOwnProperty('@foo bar')).equals(true)
+      o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
+      o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
+      o(atFoo['@foo bar'].baz).equals('qux')
     })
 
     o('J2C.at(), as an object generator, curried 1', function() {
       var atFoo = J2C.at('foo')('bar', {
         baz: 'qux'
       })
-      has_key(atFoo, '@foo bar')
-      has_type(atFoo['@foo bar'], Object)
-      has_key(atFoo['@foo bar'], 'baz')
-      equals(atFoo['@foo bar'].baz, 'qux')
+      o(atFoo.hasOwnProperty('@foo bar')).equals(true)
+      o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
+      o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
+      o(atFoo['@foo bar'].baz).equals('qux')
     })
 
     o('J2C.at(), as an object generator, curried 2', function() {
       var atFoo = J2C.at('foo', 'bar')({
         baz: 'qux'
       })
-      has_key(atFoo, '@foo bar')
-      has_type(atFoo['@foo bar'], Object)
-      has_key(atFoo['@foo bar'], 'baz')
-      equals(atFoo['@foo bar'].baz, 'qux')
+      o(atFoo.hasOwnProperty('@foo bar')).equals(true)
+      o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
+      o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
+      o(atFoo['@foo bar'].baz).equals('qux')
     })
 
     o('J2C.at(), as an object generator, curried 3', function() {
       var atFoo = J2C.at('foo')('bar')({
         baz: 'qux'
       })
-      has_key(atFoo, '@foo bar')
-      has_type(atFoo['@foo bar'], Object)
-      has_key(atFoo['@foo bar'], 'baz')
-      equals(atFoo['@foo bar'].baz, 'qux')
+      o(atFoo.hasOwnProperty('@foo bar')).equals(true)
+      o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
+      o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
+      o(atFoo['@foo bar'].baz).equals('qux')
     })
   })
 
@@ -1856,7 +1828,7 @@ function randInt() {
         }),
         'p{color:red;}'
       )
-      doesnt_have_key(_J2C, '$invalid')
+      o(_J2C.hasOwnProperty('$invalid')).equals(false)
     })
 
     o('a plugin that sets a property on the instance', function() {
@@ -1871,15 +1843,15 @@ function randInt() {
         }),
         'p{color:red;}'
       )
-      has_key(_J2C, 'testProp')
-      equals(_J2C.testProp, 'foo')
+      o(_J2C.hasOwnProperty('testProp')).equals(true)
+      o(_J2C.testProp).equals('foo')
     })
 
     o('a plugin that sets a property on the instance that already exists', function() {
       var _J2C = J2C().use({
         sheet: 'foo'
       })
-      differs(_J2C.sheet, 'foo')
+      o(_J2C.sheet).notEquals('foo')
       check(
         _J2C.sheet({
           p: {
@@ -1889,13 +1861,13 @@ function randInt() {
         'p{color:red;}'
       )
 
-      differs(_J2C.sheet, 'foo')
+      o(_J2C.sheet).notEquals('foo')
     })
 
     o('Plugin deduplication', function() {
       var p = {}
       var _J2C = J2C().use(p, p)
-      equals(_J2C.$plugins.length, 1)
+      o(_J2C.$plugins.length).equals(1)
     })
   })
 
@@ -1972,7 +1944,7 @@ function randInt() {
         }
       })
       check('' + css, '.FOOO{foo:bar;baz:qux;}')
-      equals(names.foo, 'FOOO')
+      o(names.foo).equals('FOOO')
     })
 
     o('namespaced class wrapping a global block', function() {
@@ -1993,7 +1965,7 @@ function randInt() {
         }
       })
       check('' + css, '.FOOO.foo{foo:bar;baz:qux;}')
-      equals(names.foo, 'FOOO')
+      o(names.foo).equals('FOOO')
     })
 
     o('namespaced @keyframes', function() {
@@ -2006,8 +1978,8 @@ function randInt() {
       var css = _J2C.sheet({
         '@keyframes bit': {}
       })
-      equals(names.bit, 'BOT')
-      contains(css, '@keyframes BOT {')
+      o(names.bit).equals('BOT')
+      o(css.indexOf('@keyframes BOT {')).notEquals(-1)
     })
 
     o('namespaced animation', function() {
@@ -2022,7 +1994,7 @@ function randInt() {
           animation: 'bit 1sec'
         }
       })
-      equals(names.bit, 'BOT')
+      o(names.bit).equals('BOT')
       check(css, 'p{animation:BOT 1sec;}')
     })
 
@@ -2038,7 +2010,7 @@ function randInt() {
           animation_name: 'bit'
         }
       })
-      equals(names.bit, 'BOT')
+      o(names.bit).equals('BOT')
       check(css, 'p{animation-name:BOT;}')
     })
 
@@ -2053,40 +2025,44 @@ function randInt() {
         }
       })
       var names = _J2C.names
-      equals(names.bit, 'BOT')
+      o(names.bit).equals('BOT')
     })
   })
 
   o.spec('$filter plugins', function() {
     o('a sheet filter', function() {
       function filter(J2C) {
-        has_type(J2C, Object)
-        has_type(J2C.sheet, Function)
+        o(J2C instanceof Object).equals(true)('value should have been a Object')
+        o(J2C.sheet instanceof Function).equals(true)('value should have been a Function')
 
         return {
           $filter: function(next, inline) {
-            has_type(next, Object)
-            has_type(next.init, Function)
-            has_type(next.done, Function)
-            has_type(next.decl, Function)
+            o(next instanceof Object).equals(true)('value should have been a Object')
+            o(next.init instanceof Function).equals(true)('value should have been a Function')
+            o(next.done instanceof Function).equals(true)('value should have been a Function')
+            o(next.decl instanceof Function).equals(true)('value should have been a Function')
             if (!inline) {
-              has_type(next.rule, Function)
-              has_type(next._rule, Function)
-              has_type(next.atrule, Function)
-              has_type(next._atrule, Function)
+              o(next.rule instanceof Function).equals(true)('value should have been a Function')
+              o(next._rule instanceof Function).equals(true)('value should have been a Function')
+              o(next.atrule instanceof Function).equals(true)('value should have been a Function')
+              o(next._atrule instanceof Function).equals(true)('value should have been a Function')
             }
 
             return {
               init: function() {
                 next.init()
-                equals(!!inline, false)
+                o(!!inline).equals(false)
               },
               done: function() {
                 var buf = next.done(1)
-                has_type(buf, Array)
-                differs(buf.length, 0)
+
+                o(buf instanceof Array).equals(true)('value should have been a Array')
+                
+                o(buf.length).notEquals(0)
                 var txt = next.done()
-                has_type(txt, 'string')
+
+                o(typeof txt).equals('string')("value should have been a string")
+                
                 return txt
               },
               atrule: function(name, kind, arg, hasBlock) {
@@ -2130,33 +2106,33 @@ function randInt() {
 
     o('a declaration filter', function() {
       function filter(J2C) {
-        has_type(J2C, Object)
-        has_type(J2C.inline, Function)
+        o(J2C instanceof Object).equals(true)('value should have been a Object')
+        o(J2C.inline instanceof Function).equals(true)('value should have been a Function')
 
         return {
           $filter: function(next, inline) {
-            has_type(next, Object)
-            has_type(next.init, Function)
-            has_type(next.done, Function)
-            has_type(next.decl, Function)
+            o(next instanceof Object).equals(true)('value should have been a Object')
+            o(next.init instanceof Function).equals(true)('value should have been a Function')
+            o(next.done instanceof Function).equals(true)('value should have been a Function')
+            o(next.decl instanceof Function).equals(true)('value should have been a Function')
             if (!inline) {
-              has_type(next.rule, Function)
-              has_type(next._rule, Function)
-              has_type(next.atrule, Function)
-              has_type(next._atrule, Function)
+              o(next.rule instanceof Function).equals(true)('value should have been a Function')
+              o(next._rule instanceof Function).equals(true)('value should have been a Function')
+              o(next.atrule instanceof Function).equals(true)('value should have been a Function')
+              o(next._atrule instanceof Function).equals(true)('value should have been a Function')
             }
 
             return {
               init: function() {
                 next.init()
-                equals(!!inline, true)
+                o(!!inline).equals(true)
               },
               done: function() {
                 var buf = next.done(true)
-                has_type(buf, Array)
-                differs(buf.length, 0)
+                o(buf instanceof Array).equals(true)('value should have been a Array')
+                o(buf.length).notEquals(0)
                 var txt = next.done()
-                has_type(txt, 'string')
+                o(typeof txt).equals('string')("value should have been a string")
                 return txt
               },
               decl: function(prop, value) {
@@ -2192,9 +2168,9 @@ function randInt() {
       J2C().use(filter(1), filter(2)).sheet({
         '.foo': 'bar:baz;'
       })
-      equals(acc.length, 2)
-      equals(acc[0], 1)
-      equals(acc[1], 2)
+      o(acc.length).equals(2)
+      o(acc[0]).equals(1)
+      o(acc[1]).equals(2)
     })
 
     o('filter dedupe', function() {
@@ -2216,8 +2192,8 @@ function randInt() {
       J2C().use(f, f).sheet({
         '.foo': 'bar:baz;'
       })
-      equals(acc.length, 1)
-      equals(acc[0], 1)
+      o(acc.length).equals(1)
+      o(acc[0]).equals(1)
     })
 
     o('filter default', function() {
@@ -2237,8 +2213,8 @@ function randInt() {
         }),
         'pre{bar:baz}'
       )
-      equals(acc.length, 1)
-      equals(acc[0], 'p')
+      o(acc.length).equals(1)
+      o(acc[0]).equals('p')
     })
   })
 
@@ -2247,26 +2223,26 @@ function randInt() {
       function plugin(name) {
         return {
           $at: function(walker, emit, match, v, prefix, local, inAtRule) {
-            has_type(match, Array)
-            has_type(walker, Object)
-            has_key(walker, '$atHandlers')
-            has_key(walker, 'atrule')
-            has_key(walker, 'rule')
-            has_key(walker, 'decl')
-            has_key(walker, 'localize')
-            has_key(walker, 'localizeReplacer')
-            has_key(walker, 'names')
+            o(match instanceof Array).equals(true)('value should have been a Array')
+            o(walker instanceof Object).equals(true)('value should have been a Object')
+            o(walker.hasOwnProperty('$atHandlers')).equals(true)
+            o(walker.hasOwnProperty('atrule')).equals(true)
+            o(walker.hasOwnProperty('rule')).equals(true)
+            o(walker.hasOwnProperty('decl')).equals(true)
+            o(walker.hasOwnProperty('localize')).equals(true)
+            o(walker.hasOwnProperty('localizeReplacer')).equals(true)
+            o(walker.hasOwnProperty('names')).equals(true)
 
-            has_type(emit, Object)
-            has_key(emit, 'atrule')
+            o(emit instanceof Object).equals(true)('value should have been a Object')
+            o(emit.hasOwnProperty('atrule')).equals(true)
 
-            equals(v, 'param')
+            o(v).equals('param')
 
-            has_type(prefix, 'string')
+            o(typeof prefix).equals('string')("value should have been a string")
               // `local` can be many things, the only things that matters is its truthiness
-            equals(!!local, true)
+            o(!!local).equals(true)
               // `inAtRule` can be many things, the only things that matters is its truthiness
-            equals(!!inAtRule, false)
+            o(!!inAtRule).equals(false)
 
             if (match[2] !== name) return false
             emit.atrule(match[1], match[2], v)
@@ -2325,11 +2301,11 @@ function randInt() {
       var plugin = {
         $at: function(walker, emit, match, v) {
 
-          equals(match[0], '@; hey')
-          equals(match[1], '@')
-          equals(match[2], '')
-          equals(match[3], '')
-          equals(v, 'foo')
+          o(match[0]).equals('@; hey')
+          o(match[1]).equals('@')
+          o(match[2]).equals('')
+          o(match[3]).equals('')
+          o(v).equals('foo')
           return true
         }
       }
