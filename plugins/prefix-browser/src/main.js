@@ -20,6 +20,7 @@ if (typeof getComputedStyle === 'function') {
 
   var replacerString = '$&'+prefix
 
+  var convertAtRules = !!fixers.atrules.length
   var atRulesSet = setify(fixers.atrules.map(function(r){return '@'+r}))
   var atRulesMatcher = new RegExp('^@('+fixers.atrules.join('|')+')\\b')
   var atRulesReplacer = '@' + prefix + '$1'
@@ -103,33 +104,25 @@ if (typeof getComputedStyle === 'function') {
   prefixPlugin = function prefixPlugin() {
     return {
       $filter: function(next) {
-        var atStack = []
         return {
-          i: function() {
-            next.i()
-            atStack.length = 0
-          },
-          a: function(rule, params, hasBlock) {
-            rule = own.call(atRulesSet, rule) ? rule.replace(atRulesMatcher, atRulesReplacer) : rule
-            if (hasBlock) atStack.push(rule)
-            next.a(
-              rule,
-              params,
-              hasBlock
+          atrule: function(rule, kind, params, hasBlock) {
+            next.atrule(
+              convertAtRules && own.call(atRulesSet, rule) ?
+                rule.replace(atRulesMatcher, atRulesReplacer) :
+                rule,
+              kind, params, hasBlock
             )
           },
-          A: function() {
-            next.A(atStack.pop())
-          },
-          d: function(property, value){
-            next.d(
-              own.call(propertiesSet, property) ? prefix + property : property,
+          decl: function(property, value){
+            next.decl(
+              own.call(convertProperties && propertiesSet, property) ? prefix + property : property,
               fixValue(value, property)
             )
           },
-          s: function(selector) {
-            if (selectorMatcher.test(selector)) selector = selector.replace(selectorMatcher, selectorReplacer)
-            next.s(selector)
+          rule: function(selector) {
+            next.rule(
+              selectorMatcher.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
+            )
           }
         }
       }

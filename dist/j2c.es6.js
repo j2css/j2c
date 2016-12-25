@@ -169,6 +169,12 @@ function declarations(state, emit, prefix, o, local) {
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {array} k - The parsed at-rule, including the parameters,
  *                    if takes both parameters and a block.
+ *                    k == [match, fullAtRule, atRuleType, params?]
+ *                    So in `@-webkit-keyframes foo`, we have
+ *                     - match = "@-webkit-keyframes foo"
+ *                     - fullAtRule = "@-webkit-keyframes"
+ *                     - atRuleType = "keyframes"
+ *                     - params = "foo"
  * @param {string|string[]|object|object[]} v - Either parameters for
  *                                              block-less rules or
  *                                              their block
@@ -204,14 +210,14 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   } else if (k[3] && /^adopt$/.test(k[2])) {
 
-    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , JSON.stringify(k[0]), 0)
+    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , '', JSON.stringify(k[0]), 0)
 
-    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', k[3], 0)
+    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', '', k[3], 0)
 
     i = [];
     flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', JSON.stringify(adoptee), 0);
+      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', '', JSON.stringify(adoptee), 0);
 
       else i.push(asString.replace(/\./g, ''));
 
@@ -227,7 +233,7 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:namespace|import|charset)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.atrule(k[0], v);
+      emit.atrule(k[1], k[2], v);
 
     })(v);
 
@@ -235,11 +241,11 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.atrule(k[1], '', 1);
+      emit.atrule(k[1], k[2], k[3], 1);
 
       declarations(state, emit, '', v, local);
 
-      emit._atrule(k[1], '');
+      emit._atrule();
 
     })(v);
 
@@ -254,7 +260,7 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
     }
 
 
-    emit.atrule(k[1], k[3], 1);
+    emit.atrule(k[1], k[2], k[3], 1);
 
     if ('page' == k[2]) {
 
@@ -270,11 +276,11 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
     }
 
-    emit._atrule(k[1], k[3]);
+    emit._atrule();
 
   } else {
 
-    emit.atrule('@-error-unsupported-at-rule', JSON.stringify(k[0]));
+    emit.atrule('@-error-unsupported-at-rule', '', JSON.stringify(k[0]));
 
   }
 }
@@ -419,9 +425,9 @@ function closeSelectors(next, inline) {
       if (lastSelector) {next._rule(); lastSelector = 0;}
       return next.done(raw)
     },
-    atrule: function (rule, param, takesBlock) {
+    atrule: function (rule, kind, param, takesBlock) {
       if (lastSelector) {next._rule(); lastSelector = 0;}
-      next.atrule(rule, param, takesBlock);
+      next.atrule(rule, kind, param, takesBlock);
     },
     _atrule: function (rule) {
       if (lastSelector) {next._rule(); lastSelector = 0;}
@@ -469,14 +475,14 @@ function j2c() {
   var $sink = {
     init: function(){buf=[];},
     done: function (raw) {return raw ? buf : buf.join('')},
-    atrule: function (rule, argument, takesBlock) {
-      buf.push(rule, argument && ' ',argument, takesBlock ? ' {' : ';', _instance.endline);
+    atrule: function (rule, kind, param, takesBlock) {
+      buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline);
     },
-    // end atrule
-    _atrule: function ()            {buf.push('}', _instance.endline);},
+    // close atrule
+    _atrule: function ()         {buf.push('}', _instance.endline);},
     rule: function (selector)    {buf.push(selector, ' {', _instance.endline);},
-    // end rule
-    _rule: function ()            {buf.push('}', _instance.endline);},
+    // close rule
+    _rule: function ()           {buf.push('}', _instance.endline);},
     decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline);}
   };
 
@@ -510,13 +516,13 @@ function j2c() {
         emit,
         '', // prefix
         tree,
-        1,  // local, by defaults
+        1,  // local, by default
         0   // inAtRule
       );
 
       return emit.done()
     },
-    inline: function (tree) {
+    inline: function (tree, options) {
       var emit = _createOrRetrieveStream(1);
       emit.init();
       declarations(
@@ -524,7 +530,7 @@ function j2c() {
         emit,
         '', // prefix
         tree,
-        1   // local, by defaults
+        !(options && options.global)   // local, by default
       );
       return emit.done()
     }

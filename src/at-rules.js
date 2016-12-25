@@ -51,14 +51,14 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   } else if (k[3] && /^adopt$/.test(k[2])) {
 
-    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , JSON.stringify(k[0]), 0)
+    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , '', JSON.stringify(k[0]), 0)
 
-    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', k[3], 0)
+    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', '', k[3], 0)
 
     i = []
     flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', JSON.stringify(adoptee), 0)
+      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', '', JSON.stringify(adoptee), 0)
 
       else i.push(asString.replace(/\./g, ''))
 
@@ -74,7 +74,7 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:namespace|import|charset)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.atrule(k[0], v)
+      emit.atrule(k[1], k[2], v)
 
     })(v)
 
@@ -82,11 +82,11 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.atrule(k[1], '', 1)
+      emit.atrule(k[1], k[2], k[3], 1)
 
       declarations(state, emit, '', v, local)
 
-      emit._atrule(k[1], '')
+      emit._atrule()
 
     })(v)
 
@@ -101,7 +101,7 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
     }
 
 
-    emit.atrule(k[1], k[3], 1)
+    emit.atrule(k[1], k[2], k[3], 1)
 
     if ('page' == k[2]) {
 
@@ -117,11 +117,11 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
     }
 
-    emit._atrule(k[1], k[3])
+    emit._atrule()
 
   } else {
 
-    emit.atrule('@-error-unsupported-at-rule', JSON.stringify(k[0]))
+    emit.atrule('@-error-unsupported-at-rule', '', JSON.stringify(k[0]))
 
   }
 }

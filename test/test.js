@@ -483,29 +483,29 @@ function randInt() {
         //   equals(prod[2], 'foo')
         // })
       })
-      o.spec("localizing and config", function(){
-        o("works without a config object", function() {
+      o.spec('localizing and config', function(){
+        o('works without a config object', function() {
           var _j2c = j2c()
           var css = _j2c.inline({animationName:'foo'})
-          
+
           o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
           o(_j2c.names.foo).equals('foo'+_j2c.suffix)
         })
-        o("works with an empty config object", function() {
+        o('works with an empty config object', function() {
           var _j2c = j2c()
           var css = _j2c.inline({animationName:'foo'}, {})
 
           o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
           o(_j2c.names.foo).equals('foo'+_j2c.suffix)
         })
-        o("works with an global:false config", function() {
+        o('works with an global:false config', function() {
           var _j2c = j2c()
           var css = _j2c.inline({animationName:'foo'}, {global: false})
 
           o(css).equals('animation-name:foo'+_j2c.suffix+';\n')
           o(_j2c.names.foo).equals('foo'+_j2c.suffix)
         })
-        o("works with an global:true config", function() {
+        o('works with an global:true config', function() {
           var _j2c = j2c()
           var css = _j2c.inline({animationName:'foo'}, {global: true})
 
@@ -2089,8 +2089,8 @@ function randInt() {
                 has_type(txt, 'string')
                 return txt
               },
-              atrule: function(name, arg, hasBlock) {
-                next.atrule(name + 'o', 'a' + arg, hasBlock)
+              atrule: function(name, kind, arg, hasBlock) {
+                next.atrule(name + 'o', kind, 'a' + arg, hasBlock)
               },
               _atrule: function(name, arg) {
                 next._atrule(name + 'o', 'a' + arg)
@@ -2269,7 +2269,7 @@ function randInt() {
             equals(!!inAtRule, false)
 
             if (match[2] !== name) return false
-            emit.atrule(match[1], v)
+            emit.atrule(match[1], match[2], v)
             return true
           }
         }
@@ -2289,7 +2289,7 @@ function randInt() {
         return {
           $at: function(walker, emit, match, v) {
             if (match[2] !== name) return false
-            emit.atrule(match[1], v)
+            emit.atrule(match[1], match[2], v)
             return true
           }
         }
@@ -2308,7 +2308,7 @@ function randInt() {
       var plugin = {
         $at: function(walker, emit, match, v) {
           if (match[2] !== 'import') return false
-          emit.atrule('@intercepted', v)
+          emit.atrule('@intercepted', 'intercepted', v)
           return true
         }
       }

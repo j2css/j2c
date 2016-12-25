@@ -14,14 +14,14 @@ export default function j2c() {
   var $sink = {
     init: function(){buf=[]},
     done: function (raw) {return raw ? buf : buf.join('')},
-    atrule: function (rule, argument, takesBlock) {
-      buf.push(rule, argument && ' ',argument, takesBlock ? ' {' : ';', _instance.endline)
+    atrule: function (rule, kind, param, takesBlock) {
+      buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline)
     },
-    // end atrule
-    _atrule: function ()            {buf.push('}', _instance.endline)},
+    // close atrule
+    _atrule: function ()         {buf.push('}', _instance.endline)},
     rule: function (selector)    {buf.push(selector, ' {', _instance.endline)},
-    // end rule
-    _rule: function ()            {buf.push('}', _instance.endline)},
+    // close rule
+    _rule: function ()           {buf.push('}', _instance.endline)},
     decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
   }
 

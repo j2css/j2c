@@ -142,9 +142,9 @@ export function closeSelectors(next, inline) {
       if (lastSelector) {next._rule(); lastSelector = 0}
       return next.done(raw)
     },
-    atrule: function (rule, param, takesBlock) {
+    atrule: function (rule, kind, param, takesBlock) {
       if (lastSelector) {next._rule(); lastSelector = 0}
-      next.atrule(rule, param, takesBlock)
+      next.atrule(rule, kind, param, takesBlock)
     },
     _atrule: function (rule) {
       if (lastSelector) {next._rule(); lastSelector = 0}
