@@ -51,14 +51,14 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   } else if (k[3] && /^adopt$/.test(k[2])) {
 
-    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , '', JSON.stringify(k[0]), 0)
+    if (!local || inAtRule) return emit.err('bad @adopt placement ' + k[0])
 
-    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', '', k[3], 0)
+    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.err('bad adopter ' + JSON.stringify(k[3]) + ' in ' + k[0])
 
     i = []
     flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', '', JSON.stringify(adoptee), 0)
+      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.err('bad adoptee '+ JSON.stringify(adoptee) + ' in ' + k[0])
 
       else i.push(asString.replace(/\./g, ''))
 
@@ -121,7 +121,7 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   } else {
 
-    emit.atrule('@-error-unsupported-at-rule', '', JSON.stringify(k[0]))
+    emit.err('Unsupported at-rule: ' + k[0])
 
   }
 }

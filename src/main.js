@@ -8,20 +8,27 @@ import {at, global, kv} from './extras'
 export default function j2c() {
 
   // the buffer that accumulates the output. Initialized in `$sink.i()`
-  var buf
+  var buf, err
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
   var $sink = {
-    init: function(){buf=[]},
-    done: function (raw) {return raw ? buf : buf.join('')},
+    init: function(){buf=[], err=0},
+    done: function (raw) {
+      if (err) throw new Error('j2c error, see below\n' + buf.join(''))
+      return raw ? buf : buf.join('')
+    },
+    err: function(msg) {
+      err = 1
+      buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
+    },
     atrule: function (rule, kind, param, takesBlock) {
       buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline)
     },
     // close atrule
-    _atrule: function ()         {buf.push('}', _instance.endline)},
-    rule: function (selector)    {buf.push(selector, ' {', _instance.endline)},
+    _atrule: function () {buf.push('}', _instance.endline)},
+    rule: function (selector) {buf.push(selector, ' {', _instance.endline)},
     // close rule
-    _rule: function ()           {buf.push('}', _instance.endline)},
+    _rule: function () {buf.push('}', _instance.endline)},
     decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline)}
   }
 
@@ -141,7 +148,7 @@ export default function j2c() {
     // build the stream processors if needed
     if (!_streams.length) {
       // append the $sink as the ultimate filter
-      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done} : $sink})
+      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done, err: $sink.err} : $sink})
       for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
         for (var j = $filters.length; j--;) {
           _streams[i] = freeze(

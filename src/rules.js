@@ -117,8 +117,8 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
 
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
-
-    emit.rule(prefix.length > 0 ? prefix : ':-error-no-selector')
+    if (!prefix.length) emit.err('No selector')
+    emit.rule(prefix || ' ')
 
     declarations(state, emit, '', tree, local)
 

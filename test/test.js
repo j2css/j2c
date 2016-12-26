@@ -1114,23 +1114,31 @@ function randInt() {
       })
 
       o('invalid @foo becomes @-error-unsupported-at-rule "@foo"', function() {
-        check(
+        var err
+        try {
           j2c().sheet({
             '@foo': 'bar'
-          }),
-          '@-error-unsupported-at-rule "@foo";'
-        )
+          })
+        } catch (e) {
+          err = e
+        }
 
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @foo */')).notEquals(-1)
       })
 
       o('invalid @ becomes @-error-unsupported-at-rule "@"', function() {
-        check(
+        var err
+        try {
           j2c().sheet({
             '@': 'bar'
-          }),
-          '@-error-unsupported-at-rule "@";'
-        )
+          })
+        } catch (e) {
+          err = e
+        }
 
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @ */')).notEquals(-1)
       })
     })
 
@@ -1226,55 +1234,75 @@ function randInt() {
 
       o('bad target name', function() {
         var _j2c = j2c()
-        check(
+        var err
+
+        try {
           _j2c.sheet({
             '@adopt /foo': '.bar'
-          }),
-          '@-error-bad-at-adopter /foo;'
-        )
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adopter "/foo" in @adopt /foo */')).notEquals(-1)
         o(_j2c.names.hasOwnProperty('/foo')).equals(false)
         o(_j2c.names.hasOwnProperty('foo')).equals(false)
-
       })
 
       o('bad parameter name', function() {
         var _j2c = j2c()
-        check(
+        var err
+
+        try {
           _j2c.sheet({
             '@adopt foo': '/bar'
-          }),
-          '@-error-bad-at-adoptee "/bar";'
-        )
-        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+          })
+        } catch (e) {
+          err = e
+        }
 
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee "/bar" in @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
 
       o('forbidden in global scope', function() {
         var _j2c = j2c()
-        check(
+        var err
+
+        try {
           _j2c.sheet({
             '@global': {
               '@adopt foo': 'bar'
             }
-          }),
-          '@-error-bad-at-adopt-placement "@adopt foo";'
-        )
-        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+          })
+        } catch (e) {
+          err = e
+        }
 
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad @adopt placement @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
 
       o('forbidden in conditional scope', function() {
         var _j2c = j2c()
-        check(
+        var err
+
+        try {
           _j2c.sheet({
             '@media screen': {
               '@adopt foo': 'bar'
             }
-          }),
-          '@media screen{@-error-bad-at-adopt-placement "@adopt foo";}'
-        )
-        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+          })
+        } catch (e) {
+          err = e
+        }
 
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad @adopt placement @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
     })
 
@@ -1590,10 +1618,15 @@ function randInt() {
 
     o.spec('Foolproofing: ', function() {
       o('property-like sub-selector', function() {
-        check(
-          j2c().sheet('color:red'),
-          ':-error-no-selector {color:red}'
-        )
+        var err
+        try {
+          j2c().sheet('color:red')
+        } catch (e) {
+          err = e
+        }
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ No selector */')).notEquals(-1)
+        o(err.message.indexOf('color:red')).notEquals(-1)
       })
     })
   })
@@ -2041,6 +2074,7 @@ function randInt() {
             o(next.init instanceof Function).equals(true)('value should have been a Function')
             o(next.done instanceof Function).equals(true)('value should have been a Function')
             o(next.decl instanceof Function).equals(true)('value should have been a Function')
+            o(next.err instanceof Function).equals(true)('value should have been a Function')
             if (!inline) {
               o(next.rule instanceof Function).equals(true)('value should have been a Function')
               o(next._rule instanceof Function).equals(true)('value should have been a Function')
@@ -2057,12 +2091,12 @@ function randInt() {
                 var buf = next.done(1)
 
                 o(buf instanceof Array).equals(true)('value should have been a Array')
-                
+
                 o(buf.length).notEquals(0)
                 var txt = next.done()
 
-                o(typeof txt).equals('string')("value should have been a string")
-                
+                o(typeof txt).equals('string')('value should have been a string')
+
                 return txt
               },
               atrule: function(name, kind, arg, hasBlock) {
@@ -2132,7 +2166,7 @@ function randInt() {
                 o(buf instanceof Array).equals(true)('value should have been a Array')
                 o(buf.length).notEquals(0)
                 var txt = next.done()
-                o(typeof txt).equals('string')("value should have been a string")
+                o(typeof txt).equals('string')('value should have been a string')
                 return txt
               },
               decl: function(prop, value) {
@@ -2238,7 +2272,7 @@ function randInt() {
 
             o(v).equals('param')
 
-            o(typeof prefix).equals('string')("value should have been a string")
+            o(typeof prefix).equals('string')('value should have been a string')
               // `local` can be many things, the only things that matters is its truthiness
             o(!!local).equals(true)
               // `inAtRule` can be many things, the only things that matters is its truthiness
@@ -2250,14 +2284,26 @@ function randInt() {
           }
         }
       }
+      var _j2c = J2C().use(plugin('foo'))
       check(
-        J2C().use(plugin('foo')).sheet({
+        _j2c.sheet({
+          '@foo': 'param'
+        }),
+          '@foo param;'
+        )
+      var err
+      try {
+        _j2c.sheet({
           '@foo': 'param',
           '@bar': 'param',
           '@baz': 'param'
-        }),
-        '@foo param; @-error-unsupported-at-rule "@bar"; @-error-unsupported-at-rule "@baz";'
-      )
+        })
+      } catch (e) {
+        err = e
+      }
+      o(err).notEquals(undefined)
+      o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @bar */')).notEquals(-1)
+      o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @baz */')).notEquals(-1)
     })
 
     o('two $at plugins', function() {
@@ -2270,14 +2316,28 @@ function randInt() {
           }
         }
       }
+      var _j2c = J2C().use(plugin('foo'), plugin('bar'))
       check(
-        J2C().use(plugin('foo'), plugin('bar')).sheet({
-          '@foo': 'bar',
-          '@bar': 'baz',
-          '@baz': 'qux'
+        _j2c.sheet({
+          '@foo': 'param',
+          '@bar': 'param'
         }),
-        '@foo bar; @bar baz; @-error-unsupported-at-rule "@baz";'
-      )
+          '@foo param; @bar param;'
+        )
+      var err
+      try {
+        _j2c.sheet({
+          '@foo': 'param',
+          '@bar': 'param',
+          '@baz': 'param'
+        })
+      } catch (e) {
+        err = e
+      }
+      o(err).notEquals(undefined)
+      o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @bar */')).equals(-1)
+      o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @baz */')).notEquals(-1)
+
     })
 
     o('$at plugin has precedence over default at-rules', function() {
