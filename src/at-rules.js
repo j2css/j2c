@@ -22,16 +22,16 @@ import {declarations} from './declarations'
  *                                              for the others.
  * @param {string} prefix - the current selector or the selector prefix
  *                          in case of nested rules
- * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
+ * @param {string} nestingDepth - are we nested in an at-rule or a selector?
  */
 
-export function atRules(state, emit, k, v, prefix, local, inAtRule) {
+export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
 
   // First iterate over user-provided at-rules and return if one of them corresponds to the current one
   for (var i = 0; i < state.$atHandlers.length; i++) {
 
-    if (state.$atHandlers[i](state, emit, k, v, prefix, local, inAtRule)) return
+    if (state.$atHandlers[i](state, emit, k, v, prefix, local, nestingDepth)) return
 
   }
 
@@ -41,24 +41,24 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   if (!k[3] && /^global$/.test(k[2])) {
 
-    rules(state, emit, prefix, v, 0, inAtRule)
+    rules(state, emit, prefix, v, 0, nestingDepth)
 
 
   } else if (!k[3] && /^local$/.test(k[2])) {
 
-    rules(state, emit, prefix, v, 1, inAtRule)
+    rules(state, emit, prefix, v, 1, nestingDepth)
 
 
   } else if (k[3] && /^adopt$/.test(k[2])) {
 
-    if (!local || inAtRule) return emit.err('bad @adopt placement ' + k[0])
+    if (!local || nestingDepth) return emit.err('@adopt global or nested: ' + k[0])
 
     if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.err('bad adopter ' + JSON.stringify(k[3]) + ' in ' + k[0])
 
     i = []
     flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.err('bad adoptee '+ JSON.stringify(adoptee) + ' in ' + k[0])
+      if(adoptee == null || !/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee + '')) emit.err('bad adoptee '+ JSON.stringify(adoptee) + ' in ' + k[0])
 
       else i.push(asString.replace(/\./g, ''))
 
@@ -112,7 +112,7 @@ export function atRules(state, emit, k, v, prefix, local, inAtRule) {
       rules(
         state, emit,
         'keyframes' == k[2] ? '' : prefix,
-        v, local, 1
+        v, local, nestingDepth + 1
       )
 
     }

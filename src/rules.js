@@ -10,10 +10,10 @@ import {atRules} from './at-rules'
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {array|string|object} tree - a source object or sub-object.
- * @param {string} inAtRule - are we nested in an at-rule?
+ * @param {string} nestingDepth - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
-export function rules(state, emit, prefix, tree, local, inAtRule) {
+export function rules(state, emit, prefix, tree, local, nestingDepth) {
   var k, v, inDeclaration, kk
 
   switch (type.call(tree)) {
@@ -47,7 +47,7 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
 
         atRules(state, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || [k,'@','',''],
-          v, prefix, local, inAtRule
+          v, prefix, local, nestingDepth
         )
 
       } else {
@@ -99,7 +99,7 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
 
                   k
                 ),
-           v, local, inAtRule
+           v, local, nestingDepth + 1
         )
 
       }
@@ -110,7 +110,7 @@ export function rules(state, emit, prefix, tree, local, inAtRule) {
   case ARRAY:
     for (k = 0; k < tree.length; k++){
 
-      rules(state, emit, prefix, tree[k], local, inAtRule)
+      rules(state, emit, prefix, tree[k], local, nestingDepth)
 
     }
     break

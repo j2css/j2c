@@ -63,7 +63,7 @@ export default function j2c() {
         '', // prefix
         tree,
         1,  // local, by default
-        0   // inAtRule
+        0   // nesting depth
       )
 
       return emit.done()

@@ -183,16 +183,16 @@ function declarations(state, emit, prefix, o, local) {
  *                                              for the others.
  * @param {string} prefix - the current selector or the selector prefix
  *                          in case of nested rules
- * @param {string} inAtRule - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
+ * @param {string} nestingDepth - are we nested in an at-rule or a selector?
  */
 
-function atRules(state, emit, k, v, prefix, local, inAtRule) {
+function atRules(state, emit, k, v, prefix, local, nestingDepth) {
 
   // First iterate over user-provided at-rules and return if one of them corresponds to the current one
   for (var i = 0; i < state.$atHandlers.length; i++) {
 
-    if (state.$atHandlers[i](state, emit, k, v, prefix, local, inAtRule)) return
+    if (state.$atHandlers[i](state, emit, k, v, prefix, local, nestingDepth)) return
 
   }
 
@@ -202,24 +202,24 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   if (!k[3] && /^global$/.test(k[2])) {
 
-    rules(state, emit, prefix, v, 0, inAtRule);
+    rules(state, emit, prefix, v, 0, nestingDepth);
 
 
   } else if (!k[3] && /^local$/.test(k[2])) {
 
-    rules(state, emit, prefix, v, 1, inAtRule);
+    rules(state, emit, prefix, v, 1, nestingDepth);
 
 
   } else if (k[3] && /^adopt$/.test(k[2])) {
 
-    if (!local || inAtRule) return emit.atrule('@-error-bad-at-adopt-placement' , '', JSON.stringify(k[0]), 0)
+    if (!local || nestingDepth) return emit.err('@adopt global or nested: ' + k[0])
 
-    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.atrule('@-error-bad-at-adopter', '', k[3], 0)
+    if (!/^\.?[_A-Za-z][-\w]*$/.test(k[3])) return emit.err('bad adopter ' + JSON.stringify(k[3]) + ' in ' + k[0])
 
     i = [];
     flatIter(function(adoptee, asString) {
 
-      if(!/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee.toString())) emit.atrule('@-error-bad-at-adoptee', '', JSON.stringify(adoptee), 0);
+      if(adoptee == null || !/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(asString = adoptee + '')) emit.err('bad adoptee '+ JSON.stringify(adoptee) + ' in ' + k[0]);
 
       else i.push(asString.replace(/\./g, ''));
 
@@ -273,7 +273,7 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
       rules(
         state, emit,
         'keyframes' == k[2] ? '' : prefix,
-        v, local, 1
+        v, local, nestingDepth + 1
       );
 
     }
@@ -282,7 +282,7 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
 
   } else {
 
-    emit.atrule('@-error-unsupported-at-rule', '', JSON.stringify(k[0]));
+    emit.err('Unsupported at-rule: ' + k[0]);
 
   }
 }
@@ -295,10 +295,10 @@ function atRules(state, emit, k, v, prefix, local, inAtRule) {
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {array|string|object} tree - a source object or sub-object.
- * @param {string} inAtRule - are we nested in an at-rule?
+ * @param {string} nestingDepth - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
-function rules(state, emit, prefix, tree, local, inAtRule) {
+function rules(state, emit, prefix, tree, local, nestingDepth) {
   var k, v, inDeclaration, kk;
 
   switch (type.call(tree)) {
@@ -332,7 +332,7 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
 
         atRules(state, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || [k,'@','',''],
-          v, prefix, local, inAtRule
+          v, prefix, local, nestingDepth
         );
 
       } else {
@@ -384,7 +384,7 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
 
                   k
                 ),
-           v, local, inAtRule
+           v, local, nestingDepth + 1
         );
 
       }
@@ -395,15 +395,15 @@ function rules(state, emit, prefix, tree, local, inAtRule) {
   case ARRAY:
     for (k = 0; k < tree.length; k++){
 
-      rules(state, emit, prefix, tree[k], local, inAtRule);
+      rules(state, emit, prefix, tree[k], local, nestingDepth);
 
     }
     break
 
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
-
-    emit.rule(prefix.length > 0 ? prefix : ':-error-no-selector');
+    if (!prefix.length) emit.err('No selector');
+    emit.rule(prefix || ' ');
 
     declarations(state, emit, '', tree, local);
 
@@ -471,20 +471,27 @@ function at (rule, params, block) {
 function j2c() {
 
   // the buffer that accumulates the output. Initialized in `$sink.i()`
-  var buf;
+  var buf, err;
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
   var $sink = {
-    init: function(){buf=[];},
-    done: function (raw) {return raw ? buf : buf.join('')},
+    init: function(){buf=[], err=0;},
+    done: function (raw) {
+      if (err) throw new Error('j2c error, see below\n' + buf.join(''))
+      return raw ? buf : buf.join('')
+    },
+    err: function(msg) {
+      err = 1;
+      buf.push('/* +++ ERROR +++ ' + msg + ' */\n');
+    },
     atrule: function (rule, kind, param, takesBlock) {
       buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline);
     },
     // close atrule
-    _atrule: function ()         {buf.push('}', _instance.endline);},
-    rule: function (selector)    {buf.push(selector, ' {', _instance.endline);},
+    _atrule: function () {buf.push('}', _instance.endline);},
+    rule: function (selector) {buf.push(selector, ' {', _instance.endline);},
     // close rule
-    _rule: function ()           {buf.push('}', _instance.endline);},
+    _rule: function () {buf.push('}', _instance.endline);},
     decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline);}
   };
 
@@ -519,7 +526,7 @@ function j2c() {
         '', // prefix
         tree,
         1,  // local, by default
-        0   // inAtRule
+        0   // nesting depth
       );
 
       return emit.done()
@@ -604,7 +611,7 @@ function j2c() {
     // build the stream processors if needed
     if (!_streams.length) {
       // append the $sink as the ultimate filter
-      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done} : $sink});
+      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done, err: $sink.err} : $sink});
       for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
         for (var j = $filters.length; j--;) {
           _streams[i] = freeze(

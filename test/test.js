@@ -1267,6 +1267,75 @@ function randInt() {
         o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
 
+      o('bad parameter: null', function() {
+        var _j2c = j2c()
+        var err
+
+        try {
+          _j2c.sheet({
+            '@adopt foo': null
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee null in @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+      })
+
+      o('bad parameter: [null]', function() {
+        var _j2c = j2c()
+        var err
+
+        try {
+          _j2c.sheet({
+            '@adopt foo': [null]
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee null in @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+      })
+
+      o('bad parameter: undefined', function() {
+        var _j2c = j2c()
+        var err
+
+        try {
+          _j2c.sheet({
+            '@adopt foo': void 8
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee undefined in @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+      })
+
+      o('bad parameter: [undefined, null]', function() {
+        var _j2c = j2c()
+        var err
+
+        try {
+          _j2c.sheet({
+            '@adopt foo': [void 8, null]
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee undefined in @adopt foo */')).notEquals(-1)
+        o(err.message.indexOf('/* +++ ERROR +++ bad adoptee null in @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+      })
+
       o('forbidden in global scope', function() {
         var _j2c = j2c()
         var err
@@ -1282,7 +1351,7 @@ function randInt() {
         }
 
         o(err).notEquals(void 8)
-        o(err.message.indexOf('/* +++ ERROR +++ bad @adopt placement @adopt foo */')).notEquals(-1)
+        o(err.message.indexOf('/* +++ ERROR +++ @adopt global or nested: @adopt foo */')).notEquals(-1)
         o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
 
@@ -1301,7 +1370,26 @@ function randInt() {
         }
 
         o(err).notEquals(void 8)
-        o(err.message.indexOf('/* +++ ERROR +++ bad @adopt placement @adopt foo */')).notEquals(-1)
+        o(err.message.indexOf('/* +++ ERROR +++ @adopt global or nested: @adopt foo */')).notEquals(-1)
+        o(_j2c.names.hasOwnProperty('foo')).equals(false)
+      })
+
+      o('forbidden in selector', function() {
+        var _j2c = j2c()
+        var err
+
+        try {
+          _j2c.sheet({
+            'p': {
+              '@adopt foo': 'bar'
+            }
+          })
+        } catch (e) {
+          err = e
+        }
+
+        o(err).notEquals(void 8)
+        o(err.message.indexOf('/* +++ ERROR +++ @adopt global or nested: @adopt foo */')).notEquals(-1)
         o(_j2c.names.hasOwnProperty('foo')).equals(false)
       })
     })
