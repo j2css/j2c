@@ -1,5 +1,7 @@
 # j2c-filter-prefix-browser
 
+**WIP** The plugins is not functional at all.
+
 This j2c plugin adds client side automatic vendor prefix insertion on the client to j2c.
 
 It is based on Lea Verou's PrefixFree and it can thus prefix properties, values, at-rules and selectors as needed.
@@ -28,3 +30,4 @@ styler.sheet({"@keyframes foo": {
 } 
 */
 ```
+

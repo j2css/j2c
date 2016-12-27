@@ -1,358 +1,473 @@
-var j2cPrefixPluginBrowser = (function () {
+(function (exports) {
   'use strict';
 
-  var self = {prefix: ''}
+  // Derived from Lea Verou's PrefixFree
 
-  var root = document.documentElement
+  var allStyles;
+  var styleAttr;
+  var styleElement;
+  function init() {
+    allStyles = getComputedStyle(document.documentElement, null),
+    styleAttr = document.createElement('div').style
+    styleElement = document.documentElement.appendChild(document.createElement('style'))
+  }
+  function finalize() {
+    document.documentElement.removeChild(styleElement)
+    allStyles = styleAttr = styleElement = null
+  }
+
+  // Helpers, in alphabetic order
+
   function camelCase(str) {
     return str.replace(/-([a-z])/g, function($0, $1) { return $1.toUpperCase() }).replace('-','')
   }
   function deCamelCase(str) {
     return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
   }
-  function prefixSelector(selector) {
-    return selector.replace(/^::?/, function($0) { return $0 + self.prefix })
+  function supportedDecl(property, value) {
+    styleElement[property] = ''
+    styleElement[property] = value
+    return !!styleElement[property]
+  }
+  function supportedProperty(property) {
+    return camelCase(property) in styleAttr
+  }
+  function supportedRule(selector) {
+    styleElement.textContent = selector + '{}'
+    return !!styleElement.sheet.cssRules.length
   }
 
-  if (typeof getComputedStyle === 'function') new function() {
-  	var prefixes = {},
-  	    properties = [],
-  	    shorthands = {},
-  	    style = getComputedStyle(document.documentElement, null),
-  	    dummy = document.createElement('div').style;
-  	// Why are we doing this instead of iterating over properties in a .style object? Because Webkit.
-  	// 1. Older Webkit won't iterate over those.
-  	// 2. Recent Webkit will, but the 'Webkit'-prefixed properties are not enumerable. The 'webkit'
-  	//    (lower case 'w') ones are, but they don't `deCamelCase()` into a prefix that we can detect.
-  	
-  	var iterate = function(property) {
-  	    if(property.charAt(0) === '-') {
-  	        properties.push(property);
-  	        
-  	        var parts = property.split('-'),
-  	            prefix = parts[1];
-  	            
-  	        // Count prefix uses
-  	        prefixes[prefix] = ++prefixes[prefix] || 1;
-  	        
-  	        // This helps determining shorthands
-  	        while(parts.length > 3) {
-  	            parts.pop();
-  	            
-  	            var shorthand = parts.join('-');
-  	
-  	            if(supported(shorthand) && properties.indexOf(shorthand) === -1) {
-  	                properties.push(shorthand);
-  	            }
-  	        }
-  	    }
-  	},
-  	supported = function(property) {
-  	    return camelCase(property) in dummy;
-  	}
-  	// Some browsers have numerical indices for the properties, some don't
-  	if(style && style.length > 0) {
-  	    for(var i=0; i<style.length; i++) {
-  	        iterate(style[i])
-  	    }
-  	}
-  	else {
-  	    for(var property in style) {
-  	        iterate(deCamelCase(property));
-  	    }
-  	}
-  	// Find most frequently used prefix
-  	var highest = {uses:0};
-  	for(var prefix in prefixes) {
-  	    var uses = prefixes[prefix];
-  	
-  	    if(highest.uses < uses) {
-  	        highest = {prefix: prefix, uses: uses};
-  	    }
-  	}
-  	self.prefix = '-' + highest.prefix + '-';
-  	self.Prefix = camelCase(self.prefix);
-  	self.properties = [];
-  	// Get properties ONLY supported with a prefix
-  	for(var i=0; i<properties.length; i++) {
-  	    var property = properties[i];
-  	    
-  	    if(property.indexOf(self.prefix) === 0) { // we might have multiple prefixes, like Opera
-  	        var unprefixed = property.slice(self.prefix.length);
-  	        
-  	        if(!supported(unprefixed)) {
-  	            self.properties.push(unprefixed);
-  	        }
-  	    }
-  	}
-  	// IE fix
-  	if(self.Prefix == 'Ms' 
-  	  && !('transform' in dummy) 
-  	  && !('MsTransform' in dummy) 
-  	  && ('msTransform' in dummy)) {
-  	    self.properties.push('transform', 'transform-origin');	
-  	}
-  	self.properties.sort();
+  function detectAtrules(fixers) {
+    if (fixers.prefix === '') return
+    var atrules = {
+      'keyframes': 'name',
+      'viewport': null,
+      'document': 'regexp(".")'
+    }
+    for(var atrule in atrules) {
+      var test = atrule + ' ' + (atrules[atrule] || '')
+
+      if(!supportedRule('@' + test) && supportedRule('@' + self.prefix + test)) {
+        fixers.fixAtrules = true
+        fixers.atrules['@' + atrule] = fixers.prefix + atrule
+      }
+    }
   }
 
-  if (typeof getComputedStyle === 'function') new function() {
-  	// Values that might need prefixing
-  	var functions = {
-  		'linear-gradient': {
-  			property: 'backgroundImage',
-  			params: 'red, teal'
-  		},
-  		'calc': {
-  			property: 'width',
-  			params: '1px + 5%'
-  		},
-  		'element': {
-  			property: 'backgroundImage',
-  			params: '#foo'
-  		},
-  		'cross-fade': {
-  			property: 'backgroundImage',
-  			params: 'url(a.png), url(b.png), 50%'
-  		}
-  	};
-  	functions['repeating-linear-gradient'] =
-  	functions['repeating-radial-gradient'] =
-  	functions['radial-gradient'] =
-  	functions['linear-gradient'];
-  	// Note: The properties assigned are just to *test* support. 
-  	// The keywords will be prefixed everywhere.
-  	var keywords = {
-  		'initial': 'color',
-  		'zoom-in': 'cursor',
-  		'zoom-out': 'cursor',
-  		'box': 'display',
-  		'flexbox': 'display',
-  		'inline-flexbox': 'display',
-  		'flex': 'display',
-  		'inline-flex': 'display',
-  		'grid': 'display',
-  		'inline-grid': 'display',
-  		'max-content': 'width',
-  		'min-content': 'width',
-  		'fit-content': 'width',
-  		'fill-available': 'width'
-  	};
-  	self.functions = [];
-  	self.keywords = [];
-  	var style = document.createElement('div').style;
-  	function supported(value, property) {
-  		style[property] = '';
-  		style[property] = value;
-  	
-  		return !!style[property];
-  	}
-  	for (var func in functions) {
-  		var test = functions[func],
-  			property = test.property,
-  			value = func + '(' + test.params + ')';
-  		
-  		if (!supported(value, property)
-  		  && supported(self.prefix + value, property)) {
-  			// It's supported, but with a prefix
-  			self.functions.push(func);
-  		}
-  	}
-  	for (var keyword in keywords) {
-  		var property = keywords[keyword];
-  	
-  		if (!supported(keyword, property)
-  		  && supported(self.prefix + keyword, property)) {
-  			// It's supported, but with a prefix
-  			self.keywords.push(keyword);
-  		}
-  	}
+  function detectFunctions(fixers) {
+    // Values that might need prefixing
+    var functions = {
+      'linear-gradient': {
+        property: 'backgroundImage',
+        params: 'red, teal'
+      },
+      'calc': {
+        property: 'width',
+        params: '1px + 5%'
+      },
+      'element': {
+        property: 'backgroundImage',
+        params: '#foo'
+      },
+      'cross-fade': {
+        property: 'backgroundImage',
+        params: 'url(a.png), url(b.png), 50%'
+      }
+    }
+    functions['repeating-linear-gradient'] =
+    functions['repeating-radial-gradient'] =
+    functions['radial-gradient'] =
+    functions['linear-gradient']
+
+    for (var func in functions) {
+      var test = functions[func],
+        property = test.property,
+        value = func + '(' + test.params + ')'
+
+      if (!supportedDecl(property, value) && supportedDecl(property, self.prefix + value)) {
+        // It's only supported with a prefix
+        fixers.functions.push(func)
+      }
+    }
   }
 
-  if (typeof getComputedStyle === 'function') new function() {
-  	var 
-  	selectors = {
-  		':read-only': null,
-  		':read-write': null,
-  		':any-link': null,
-  		'::selection': null
-  	},
-  	
-  	atrules = {
-  		'keyframes': 'name',
-  		'viewport': null,
-  		'document': 'regexp(".")'
-  	};
-  	self.selectors = [];
-  	self.atrules = [];
-  	var style = root.appendChild(document.createElement('style'));
-  	function supported(selector) {
-  		style.textContent = selector + '{}';  // Safari 4 has issues with style.innerHTML
-  		
-  		return !!style.sheet.cssRules.length;
-  	}
-  	for(var selector in selectors) {
-  		var test = selector + (selectors[selector]? '(' + selectors[selector] + ')' : '');
-  			
-  		if(!supported(test) && supported(prefixSelector(test))) {
-  			self.selectors.push(selector);
-  		}
-  	}
-  	for(var atrule in atrules) {
-  		var test = atrule + ' ' + (atrules[atrule] || '');
-  		
-  		if(!supported('@' + test) && supported('@' + self.prefix + test)) {
-  			self.atrules.push(atrule);
-  		}
-  	}
-  	root.removeChild(style);
+  // db of prop/value pairs whose values may need treatment.
+
+  var keywords = [
+    // `initial` applies to all properties and is thus handled separately.
+    {
+      props: ['cursor'],
+      values: [ 'grab', 'grabbing', 'zoom-in', 'zoom-out']
+    },
+    {
+      props: ['display'],
+      values:['box', 'flexbox', 'inline-flexbox', 'flex', 'inline-flex', 'grid', 'inline-grid']
+    },
+    {
+      props: ['position'],
+      values: [ 'sticky' ]
+    },
+    {
+      props: ['column-width', 'height', 'max-height', 'max-width', 'min-height', 'min-width', 'width'],
+      values: ['contain-floats', 'fill-available', 'fit-content', 'max-content', 'min-content']
+    }
+  ]
+  // The flexbox zoo
+  // (and then, this doesn't cover the `flex-direction` => `box-orient` + `box-direction` thing, see main.js)
+  var ieAltProps = {
+    'align-content': '-ms-flex-line-pack',
+    'align-self': '-ms-flex-item-align',
+    'align-items': '-ms-flex-align',
+    'justify-content': '-ms-flex-pack',
+    'order': '-ms-flex-order',
+    'flex-grow': '-ms-flex-positive',
+    'flex-shrink': '-ms-flex-negative',
+    'flex-basis': '-ms-preferred-size'
+  }
+  var ieAltValues = {
+    'space-around': 'distribute',
+    'space-between': 'justify',
+    'flex-start': 'start',
+    'flex-end': 'end',
+    'flex': 'flexbox',
+    'inline-flex': 'inline-flexbox'
+  }
+  var oldAltProps = {
+    'align-items': 'box-align',
+    'justify-content': 'box-pack',
+    'flex-wrap': 'box-lines'
+  }
+  var oldAltValues = {
+    'space-around': 'justify',
+    'space-between': 'justify',
+    'flex-start': 'start',
+    'flex-end': 'end',
+    'wrap-reverse': 'multiple',
+    'wrap': 'multiple',
+    'flex': 'box',
+    'inline-flex': 'inline-box'
   }
 
-  if (typeof getComputedStyle === 'function') new function() {
-  	// Properties that accept properties as their value
-  	self.valueProperties = [
-  		'transition',
-  		'transition-property',
-  		'will-change'
-  	]
-  	// Add class for current prefix
-  	root.className += ' ' + self.prefix;
+  function detectKeywords(fixers) {
+    if (fixers.prefix === '') return
+    // Values that might need prefixing
+
+    for (var kw in keywords) {
+      var map = {}, property = kw.props[0]
+      for (var i = 0, keyword; keyword = kw[i]; i++) { //eslint disable-line no-cond-assign
+
+        if (
+          !supportedDecl(property, keyword) &&
+          supportedDecl(property, fixers.prefix + keyword)
+        ) {
+          fixers.hasKeywords = true
+          map[keyword] = fixers.prefix + keyword
+        }
+      }
+      for (property in kw.props) {
+        fixers.keywords[property] = map
+      }
+    }
+    if (fixers.keywords.display.flexbox) {
+      // old IE
+      fixers.keywords.display.flex = fixers.keywords.display.flexbox
+      for (var k in ieAltProps) {
+        fixers.hasProperties = true
+        fixers.properties[k] = ieAltProps[k]
+        fixers.keywords[k] = ieAltValues
+      }
+    } else if (fixers.keywords.display.box) {
+      // old flexbox spec
+      fixers.keywords.display.flex = fixers.keywords.display.box
+      fixers.oldFlexBox = true
+      for (k in oldAltProps) {
+        fixers.hasProperties = true
+        fixers.properties[k] = fixers.prefix + oldAltProps[k]
+        fixers.keywords[k] = oldAltValues
+      }
+    }
+    if (
+      !supportedDecl('color', 'initial') &&
+      supportedDecl('color', fixers.prefix + 'initial')
+    ) {
+      fixers.initial = fixers.prefix + 'initial'
+    }
   }
 
-  var prefixPlugin = function() {}
+  function detectPrefix(fixers) {
+    var prefixCounters = {}
+    var properties = fixers.propertyList
+    // Why are we doing this instead of iterating over properties in a .style object? Because Webkit.
+    // 1. Older Webkit won't iterate over those.
+    // 2. Recent Webkit will, but the 'Webkit'-prefixed properties are not enumerable. The 'webkit'
+    //    (lower case 'w') ones are, but they don't `deCamelCase()` into a prefix that we can detect.
 
-  if (typeof getComputedStyle === 'function') {
+    function iteration(property) {
+      if(property.charAt(0) === '-') {
+        properties.push(property)
 
-    var own = {}.hasOwnProperty
+        var parts = property.split('-'),
+          prefix = parts[1]
 
-    function setify(ary){
-      var res = {}
-      ary.forEach(function(p) {res[p] = true})
-      return res
+        // Count prefix uses
+        prefixCounters[prefix] = ++prefixCounters[prefix] || 1
+
+        // This helps determining shorthands
+        while(parts.length > 3) {
+          parts.pop()
+
+          var shorthand = parts.join('-')
+
+          if (supportedProperty(shorthand)) {
+            properties.push(shorthand)
+          }
+        }
+      }
     }
 
-    var prefix = self.prefix
+    // Some browsers have numerical indices for the properties, some don't
+    if(allStyles && allStyles.length > 0) {
+      for(var i=0; i<allStyles.length; i++) {
+        iteration(allStyles[i])
+      }
+    }
+    else {
+      for(var property in allStyles) {
+        iteration(deCamelCase(property))
+      }
+    }
+
+    var highest = 0
+    for(var prefix in prefixCounters) {
+
+      if(highest < prefixCounters[prefix]) {
+        highest = prefixCounters[prefix]
+        fixers.prefix = '-' + prefix + '-'
+      }
+    }
+    fixers.Prefix = camelCase(fixers.prefix)
+  }
+
+  function detectProperties(fixers) {
+    if (fixers.prefix === '') return
+
+    var properties = fixers.propertyList
+    // Get properties ONLY supported with a prefix
+    for(var i=0; i<properties.length; i++) {
+      var property = properties[i]
+
+      if(property.indexOf(fixers.prefix) === 0) { // we might have multiple prefixes, like Opera
+        var unprefixed = property.slice(fixers.prefix.length)
+
+        if(!supportedProperty(unprefixed)) {
+          fixers.fixProperties = true
+          fixers.properties[unprefixed] = property
+        }
+      }
+    }
+    // IE fix
+    if(fixers.Prefix == 'Ms'
+      && !('transform' in styleElement)
+      && !('MsTransform' in styleElement)
+      && ('msTransform' in styleElement)) {
+      fixers.fixProperties = true
+      fixers.properties['transform'] = '-ms-transform'
+      fixers.properties['transform-origin'] = '-ms-transform-origin'
+    }
+  }
+
+  function detectSelectors(fixers) {
+    function prefixSelector(selector) {
+      return selector.replace(/^::?/, function($0) { return $0 + fixers.prefix })
+    }
+
+    if (fixers.prefix === '') return
+    var selectors = {
+      ':read-only': 1,
+      ':read-write': 1,
+      ':any-link': 1,
+      '::selection': 1
+    }
+    for(var selector in selectors) {
+      if(!supportedRule(selector) && supportedRule(prefixSelector(selector))) {
+        fixers.fixSelectors = true
+        fixers.selectors.push(selector)
+      }
+    }
+  }
+
+  function blankFixers() {
+    return {
+      atrules: {},
+      hasAtrules: false,
+      hasFunctions: false,
+      hasKeywords: false,
+      hasProperties: false,
+      hasSelectors: false,
+      hasValues: false,
+      fixAtruleParams: null,
+      fixSelector: null,
+      fixValue: null,
+      functions: [],
+      initial: null,
+      keywords: {},
+      oldFlexBox: false,
+      prefix: '',
+      Prefix: '',
+      properties: {},
+      propertyList : [],
+      selectors: [],
+      valueProperties: {
+        'transition': 1,
+        'transition-property': 1,
+        'will-change': 1
+      }
+    }
+  }
+
+  function browserDetector(fixers) {
+    // add the required data to the fixers object.
+    init()
+    detectPrefix(fixers)
+    detectProperties(fixers)
+    detectSelectors(fixers)
+    detectAtrules(fixers)
+    detectKeywords(fixers)
+    detectFunctions(fixers)
+    finalize()
+  }
+
+  var emptySet = {}
+  var own = {}.hasOwnProperty
+
+
+  function makeDetector (before, targets, after) {
+    return new RegExp(before + '(?:' + targets.join('|') + ')' + after)
+  }
+
+  function makeLexer (before, targets, after) {
+    new RegExp(
+          "\"(?:\\\\[\\S\\s]|[^\"])*\"|'(?:\\\\[\\S\\s]|[^'])*'|\\/\\*[\\S\\s]*?\\*\\/|" +
+              before + '((?:' +
+              targets.join('|') +
+              ')' + after + ')',
+          'gi'
+      )
+  }
+
+
+  function finalizeFixers(fixers) {
+    var prefix = fixers.prefix
 
     var replacerString = '$&'+prefix
-
-    var atRulesSet = setify(self.atrules.map(function(r){return '@'+r}))
-    var atRulesMatcher = new RegExp('^@('+self.atrules.join('|')+')\\b')
-    var atRulesReplacer = '@' + prefix + '$1'
-
-    function makeDetector (before, targets, after) {
-      return new RegExp(before + '(?:' + targets.join('|') + ')' + after)
-    }
-
-    function makeLexer (before, targets, after) {
-      new RegExp(
-            "\"(?:\\\\[\\S\\s]|[^\"])*\"|'(?:\\\\[\\S\\s]|[^'])*'|\\/\\*[\\S\\s]*?\\*\\/|" +
-                before + '((?:' +
-                targets.join('|') +
-                ')' + after + ')',
-            'gi'
-        )
-    }
 
     function replacer (match, $1, $2) {
       if (!$1) return match
       return $1 + prefix + $2
     }
 
-    var selectorMatcher = makeLexer('\\b', self.selectors, '\\b')
+    var selectorMatcher = makeLexer('\\b', fixers.selectors, '\\b')
     var selectorReplacer = function(match, $1, $2) {
       return $1 + $2.replace(/^::?/, replacerString)
     }
 
-    var propertiesSet = setify(self.properties)
-
-    // If this were ever updated, verify that the next comment is still valid.
-    var valueProperties = {
-      'transition': 1,
-      'transition-property': 1
-    }
-
     // Gradients are supported with a prefix, convert angles to legacy
-    var convertGradients = self.functions.indexOf('linear-gradient') > -1
     var gradientDetector = /\blinear-gradient\(/
     var gradientMatcher = /(^|\s|,)(repeating-)?linear-gradient\(\s*(-?\d*\.?\d*)deg/ig
     var gradientReplacer = function ($0, delim, repeating, deg) {
-      return delim + prefix + (repeating || '') + 'linear-gradient(' + (90-deg) + 'deg'
+      return delim + (repeating || '') + 'linear-gradient(' + (90-deg) + 'deg'
     }
-    if (convertGradients) self.function.splice(self.functions.indexOf('linear-gradient'))
-    if (self.functions.indexOf('repeating-linear-gradient') > -1) self.function.splice(self.functions.indexOf('repeating-linear-gradient'))
-
 
     // value = fix('functions', '(^|\\s|,)', '\\s*\\(', '$1' + self.prefix + '$2(', value);
-    var convertFunctions = !!self.functions.length
-    var functionsDetector = makeDetector('(?:^|\\s|,)', self.fuctions, '\\s*\\(')
-    var functionsMatcher = makeLexer('(^|\\s|,)', self.fuctions, '\\s*\\(')
-    // use the default replacer
-
-
-    // value = fix('keywords', '(^|\\s)', '(\\s|$)', '$1' + self.prefix + '$2$3', value);
-    var convertKeywords = !!self.keywords.length
-    var keywordsDetector = makeDetector('(?:^|\\s)', self.keywords, '(?:\\s|$)')
-    var keywordsMatcher  = makeLexer('(^|\\s)', self.keywords, '(?:\\s|$)')
+    var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.fuctions, '\\s*\\(')
+    var functionsMatcher = makeLexer('(^|\\s|,)', fixers.fuctions, '\\s*\\(')
     // use the default replacer
 
 
     // value = fix('properties', '(^|\\s|,)', '($|\\s|,)', '$1'+self.prefix+'$2$3', value);
     // No need to look for strings in these properties. We may insert prefixes in comments. Oh the humanity.
-    var convertProperties = !!self.properties.length
-    var valuePropertiesDetector = makeDetector('(?:^|\\s|,)', self.properties, '(?:$|\\s|,)')
-    var valuePropertiesMatcher = new RegExp('(^|\\s|,)((?:' + self.properties.join('|') + ')(?:$|\\s|,))','gi')
-    var valuePropertiesReplacer = '$1' + self.prefix + '$2'
+    var valuePropertiesDetector = makeDetector('(?:^|\\s|,)', fixers.properties, '(?:$|\\s|,)')
+    var valuePropertiesMatcher = new RegExp('(^|\\s|,)((?:' + fixers.properties.join('|') + ')(?:$|\\s|,))','gi')
+    var valuePropertiesReplacer = '$1' + fixers.prefix + '$2'
 
-
-    function fixValue (value, property) {
-      if (convertGradients && gradientDetector.test(value)) value = value.replace(gradientMatcher, gradientReplacer)
-      if (convertFunctions && functionsDetector.test(value)) value = value.replace(functionsMatcher, replacer)
-      if (convertKeywords && keywordsDetector.test(value)) value = value.replace(keywordsMatcher, replacer)
-
-      if (convertProperties && own.call(valueProperties, property) && valuePropertiesDetector.test(value)) {
-        value = value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
-      }
-      return value
+    fixers.fixAtruleParams = function (kind, params) {
+      // TODO
+      // - prefix @supports properties and values
+      // - prefix pixel density-related media queries.
+      return params
     }
 
-    prefixPlugin = function prefixPlugin() {
+    fixers.fixSelector = function(selector) {
+      return selectorMatcher.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
+    }
+
+    fixers.hasValues = fixers.hasFunctions || fixers.hasGradients || fixers.hasKeywords || fixers.hasProperties
+    fixers.fixValue = function (value, property) {
+      var res = value
+      if (fixers.initial !== null && value === 'initial') return fixers.initial
+
+      if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
+
+      if (fixers.hasProperties && own.call(fixers.valueProperties, property) && valuePropertiesDetector.test(value)) {
+        return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
+      }
+      if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
+      if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, replacer)
+      return res
+    }
+
+  }
+
+  function createPrefixPlugin() {
+    var fixers = blankFixers()
+    if (typeof getComputedStyle === 'function') browserDetector(fixers)
+    finalizeFixers(fixers)
+
+    var cache = []
+
+    prefixPlugin.setPrefix = function(f) {
+      if (cache.indexOf(f) === -1) {
+        finalizeFixers(f)
+        cache.push(f)
+      }
+      fixers = f
+    }
+
+    function prefixPlugin() {
       return {
         $filter: function(next) {
-          var atStack = []
           return {
-            i: function() {
-              next.i()
-              atStack.length = 0
-            },
-            a: function(rule, params, hasBlock) {
-              rule = own.call(atRulesSet, rule) ? rule.replace(atRulesMatcher, atRulesReplacer) : rule
-              if (hasBlock) atStack.push(rule)
-              next.a(
-                rule,
-                params,
+            atrule: function(rule, kind, params, hasBlock) {
+              next.atrule(
+                fixers.fixAtrules && fixers.atrules[rule] || rule,
+                kind,
+                kind === 'supports' || kind === 'media' ? fixers.fixAtruleParams(kind, params): params,
                 hasBlock
               )
             },
-            A: function() {
-              next.A(atStack.pop())
+            decl: function(property, value) {
+              if (fixers.oldFlexBox && property === 'flex-direction' && typeof value === 'string') {
+                next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'vertical' : 'horizontal')
+                next.decl(fixers.properties['box-direction'], value.indexOf('reverse') > -1 ? 'reverse' : 'normal')
+              } else {
+                next.decl(
+                  fixers.hasProperties && fixers.properties[property] || property,
+                  fixers.fixValue(value, property)
+                )
+              }
             },
-            d: function(property, value){
-              next.d(
-                own.call(propertiesSet, property) ? prefix + property : property,
-                fixValue(value, property)
+            rule: function(selector) {
+              next.rule(
+                fixers.hasRules ? fixers.fixSelector(selector) : selector
               )
-            },
-            s: function(selector) {
-              if (selectorMatcher.test(selector)) selector = selector.replace(selectorMatcher, selectorReplacer)
-              next.s(selector)
             }
           }
         }
       }
     }
+    return prefixPlugin
   }
 
-  var prefixPlugin$1 = prefixPlugin
+  exports.createPrefixPlugin = createPrefixPlugin;
 
-  return prefixPlugin$1;
-
-}());
+}((this.j2cPrefixPluginBrowser = this.j2cPrefixPluginBrowser || {})));
