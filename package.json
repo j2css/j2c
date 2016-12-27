@@ -10,7 +10,7 @@
     "dev": "yarn run build && yarn run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix .",
-    "test": "node test/test.js",
+    "test": "ospec",
     "cover": "istanbul cover --print both test/test.js && yarn run check-coverage",
     "check-coverage": "istanbul check-coverage --branches -2",
     "travis": "yarn run build && istanbul cover --print both test/test.js && (codecov || true) && yarn run  check-coverage"
