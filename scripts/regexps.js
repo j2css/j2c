@@ -6,6 +6,11 @@ global.__proto__ = require('compose-regexp')
 // var maybe = greedy.bind(null, '?')
 
 var animation = either(
+    capture(
+        "var(",
+        /[^)]+/,
+        ")"
+    ),
     sequence(
         /:?/,
         'global(',
@@ -21,22 +26,53 @@ var animation = either(
 )
 console.log('animation / animation-name / @keyframes\n', animation)
 
-var selector = flags('g', either(
-    sequence(
-        ':global(',
-        /\s*/,
+var selector = flags('g',
+    either(
         capture(
-            '.',
-            /-?[_A-Za-z][-\w]*/
+            either(
+                sequence(
+                    '"',
+                    greedy('*',
+                        either(
+                            /\\./,
+                            /[^"\n]/
+                        )
+                    ),
+                    '"'
+                ),
+                sequence(
+                    "'",
+                    greedy('*',
+                        either(
+                            /\\./,
+                            /[^'\n]/
+                        )
+                    ),
+                    "'"
+                ),
+                sequence(
+                    '/*',
+                    /[\s\S]*?/,
+                    '*/'
+                )
+            )
         ),
-        /\s*/,
-        ')'
-    ),
-    sequence(
-        capture('.'),
-        capture(/-?[_A-Za-z][-\w]*/)
+        sequence(
+            ':global(',
+            /\s*/,
+            capture(
+                '.',
+                /-?[_A-Za-z][-\w]*/
+            ),
+            /\s*/,
+            ')'
+        ),
+        sequence(
+            capture('.'),
+            capture(/-?[_A-Za-z][-\w]*/)
+        )
     )
-))
+)
 
 console.log('selector / @global\n', selector)
 
