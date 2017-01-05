@@ -9,7 +9,9 @@ function init() {
 }
 function finalize() {
   document.documentElement.removeChild(styleElement)
-  allStyles = styleAttr = styleElement = null
+  // `styleAttr` is used at run time via `supportedProperty()`
+  // `allStyles` and `styleElement` can be displosed of after initialization.
+  allStyles = styleElement = null
 }
 
 // Helpers, in alphabetic order
@@ -21,9 +23,9 @@ function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
 function supportedDecl(property, value) {
-  styleAttr[property] = ''
-  styleAttr[property] = value
-  return !!styleAttr[property]
+  styleAttr[property] = styleAttr[deCamelCase(property)] = ''
+  styleAttr[property] = styleAttr[deCamelCase(property)] = value
+  return !!(styleAttr[property] || styleAttr[deCamelCase(property)])
 }
 function supportedMedia(condition) {
   styleElement.textContent = '@media (' + condition +'){}'

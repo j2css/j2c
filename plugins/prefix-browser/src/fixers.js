@@ -89,11 +89,11 @@ function makeDetector (before, targets, after) {
 }
 
 function makeLexer (before, targets, after) {
-  new RegExp(
+  return new RegExp(
         "\"(?:\\\\[\\S\\s]|[^\"])*\"|'(?:\\\\[\\S\\s]|[^'])*'|\\/\\*[\\S\\s]*?\\*\\/|" +
             before + '((?:' +
             targets.join('|') +
-            ')' + after + ')',
+            '))' + after,
         'gi'
     )
 }
@@ -109,9 +109,10 @@ export function finalizeFixers(fixers) {
     return $1 + prefix + $2
   }
 
-  var selectorMatcher = makeLexer('\\b', fixers.selectors, '\\b')
-  var selectorReplacer = function(match, $1, $2) {
-    return $1 + $2.replace(/^::?/, replacerString)
+  var selectorDetector = makeDetector('', fixers.selectors, '(?:\\b|$|[^-])')
+  var selectorMatcher = makeLexer('', fixers.selectors, '(?:\\b|$|[^-])')
+  var selectorReplacer = function(match, $1) {
+    return $1 !=null ? $1.replace(/^::?/, replacerString) : match
   }
 
   // Gradients are supported with a prefix, convert angles to legacy
@@ -122,8 +123,8 @@ export function finalizeFixers(fixers) {
   }
 
   // value = fix('functions', '(^|\\s|,)', '\\s*\\(', '$1' + self.prefix + '$2(', value);
-  var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.fuctions, '\\s*\\(')
-  var functionsMatcher = makeLexer('(^|\\s|,)', fixers.fuctions, '\\s*\\(')
+  var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.functions, '\\s*\\(')
+  var functionsMatcher = makeLexer('(^|\\s|,)', fixers.functions, '\\s*\\(')
   // use the default replacer
 
 
@@ -164,7 +165,7 @@ export function finalizeFixers(fixers) {
   }
 
   fixers.fixSelector = function(selector) {
-    return selectorMatcher.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
+    return selectorDetector.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
   }
 
   fixers.fixValue = function (value, property) {

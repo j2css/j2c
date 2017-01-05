@@ -3,7 +3,8 @@
 // ones, for testing.
 
 export {blankFixers, finalizeFixers} from '../src/fixers.js'
-export {init, finalize, camelCase, deCamelCase}   from '../src/detectors/utils.js'
+export {createPrefixPlugin} from '../src/plugin.js'
+export {init, finalize, camelCase, deCamelCase, supportedProperty}   from '../src/detectors/utils.js'
 export {detectAtrules}    from '../src/detectors/atrules.js'
 export {detectFunctions}  from '../src/detectors/functions.js'
 export {detectKeywords}   from '../src/detectors/keywords.js'

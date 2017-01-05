@@ -8,12 +8,13 @@ export function createPrefixPlugin() {
 
   var cache = []
 
-  prefixPlugin.setPrefix = function(f) {
+  prefixPlugin.setFixers = function(f) {
     if (cache.indexOf(f) === -1) {
       finalizeFixers(f)
       cache.push(f)
     }
     fixers = f
+    return prefixPlugin
   }
 
   function prefixPlugin() {
@@ -22,7 +23,7 @@ export function createPrefixPlugin() {
         return {
           atrule: function(rule, kind, params, hasBlock) {
             next.atrule(
-              fixers.fixAtrules && fixers.atrules[rule] || rule,
+              fixers.hasAtrules && fixers.atrules[rule] || rule,
               kind,
               (
                 kind === 'media'    ? fixers.fixAtMediaParams(params) :
@@ -45,7 +46,7 @@ export function createPrefixPlugin() {
           },
           rule: function(selector) {
             next.rule(
-              fixers.hasRules ? fixers.fixSelector(selector) : selector
+              fixers.hasSelectors ? fixers.fixSelector(selector) : selector
             )
           }
         }

@@ -7,9 +7,9 @@ global.__proto__ = require('compose-regexp')
 
 var animation = either(
     capture(
-        "var(",
+        'var(',
         /[^)]+/,
-        ")"
+        ')'
     ),
     sequence(
         /:?/,
@@ -50,6 +50,8 @@ var selector = flags('g',
                     ),
                     "'"
                 ),
+                // This is both correct and faster than the W3C regexp.
+                // https://jsperf.com/regexpcomment
                 sequence(
                     '/*',
                     /[\s\S]*?/,

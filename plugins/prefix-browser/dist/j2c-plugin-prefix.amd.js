@@ -12,7 +12,9 @@ define(function () { 'use strict';
   }
   function finalize() {
     document.documentElement.removeChild(styleElement)
-    allStyles = styleAttr = styleElement = null
+    // `styleAttr` is used at run time via `supportedProperty()`
+    // `allStyles` and `styleElement` can be displosed of after initialization.
+    allStyles = styleElement = null
   }
 
   // Helpers, in alphabetic order
@@ -24,9 +26,9 @@ define(function () { 'use strict';
     return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
   }
   function supportedDecl(property, value) {
-    styleAttr[property] = ''
-    styleAttr[property] = value
-    return !!styleAttr[property]
+    styleAttr[property] = styleAttr[deCamelCase(property)] = ''
+    styleAttr[property] = styleAttr[deCamelCase(property)] = value
+    return !!(styleAttr[property] || styleAttr[deCamelCase(property)])
   }
   function supportedMedia(condition) {
     styleElement.textContent = '@media (' + condition +'){}'
@@ -124,8 +126,6 @@ define(function () { 'use strict';
   // db of prop/value pairs whose values may need treatment.
 
   var keywords = [
-    //!\\ use camelCase property names only, the test mocks don't support
-    //!\\ them kebab-cased
 
     // `initial` applies to all properties and is thus handled separately.
     {
@@ -141,7 +141,7 @@ define(function () { 'use strict';
       values: [ 'sticky' ]
     },
     {
-      props: ['width', 'columnWidth', 'height', 'maxHeight', 'maxWidth', 'minHeight', 'minWidth'],
+      props: ['width', 'column-width', 'height', 'max-height', 'max-width', 'min-height', 'min-width'],
       values: ['contain-floats', 'fill-available', 'fit-content', 'max-content', 'min-content']
     }
   ]
@@ -206,9 +206,9 @@ define(function () { 'use strict';
           map[keyword] = fixers.prefix + keyword
         }
       }
-      // eslint-disable-next-line  
+      // eslint-disable-next-line
       for (j = 0; property = keywords[i].props[j]; j++) {
-        fixers.keywords[deCamelCase(property)] = map
+        fixers.keywords[property] = map
       }
     }
     if (fixers.keywords.display && fixers.keywords.display.flexbox) {
@@ -379,11 +379,11 @@ define(function () { 'use strict';
   }
 
   function makeLexer (before, targets, after) {
-    new RegExp(
+    return new RegExp(
           "\"(?:\\\\[\\S\\s]|[^\"])*\"|'(?:\\\\[\\S\\s]|[^'])*'|\\/\\*[\\S\\s]*?\\*\\/|" +
               before + '((?:' +
               targets.join('|') +
-              ')' + after + ')',
+              '))' + after,
           'gi'
       )
   }
@@ -399,9 +399,10 @@ define(function () { 'use strict';
       return $1 + prefix + $2
     }
 
-    var selectorMatcher = makeLexer('\\b', fixers.selectors, '\\b')
-    var selectorReplacer = function(match, $1, $2) {
-      return $1 + $2.replace(/^::?/, replacerString)
+    var selectorDetector = makeDetector('', fixers.selectors, '(?:\\b|$|[^-])')
+    var selectorMatcher = makeLexer('', fixers.selectors, '(?:\\b|$|[^-])')
+    var selectorReplacer = function(match, $1) {
+      return $1 !=null ? $1.replace(/^::?/, replacerString) : match
     }
 
     // Gradients are supported with a prefix, convert angles to legacy
@@ -412,8 +413,8 @@ define(function () { 'use strict';
     }
 
     // value = fix('functions', '(^|\\s|,)', '\\s*\\(', '$1' + self.prefix + '$2(', value);
-    var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.fuctions, '\\s*\\(')
-    var functionsMatcher = makeLexer('(^|\\s|,)', fixers.fuctions, '\\s*\\(')
+    var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.functions, '\\s*\\(')
+    var functionsMatcher = makeLexer('(^|\\s|,)', fixers.functions, '\\s*\\(')
     // use the default replacer
 
 
@@ -454,7 +455,7 @@ define(function () { 'use strict';
     }
 
     fixers.fixSelector = function(selector) {
-      return selectorMatcher.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
+      return selectorDetector.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
     }
 
     fixers.fixValue = function (value, property) {
@@ -486,12 +487,13 @@ define(function () { 'use strict';
 
     var cache = []
 
-    prefixPlugin.setPrefix = function(f) {
+    prefixPlugin.setFixers = function(f) {
       if (cache.indexOf(f) === -1) {
         finalizeFixers(f)
         cache.push(f)
       }
       fixers = f
+      return prefixPlugin
     }
 
     function prefixPlugin() {
@@ -500,7 +502,7 @@ define(function () { 'use strict';
           return {
             atrule: function(rule, kind, params, hasBlock) {
               next.atrule(
-                fixers.fixAtrules && fixers.atrules[rule] || rule,
+                fixers.hasAtrules && fixers.atrules[rule] || rule,
                 kind,
                 (
                   kind === 'media'    ? fixers.fixAtMediaParams(params) :
@@ -523,7 +525,7 @@ define(function () { 'use strict';
             },
             rule: function(selector) {
               next.rule(
-                fixers.hasRules ? fixers.fixSelector(selector) : selector
+                fixers.hasSelectors ? fixers.fixSelector(selector) : selector
               )
             }
           }

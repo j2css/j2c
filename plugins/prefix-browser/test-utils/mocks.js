@@ -75,6 +75,20 @@ module.exports = function (global, options) {
           Object.defineProperty(proxy, prop, {
             configurable: true,
             enumerable: true,
+            get: function() {return style[prop]},
+            set: function(value) {
+              if (
+                possibleValues[prop] != null && possibleValues[prop].indexOf(value) > -1
+              ) {
+                style[prop] = '' + value
+              } else {
+                style[prop] = null
+              }
+            }
+          })
+          Object.defineProperty(proxy, deCamelCase(prop), {
+            configurable: true,
+            enumerable: true,
             get: function() {return style[prop] == null ? null: style[prop]},
             set: function(value) {
               if (

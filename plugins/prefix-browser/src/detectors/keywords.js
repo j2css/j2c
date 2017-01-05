@@ -2,13 +2,11 @@
 
 // TODO: http://caniuse.com/#feat=css-writing-mode
 
-import {deCamelCase, supportedDecl} from './utils.js'
+import {supportedDecl} from './utils.js'
 
 // db of prop/value pairs whose values may need treatment.
 
 var keywords = [
-  //!\\ use camelCase property names only, the test mocks don't support
-  //!\\ them kebab-cased
 
   // `initial` applies to all properties and is thus handled separately.
   {
@@ -24,7 +22,7 @@ var keywords = [
     values: [ 'sticky' ]
   },
   {
-    props: ['width', 'columnWidth', 'height', 'maxHeight', 'maxWidth', 'minHeight', 'minWidth'],
+    props: ['width', 'column-width', 'height', 'max-height', 'max-width', 'min-height', 'min-width'],
     values: ['contain-floats', 'fill-available', 'fit-content', 'max-content', 'min-content']
   }
 ]
@@ -91,7 +89,7 @@ export function detectKeywords(fixers) {
     }
     // eslint-disable-next-line
     for (j = 0; property = keywords[i].props[j]; j++) {
-      fixers.keywords[deCamelCase(property)] = map
+      fixers.keywords[property] = map
     }
   }
   if (fixers.keywords.display && fixers.keywords.display.flexbox) {
