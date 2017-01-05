@@ -20,7 +20,6 @@ o.spec('detectAtrules', function() {
   o.afterEach(function() {
     if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
     o(Object.keys(fixers)).deepEquals(referenceFixers)
-    fixers = null
   })
 
   o('build up to date', function() {
@@ -33,7 +32,7 @@ o.spec('detectAtrules', function() {
     detectAtrules(fixers)
     finalize()
 
-    o(fixers.hasDppx).equals(false)
+    o(fixers.hasDppx).equals(null)
     o(fixers.hasPixelRatio).equals(false)
     o(fixers.hasPixelRatioFraction).equals(false)
     o(fixers.atrules).deepEquals({})

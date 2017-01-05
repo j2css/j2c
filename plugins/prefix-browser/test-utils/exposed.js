@@ -301,7 +301,7 @@ function blankFixers() {
   return {
     atrules: {},
     hasAtrules: false,
-    hasDppx: false,
+    hasDppx: null,
     hasFunctions: false,
     hasKeywords: false,
     hasPixelRatio: false,
@@ -438,13 +438,15 @@ function finalizeFixers(fixers) {
   var resolutionReplacer = (
     fixers.hasPixelRatio ? function(_, prop, param){return fixers.properties[prop] + ':' + param} :
     fixers.hasPixelRatioFraction ? function(_, prop, param){return fixers.properties[prop] + ':' + Math.round(param*10) + '/10'} :
-    function(_, prop, param){return prop + ':' + 96 * param +'dpi'}
+    function(_, prop, param){return prop + ':' + Math.round(param * 96) +'dpi'}
   )
-  fixers.fixAtMediaParams = fixers.hasDppx ? function(p) {return p} : function (params) {
-    return (params.indexOf('reso') !== -1) ?
-      params.replace(resolutionMatcher, resolutionReplacer) :
-      params
-  }
+  fixers.fixAtMediaParams = fixers.hasDppx !== false /*it may be null*/ ?
+    function(p) {return p} :
+    function (params) {
+      return (params.indexOf('reso') !== -1) ?
+        params.replace(resolutionMatcher, resolutionReplacer) :
+        params
+    }
 
   // comments not supported here. See https://www.debuggex.com/r/a3oAc6Y07xuknSVg
   var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:[-a-z]+\((?:var\(\s*[-\w]+\s*\)|[^\)])+\)|[^\)])+)\)/g

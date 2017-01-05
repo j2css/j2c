@@ -1,14 +1,10 @@
 var o = require('ospec')
 
 var exposed = require('../test-utils/exposed')
-var mocks = require('../test-utils/mocks')
 var upToDate = require('../test-utils/misc').upToDate
 
-var blankFixers = exposed.blankFixers
 var camelCase = exposed.camelCase
 var deCamelCase = exposed.deCamelCase
-
-var referenceFixers = Object.keys(blankFixers())
 
 o.spec('utils', function() {
   o('build up to date', function() {
@@ -28,21 +24,6 @@ o.spec('utils', function() {
       o(deCamelCase('fOo')).equals('f-oo')
       o(deCamelCase('Foo')).equals('-foo')
     })
-  })
-  o.spec('supportedProperty', function() {
-    var fixers
-    o.beforeEach(function() {
-      fixers = blankFixers()
-    })
-    o.afterEach(function() {
-      if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
-      o(Object.keys(fixers)).deepEquals(referenceFixers)
-      fixers = null
-    })
-    o('dummy', function(){
-      mocks(global)
-    })
-
   })
 })
 
