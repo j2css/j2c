@@ -1,13 +1,25 @@
+import {init, finalize, supportedProperty}   from './detectors/utils.js'
+import {detectAtrules}    from './detectors/atrules.js'
+import {detectFunctions}  from './detectors/functions.js'
+import {detectKeywords}   from './detectors/keywords.js'
+import {detectPrefix}     from './detectors/prefix.js'
+import {detectSelectors}  from './detectors/selectors.js'
+
+
 export function blankFixers() {
   return {
     atrules: {},
     hasAtrules: false,
+    hasDppx: false,
     hasFunctions: false,
     hasKeywords: false,
-    hasProperties: false,
+    hasPixelRatio: false,
+    hasPixelRatioFraction: false,
     hasSelectors: false,
     hasValues: false,
-    fixAtruleParams: null,
+    fixAtMediaParams: null,
+    fixAtSupportsParams: null,
+    fixProperty: null,
     fixSelector: null,
     fixValue: null,
     functions: [],
@@ -17,7 +29,6 @@ export function blankFixers() {
     prefix: '',
     Prefix: '',
     properties: {},
-    propertyList : [],
     selectors: [],
     valueProperties: {
       'transition': 1,
@@ -27,19 +38,11 @@ export function blankFixers() {
   }
 }
 
-import {init, finalize}   from './detectors/utils.js'
-import {detectAtrules}    from './detectors/at-rules.js'
-import {detectFunctions}  from './detectors/functions.js'
-import {detectKeywords}   from './detectors/keywords.js'
-import {detectPrefix}     from './detectors/prefix.js'
-import {detectProperties} from './detectors/properties.js'
-import {detectSelectors}  from './detectors/selectors.js'
 
 export function browserDetector(fixers) {
   // add the required data to the fixers object.
   init()
   detectPrefix(fixers)
-  detectProperties(fixers)
   detectSelectors(fixers)
   detectAtrules(fixers)
   detectKeywords(fixers)
@@ -50,6 +53,36 @@ export function browserDetector(fixers) {
 var emptySet = {}
 var own = {}.hasOwnProperty
 
+var valueTokenizer = /[(),]|\/\*[\s\S]*?\*\//g
+
+
+/**
+ * For properties whose values are also properties, this will split a coma-separated
+ * value list into individual values, ignoring comas in comments and in
+ * functions(parameter, lists).
+ *
+ * @param {string} selector
+ * @return {string[]}
+ */
+
+function splitValue(value) {
+  var indices = [], res = [], inParen = 0, o
+  /*eslint-disable no-cond-assign*/
+  while (o = valueTokenizer.exec(value)) {
+  /*eslint-enable no-cond-assign*/
+    switch (o[0]) {
+    case '(': inParen++; break
+    case ')': inParen--; break
+    case ',': if (inParen) break; indices.push(o.index)
+    }
+  }
+  for (o = indices.length; o--;){
+    res.unshift(value.slice(indices[o] + 1))
+    value = value.slice(0, indices[o])
+  }
+  res.unshift(value)
+  return res
+}
 
 function makeDetector (before, targets, after) {
   return new RegExp(before + '(?:' + targets.join('|') + ')' + after)
@@ -96,30 +129,58 @@ export function finalizeFixers(fixers) {
 
   // value = fix('properties', '(^|\\s|,)', '($|\\s|,)', '$1'+self.prefix+'$2$3', value);
   // No need to look for strings in these properties. We may insert prefixes in comments. Oh the humanity.
-  var valuePropertiesDetector = makeDetector('(?:^|\\s|,)', fixers.properties, '(?:$|\\s|,)')
-  var valuePropertiesMatcher = new RegExp('(^|\\s|,)((?:' + fixers.properties.join('|') + ')(?:$|\\s|,))','gi')
-  var valuePropertiesReplacer = '$1' + fixers.prefix + '$2'
+  var valuePropertiesMatcher = /^\s*([-\w]+)/gi
+  var valuePropertiesReplacer = function(match, prop){
+    return fixers.properties[prop] || fixers.fixProperty(prop)
+  }
 
-  fixers.fixAtruleParams = function (kind, params) {
-    // TODO
-    // - prefix @supports properties and values
-    // - prefix pixel density-related media queries.
-    return params
+  fixers.fixProperty = function(prop) {
+    var prefixed
+    return fixers.properties[prop] = (
+      supportedProperty(prop) ||
+      !supportedProperty(prefixed = this.prefix + prop)
+    ) ? prop : prefixed
+  }
+
+  var resolutionMatcher = /((?:min-|max-)?resolution)\s*:\s*((?:\d*.)?\d+)dppx/g
+  var resolutionReplacer = (
+    fixers.hasPixelRatio ? function(_, prop, param){return fixers.properties[prop] + ':' + param} :
+    fixers.hasPixelRatioFraction ? function(_, prop, param){return fixers.properties[prop] + ':' + Math.round(param*10) + '/10'} :
+    function(_, prop, param){return prop + ':' + 96 * param +'dpi'}
+  )
+  fixers.fixAtMediaParams = fixers.hasDppx ? function(p) {return p} : function (params) {
+    return (params.indexOf('reso') !== -1) ?
+      params.replace(resolutionMatcher, resolutionReplacer) :
+      params
+  }
+
+  // comments not supported here. See https://www.debuggex.com/r/a3oAc6Y07xuknSVg
+  var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:[-a-z]+\((?:var\(\s*[-\w]+\s*\)|[^\)])+\)|[^\)])+)\)/g
+  function atSupportsParamsReplacer(prop, value) {
+    return '(' + (fixers.properties || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop) + ')'
+  }
+  fixers.fixAtSupportsParams = function(params) {
+    return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
   }
 
   fixers.fixSelector = function(selector) {
     return selectorMatcher.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
   }
 
-  fixers.hasValues = fixers.hasFunctions || fixers.hasGradients || fixers.hasKeywords || fixers.hasProperties
   fixers.fixValue = function (value, property) {
     var res = value
-    if (fixers.initial !== null && value === 'initial') return fixers.initial
+    if (fixers.initial != null && value === 'initial') return fixers.initial
 
     if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
 
-    if (fixers.hasProperties && own.call(fixers.valueProperties, property) && valuePropertiesDetector.test(value)) {
-      return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
+    if (own.call(fixers.valueProperties, property)) {
+      if (value.indexOf(',') === -1) {
+        return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
+      } else {
+        return splitValue(value).map(function(v) {
+          return v.replace(valuePropertiesMatcher, valuePropertiesReplacer)
+        }).join(',')
+      }
     }
     if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
     if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, replacer)

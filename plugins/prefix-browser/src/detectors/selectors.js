@@ -14,9 +14,11 @@ export function detectSelectors(fixers) {
     ':any-link': 1,
     '::selection': 1
   }
+
+  // builds an array of selectors that need a prefix.
   for(var selector in selectors) {
     if(!supportedRule(selector) && supportedRule(prefixSelector(selector))) {
-      fixers.fixSelectors = true
+      fixers.hasSelectors = true
       fixers.selectors.push(selector)
     }
   }

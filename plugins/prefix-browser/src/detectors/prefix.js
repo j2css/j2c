@@ -2,12 +2,11 @@
 
 import {
   allStyles,
-  camelCase, deCamelCase, supportedProperty
+  camelCase, deCamelCase
 } from './utils.js'
 
 export function detectPrefix(fixers) {
   var prefixCounters = {}
-  var properties = fixers.propertyList
   // Why are we doing this instead of iterating over properties in a .style object? Because Webkit.
   // 1. Older Webkit won't iterate over those.
   // 2. Recent Webkit will, but the 'Webkit'-prefixed properties are not enumerable. The 'webkit'
@@ -15,24 +14,10 @@ export function detectPrefix(fixers) {
 
   function iteration(property) {
     if(property.charAt(0) === '-') {
-      properties.push(property)
-
-      var parts = property.split('-'),
-        prefix = parts[1]
+      var prefix = property.split('-')[1]
 
       // Count prefix uses
       prefixCounters[prefix] = ++prefixCounters[prefix] || 1
-
-      // This helps determining shorthands
-      while(parts.length > 3) {
-        parts.pop()
-
-        var shorthand = parts.join('-')
-
-        if (supportedProperty(shorthand)) {
-          properties.push(shorthand)
-        }
-      }
     }
   }
 
@@ -41,8 +26,7 @@ export function detectPrefix(fixers) {
     for(var i=0; i<allStyles.length; i++) {
       iteration(allStyles[i])
     }
-  }
-  else {
+  } else {
     for(var property in allStyles) {
       iteration(deCamelCase(property))
     }

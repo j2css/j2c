@@ -1,10 +1,15 @@
 // Derived from Lea Verou's PrefixFree and Robin Frischmann's Inline Style Prefixer
 
-import {supportedDecl} from './utils.js'
+// TODO: http://caniuse.com/#feat=css-writing-mode
+
+import {deCamelCase, supportedDecl} from './utils.js'
 
 // db of prop/value pairs whose values may need treatment.
 
 var keywords = [
+  //!\\ use camelCase property names only, the test mocks don't support
+  //!\\ them kebab-cased
+
   // `initial` applies to all properties and is thus handled separately.
   {
     props: ['cursor'],
@@ -19,12 +24,17 @@ var keywords = [
     values: [ 'sticky' ]
   },
   {
-    props: ['column-width', 'height', 'max-height', 'max-width', 'min-height', 'min-width', 'width'],
+    props: ['width', 'columnWidth', 'height', 'maxHeight', 'maxWidth', 'minHeight', 'minWidth'],
     values: ['contain-floats', 'fill-available', 'fit-content', 'max-content', 'min-content']
   }
 ]
 // The flexbox zoo
-// (and then, this doesn't cover the `flex-direction` => `box-orient` + `box-direction` thing, see main.js)
+// (`flex-direction` => `box-orient` + `box-direction` is covered in main.js)
+//
+// ## Specs:
+// - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
+// - flexbox (2012/ie10): https://www.w3.org/TR/2012/WD-css3-flexbox-20120322/
+// - box     (2009/old):  https://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
 var ieAltProps = {
   'align-content': '-ms-flex-line-pack',
   'align-self': '-ms-flex-item-align',
@@ -46,7 +56,10 @@ var ieAltValues = {
 var oldAltProps = {
   'align-items': 'box-align',
   'justify-content': 'box-pack',
-  'flex-wrap': 'box-lines'
+  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  'flex-direction' : 'box-direction',// https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  'flex-wrap': 'box-lines',
+  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }
 var oldAltValues = {
   'space-around': 'justify',
@@ -61,11 +74,12 @@ var oldAltValues = {
 
 export function detectKeywords(fixers) {
   if (fixers.prefix === '') return
-  // Values that might need prefixing
 
-  for (var kw in keywords) {
-    var map = {}, property = kw.props[0]
-    for (var i = 0, keyword; keyword = kw[i]; i++) { //eslint disable-line no-cond-assign
+  // build a map of {propertyI: {keywordJ: previxedKeywordJ, ...}, ...}
+  for (var i = 0; i < keywords.length; i++) {
+    var map = {}, property = keywords[i].props[0]
+    // eslint-disable-next-line
+    for (var j = 0, keyword; keyword = keywords[i].values[j]; j++) {
 
       if (
         !supportedDecl(property, keyword) &&
@@ -75,24 +89,23 @@ export function detectKeywords(fixers) {
         map[keyword] = fixers.prefix + keyword
       }
     }
-    for (property in kw.props) {
-      fixers.keywords[property] = map
+    // eslint-disable-next-line
+    for (j = 0; property = keywords[i].props[j]; j++) {
+      fixers.keywords[deCamelCase(property)] = map
     }
   }
-  if (fixers.keywords.display.flexbox) {
+  if (fixers.keywords.display && fixers.keywords.display.flexbox) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     for (var k in ieAltProps) {
-      fixers.hasProperties = true
       fixers.properties[k] = ieAltProps[k]
       fixers.keywords[k] = ieAltValues
     }
-  } else if (fixers.keywords.display.box) {
+  } else if (fixers.keywords.display && fixers.keywords.display.box) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
     fixers.oldFlexBox = true
     for (k in oldAltProps) {
-      fixers.hasProperties = true
       fixers.properties[k] = fixers.prefix + oldAltProps[k]
       fixers.keywords[k] = oldAltValues
     }
@@ -101,6 +114,7 @@ export function detectKeywords(fixers) {
     !supportedDecl('color', 'initial') &&
     supportedDecl('color', fixers.prefix + 'initial')
   ) {
+    // `initial` does not use the `hasKeywords` branch.
     fixers.initial = fixers.prefix + 'initial'
   }
 }

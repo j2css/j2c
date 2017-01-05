@@ -3,7 +3,7 @@
 var allStyles, styleAttr, styleElement
 
 function init() {
-  allStyles = getComputedStyle(document.documentElement, null),
+  allStyles = getComputedStyle(document.documentElement, null)
   styleAttr = document.createElement('div').style
   styleElement = document.documentElement.appendChild(document.createElement('style'))
 }
@@ -21,12 +21,20 @@ function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
 function supportedDecl(property, value) {
-  styleElement[property] = ''
-  styleElement[property] = value
-  return !!styleElement[property]
+  styleAttr[property] = ''
+  styleAttr[property] = value
+  return !!styleAttr[property]
+}
+function supportedMedia(condition) {
+  styleElement.textContent = '@media (' + condition +'){}'
+  // Opera 11 treats unknown conditions as 'all', the rest as 'not all'.
+  // So far tested in modern browsers (01/01/2017), and desktop IE9, FF4,
+  // Opera 11/12, and Safari 6. TY SauceLabs.
+  return !/^@media(?:\s+not)?\s+all/.test(styleElement.sheet.cssRules[0].cssText)
 }
 function supportedProperty(property) {
-  return camelCase(property) in styleAttr
+  // Some browsers like it dash-cased, some camelCased, most like both.
+  return property in styleAttr || camelCase(property) in styleAttr
 }
 function supportedRule(selector) {
   styleElement.textContent = selector + '{}'
@@ -34,8 +42,8 @@ function supportedRule(selector) {
 }
 
 export {
-  allStyles, styleElement,
+  allStyles, styleAttr,
   init, finalize,
   camelCase, deCamelCase,
-  supportedDecl, supportedProperty, supportedRule
+  supportedDecl, supportedMedia, supportedProperty, supportedRule
 }

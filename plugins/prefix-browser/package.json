@@ -4,11 +4,11 @@
   "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
   "main": "index.js",
   "scripts": {
-    "build": "rm dist/*.js dist/*.gz && node scripts/build.js",
-    "extract": "node scripts/extract.js",
-    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "upstream": "node scripts/upstream.js"
+    "all": "yarn run lint && yarn run build && yarn run test",
+    "build": "rm -f dist/*.js dist/*.gz && node scripts/build.js",
+    "dev": "yarn run build && yarn run test",
+    "lint": "cd ../.. && yarn run lint",
+    "test": "cd ../.. && yarn run test"
   },
   "keywords": [
     "prefixfree",
