@@ -89,4 +89,24 @@ o.spec('plugin.decl for properties', function() {
       'baz': 'baz'
     })
   })
+  o('the properties fixer can be specified manually', function(){
+    fixers.fixProperty = function() {return 'replaced'}
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('foo', 'bar')
+    methods.decl('baz', 'qux')
+
+    o(sink.buffer).deepEquals([
+        ['decl', 'replaced', 'bar'],
+        ['decl', 'replaced', 'qux']
+    ])
+
+    o(fixers.properties).deepEquals({})
+
+  })
 })

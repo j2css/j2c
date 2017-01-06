@@ -137,7 +137,7 @@ export function finalizeFixers(fixers) {
     return fixers.properties[prop] || fixers.fixProperty(prop)
   }
 
-  fixers.fixProperty = function(prop) {
+  fixers.fixProperty = fixers.fixProperty || function(prop) {
     var prefixed
     return fixers.properties[prop] = (
       supportedProperty(prop) ||
