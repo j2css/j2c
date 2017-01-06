@@ -76,12 +76,12 @@ var ieAltProps = {
   'flex-basis': '-ms-preferred-size'
 }
 var ieAltValues = {
-  'space-around': 'distribute',
-  'space-between': 'justify',
-  'flex-start': 'start',
+  // 'flex': 'flexbox',
   'flex-end': 'end',
-  'flex': 'flexbox',
-  'inline-flex': 'inline-flexbox'
+  'flex-start': 'start',
+  'inline-flex': 'inline-flexbox',
+  'space-around': 'distribute',
+  'space-between': 'justify'
 }
 Object.assign(properties.flexbox, ieAltProps)
 Object.keys(ieAltProps).forEach(function(p) {
@@ -98,14 +98,14 @@ var oldAltProps = {
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }
 var oldAltValues = {
+  // 'flex': 'box',
+  'flex-end': 'end',
+  'flex-start': 'start',
+  'inline-flex': 'inline-box',
   'space-around': 'justify',
   'space-between': 'justify',
-  'flex-start': 'start',
-  'flex-end': 'end',
-  'wrap-reverse': 'multiple',
   'wrap': 'multiple',
-  'flex': 'box',
-  'inline-flex': 'inline-box'
+  'wrap-reverse': 'multiple'
 }
 Object.assign(
   properties.box,

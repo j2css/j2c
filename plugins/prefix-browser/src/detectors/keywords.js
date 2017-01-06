@@ -37,37 +37,47 @@ var ieAltProps = {
   'align-content': '-ms-flex-line-pack',
   'align-self': '-ms-flex-item-align',
   'align-items': '-ms-flex-align',
-  'justify-content': '-ms-flex-pack',
-  'order': '-ms-flex-order',
+  // flex => -ms-flex
+  'flex-basis': '-ms-preferred-size',
+  // flex-direction => -ms-flex-direction
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
-  'flex-basis': '-ms-preferred-size'
+  // 'flex-wrap'?
+  'justify-content': '-ms-flex-pack',
+  'order': '-ms-flex-order'
 }
 var ieAltValues = {
-  'space-around': 'distribute',
-  'space-between': 'justify',
-  'flex-start': 'start',
+  // 'flex': 'flexbox', // only for display? handled in the code
   'flex-end': 'end',
-  'flex': 'flexbox',
-  'inline-flex': 'inline-flexbox'
+  'flex-start': 'start',
+  'inline-flex': 'inline-flexbox',
+  'space-around': 'distribute',
+  'space-between': 'justify'
+  // wrap => wrap
+  // wrap-reverse => wrap-reverse
 }
 var oldAltProps = {
+  // 'align-content'?
+  // 'align-self'?
   'align-items': 'box-align',
-  'justify-content': 'box-pack',
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  // 'flex-basis'?
   'flex-direction' : 'box-direction',// https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  // 'flex-grow'?
+  // 'flex-shrink'?
   'flex-wrap': 'box-lines',
+  'justify-content': 'box-pack',
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }
 var oldAltValues = {
+  // 'flex': 'box', // only for display? handled in the code
+  'flex-end': 'end',
+  'flex-start': 'start',
+  'inline-flex': 'inline-box',
   'space-around': 'justify',
   'space-between': 'justify',
-  'flex-start': 'start',
-  'flex-end': 'end',
-  'wrap-reverse': 'multiple',
   'wrap': 'multiple',
-  'flex': 'box',
-  'inline-flex': 'inline-box'
+  'wrap-reverse': 'multiple'
 }
 
 export function detectKeywords(fixers) {
