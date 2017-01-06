@@ -26,6 +26,7 @@ export function blankFixers() {
     initial: null,
     keywords: {},
     oldFlexBox: false,
+    placeholder: null,
     prefix: '',
     Prefix: '',
     properties: {},
@@ -112,6 +113,7 @@ export function finalizeFixers(fixers) {
   var selectorDetector = makeDetector('', fixers.selectors, '(?:\\b|$|[^-])')
   var selectorMatcher = makeLexer('', fixers.selectors, '(?:\\b|$|[^-])')
   var selectorReplacer = function(match, $1) {
+    if ($1 === '::placeholder') return fixers.placeholder
     return $1 !=null ? $1.replace(/^::?/, replacerString) : match
   }
 

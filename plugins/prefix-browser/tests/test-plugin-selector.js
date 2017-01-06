@@ -41,7 +41,8 @@ o.spec('plugin.rule', function() {
     o(sink.buffer).deepEquals([['rule', '.foo:active #baz[foo]']])
   })
   o('it prefixes known selectors appropriately', function() {
-    fixers.selectors = [':any-link', '::selection']
+    fixers.selectors = [':any-link', '::selection', '::placeholder']
+    fixers.placeholder = ':-o-placeholder'
     fixers.hasSelectors = true
     fixers.prefix = '-o-'
 
@@ -49,8 +50,8 @@ o.spec('plugin.rule', function() {
     var sink = makeSink()
     var methods = plugin().$filter(sink)
 
-    methods.rule('.foo:any-link::selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']')
+    methods.rule('::placeholder .foo:any-link::selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']')
 
-    o(sink.buffer).deepEquals([['rule', '.foo:-o-any-link::-o-selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']']])
+    o(sink.buffer).deepEquals([['rule', ':-o-placeholder .foo:-o-any-link::-o-selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']']])
   })
 })
