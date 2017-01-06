@@ -174,7 +174,7 @@ export function finalizeFixers(fixers) {
   }
 
   fixers.fixValue = function (value, property) {
-    var res = value
+    var res
     if (fixers.initial != null && value === 'initial') return fixers.initial
 
     if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
@@ -188,6 +188,7 @@ export function finalizeFixers(fixers) {
         }).join(',')
       }
     }
+    res = value
     if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
     if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, replacer)
     return res
