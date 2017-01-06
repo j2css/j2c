@@ -93,7 +93,6 @@ var oldAltProps = {
   'align-items': 'box-align',
   'justify-content': 'box-pack',
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
-  'flex-direction' : 'box-direction',// https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
   'flex-wrap': 'box-lines',
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }

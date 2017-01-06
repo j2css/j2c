@@ -105,6 +105,7 @@ export function detectKeywords(fixers) {
   if (fixers.keywords.display && fixers.keywords.display.flexbox) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
+    fixers.flexbox2012 = true
     for (var k in ieAltProps) {
       fixers.properties[k] = ieAltProps[k]
       fixers.keywords[k] = ieAltValues
@@ -112,7 +113,7 @@ export function detectKeywords(fixers) {
   } else if (fixers.keywords.display && fixers.keywords.display.box) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
-    fixers.oldFlexBox = true
+    fixers.flexbox2009 = true
     for (k in oldAltProps) {
       fixers.properties[k] = fixers.prefix + oldAltProps[k]
       fixers.keywords[k] = oldAltValues
