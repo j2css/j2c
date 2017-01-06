@@ -27,7 +27,6 @@ var keywords = [
   }
 ]
 // The flexbox zoo
-// (`flex-direction` => `box-orient` + `box-direction` is covered in main.js)
 //
 // ## Specs:
 // - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
@@ -35,14 +34,15 @@ var keywords = [
 // - box     (2009/old):  https://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
 var ieAltProps = {
   'align-content': '-ms-flex-line-pack',
-  'align-self': '-ms-flex-item-align',
   'align-items': '-ms-flex-align',
+  'align-self': '-ms-flex-item-align',
   // flex => -ms-flex
   'flex-basis': '-ms-preferred-size',
   // flex-direction => -ms-flex-direction
+  // !!flex-flow => flex-direction and/or flex-wrap covered in `plugin.js`
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
-  // 'flex-wrap'?
+  // flex-wrap => -ms-flex-wrap
   'justify-content': '-ms-flex-pack',
   'order': '-ms-flex-order'
 }
@@ -57,14 +57,15 @@ var ieAltValues = {
   // wrap-reverse => wrap-reverse
 }
 var oldAltProps = {
-  // 'align-content'?
-  // 'align-self'?
+  // ?align-content =>
+  // ?align-self =>
   'align-items': 'box-align',
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
-  // 'flex-basis'?
-  'flex-direction' : 'box-direction',// https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
-  // 'flex-grow'?
-  // 'flex-shrink'?
+  // ?flex-basis =>
+  // !!flex-direction => box-direction + box-orient covered in `plugin.js`
+  // !!flex-flow => flex-direction and/or flex-wrap covered in `plugin.js`
+  // ?flex-grow =>
+  // ?flex-shrink =>
   'flex-wrap': 'box-lines',
   'justify-content': 'box-pack',
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025

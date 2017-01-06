@@ -67,13 +67,13 @@ unprefixed.flexbox = {display:['flexbox', 'inline-flexbox']}
 
 var ieAltProps = {
   'align-content': '-ms-flex-line-pack',
-  'align-self': '-ms-flex-item-align',
   'align-items': '-ms-flex-align',
-  'justify-content': '-ms-flex-pack',
-  'order': '-ms-flex-order',
+  'align-self': '-ms-flex-item-align',
+  'flex-basis': '-ms-preferred-size',
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
-  'flex-basis': '-ms-preferred-size'
+  'justify-content': '-ms-flex-pack',
+  'order': '-ms-flex-order'
 }
 var ieAltValues = {
   // 'flex': 'flexbox',
@@ -91,9 +91,9 @@ result.flexbox.display.flex = result.flexbox.display.flexbox
 
 var oldAltProps = {
   'align-items': 'box-align',
-  'justify-content': 'box-pack',
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
   'flex-wrap': 'box-lines',
+  'justify-content': 'box-pack',
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }
 var oldAltValues = {
