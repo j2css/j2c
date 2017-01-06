@@ -27,7 +27,7 @@ export function createPrefixPlugin() {
               kind,
               (
                 kind === 'media'    ? fixers.fixAtMediaParams(params) :
-                kind === 'supports' ? fixers.fixASupportsParams(params) :
+                kind === 'supports' ? fixers.fixAtSupportsParams(params) :
                 params
               ),
               hasBlock

@@ -448,9 +448,9 @@ define(function () { 'use strict';
       }
 
     // comments not supported here. See https://www.debuggex.com/r/a3oAc6Y07xuknSVg
-    var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:[-a-z]+\((?:var\(\s*[-\w]+\s*\)|[^\)])+\)|[^\)])+)\)/g
-    function atSupportsParamsReplacer(prop, value) {
-      return '(' + (fixers.properties || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop) + ')'
+    var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\([^\)]*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g
+    function atSupportsParamsReplacer(match, prop, value) {
+      return '(' + (fixers.properties[prop] || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop)
     }
     fixers.fixAtSupportsParams = function(params) {
       return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
@@ -508,7 +508,7 @@ define(function () { 'use strict';
                 kind,
                 (
                   kind === 'media'    ? fixers.fixAtMediaParams(params) :
-                  kind === 'supports' ? fixers.fixASupportsParams(params) :
+                  kind === 'supports' ? fixers.fixAtSupportsParams(params) :
                   params
                 ),
                 hasBlock

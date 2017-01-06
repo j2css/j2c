@@ -11,7 +11,7 @@ var referenceFixers = Object.keys(blankFixers())
 
 
 
-o.spec('plugin.decl for properties', function() {
+o.spec('plugin.rule', function() {
   var fixers
 
   o.beforeEach(function() {
