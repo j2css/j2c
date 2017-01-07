@@ -15,7 +15,7 @@ var keywords = [
   },
   {
     props: ['display'],
-    values:['box', 'flexbox', 'inline-flexbox', 'flex', 'inline-flex', 'grid', 'inline-grid']
+    values:['box', 'inline-box', 'flexbox', 'inline-flexbox', 'flex', 'inline-flex', 'grid', 'inline-grid']
   },
   {
     props: ['position'],
@@ -39,7 +39,7 @@ var ieAltProps = {
   // flex => -ms-flex
   'flex-basis': '-ms-preferred-size',
   // flex-direction => -ms-flex-direction
-  // !!flex-flow => flex-direction and/or flex-wrap covered in `plugin.js`
+  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
   // flex-wrap => -ms-flex-wrap
@@ -47,10 +47,11 @@ var ieAltProps = {
   'order': '-ms-flex-order'
 }
 var ieAltValues = {
-  // 'flex': 'flexbox', // only for display? handled in the code
+  // flex => flexbox || only for display? handled in the code
   'flex-end': 'end',
   'flex-start': 'start',
-  'inline-flex': 'inline-flexbox',
+  // inline-flex => inline-flexbox || see 'flex'
+  // nowrap => nowrap
   'space-around': 'distribute',
   'space-between': 'justify'
   // wrap => wrap
@@ -60,10 +61,12 @@ var oldAltProps = {
   // ?align-content =>
   // ?align-self =>
   'align-items': 'box-align',
+  'box-direction': 'box-direction', // needed for flex-direction
+  'box-orient': 'box-orient',
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
   // ?flex-basis =>
-  // !!flex-direction => box-direction + box-orient covered in `plugin.js`
-  // !!flex-flow => flex-direction and/or flex-wrap covered in `plugin.js`
+  // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
+  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
   // ?flex-grow =>
   // ?flex-shrink =>
   'flex-wrap': 'box-lines',
@@ -71,10 +74,11 @@ var oldAltProps = {
   'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
 }
 var oldAltValues = {
-  // 'flex': 'box', // only for display? handled in the code
+  // flex => box || only for display? handled in the code
   'flex-end': 'end',
   'flex-start': 'start',
-  'inline-flex': 'inline-box',
+  // inline-flex => inline-box || see flex
+  'nowrap': 'single',
   'space-around': 'justify',
   'space-between': 'justify',
   'wrap': 'multiple',
@@ -106,6 +110,7 @@ export function detectKeywords(fixers) {
   if (fixers.keywords.display && fixers.keywords.display.flexbox) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
+    fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
     fixers.flexbox2012 = true
     for (var k in ieAltProps) {
       fixers.properties[k] = ieAltProps[k]
@@ -114,6 +119,7 @@ export function detectKeywords(fixers) {
   } else if (fixers.keywords.display && fixers.keywords.display.box) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
+    fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box']
     fixers.flexbox2009 = true
     for (k in oldAltProps) {
       fixers.properties[k] = fixers.prefix + oldAltProps[k]
@@ -124,7 +130,7 @@ export function detectKeywords(fixers) {
     !supportedDecl('color', 'initial') &&
     supportedDecl('color', fixers.prefix + 'initial')
   ) {
-    // `initial` does not use the `hasKeywords` branch.
+    // `initial` does not use the `hasKeywords` branch, no need to set it to true.
     fixers.initial = fixers.prefix + 'initial'
   }
 }

@@ -41,7 +41,7 @@ unprefixed.noFlex = Object.keys(noFlexSrc).reduce(function(acc, kk){
   return acc
 }, {})
 unprefixed.flex = {display:['flex', 'inline-flex']}
-unprefixed.box = {display:['box']}
+unprefixed.box = {display:['box', 'inline-box']}
 unprefixed.flexbox = {display:['flexbox', 'inline-flexbox']}
 
 ;['noFlex', 'flex', 'box', 'flexbox'].forEach(function(flexType) {
@@ -76,10 +76,8 @@ var ieAltProps = {
   'order': '-ms-flex-order'
 }
 var ieAltValues = {
-  // 'flex': 'flexbox',
   'flex-end': 'end',
   'flex-start': 'start',
-  'inline-flex': 'inline-flexbox',
   'space-around': 'distribute',
   'space-between': 'justify'
 }
@@ -88,19 +86,21 @@ Object.keys(ieAltProps).forEach(function(p) {
   result.flexbox[p] = ieAltValues
 })
 result.flexbox.display.flex = result.flexbox.display.flexbox
+result.flexbox.display['inline-flex'] = result.flexbox.display['inline-flexbox']
 
 var oldAltProps = {
   'align-items': 'box-align',
-  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  'box-direction': 'box-direction',
+  'box-orient': 'box-orient',
+  'flex': 'box-flex',
   'flex-wrap': 'box-lines',
   'justify-content': 'box-pack',
-  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
+  'order': 'box-ordinal-group'
 }
 var oldAltValues = {
-  // 'flex': 'box',
   'flex-end': 'end',
   'flex-start': 'start',
-  'inline-flex': 'inline-box',
+  'nowrap': 'single',
   'space-around': 'justify',
   'space-between': 'justify',
   'wrap': 'multiple',
@@ -117,6 +117,7 @@ Object.keys(oldAltProps).forEach(function(p) {
   result.box[p] = oldAltValues
 })
 result.box.display.flex = result.box.display.box
+result.box.display['inline-flex'] = result.box.display['inline-box']
 
 
 // -----------------------------------

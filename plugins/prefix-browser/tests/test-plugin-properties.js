@@ -89,6 +89,68 @@ o.spec('plugin.decl for properties', function() {
       'baz': 'baz'
     })
   })
+  o('with flexbox 2009, `flex-direction` becomes box-orient + box-direction', function() {
+    mocks(global)
+    fixers.prefix = '-o-'
+    fixers.properties['box-orient'] = '-o-box-orient'
+    fixers.properties['box-direction'] = '-o-box-direction'
+    fixers.flexbox2009 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction'
+    })
+
+    methods.decl('flex-direction', 'column-reverse')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-o-box-orient', 'block-axis'],
+        ['decl', '-o-box-direction', 'reverse']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction'
+    })    
+  })
+  o('with flexbox 2009, `flex-flow` becomes box-orient + box-direction + box-lines', function() {
+    mocks(global)
+    fixers.prefix = '-o-'
+    fixers.properties['box-orient'] = '-o-box-orient'
+    fixers.properties['box-direction'] = '-o-box-direction'
+    fixers.properties['flex-wrap'] = '-o-box-lines'
+    fixers.keywords['flex-wrap'] = {wrap:'multiple'}
+    fixers.hasKeywords = true
+    fixers.flexbox2009 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })
+
+    methods.decl('flex-flow', 'column-reverse wrap')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-o-box-orient', 'block-axis'],
+        ['decl', '-o-box-direction', 'reverse'],
+        ['decl', '-o-box-lines', 'multiple']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })    
+  })
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}
 
