@@ -115,7 +115,7 @@ o.spec('plugin.decl for properties', function() {
     o(fixers.properties).deepEquals({
       'box-orient': '-o-box-orient',
       'box-direction': '-o-box-direction'
-    })    
+    })
   })
   o('with flexbox 2009, `flex-flow` becomes box-orient + box-direction + box-lines', function() {
     mocks(global)
@@ -149,7 +149,7 @@ o.spec('plugin.decl for properties', function() {
       'box-orient': '-o-box-orient',
       'box-direction': '-o-box-direction',
       'flex-wrap': '-o-box-lines'
-    })    
+    })
   })
   o('with flexbox 2012, `flex-flow` becomes flex-direction + flex-wrap', function() {
     mocks(global, {properties:{'-ms-flex-direction':'0', '-ms-flex-wrap':'0'}})
@@ -173,7 +173,7 @@ o.spec('plugin.decl for properties', function() {
     o(fixers.properties).deepEquals({
       'flex-direction': '-ms-flex-direction',
       'flex-wrap': '-ms-flex-wrap'
-    })    
+    })
   })
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}

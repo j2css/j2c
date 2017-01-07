@@ -122,15 +122,15 @@ o.spec('mocks', function() {
   })
 
   o('createElement() throws on unknown elements', function() {
-      var window = {}
-      mocks(window)
-      var threw = false
-      try {
-        window.document.createElement('dum dee dum')
-      } catch (e) {
-        threw = true
-      }
-      o(threw).equals(true)
+    var window = {}
+    mocks(window)
+    var threw = false
+    try {
+      window.document.createElement('dum dee dum')
+    } catch (e) {
+      threw = true
+    }
+    o(threw).equals(true)
   })
 
   o.spec('the style attribute', function(){

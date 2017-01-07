@@ -369,10 +369,8 @@ define(function () { 'use strict';
   }
 
   var emptySet = {}
-  var own = {}.hasOwnProperty
 
   var valueTokenizer = /[(),]|\/\*[\s\S]*?\*\//g
-
 
   /**
    * For properties whose values are also properties, this will split a coma-separated
@@ -420,70 +418,55 @@ define(function () { 'use strict';
   function finalizeFixers(fixers) {
     var prefix = fixers.prefix
 
-    function replacer (match, $1, $2) {
-      if (!$1) return match
-      return $1 + prefix + $2
+
+    // properties
+    // ----------
+
+    fixers.fixProperty = fixers.fixProperty || function(prop) {
+      var prefixed
+      return fixers.properties[prop] = (
+        supportedProperty(prop) ||
+        !supportedProperty(prefixed = prefix + prop)
+      ) ? prop : prefixed
     }
+
+
+    // selectors
+    // ----------
 
     var selectorDetector = makeDetector('', fixers.selectorList, '(?:\\b|$|[^-])')
     var selectorMatcher = makeLexer('', fixers.selectorList, '(?:\\b|$|[^-])')
     var selectorReplacer = function(match, selector) {
       return selector != null ? fixers.selectorMap[selector] : match
     }
-
-    // Gradients are supported with a prefix, convert angles to legacy
-    var gradientDetector = /\blinear-gradient\(/
-    var gradientMatcher = /(^|\s|,)(repeating-)?linear-gradient\(\s*(-?\d*\.?\d*)deg/ig
-    var gradientReplacer = function (match, delim, repeating, deg) {
-      return delim + (repeating || '') + 'linear-gradient(' + (90-deg) + 'deg'
+    fixers.fixSelector = function(selector) {
+      return selectorDetector.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
     }
 
-    // value = fix('functions', '(^|\\s|,)', '\\s*\\(', '$1' + self.prefix + '$2(', value);
+
+    // values
+    // ------
+
+    // When gradients are supported with a prefix, convert angles to legacy
+    var gradientDetector = /\blinear-gradient\(/
+    var gradientMatcher = /(^|\s|,)((?:repeating-)?linear-gradient\()\s*(-?\d*\.?\d*)deg/ig
+    var gradientReplacer = function (match, delim, gradient, deg) {
+      return delim + gradient + (90-deg) + 'deg'
+    }
+
+    // functions
     var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.functions, '\\s*\\(')
     var functionsMatcher = makeLexer('(^|\\s|,)', fixers.functions, '\\s*\\(')
-    // use the default replacer
+    function functionReplacer (match, $1, $2) {
+      if (!$1) return match
+      return $1 + prefix + $2 + '('
+    }
 
-
-    // value = fix('properties', '(^|\\s|,)', '($|\\s|,)', '$1'+self.prefix+'$2$3', value);
+    // properties as values (for transition, ...)
     // No need to look for strings in these properties. We may insert prefixes in comments. Oh the humanity.
     var valuePropertiesMatcher = /^\s*([-\w]+)/gi
     var valuePropertiesReplacer = function(match, prop){
       return fixers.properties[prop] || fixers.fixProperty(prop)
-    }
-
-    fixers.fixProperty = fixers.fixProperty || function(prop) {
-      var prefixed
-      return fixers.properties[prop] = (
-        supportedProperty(prop) ||
-        !supportedProperty(prefixed = this.prefix + prop)
-      ) ? prop : prefixed
-    }
-
-    var resolutionMatcher = /((?:min-|max-)?resolution)\s*:\s*((?:\d*.)?\d+)dppx/g
-    var resolutionReplacer = (
-      fixers.hasPixelRatio ? function(_, prop, param){return fixers.properties[prop] + ':' + param} :
-      fixers.hasPixelRatioFraction ? function(_, prop, param){return fixers.properties[prop] + ':' + Math.round(param*10) + '/10'} :
-      function(_, prop, param){return prop + ':' + Math.round(param * 96) +'dpi'}
-    )
-    fixers.fixAtMediaParams = fixers.hasDppx !== false /*it may be null*/ ?
-      function(p) {return p} :
-      function (params) {
-        return (params.indexOf('reso') !== -1) ?
-          params.replace(resolutionMatcher, resolutionReplacer) :
-          params
-      }
-
-    // comments not supported here. See https://www.debuggex.com/r/a3oAc6Y07xuknSVg
-    var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\([^\)]*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g
-    function atSupportsParamsReplacer(match, prop, value) {
-      return '(' + (fixers.properties[prop] || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop)
-    }
-    fixers.fixAtSupportsParams = function(params) {
-      return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
-    }
-
-    fixers.fixSelector = function(selector) {
-      return selectorDetector.test(selector) ? selector.replace(selectorMatcher, selectorReplacer) : selector
     }
 
     fixers.fixValue = function (value, property) {
@@ -492,7 +475,7 @@ define(function () { 'use strict';
 
       if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
 
-      if (own.call(fixers.valueProperties, property)) {
+      if (fixers.valueProperties.hasOwnProperty(property)) {
         if (value.indexOf(',') === -1) {
           return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
         } else {
@@ -503,10 +486,41 @@ define(function () { 'use strict';
       }
       res = value
       if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
-      if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, replacer)
+      if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, functionReplacer)
       return res
     }
 
+
+    // @media (resolution:...) {
+    // -------------------------
+
+    var resolutionMatcher = /((?:min-|max-)?resolution)\s*:\s*((?:\d*.)?\d+)dppx/g
+    var resolutionReplacer = (
+      fixers.hasPixelRatio ? function(_, prop, param){return fixers.properties[prop] + ':' + param} :
+      fixers.hasPixelRatioFraction ? function(_, prop, param){return fixers.properties[prop] + ':' + Math.round(param*10) + '/10'} :
+      function(_, prop, param){return prop + ':' + Math.round(param * 96) +'dpi'}
+    )
+
+    fixers.fixAtMediaParams = fixers.hasDppx !== false /*it may be null*/ ?
+      function(p) {return p} :
+      function (params) {
+        return (params.indexOf('reso') !== -1) ?
+          params.replace(resolutionMatcher, resolutionReplacer) :
+          params
+      }
+
+
+    // @supports ... {
+    // ---------------
+
+    // regexp built by scripts/regexps.js
+    var atSupportsParamsMatcher = /\(\s*([-\w]+)\s*:\s*((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\([^\)]*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g
+    function atSupportsParamsReplacer(match, prop, value) {
+      return '(' + (fixers.properties[prop] || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop)
+    }
+    fixers.fixAtSupportsParams = function(params) {
+      return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
+    }
   }
 
   function createPrefixPlugin() {
