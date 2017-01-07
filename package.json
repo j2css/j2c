@@ -11,9 +11,9 @@
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix .",
     "test": "ospec",
-    "cover": "istanbul cover --print both test/test.js && yarn run check-coverage",
+    "cover": "istanbul cover --print both node_modules/.bin/ospec && yarn run check-coverage",
     "check-coverage": "istanbul check-coverage --branches -2",
-    "travis": "yarn run build && istanbul cover --print both test/test.js && (codecov || true) && yarn run  check-coverage"
+    "travis": "yarn run build && istanbul cover --print both node_modules/.bin/ospec && (codecov || true) && yarn run  check-coverage"
   },
   "repository": {
     "type": "git",
