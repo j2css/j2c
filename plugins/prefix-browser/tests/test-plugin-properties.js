@@ -35,6 +35,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin().setFixers(fixers)
+    plugin.setFixers(fixers) // set it a second time to exercise the cache branch.
     var sink = makeSink()
     var methods = plugin().$filter(sink)
 
@@ -136,13 +137,78 @@ o.spec('plugin.decl for properties', function() {
       'box-direction': '-o-box-direction',
       'flex-wrap': '-o-box-lines'
     })
-
+    // The extra space between the values is intentional
     methods.decl('flex-flow', 'column-reverse  wrap')
 
     o(sink.buffer).deepEquals([
         ['decl', '-o-box-orient', 'block-axis'],
         ['decl', '-o-box-direction', 'reverse'],
         ['decl', '-o-box-lines', 'multiple']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })
+  })
+  o('with flexbox 2009, `flex-flow` (no wrap value) becomes box-orient + box-direction', function() {
+    mocks(global)
+    fixers.prefix = '-o-'
+    fixers.properties['box-orient'] = '-o-box-orient'
+    fixers.properties['box-direction'] = '-o-box-direction'
+    fixers.properties['flex-wrap'] = '-o-box-lines'
+    fixers.keywords['flex-wrap'] = {wrap:'multiple'}
+    fixers.hasKeywords = true
+    fixers.flexbox2009 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })
+
+    methods.decl('flex-flow', 'row')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-o-box-orient', 'inline-axis'],
+        ['decl', '-o-box-direction', 'normal']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })
+  })
+  o('with flexbox 2009, `flex-flow` (no direction) box-lines', function() {
+    mocks(global)
+    fixers.prefix = '-o-'
+    fixers.properties['box-orient'] = '-o-box-orient'
+    fixers.properties['box-direction'] = '-o-box-direction'
+    fixers.properties['flex-wrap'] = '-o-box-lines'
+    fixers.keywords['flex-wrap'] = {nowrap:'single'}
+    fixers.hasKeywords = true
+    fixers.flexbox2009 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({
+      'box-orient': '-o-box-orient',
+      'box-direction': '-o-box-direction',
+      'flex-wrap': '-o-box-lines'
+    })
+
+    methods.decl('flex-flow', 'nowrap')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-o-box-lines', 'single']
     ])
 
     o(fixers.properties).deepEquals({
@@ -172,6 +238,50 @@ o.spec('plugin.decl for properties', function() {
 
     o(fixers.properties).deepEquals({
       'flex-direction': '-ms-flex-direction',
+      'flex-wrap': '-ms-flex-wrap'
+    })
+  })
+  o('with flexbox 2012, `flex-flow` (no wrap value) becomes flex-direction', function() {
+    mocks(global, {properties:{'-ms-flex-direction':'0', '-ms-flex-wrap':'0'}})
+    fixers.prefix = '-ms-'
+    fixers.hasKeywords = true
+    fixers.flexbox2012 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('flex-flow', 'row')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-ms-flex-direction', 'row']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'flex-direction': '-ms-flex-direction',
+    })
+  })
+  o('with flexbox 2012, `flex-flow` (no direction) becomes flex-wrap', function() {
+    mocks(global, {properties:{'-ms-flex-direction':'0', '-ms-flex-wrap':'0'}})
+    fixers.prefix = '-ms-'
+    fixers.hasKeywords = true
+    fixers.flexbox2012 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('flex-flow', 'nowrap')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-ms-flex-wrap', 'nowrap']
+    ])
+
+    o(fixers.properties).deepEquals({
       'flex-wrap': '-ms-flex-wrap'
     })
   })

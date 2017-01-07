@@ -25,10 +25,11 @@ o.spec('plugin @media parameters', function() {
     var sink = makeSink()
     var methods = plugin().$filter(sink)
 
-    methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true)
+    methods.atrule('@media', 'media', 'screen', true)
 
-    o(sink.buffer).deepEquals([['atrule', '@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true]])
+    o(sink.buffer).deepEquals([['atrule', '@media', 'media', 'screen', true]])
   })
+
   o('works with no dppx support', function() {
     fixers.hasDppx = false
     fixers.prefix = '-dummy-'
@@ -37,10 +38,12 @@ o.spec('plugin @media parameters', function() {
     var sink = makeSink()
     var methods = plugin().$filter(sink)
 
+    methods.atrule('@media', 'media', 'screen', true)
     methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true)
     methods.atrule('@media', 'media', '(resolution:1dppx) and (min-resolution:2dppx) and (max-resolution:1.5dppx)', true)
 
     o(sink.buffer).deepEquals([
+      ['atrule', '@media', 'media', 'screen', true],
       ['atrule', '@media', 'media', '(resolution:192dpi) and (min-resolution:96dpi) and (max-resolution:240dpi)', true],
       ['atrule', '@media', 'media', '(resolution:96dpi) and (min-resolution:192dpi) and (max-resolution:144dpi)', true]
     ])

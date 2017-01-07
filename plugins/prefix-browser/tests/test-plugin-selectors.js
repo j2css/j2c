@@ -54,8 +54,12 @@ o.spec('plugin.rule', function() {
     var sink = makeSink()
     var methods = plugin().$filter(sink)
 
+    methods.rule('.foo:active #baz[foo]')
     methods.rule('::placeholder .foo:any-link::selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']')
 
-    o(sink.buffer).deepEquals([['rule', ':-o-placeholder .foo:-o-any-link::-o-selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']']])
+    o(sink.buffer).deepEquals([
+      ['rule', '.foo:active #baz[foo]'],
+      ['rule', ':-o-placeholder .foo:-o-any-link::-o-selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']']
+    ])
   })
 })
