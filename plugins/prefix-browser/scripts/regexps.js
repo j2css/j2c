@@ -1,6 +1,6 @@
 /*eslint-env node*/
 /*eslint no-console: 0*/
-/* global capture: false, either:false, greedy:false, sequence: false*/
+/* global capture: false, either:false, flags: false, greedy:false, sequence: false*/
 
 global.__proto__ = require('compose-regexp')
 
@@ -38,7 +38,7 @@ var selectorMatcher = JSON.stringify(
 console.log('selectorMatcher = new RegExp(' + selectorMatcher + ')')
 
 // Match parentheses nested five level deep:
-// `crossfade(linear-gradient(to-bottom rgb(calc(var(--bad) + 7), 10, 10))`
+// `crossfade(linear-gradient(to-bottom rgb(calc(var(--bad) + 7), 10, 10) #f00), #00f, 50%)`
 // while ignoring strings and comments
 // Obtained by nesting the following base pattern five times:
 
