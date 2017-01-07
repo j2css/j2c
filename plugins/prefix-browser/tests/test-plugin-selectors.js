@@ -41,8 +41,12 @@ o.spec('plugin.rule', function() {
     o(sink.buffer).deepEquals([['rule', '.foo:active #baz[foo]']])
   })
   o('it prefixes known selectors appropriately', function() {
-    fixers.selectors = [':any-link', '::selection', '::placeholder']
-    fixers.placeholder = ':-o-placeholder'
+    fixers.selectorList = [':any-link', '::selection', '::placeholder']
+    fixers.selectorMap = {
+      ':any-link': ':-o-any-link',
+      '::selection': '::-o-selection',
+      '::placeholder': ':-o-placeholder'
+    }
     fixers.hasSelectors = true
     fixers.prefix = '-o-'
 

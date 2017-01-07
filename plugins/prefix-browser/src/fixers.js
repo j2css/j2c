@@ -31,7 +31,8 @@ export function blankFixers() {
     prefix: '',
     Prefix: '',
     properties: {},
-    selectors: [],
+    selectorList: [],
+    selectorMap: {},
     valueProperties: {
       'transition': 1,
       'transition-property': 1,
@@ -104,24 +105,21 @@ function makeLexer (before, targets, after) {
 export function finalizeFixers(fixers) {
   var prefix = fixers.prefix
 
-  var replacerString = '$&'+prefix
-
   function replacer (match, $1, $2) {
     if (!$1) return match
     return $1 + prefix + $2
   }
 
-  var selectorDetector = makeDetector('', fixers.selectors, '(?:\\b|$|[^-])')
-  var selectorMatcher = makeLexer('', fixers.selectors, '(?:\\b|$|[^-])')
-  var selectorReplacer = function(match, $1) {
-    if ($1 === '::placeholder') return fixers.placeholder
-    return $1 !=null ? $1.replace(/^::?/, replacerString) : match
+  var selectorDetector = makeDetector('', fixers.selectorList, '(?:\\b|$|[^-])')
+  var selectorMatcher = makeLexer('', fixers.selectorList, '(?:\\b|$|[^-])')
+  var selectorReplacer = function(match, selector) {
+    return selector != null ? fixers.selectorMap[selector] : match
   }
 
   // Gradients are supported with a prefix, convert angles to legacy
   var gradientDetector = /\blinear-gradient\(/
   var gradientMatcher = /(^|\s|,)(repeating-)?linear-gradient\(\s*(-?\d*\.?\d*)deg/ig
-  var gradientReplacer = function ($0, delim, repeating, deg) {
+  var gradientReplacer = function (match, delim, repeating, deg) {
     return delim + (repeating || '') + 'linear-gradient(' + (90-deg) + 'deg'
   }
 

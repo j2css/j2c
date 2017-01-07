@@ -10,7 +10,7 @@ var detectSelectors = exposed.detectSelectors
 var blankFixers = exposed.blankFixers
 
 var referenceFixers = Object.keys(blankFixers())
-"::input-placeholder","::placeholder", ":input-placeholder",":placeholder", 
+'::input-placeholder','::placeholder', ':input-placeholder',':placeholder',
 
 o.spec('detectSelectors', function() {
   var fixers
@@ -33,8 +33,8 @@ o.spec('detectSelectors', function() {
     detectSelectors(fixers)
     finalize()
 
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+    o(fixers.selectorList.length).equals(0)
+    o(fixers.selectorMap).deepEquals({})
   })
   o('works with a prefix but no valid selector', function(){
     mocks(global)
@@ -43,8 +43,8 @@ o.spec('detectSelectors', function() {
     detectSelectors(fixers)
     finalize()
 
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+    o(fixers.selectorList.length).equals(0)
+    o(fixers.selectorMap).deepEquals({})
   })
   o('works with a prefix and unprefixed selectors', function(){
     mocks(global, {rules: [
@@ -55,8 +55,8 @@ o.spec('detectSelectors', function() {
     detectSelectors(fixers)
     finalize()
 
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+    o(fixers.selectorList.length).equals(0)
+    o(fixers.selectorMap).deepEquals({})
   })
   o('works with a prefix and prefixed selectors', function(){
     mocks(global, {rules: [
@@ -67,8 +67,13 @@ o.spec('detectSelectors', function() {
     detectSelectors(fixers)
     finalize()
 
-    o(fixers.selectors.sort()).deepEquals(["::selection", ":any-link", ':read-only', ':read-write'])
-    o(fixers.placeholder).equals(null)
+    o(fixers.selectorList.sort()).deepEquals(['::selection', ':any-link', ':read-only', ':read-write'])
+    o(fixers.selectorMap).deepEquals({
+      '::selection': '::-o-selection',
+      ':any-link': ':-o-any-link',
+      ':read-only': ':-o-read-only',
+      ':read-write': ':-o-read-write'
+    })
   })
 
   o('works with a prefix and both prefixed and unprefixed selectors', function(){
@@ -81,8 +86,7 @@ o.spec('detectSelectors', function() {
     detectSelectors(fixers)
     finalize()
 
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+    o(fixers.selectorList.length).equals(0)
   })
   o(':placeholder', function() {
     mocks(global, {rules: [':placeholder{}']})
@@ -90,8 +94,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
   })
   o('::placeholder', function() {
     mocks(global, {rules: [':placeholder{}']})
@@ -99,8 +104,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
   })
   o(':input-placeholder', function() {
     mocks(global, {rules: [':placeholder{}']})
@@ -108,8 +114,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
   })
   o('::input-placeholder', function() {
     mocks(global, {rules: [':placeholder{}']})
@@ -117,8 +124,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors.length).equals(0)
-    o(fixers.placeholder).equals(null)
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
   })
   o(':-o-placeholder', function() {
     mocks(global, {rules: [':-o-placeholder{}']})
@@ -126,8 +134,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors).deepEquals(['::placeholder'])
-    o(fixers.placeholder).equals(':-o-placeholder')
+
+    o(fixers.selectorList).deepEquals(['::placeholder'])
+    o(fixers.selectorMap).deepEquals({'::placeholder': ':-o-placeholder'})
   })
   o('::-o-placeholder', function() {
     mocks(global, {rules: ['::-o-placeholder{}']})
@@ -135,8 +144,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors).deepEquals(['::placeholder'])
-    o(fixers.placeholder).equals('::-o-placeholder')
+
+    o(fixers.selectorList).deepEquals(['::placeholder'])
+    o(fixers.selectorMap).deepEquals({'::placeholder': '::-o-placeholder'})
   })
   o(':-o-input-placeholder', function() {
     mocks(global, {rules: [':-o-input-placeholder{}']})
@@ -144,8 +154,9 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors).deepEquals(['::placeholder'])
-    o(fixers.placeholder).equals(':-o-input-placeholder')
+
+    o(fixers.selectorList).deepEquals(['::placeholder'])
+    o(fixers.selectorMap).deepEquals({'::placeholder': ':-o-input-placeholder'})
   })
   o('::-o-input-placeholder', function() {
     mocks(global, {rules: ['::-o-input-placeholder{}']})
@@ -153,7 +164,8 @@ o.spec('detectSelectors', function() {
     fixers.prefix = '-o-'
     detectSelectors(fixers)
     finalize()
-    o(fixers.selectors).deepEquals(['::placeholder'])
-    o(fixers.placeholder).equals('::-o-input-placeholder')
+
+    o(fixers.selectorList).deepEquals(['::placeholder'])
+    o(fixers.selectorMap).deepEquals({'::placeholder': '::-o-input-placeholder'})
   })
 })

@@ -10,32 +10,24 @@ export function detectSelectors(fixers) {
 
   if (fixers.prefix === '') return
   var selectors = {
-    ':any-link': 1,
-    ':read-only': 1,
-    ':read-write': 1,
-    '::selection': 1
+    ':any-link': ':any-link',
+    ':read-only': ':read-only',
+    ':read-write': ':read-write',
+    '::selection': '::selection',
+    //sigh
+    ':placeholder': '::placeholder',
+    '::placeholder': '::placeholder',
+    ':input-placeholder': '::placeholder',
+    '::input-placeholder': '::placeholder'
   }
 
   // builds an array of selectors that need a prefix.
   for (selector in selectors) {
-    if(!supportedRule(selector) && supportedRule(prefixSelector(selector))) {
-      fixers.hasSelectors = true
-      fixers.selectors.push(selector)
-    }
-  }
-  // sigh
-  var placeholders = {
-    ':placeholder': 1,
-    '::placeholder': 1,
-    ':input-placeholder': 1,
-    '::input-placeholder': 1
-  }
-  for (var selector in placeholders) {
     prefixed = prefixSelector(selector)
     if(!supportedRule(selector) && supportedRule(prefixed)) {
       fixers.hasSelectors = true
-      fixers.selectors.push('::placeholder')      
-      fixers.placeholder = prefixed
+      fixers.selectorList.push(selectors[selector])
+      fixers.selectorMap[selectors[selector]] = prefixed
     }
   }
 }
