@@ -137,7 +137,7 @@ o.spec('plugin.decl for properties', function() {
       'flex-wrap': '-o-box-lines'
     })
 
-    methods.decl('flex-flow', 'column-reverse wrap')
+    methods.decl('flex-flow', 'column-reverse  wrap')
 
     o(sink.buffer).deepEquals([
         ['decl', '-o-box-orient', 'block-axis'],
@@ -149,6 +149,30 @@ o.spec('plugin.decl for properties', function() {
       'box-orient': '-o-box-orient',
       'box-direction': '-o-box-direction',
       'flex-wrap': '-o-box-lines'
+    })    
+  })
+  o('with flexbox 2012, `flex-flow` becomes flex-direction + flex-wrap', function() {
+    mocks(global, {properties:{'-ms-flex-direction':'0', '-ms-flex-wrap':'0'}})
+    fixers.prefix = '-ms-'
+    fixers.hasKeywords = true
+    fixers.flexbox2012 = true
+
+    var plugin = createPrefixPlugin().setFixers(fixers)
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('flex-flow', 'column-reverse  wrap')
+
+    o(sink.buffer).deepEquals([
+        ['decl', '-ms-flex-direction', 'column-reverse'],
+        ['decl', '-ms-flex-wrap', 'wrap']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'flex-direction': '-ms-flex-direction',
+      'flex-wrap': '-ms-flex-wrap'
     })    
   })
   o('the properties fixer can be specified manually', function(){

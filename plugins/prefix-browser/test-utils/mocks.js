@@ -36,7 +36,7 @@ module.exports = function (global, options) {
 
   global.getComputedStyle = function() {
     // sorting may not be necessary...
-    var allProps = Object.keys(options.properties || {}).sort(function(a,b){return a.length - b.length})
+    var allProps = Object.keys(options.properties || {})
     var nonShortcuts = allProps.filter(function(v) {
       return firstMatch(v, allProps) === lastMatch(v, allProps)
     })
@@ -125,6 +125,8 @@ module.exports = function (global, options) {
             cssRules: []
           }
         }
+      } else {
+        throw new Error('[DOM mocks] unsupported tag: '+ tag)
       }
     },
     documentElement : {

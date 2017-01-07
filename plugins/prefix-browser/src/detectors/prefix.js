@@ -34,7 +34,6 @@ export function detectPrefix(fixers) {
 
   var highest = 0
   for(var prefix in prefixCounters) {
-
     if(highest < prefixCounters[prefix]) {
       highest = prefixCounters[prefix]
       fixers.prefix = '-' + prefix + '-'

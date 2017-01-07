@@ -36,45 +36,66 @@ o.spec('detectPrefix', function() {
 
     o(fixers.prefix).equals('')
   })
-  o('properties without a prefix', function() {
-    mocks(global, {
-      properties: {
-        color: 'red',
-        width: '0'
-      }
-    })
-    init()
-    detectPrefix(fixers)
-    finalize()
+  ;[true, false].forEach(function(computedStyleAsArray) {
+    o('properties without a prefix ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
+      mocks(global, {
+        computedStyleAsArray: computedStyleAsArray,
+        properties: {
+          color: 'red',
+          width: '0'
+        }
+      })
+      init()
+      detectPrefix(fixers)
+      finalize()
 
-    o(fixers.prefix).equals('')
-  })
-  o('properties with a single prefix', function() {
-    mocks(global, {
-      properties: {
-        MozColor: 'red',
-        width: '0'
-      }
+      o(fixers.prefix).equals('')
     })
-    init()
-    detectPrefix(fixers)
-    finalize()
+    o('properties with a single prefix ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
+      mocks(global, {
+        computedStyleAsArray: computedStyleAsArray,
+        properties: {
+          MozColor: 'red',
+          width: '0'
+        }
+      })
+      init()
+      detectPrefix(fixers)
+      finalize()
 
-    o(fixers.prefix).equals('-moz-')
-  })
-  o('properties with two prefixes', function() {
-    mocks(global, {
-      properties: {
-        MozColor: 'red',
-        MozMargin: '0',
-        OMargin: '0',
-        width: '0'
-      }
+      o(fixers.prefix).equals('-moz-')
     })
-    init()
-    detectPrefix(fixers)
-    finalize()
+    o('properties with two prefixes, majority prefix first ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
+      mocks(global, {
+        computedStyleAsArray: computedStyleAsArray,
+        properties: {
+          MozColor: 'red',
+          MozMargin: '0',
+          OMargin: '0',
+          width: '0'
+        }
+      })
+      init()
+      detectPrefix(fixers)
+      finalize()
 
-    o(fixers.prefix).equals('-moz-')
+      o(fixers.prefix).equals('-moz-')
+    })
+    o('properties with two prefixes, majority prefix last ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
+      mocks(global, {
+        computedStyleAsArray: computedStyleAsArray,
+        properties: {
+          OMargin: '0',
+          MozColor: 'red',
+          MozMargin: '0',
+          width: '0'
+        }
+      })
+      init()
+      detectPrefix(fixers)
+      finalize()
+
+      o(fixers.prefix).equals('-moz-')
+    })
   })
 })
