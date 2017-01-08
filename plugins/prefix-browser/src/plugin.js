@@ -26,8 +26,8 @@ export function createPrefixPlugin() {
               fixers.hasAtrules && fixers.atrules[rule] || rule,
               kind,
               (
-                kind === 'media'    ? fixers.fixAtMediaParams(params) :
-                kind === 'supports' ? fixers.fixAtSupportsParams(params) :
+                rule === '@media'    ? fixers.fixAtMediaParams(params) :
+                rule === '@supports' ? fixers.fixAtSupportsParams(params) :
                 params
               ),
               hasBlock
