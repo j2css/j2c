@@ -65,56 +65,24 @@ unprefixed.flexbox = {display:['flexbox', 'inline-flexbox']}
   }, {})
 })
 
-var ieAltProps = {
-  'align-content': '-ms-flex-line-pack',
-  'align-items': '-ms-flex-align',
-  'align-self': '-ms-flex-item-align',
-  'flex-basis': '-ms-preferred-size',
-  'flex-grow': '-ms-flex-positive',
-  'flex-shrink': '-ms-flex-negative',
-  'justify-content': '-ms-flex-pack',
-  'order': '-ms-flex-order'
-}
-var ieAltValues = {
-  'flex-end': 'end',
-  'flex-start': 'start',
-  'space-around': 'distribute',
-  'space-between': 'justify'
-}
-Object.assign(properties.flexbox, ieAltProps)
-Object.keys(ieAltProps).forEach(function(p) {
-  result.flexbox[p] = ieAltValues
+
+Object.assign(properties.flexbox, exposed.flex2012Props)
+Object.keys(exposed.flex2012Props).forEach(function(p) {
+  result.flexbox[p] = exposed.flex2012Values
 })
 result.flexbox.display.flex = result.flexbox.display.flexbox
 result.flexbox.display['inline-flex'] = result.flexbox.display['inline-flexbox']
 
-var oldAltProps = {
-  'align-items': 'box-align',
-  'box-direction': 'box-direction',
-  'box-orient': 'box-orient',
-  'flex': 'box-flex',
-  'flex-wrap': 'box-lines',
-  'justify-content': 'box-pack',
-  'order': 'box-ordinal-group'
-}
-var oldAltValues = {
-  'flex-end': 'end',
-  'flex-start': 'start',
-  'nowrap': 'single',
-  'space-around': 'justify',
-  'space-between': 'justify',
-  'wrap': 'multiple',
-  'wrap-reverse': 'multiple'
-}
+
 Object.assign(
   properties.box,
-  Object.keys(oldAltProps).reduce(function(acc, k){
-    acc[k] = '-o-' + oldAltProps[k]
+  Object.keys(exposed.flex2009Props).reduce(function(acc, k){
+    acc[k] = '-o-' + exposed.flex2009Props[k]
     return acc
   }, {})
 )
-Object.keys(oldAltProps).forEach(function(p) {
-  result.box[p] = oldAltValues
+Object.keys(exposed.flex2009Props).forEach(function(p) {
+  result.box[p] = exposed.flex2009Values
 })
 result.box.display.flex = result.box.display.box
 result.box.display['inline-flex'] = result.box.display['inline-box']

@@ -3,7 +3,6 @@ var o = require('ospec')
 var exposed = require('../test-utils/exposed')
 var makeSink = require('../test-utils/misc').makeSink
 var mocks = require('../test-utils/mocks')
-var upToDate = require('../test-utils/misc').upToDate
 
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
@@ -22,12 +21,6 @@ o.spec('plugin.decl for properties', function() {
     if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
     o(Object.keys(fixers)).deepEquals(referenceFixers)
     fixers = null
-  })
-
-  o('build up to date', function() {
-    o(upToDate(__dirname, '../src/plugin.js')).equals(true)
-    o(upToDate(__dirname, '../src/fixers.js')).equals(true)
-    o(upToDate(__dirname, '../src/main.js')).equals(true)
   })
 
   o('it leaves unknowned properties as is', function() {

@@ -6,7 +6,7 @@ import {supportedDecl} from './utils.js'
 
 // db of prop/value pairs whose values may need treatment.
 
-var keywords = [
+export var keywords = [
 
   // `initial` applies to all properties and is thus handled separately.
   {
@@ -29,10 +29,35 @@ var keywords = [
 // The flexbox zoo
 //
 // ## Specs:
-// - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
-// - flexbox (2012/ie10): https://www.w3.org/TR/2012/WD-css3-flexbox-20120322/
 // - box     (2009/old):  https://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
-var ieAltProps = {
+// - flexbox (2012/ie10): https://www.w3.org/TR/2012/WD-css3-flexbox-20120322/
+// - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
+export var flex2009Props = {
+  // ?align-content =>
+  // ?align-self =>
+  'align-items': 'box-align',
+  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  // ?flex-basis =>
+  // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
+  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
+  // ?flex-grow =>
+  // ?flex-shrink =>
+  'flex-wrap': 'box-lines',
+  'justify-content': 'box-pack',
+  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
+}
+export var flex2009Values = {
+  // flex => box || only for display? handled in the code
+  'flex-end': 'end',
+  'flex-start': 'start',
+  // inline-flex => inline-box || see flex
+  'nowrap': 'single',
+  'space-around': 'justify',
+  'space-between': 'justify',
+  'wrap': 'multiple',
+  'wrap-reverse': 'multiple'
+}
+export var flex2012Props = {
   'align-content': '-ms-flex-line-pack',
   'align-items': '-ms-flex-align',
   'align-self': '-ms-flex-item-align',
@@ -46,7 +71,7 @@ var ieAltProps = {
   'justify-content': '-ms-flex-pack',
   'order': '-ms-flex-order'
 }
-var ieAltValues = {
+export var flex2012Values = {
   // flex => flexbox || only for display? handled in the code
   'flex-end': 'end',
   'flex-start': 'start',
@@ -56,33 +81,6 @@ var ieAltValues = {
   'space-between': 'justify'
   // wrap => wrap
   // wrap-reverse => wrap-reverse
-}
-var oldAltProps = {
-  // ?align-content =>
-  // ?align-self =>
-  'align-items': 'box-align',
-  'box-direction': 'box-direction', // needed for flex-direction
-  'box-orient': 'box-orient',
-  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
-  // ?flex-basis =>
-  // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
-  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
-  // ?flex-grow =>
-  // ?flex-shrink =>
-  'flex-wrap': 'box-lines',
-  'justify-content': 'box-pack',
-  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
-}
-var oldAltValues = {
-  // flex => box || only for display? handled in the code
-  'flex-end': 'end',
-  'flex-start': 'start',
-  // inline-flex => inline-box || see flex
-  'nowrap': 'single',
-  'space-around': 'justify',
-  'space-between': 'justify',
-  'wrap': 'multiple',
-  'wrap-reverse': 'multiple'
 }
 
 export function detectKeywords(fixers) {
@@ -112,18 +110,18 @@ export function detectKeywords(fixers) {
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
     fixers.flexbox2012 = true
-    for (var k in ieAltProps) {
-      fixers.properties[k] = ieAltProps[k]
-      fixers.keywords[k] = ieAltValues
+    for (var k in flex2012Props) {
+      fixers.properties[k] = flex2012Props[k]
+      fixers.keywords[k] = flex2012Values
     }
   } else if (fixers.keywords.display && fixers.keywords.display.box) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box']
     fixers.flexbox2009 = true
-    for (k in oldAltProps) {
-      fixers.properties[k] = fixers.prefix + oldAltProps[k]
-      fixers.keywords[k] = oldAltValues
+    for (k in flex2009Props) {
+      fixers.properties[k] = fixers.prefix + flex2009Props[k]
+      fixers.keywords[k] = flex2009Values
     }
   }
   if (
