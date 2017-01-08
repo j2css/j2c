@@ -7,6 +7,7 @@
     "all": "yarn run lint && yarn run build && yarn run test",
     "build": "rm -f dist/*.js dist/*.gz && node scripts/build.js",
     "dev": "yarn run build && yarn run test",
+    "cover": "cd ../.. && yarn run cover",
     "lint": "cd ../.. && yarn run lint",
     "test": "cd ../.. && yarn run test"
   },

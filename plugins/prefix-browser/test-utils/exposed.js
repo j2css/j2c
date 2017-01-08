@@ -118,7 +118,6 @@ function detectFunctions(fixers) {
 
     if (!supportedDecl(property, value) && supportedDecl(property, fixers.prefix + value)) {
       // It's only supported with a prefix
-      fixers.hasFunctions = true
       fixers.functions.push(func)
     }
   }
@@ -149,10 +148,35 @@ var keywords = [
 // The flexbox zoo
 //
 // ## Specs:
-// - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
-// - flexbox (2012/ie10): https://www.w3.org/TR/2012/WD-css3-flexbox-20120322/
 // - box     (2009/old):  https://www.w3.org/TR/2009/WD-css3-flexbox-20090723/
-var ieAltProps = {
+// - flexbox (2012/ie10): https://www.w3.org/TR/2012/WD-css3-flexbox-20120322/
+// - flex    (final):     https://www.w3.org/TR/css-flexbox-1/
+var flex2009Props = {
+  // ?align-content =>
+  // ?align-self =>
+  'align-items': 'box-align',
+  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
+  // ?flex-basis =>
+  // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
+  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
+  // ?flex-grow =>
+  // ?flex-shrink =>
+  'flex-wrap': 'box-lines',
+  'justify-content': 'box-pack',
+  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
+}
+var flex2009Values = {
+  // flex => box || only for display? handled in the code
+  'flex-end': 'end',
+  'flex-start': 'start',
+  // inline-flex => inline-box || see flex
+  'nowrap': 'single',
+  'space-around': 'justify',
+  'space-between': 'justify',
+  'wrap': 'multiple',
+  'wrap-reverse': 'multiple'
+}
+var flex2012Props = {
   'align-content': '-ms-flex-line-pack',
   'align-items': '-ms-flex-align',
   'align-self': '-ms-flex-item-align',
@@ -166,7 +190,7 @@ var ieAltProps = {
   'justify-content': '-ms-flex-pack',
   'order': '-ms-flex-order'
 }
-var ieAltValues = {
+var flex2012Values = {
   // flex => flexbox || only for display? handled in the code
   'flex-end': 'end',
   'flex-start': 'start',
@@ -176,33 +200,6 @@ var ieAltValues = {
   'space-between': 'justify'
   // wrap => wrap
   // wrap-reverse => wrap-reverse
-}
-var oldAltProps = {
-  // ?align-content =>
-  // ?align-self =>
-  'align-items': 'box-align',
-  'box-direction': 'box-direction', // needed for flex-direction
-  'box-orient': 'box-orient',
-  'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
-  // ?flex-basis =>
-  // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
-  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
-  // ?flex-grow =>
-  // ?flex-shrink =>
-  'flex-wrap': 'box-lines',
-  'justify-content': 'box-pack',
-  'order': 'box-ordinal-group' // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025
-}
-var oldAltValues = {
-  // flex => box || only for display? handled in the code
-  'flex-end': 'end',
-  'flex-start': 'start',
-  // inline-flex => inline-box || see flex
-  'nowrap': 'single',
-  'space-around': 'justify',
-  'space-between': 'justify',
-  'wrap': 'multiple',
-  'wrap-reverse': 'multiple'
 }
 
 function detectKeywords(fixers) {
@@ -232,18 +229,18 @@ function detectKeywords(fixers) {
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
     fixers.flexbox2012 = true
-    for (var k in ieAltProps) {
-      fixers.properties[k] = ieAltProps[k]
-      fixers.keywords[k] = ieAltValues
+    for (var k in flex2012Props) {
+      fixers.properties[k] = flex2012Props[k]
+      fixers.keywords[k] = flex2012Values
     }
   } else if (fixers.keywords.display && fixers.keywords.display.box) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box']
     fixers.flexbox2009 = true
-    for (k in oldAltProps) {
-      fixers.properties[k] = fixers.prefix + oldAltProps[k]
-      fixers.keywords[k] = oldAltValues
+    for (k in flex2009Props) {
+      fixers.properties[k] = fixers.prefix + flex2009Props[k]
+      fixers.keywords[k] = flex2009Values
     }
   }
   if (
@@ -327,7 +324,6 @@ function blankFixers() {
     atrules: {},
     hasAtrules: false,
     hasDppx: null,
-    hasFunctions: false,
     hasKeywords: false,
     hasPixelRatio: false,
     hasPixelRatioFraction: false,
@@ -449,18 +445,20 @@ function finalizeFixers(fixers) {
   // ------
 
   // When gradients are supported with a prefix, convert angles to legacy
+  // (from clockwise to trigonometric)
+  var hasGradients = fixers.functions.indexOf('linear-gradient') > -1
   var gradientDetector = /\blinear-gradient\(/
-  var gradientMatcher = /(^|\s|,)((?:repeating-)?linear-gradient\()\s*(-?\d*\.?\d*)deg/ig
+  var gradientMatcher = /(^|\s|,|\()((?:repeating-)?linear-gradient\()\s*(-?\d*\.?\d*)deg/ig
   var gradientReplacer = function (match, delim, gradient, deg) {
     return delim + gradient + (90-deg) + 'deg'
   }
 
   // functions
-  var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.functions, '\\s*\\(')
-  var functionsMatcher = makeLexer('(^|\\s|,)', fixers.functions, '\\s*\\(')
+  var hasFunctions = !!fixers.functions.length
+  var functionsDetector = makeDetector('(?:^|\\s|,|\\()', fixers.functions, '\\s*\\(')
+  var functionsMatcher = makeLexer('(^|\\s|,|\\()', fixers.functions, '(?=\\s*\\()')
   function functionReplacer (match, $1, $2) {
-    if (!$1) return match
-    return $1 + prefix + $2 + '('
+    return $1 + prefix + $2
   }
 
   // properties as values (for transition, ...)
@@ -476,18 +474,22 @@ function finalizeFixers(fixers) {
 
     if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
 
+    res = value
+
     if (fixers.valueProperties.hasOwnProperty(property)) {
-      if (value.indexOf(',') === -1) {
-        return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
-      } else {
-        return splitValue(value).map(function(v) {
+      res = (value.indexOf(',') === -1) ?
+        value.replace(valuePropertiesMatcher, valuePropertiesReplacer) :
+        splitValue(value).map(function(v) {
           return v.replace(valuePropertiesMatcher, valuePropertiesReplacer)
         }).join(',')
-      }
     }
-    res = value
-    if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
-    if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, functionReplacer)
+
+    if (hasFunctions && functionsDetector.test(value)) {
+      if (hasGradients && gradientDetector.test(value)) {
+        res = res.replace(gradientMatcher, gradientReplacer)
+      }
+      res = res.replace(functionsMatcher, functionReplacer)
+    }
     return res
   }
 
@@ -598,5 +600,10 @@ exports.supportedProperty = supportedProperty;
 exports.detectAtrules = detectAtrules;
 exports.detectFunctions = detectFunctions;
 exports.detectKeywords = detectKeywords;
+exports.keywords = keywords;
+exports.flex2009Props = flex2009Props;
+exports.flex2009Values = flex2009Values;
+exports.flex2012Props = flex2012Props;
+exports.flex2012Values = flex2012Values;
 exports.detectPrefix = detectPrefix;
 exports.detectSelectors = detectSelectors;

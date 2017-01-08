@@ -36,7 +36,6 @@ export function detectFunctions(fixers) {
 
     if (!supportedDecl(property, value) && supportedDecl(property, fixers.prefix + value)) {
       // It's only supported with a prefix
-      fixers.hasFunctions = true
       fixers.functions.push(func)
     }
   }

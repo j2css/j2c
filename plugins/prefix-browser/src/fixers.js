@@ -11,7 +11,6 @@ export function blankFixers() {
     atrules: {},
     hasAtrules: false,
     hasDppx: null,
-    hasFunctions: false,
     hasKeywords: false,
     hasPixelRatio: false,
     hasPixelRatioFraction: false,
@@ -133,18 +132,20 @@ export function finalizeFixers(fixers) {
   // ------
 
   // When gradients are supported with a prefix, convert angles to legacy
+  // (from clockwise to trigonometric)
+  var hasGradients = fixers.functions.indexOf('linear-gradient') > -1
   var gradientDetector = /\blinear-gradient\(/
-  var gradientMatcher = /(^|\s|,)((?:repeating-)?linear-gradient\()\s*(-?\d*\.?\d*)deg/ig
+  var gradientMatcher = /(^|\s|,|\()((?:repeating-)?linear-gradient\()\s*(-?\d*\.?\d*)deg/ig
   var gradientReplacer = function (match, delim, gradient, deg) {
     return delim + gradient + (90-deg) + 'deg'
   }
 
   // functions
-  var functionsDetector = makeDetector('(?:^|\\s|,)', fixers.functions, '\\s*\\(')
-  var functionsMatcher = makeLexer('(^|\\s|,)', fixers.functions, '\\s*\\(')
+  var hasFunctions = !!fixers.functions.length
+  var functionsDetector = makeDetector('(?:^|\\s|,|\\()', fixers.functions, '\\s*\\(')
+  var functionsMatcher = makeLexer('(^|\\s|,|\\()', fixers.functions, '(?=\\s*\\()')
   function functionReplacer (match, $1, $2) {
-    if (!$1) return match
-    return $1 + prefix + $2 + '('
+    return $1 + prefix + $2
   }
 
   // properties as values (for transition, ...)
@@ -170,8 +171,8 @@ export function finalizeFixers(fixers) {
         }).join(',')
     }
 
-    if (fixers.hasFunctions && functionsDetector.test(value)) {
-      if (fixers.hasGradients && gradientDetector.test(value)) {
+    if (hasFunctions && functionsDetector.test(value)) {
+      if (hasGradients && gradientDetector.test(value)) {
         res = res.replace(gradientMatcher, gradientReplacer)
       }
       res = res.replace(functionsMatcher, functionReplacer)
