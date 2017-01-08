@@ -41,18 +41,18 @@ var parsed = rollup.rollup({
 outputs.forEach(function (output) {
   parsed.then(function(bundle){
     var result = bundle.generate(output.rollupOptions)
-    fs.writeFileSync('dist/j2c-plugin-prefix.' + output.name + '.js', result.code)
+    fs.writeFileSync('dist/j2c-plugin-prefix-browser.' + output.name + '.js', result.code)
     if (output.minify) {
       var minified = uglify.minify(result.code, {
         fromString: true,
         mangle: true,
         compress: {}
       }).code
-      fs.writeFileSync('dist/j2c-plugin-prefix.' + output.name + '.min.js', minified)
+      fs.writeFileSync('dist/j2c-plugin-prefix-browser.' + output.name + '.min.js', minified)
       zlib.gzip(minified, function(_, buf){
         console.log(output.name, _ || buf.length)
         if (output.minify.saveGzip) {
-          fs.writeFileSync('dist/j2c-plugin-prefix.' + output.name + '.min.js.gz', buf)
+          fs.writeFileSync('dist/j2c-plugin-prefix-browser.' + output.name + '.min.js.gz', buf)
         }
       })
     }

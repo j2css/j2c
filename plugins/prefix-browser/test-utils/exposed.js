@@ -558,8 +558,8 @@ function createPrefixPlugin() {
               fixers.hasAtrules && fixers.atrules[rule] || rule,
               kind,
               (
-                kind === 'media'    ? fixers.fixAtMediaParams(params) :
-                kind === 'supports' ? fixers.fixAtSupportsParams(params) :
+                rule === '@media'    ? fixers.fixAtMediaParams(params) :
+                rule === '@supports' ? fixers.fixAtSupportsParams(params) :
                 params
               ),
               hasBlock
@@ -573,8 +573,8 @@ function createPrefixPlugin() {
                 else if(v !== '') decl('flex-direction', v)
               })
             } else if (property === 'flex-direction' && fixers.flexbox2009 && typeof value === 'string') {
-              next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
-              next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
+              next.decl(fixers.properties['box-orient'] || fixers.fixProperty('box-orient'), value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
+              next.decl(fixers.properties['box-direction'] || fixers.fixProperty('box-direction'), value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
             } else {
               next.decl(
                 fixers.properties[property] || fixers.fixProperty(property),

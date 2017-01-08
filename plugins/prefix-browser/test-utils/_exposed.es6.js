@@ -12,8 +12,8 @@ export {
 export {detectAtrules}    from '../src/detectors/atrules.js'
 export {detectFunctions}  from '../src/detectors/functions.js'
 export {
-  detectKeywords, keywords, 
-  flex2009Props, flex2009Values, 
+  detectKeywords, keywords,
+  flex2009Props, flex2009Values,
   flex2012Props, flex2012Values
 } from '../src/detectors/keywords.js'
 export {detectPrefix}     from '../src/detectors/prefix.js'
