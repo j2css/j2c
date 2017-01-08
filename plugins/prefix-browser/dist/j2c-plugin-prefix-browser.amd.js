@@ -223,7 +223,7 @@ define(function () { 'use strict';
         fixers.keywords[property] = map
       }
     }
-    if (fixers.keywords.display && fixers.keywords.display.flexbox) {
+    if (fixers.keywords.display && fixers.keywords.display.flexbox && !supportedDecl('display', 'flex')) {
       // old IE
       fixers.keywords.display.flex = fixers.keywords.display.flexbox
       fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
@@ -232,7 +232,7 @@ define(function () { 'use strict';
         fixers.properties[k] = flex2012Props[k]
         fixers.keywords[k] = flex2012Values
       }
-    } else if (fixers.keywords.display && fixers.keywords.display.box) {
+    } else if (fixers.keywords.display && fixers.keywords.display.box && !supportedDecl('display', 'flex')) {
       // old flexbox spec
       fixers.keywords.display.flex = fixers.keywords.display.box
       fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box']
