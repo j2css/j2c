@@ -58,7 +58,7 @@ o.spec('plugin.decl for keywords', function() {
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
-    
+
     var plugin = createPrefixPlugin().setFixers(fixers)
     var sink = makeSink()
     var methods = plugin().$filter(sink)
@@ -93,7 +93,7 @@ o.spec('plugin.decl for keywords', function() {
     fixers.hasKeywords = true
     fixers.keywords = prefixedKeywords
     fixers.initial = '-o-initial'
-    
+
     var plugin = createPrefixPlugin().setFixers(fixers)
     var sink = makeSink()
     var methods = plugin().$filter(sink)

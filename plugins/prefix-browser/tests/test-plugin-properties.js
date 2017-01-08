@@ -256,7 +256,7 @@ o.spec('plugin.decl for properties', function() {
     ])
 
     o(fixers.properties).deepEquals({
-      'flex-direction': '-ms-flex-direction',
+      'flex-direction': '-ms-flex-direction'
     })
   })
   o('with flexbox 2012, `flex-flow` (no direction) becomes flex-wrap', function() {

@@ -1,0 +1,57 @@
+<!doctype html>
+<title>j2c prefix plugin live test</title>
+<script src='../../../dist/j2c.global.js'></script>
+<script src='../dist/j2c-plugin-prefix-browser.global.js'></script>
+<textarea id="source"></textarea>
+<textarea id="prefixed"></textarea>
+<script>
+var src = {
+  '@global': {
+    '@keyframes rotate': {
+      'from': {
+        transform: 'rotate(15deg)'
+      },
+      'to': {
+        transform: 'rotate(375deg)'
+      }
+    },
+    '.download': {
+      position: 'absolute',
+      top: '1em',
+      left: '-1.5em',
+      width: '6em',
+      height: '6em',
+      padding: '1em 0',
+      background: '#80A060',
+      backgroundImage: 'linear-gradient(90deg, transparent, rgba(10,0,0,.3)),linear-gradient(transparent, transparent)',
+      color: 'white',
+      lineHeight: 1,
+      fontSize: '140%',
+      textAlign: 'center',
+      textDecoration: 'initial',
+      textShadow: '.08em .08em .2em rgba(0,0,0,.6)',
+      borderRadius: '50%',
+      boxShadow: '.1em .2em .4em -.2em black',
+      boxSizing: 'border-box',
+      transform: 'rotate(15deg)',
+      animation: 'rotate',
+      cursor: 'zoom-in'
+    },
+    ':read-write ::placeholder': {
+        display: 'flex',
+        flex: '1 1',
+        flexFlow: 'column-reverse wrap'
+    }
+  }
+}
+var prefixer = j2c().use(j2cPrefixPluginBrowser)
+source.value = '// raw (this isn\'t live)\n' + j2c.sheet(src)
+prefixed.value = '//prefixed\n' + prefixer.sheet(src)
+</script>
+<style>
+textarea {
+    float:left;
+    width:49%;
+    height:50em;
+}
+</style>

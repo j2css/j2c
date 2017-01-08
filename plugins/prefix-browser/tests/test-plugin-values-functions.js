@@ -52,7 +52,7 @@ o.spec('plugin.decl for values that have functions', function() {
     o(sink.buffer).deepEquals([
       ['decl', 'foo', '-o-cross-fade(-o-linear-gradient(1deg red, green),-o-repeating-linear-gradient(110deg rgb( -o-calc(2 * var(--foo)), 0, 0), green))'],
       ['decl', 'foo', '-o-linear-gradient(-10deg red, green)']
-      ])
+    ])
   })
   o('skips the gradient fixer if none are present (see coverage)', function() {
     mocks(global)
@@ -69,7 +69,7 @@ o.spec('plugin.decl for values that have functions', function() {
     o(sink.buffer).deepEquals([
       ['decl', 'foo', '-o-cross-fade(linear-gradient(89deg red, green),repeating-linear-gradient(-20deg rgb( -o-calc(2 * var(--foo)), 0, 0), green))'],
       ['decl', 'foo', 'linear-gradient(100deg red, green)']
-      ])
+    ])
   })
 })
 

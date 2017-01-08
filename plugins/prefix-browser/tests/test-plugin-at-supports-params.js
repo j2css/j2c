@@ -8,8 +8,6 @@ var mocks = require('../test-utils/mocks')
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
 var hasCleanState = exposed.hasCleanState
-var init = exposed.init
-var finalize = exposed.finalize
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -29,8 +27,7 @@ o.spec('plugin @supports parameters', function() {
 
   o('works with a blank fixer object', function() {
     mocks(global)
-    init()
-    finalize()
+
     var plugin = createPrefixPlugin().setFixers(fixers)
     var sink = makeSink()
     var methods = plugin().$filter(sink)
@@ -38,5 +35,59 @@ o.spec('plugin @supports parameters', function() {
     methods.atrule('@supports', 'supports', '(foo:bar)', true)
 
     o(sink.buffer).deepEquals([['atrule', '@supports', 'supports', '(foo:bar)', true]])
+  })
+  o('adds prefixes adequately (simple example)', function() {
+    mocks(global, {
+      properties: {
+        OFoo: 'bar'
+      }
+    })
+    var plugin = createPrefixPlugin()
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    methods.atrule('@supports', 'supports', '(foo: foo)', true)
+
+    o(sink.buffer).deepEquals([
+      ['atrule', '@supports', 'supports', '(-o-foo:foo)',  true]
+    ])
+  })
+  o('adds prefixes adequately (complex example)', function() {
+    mocks(global, {
+      properties: {
+        OFoo: 'bar',
+        backgroundImage: ['-o-linear-gradient(red, teal)'],
+        display:['-o-box', '-o-grid'],
+        width: '-o-calc(1px + 5%)',
+        color: '-o-initial'
+      }
+    })
+    var plugin = createPrefixPlugin()
+    var sink = makeSink()
+    var methods = plugin().$filter(sink)
+
+    methods.atrule('@supports', 'supports',
+      '(foo: foo) and ' +
+      '(transition: foo cubic-bezier(calc(2 * var(--foo)),foo,calc(1 + var(--ofo)))) and ' +
+      '(transition-property: bar,foo) and ' +
+      '(display: flex) and ' +
+      '(display: grid) and ' +
+      '(background-image: linear-gradient(40deg, rgb(0, 0, calc(3 * var(--oof))))) and ' +
+      '(foo: initial)',
+      true)
+
+    o(sink.buffer).deepEquals([
+      [
+        'atrule', '@supports', 'supports',
+        '(-o-foo:foo) and ' +
+        '(transition:-o-foo cubic-bezier(-o-calc(2 * var(--foo)),foo,-o-calc(1 + var(--ofo)))) and ' +
+        '(transition-property:bar,-o-foo) and ' +
+        '(display:-o-box) and ' +
+        '(display:-o-grid) and ' +
+        '(background-image:-o-linear-gradient(50deg, rgb(0, 0, -o-calc(3 * var(--oof))))) and ' +
+        '(-o-foo:-o-initial)',
+        true
+      ]
+    ])
   })
 })
