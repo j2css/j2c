@@ -8,12 +8,19 @@ function init() {
   styleElement = document.documentElement.appendChild(document.createElement('style'))
 }
 function finalize() {
-  document.documentElement.removeChild(styleElement)
+  if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement)
   // `styleAttr` is used at run time via `supportedProperty()`
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null
 }
 
+function cleanupDetectorUtils() {
+  finalize()
+  styleAttr = null
+}
+function hasCleanState() {
+  return allStyles == null && styleAttr == null && styleElement == null
+}
 // Helpers, in alphabetic order
 
 function camelCase(str) {
@@ -45,7 +52,7 @@ function supportedRule(selector) {
 
 export {
   allStyles, styleAttr,
-  init, finalize,
+  init, finalize, cleanupDetectorUtils, hasCleanState,
   camelCase, deCamelCase,
   supportedDecl, supportedMedia, supportedProperty, supportedRule
 }

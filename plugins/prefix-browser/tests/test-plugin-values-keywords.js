@@ -1,10 +1,13 @@
 var o = require('ospec')
 
+var cleanupIfNeeded = require('../test-utils/misc').cleanupIfNeeded
 var exposed = require('../test-utils/exposed')
 var makeSink = require('../test-utils/misc').makeSink
+var mocks = require('../test-utils/mocks')
 
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
+var hasCleanState = exposed.hasCleanState
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -25,15 +28,17 @@ o.spec('plugin.decl for keywords', function() {
   var fixers
 
   o.beforeEach(function() {
+    o(hasCleanState()).equals(true)('detector utils state isn\'t clean')
     fixers = blankFixers()
   })
   o.afterEach(function() {
-    if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
+    cleanupIfNeeded(exposed)
     o(Object.keys(fixers)).deepEquals(referenceFixers)
     fixers = null
   })
 
   o('leaves unknown values as is (hasKeywords set to false)', function() {
+    mocks(global)
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin().setFixers(fixers)
@@ -48,7 +53,8 @@ o.spec('plugin.decl for keywords', function() {
       ['decl', 'color', 'red']
     ])
   })
-  o('leaves unknown values as is (hasKeywords set to false)', function() {
+  o('leaves unknown values as is (hasKeywords set to true)', function() {
+    mocks(global)
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
@@ -66,6 +72,7 @@ o.spec('plugin.decl for keywords', function() {
     ])
   })
   o('leaves prefixable values as is when they don\'t need a prefix', function() {
+    mocks(global)
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
@@ -81,6 +88,7 @@ o.spec('plugin.decl for keywords', function() {
     ])
   })
   o('adds prefixes', function() {
+    mocks(global)
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = prefixedKeywords

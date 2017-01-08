@@ -1,10 +1,12 @@
 var o = require('ospec')
 
+var cleanupIfNeeded = require('../test-utils/misc').cleanupIfNeeded
 var exposed = require('../test-utils/exposed')
 var mocks = require('../test-utils/mocks')
 var upToDate = require('../test-utils/misc').upToDate
 
 var init = exposed.init
+var hasCleanState = exposed.hasCleanState
 var finalize = exposed.finalize
 var detectSelectors = exposed.detectSelectors
 var blankFixers = exposed.blankFixers
@@ -15,10 +17,11 @@ var referenceFixers = Object.keys(blankFixers())
 o.spec('detectSelectors', function() {
   var fixers
   o.beforeEach(function() {
+    o(hasCleanState()).equals(true)('detector utils state isn\'t clean')
     fixers = blankFixers()
   })
   o.afterEach(function() {
-    if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
+    cleanupIfNeeded(exposed)
     o(Object.keys(fixers)).deepEquals(referenceFixers)
     fixers = null
   })

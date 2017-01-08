@@ -12,12 +12,19 @@ function init() {
   styleElement = document.documentElement.appendChild(document.createElement('style'))
 }
 function finalize() {
-  document.documentElement.removeChild(styleElement)
+  if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement)
   // `styleAttr` is used at run time via `supportedProperty()`
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null
 }
 
+function cleanupDetectorUtils() {
+  finalize()
+  styleAttr = null
+}
+function hasCleanState() {
+  return allStyles == null && styleAttr == null && styleElement == null
+}
 // Helpers, in alphabetic order
 
 function camelCase(str) {
@@ -594,6 +601,8 @@ exports.finalizeFixers = finalizeFixers;
 exports.createPrefixPlugin = createPrefixPlugin;
 exports.init = init;
 exports.finalize = finalize;
+exports.cleanupDetectorUtils = cleanupDetectorUtils;
+exports.hasCleanState = hasCleanState;
 exports.camelCase = camelCase;
 exports.deCamelCase = deCamelCase;
 exports.supportedProperty = supportedProperty;

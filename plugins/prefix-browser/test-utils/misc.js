@@ -1,6 +1,8 @@
 var fs = require('fs')
 var path = require('path')
 
+var mocks = require('./mocks')
+
 module.exports.upToDate = function(baseDir, name) {
   var sourceTime = fs.statSync(path.join(baseDir, name)).mtime.getTime()
   var exposedTime = fs.statSync(path.join(__dirname, 'exposed.js')).mtime.getTime()
@@ -29,5 +31,13 @@ module.exports.makeSink = function() {
     //   buffer.push(['err', message])
     // },
     buffer: buffer
+  }
+}
+
+module.exports.cleanupIfNeeded = function(exposed){
+  if (typeof global.cleanupMocks === 'function') {
+    mocks(global)
+    global.cleanupMocks()
+    exposed && exposed.cleanupDetectorUtils()
   }
 }

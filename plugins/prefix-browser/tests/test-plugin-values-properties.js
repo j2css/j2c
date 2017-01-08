@@ -1,11 +1,13 @@
 var o = require('ospec')
 
+var cleanupIfNeeded = require('../test-utils/misc').cleanupIfNeeded
 var exposed = require('../test-utils/exposed')
 var makeSink = require('../test-utils/misc').makeSink
 var mocks = require('../test-utils/mocks')
 
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
+var hasCleanState = exposed.hasCleanState
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -13,10 +15,11 @@ o.spec('plugin.decl for properties whose values are properties', function() {
   var fixers
 
   o.beforeEach(function() {
+    o(hasCleanState()).equals(true)('detector utils state isn\'t clean')
     fixers = blankFixers()
   })
   o.afterEach(function() {
-    if (typeof global.cleanupMocks === 'function') global.cleanupMocks()
+    cleanupIfNeeded(exposed)
     o(Object.keys(fixers)).deepEquals(referenceFixers)
     fixers = null
   })
