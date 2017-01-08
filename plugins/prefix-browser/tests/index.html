@@ -15,37 +15,67 @@ var src = {
         transform: 'rotate(375deg)'
       }
     },
-    '.download': {
-      position: 'absolute',
-      top: '1em',
-      left: '-1.5em',
-      width: '6em',
-      height: '6em',
-      padding: '1em 0',
-      background: '#80A060',
-      backgroundImage: 'linear-gradient(90deg, transparent, rgba(10,0,0,.3)),linear-gradient(transparent, transparent)',
-      color: 'white',
-      lineHeight: 1,
-      fontSize: '140%',
-      textAlign: 'center',
-      textDecoration: 'initial',
-      textShadow: '.08em .08em .2em rgba(0,0,0,.6)',
-      borderRadius: '50%',
-      boxShadow: '.1em .2em .4em -.2em black',
-      boxSizing: 'border-box',
-      transform: 'rotate(15deg)',
-      animation: 'rotate',
-      cursor: 'zoom-in'
+    '@supports (display:flex)':{
+       ':read-write ::placeholder': {
+          display: 'flex',
+          flex: '1 1',
+          flexFlow: 'column-reverse wrap'
+      },
     },
-    ':read-write ::placeholder': {
-        display: 'flex',
-        flex: '1 1',
-        flexFlow: 'column-reverse wrap'
+    '@media (min-resolution:2ddpx)' : {
+     '.download': {
+        backgroundImage: 'linear-gradient(90deg, red, rgba(calc(10 * 2),0,0,.3))',
+        color: 'white',
+        textDecoration: 'initial',
+        textShadow: '.08em .08em .2em rgba(0,0,0,.6)',
+        borderRadius: '50%',
+        boxShadow: '.1em .2em .4em -.2em black',
+        boxSizing: 'border-box',
+        transform: 'rotate(15deg)',
+        animation: 'rotate',
+        cursor: 'zoom-in'
+      }        
     }
   }
 }
-var prefixer = j2c().use(j2cPrefixPluginBrowser)
-source.value = '// raw (this isn\'t live)\n' + j2c.sheet(src)
+var buf, err, indent
+
+// the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
+var sink = {$sink: {
+  init: function(){buf=[], err=0, indent = ''},
+  done: function (raw) {
+    if (err) throw new Error('j2c error, see below\n' + buf.join(''))
+    return raw ? buf : buf.join('')
+  },
+  err: function(msg) {
+    err = 1
+    buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
+  },
+  atrule: function (rule, kind, param, takesBlock) {
+    buf.push(indent, rule, param && ' ', param, takesBlock ? ' {' : ';', '\n')
+    if (takesBlock) indent = indent + '    '
+  },
+  // close atrule
+  _atrule: function () {
+    indent = indent.slice(4)
+    buf.push(indent, '}', '\n')
+  },
+  rule: function (selector) {
+    buf.push(indent, selector, ' {', '\n')
+    indent = indent + '    '
+  },
+
+  // close rule
+  _rule: function () {
+    indent = indent.slice(4)
+    buf.push(indent, '}', '\n')
+  },
+  decl: function (prop, value) {buf.push(indent, prop, prop && ': ', value, ';', '\n')}
+}}
+
+var rawstyler = j2c().use(sink) 
+var prefixer = j2c().use(j2cPrefixPluginBrowser, sink)
+source.value = '// raw (this isn\'t live)\n' + rawstyler.sheet(src)
 prefixed.value = '//prefixed\n' + prefixer.sheet(src)
 </script>
 <style>
@@ -53,5 +83,7 @@ textarea {
     float:left;
     width:49%;
     height:50em;
+    font-family: monospace;
+    overflow:;
 }
 </style>
