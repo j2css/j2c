@@ -160,18 +160,22 @@ export function finalizeFixers(fixers) {
 
     if (fixers.hasKeywords && (res = (fixers.keywords[property] || emptySet)[value])) return res
 
+    res = value
+
     if (fixers.valueProperties.hasOwnProperty(property)) {
-      if (value.indexOf(',') === -1) {
-        return value.replace(valuePropertiesMatcher, valuePropertiesReplacer)
-      } else {
-        return splitValue(value).map(function(v) {
+      res = (value.indexOf(',') === -1) ?
+        value.replace(valuePropertiesMatcher, valuePropertiesReplacer) :
+        splitValue(value).map(function(v) {
           return v.replace(valuePropertiesMatcher, valuePropertiesReplacer)
         }).join(',')
-      }
     }
-    res = value
-    if (fixers.hasGradients && gradientDetector.test(value)) res = value.replace(gradientMatcher, gradientReplacer)
-    if (fixers.hasFunctions && functionsDetector.test(value)) res = value.replace(functionsMatcher, functionReplacer)
+
+    if (fixers.hasFunctions && functionsDetector.test(value)) {
+      if (fixers.hasGradients && gradientDetector.test(value)) {
+        res = res.replace(gradientMatcher, gradientReplacer)
+      }
+      res = res.replace(functionsMatcher, functionReplacer)
+    }
     return res
   }
 
