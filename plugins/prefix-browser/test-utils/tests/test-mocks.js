@@ -1,4 +1,6 @@
-var o = require('ospec')
+var ospec = require('ospec')
+var o = ospec['new']('plugin-prefix-browser test-utils')
+ospec('plugin-prefix-browser test-utils', o.run)
 
 var mocks = require('../mocks')
 

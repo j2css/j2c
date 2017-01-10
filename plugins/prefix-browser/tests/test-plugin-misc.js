@@ -1,4 +1,4 @@
-var o = require('ospec')
+var o = require('../test-utils/ospec-instance')
 
 var upToDate = require('../test-utils/misc').upToDate
 

@@ -1,4 +1,4 @@
-var o = require('ospec')
+var o = require('../test-utils/ospec-instance')
 
 var cleanupIfNeeded = require('../test-utils/misc').cleanupIfNeeded
 var exposed = require('../test-utils/exposed')
