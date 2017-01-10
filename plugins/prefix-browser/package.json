@@ -1,6 +1,6 @@
 {
   "name": "j2c-plugin-prefix-browser",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
   "main": "index.js",
   "scripts": {
