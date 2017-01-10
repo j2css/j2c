@@ -4,12 +4,10 @@
   "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
   "main": "index.js",
   "scripts": {
-    "all": "yarn run lint && yarn run build && yarn run test",
+    "all": "yarn run go lint && yarn run build && yarn run go test",
     "build": "rm -f dist/*.js dist/*.gz && node scripts/build.js",
-    "dev": "yarn run build && yarn run test",
-    "cover": "cd ../.. && yarn run cover",
-    "lint": "cd ../.. && yarn run lint",
-    "test": "cd ../.. && yarn run test"
+    "dev": "yarn run build && yarn go test",
+    "go": "cd ../.. && yarn"
   },
   "keywords": [
     "prefixfree",
@@ -31,7 +29,7 @@
     "nodegit": "^0.8.0",
     "recast": "^0.11.2",
     "rimraf": "^2.5.0",
-    "rollup": "^0.25.4",
+    "rollup": "^0.41.1",
     "uglify-js": "^2.6.2"
   }
 }
