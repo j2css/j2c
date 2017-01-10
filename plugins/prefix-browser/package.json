@@ -17,7 +17,7 @@
     "css-in-js"
   ],
   "author": "Pierre-Yves Gérardy",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "acorn": "^2.7.0",
