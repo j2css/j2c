@@ -64,11 +64,12 @@ o.spec('mocks', function() {
     var options = {
       properties: {
         color: 'red',
-        paddingTop: ['0', '1px']
+        paddingTop: ['0', '1px'],
+        zIndex: '0'
       }
     }
     mocks(window, options)
-    o(window.getComputedStyle()).deepEquals({color: 'red', paddingTop: '0'})
+    o(window.getComputedStyle()).deepEquals({color: 'red', paddingTop: '0', zIndex: '0'})
   })
   o('getComputedStyle returning an object with a shortcut property', function() {
     var window = {}

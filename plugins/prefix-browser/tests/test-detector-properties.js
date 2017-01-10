@@ -45,7 +45,7 @@ o.spec('supportedProperty', function() {
     o(supportedProperty('foo')).equals(false)
   })
   o('detects simple property', function(){
-    mocks(global, {properties: {foo: '0'}})
+    mocks(global, {properties: {foo: '0', zIndex:'0'}})
     init()
     finalize()
 

@@ -6,11 +6,13 @@ var j2cPrefixPluginBrowser = (function () {
 var allStyles;
 var styleAttr;
 var styleElement;
+var convert;
 
 function init() {
   allStyles = getComputedStyle(document.documentElement, null);
   styleAttr = document.createElement('div').style;
   styleElement = document.documentElement.appendChild(document.createElement('style'));
+  convert = ('zIndex' in styleAttr) ? function(p){return p} : deCamelCase;
 }
 function finalize() {
   if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement);
@@ -18,7 +20,6 @@ function finalize() {
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null;
 }
-
 // Helpers, in alphabetic order
 
 function camelCase(str) {
@@ -41,7 +42,7 @@ function supportedMedia(condition) {
 }
 function supportedProperty(property) {
   // Some browsers like it dash-cased, some camelCased, most like both.
-  return property in styleAttr || camelCase(property) in styleAttr
+  return convert(property) in styleAttr
 }
 function supportedRule(selector) {
   styleElement.textContent = selector + '{}';

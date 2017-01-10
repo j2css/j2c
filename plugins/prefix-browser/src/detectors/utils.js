@@ -1,11 +1,12 @@
 // Derived from Lea Verou's PrefixFree
 
-var allStyles, styleAttr, styleElement
+var allStyles, styleAttr, styleElement, convert
 
 function init() {
   allStyles = getComputedStyle(document.documentElement, null)
   styleAttr = document.createElement('div').style
   styleElement = document.documentElement.appendChild(document.createElement('style'))
+  convert = ('zIndex' in styleAttr) ? function(p){return p} : deCamelCase
 }
 function finalize() {
   if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement)
@@ -13,7 +14,6 @@ function finalize() {
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null
 }
-
 function cleanupDetectorUtils() {
   finalize()
   styleAttr = null
@@ -30,6 +30,12 @@ function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
 function supportedDecl(property, value) {
+  property = convert(property)
+  styleAttr[property] = ''
+  styleAttr[property] = value
+  return !!styleAttr[property]
+}
+function supportedDecl(property, value) {
   styleAttr[property] = styleAttr[deCamelCase(property)] = ''
   styleAttr[property] = styleAttr[deCamelCase(property)] = value
   return !!(styleAttr[property] || styleAttr[deCamelCase(property)])
@@ -43,7 +49,7 @@ function supportedMedia(condition) {
 }
 function supportedProperty(property) {
   // Some browsers like it dash-cased, some camelCased, most like both.
-  return property in styleAttr || camelCase(property) in styleAttr
+  return convert(property) in styleAttr
 }
 function supportedRule(selector) {
   styleElement.textContent = selector + '{}'
