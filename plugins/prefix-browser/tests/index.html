@@ -73,8 +73,8 @@ var sink = {$sink: {
   decl: function (prop, value) {buf.push(indent, prop, prop && ': ', value, ';', '\n')}
 }}
 
-var rawstyler = j2c().use(sink) 
-var prefixer = j2c().use(j2cPrefixPluginBrowser, sink)
+var rawstyler = j2c(sink) 
+var prefixer = j2c(j2cPrefixPluginBrowser, sink)
 source.value = '// raw (this isn\'t live)\n' + rawstyler.sheet(src)
 prefixed.value = '//prefixed\n' + prefixer.sheet(src)
 </script>

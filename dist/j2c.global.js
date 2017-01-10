@@ -513,10 +513,6 @@ function j2c() {
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36),
-    use: function() {
-      _use(emptyArray.slice.call(arguments));
-      return _instance
-    },
     $plugins: [],
     sheet: function(tree) {
       var emit = _createOrRetrieveStream(0);
@@ -654,6 +650,7 @@ function j2c() {
     return ignore || global$$1 || dot + _localize(name)
   }
 
+  _use(emptyArray.slice.call(arguments));
   return _instance
 }
 

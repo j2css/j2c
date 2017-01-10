@@ -168,6 +168,8 @@ var flex2009Props = {
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
   // ?flex-basis =>
   // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
+  'box-direction' : 'box-direction', // we prepopulate the cache for the above case.
+  'box-orient': 'box-orient',
   // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
   // ?flex-grow =>
   // ?flex-shrink =>
@@ -580,8 +582,8 @@ function createPrefixPlugin() {
                 else if(v !== '') decl('flex-direction', v);
               });
             } else if (property === 'flex-direction' && fixers.flexbox2009 && typeof value === 'string') {
-              next.decl(fixers.properties['box-orient'] || fixers.fixProperty('box-orient'), value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
-              next.decl(fixers.properties['box-direction'] || fixers.fixProperty('box-direction'), value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
+              next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
+              next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
             } else {
               next.decl(
                 fixers.properties[property] || fixers.fixProperty(property),
@@ -601,7 +603,7 @@ function createPrefixPlugin() {
   return prefixPlugin
 }
 
-var plugin$2 = createPrefixPlugin();
+var plugin = createPrefixPlugin();
 
 return plugin;
 

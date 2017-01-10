@@ -39,6 +39,8 @@ export var flex2009Props = {
   'flex': 'box-flex', // https://css-tricks.com/snippets/css/a-guide-to-flexbox/#comment-371025,
   // ?flex-basis =>
   // !!flex-direction => box-direction + box-orient, covered in `plugin.js`
+  'box-direction' : 'box-direction', // we prepopulate the cache for the above case.
+  'box-orient': 'box-orient',
   // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
   // ?flex-grow =>
   // ?flex-shrink =>
