@@ -75,8 +75,8 @@ var sink = {$sink: {
 
 var rawstyler = j2c(sink) 
 var prefixer = j2c(j2cPrefixPluginBrowser, sink)
-source.value = '// raw (this isn\'t live)\n' + rawstyler.sheet(src)
-prefixed.value = '//prefixed\n' + prefixer.sheet(src)
+document.getElementById('source').value = '// raw (this isn\'t live)\n' + rawstyler.sheet(src)
+document.getElementById('prefixed').value = '//prefixed\n' + prefixer.sheet(src)
 </script>
 <style>
 textarea {

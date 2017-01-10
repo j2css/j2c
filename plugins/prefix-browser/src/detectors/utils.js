@@ -35,11 +35,6 @@ function supportedDecl(property, value) {
   styleAttr[property] = value
   return !!styleAttr[property]
 }
-function supportedDecl(property, value) {
-  styleAttr[property] = styleAttr[deCamelCase(property)] = ''
-  styleAttr[property] = styleAttr[deCamelCase(property)] = value
-  return !!(styleAttr[property] || styleAttr[deCamelCase(property)])
-}
 function supportedMedia(condition) {
   styleElement.textContent = '@media (' + condition +'){}'
   // Opera 11 treats unknown conditions as 'all', the rest as 'not all'.

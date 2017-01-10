@@ -2,6 +2,7 @@ coverage
 dist
 example
 gh_pages
+modules
 plugins/postcss/dist
 plugins/postcss/node_modules
 plugins/prefix-browser/dist

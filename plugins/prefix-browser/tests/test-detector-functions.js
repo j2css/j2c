@@ -62,7 +62,8 @@ o.spec('detectFunctions', function() {
   o('works with a prefix and prefixed functions', function(){
     mocks(global, {properties: {
       backgroundImage: ['-o-linear-gradient(red, teal)', '-o-radial-gradient(red, teal)', '-o-element(#foo)', '-o-cross-fade(url(a.png), url(b.png), 50%)'],
-      width: '-o-calc(1px + 5%)'
+      width: '-o-calc(1px + 5%)',
+      zIndex: '0'
     }})
     init()
     fixers.prefix = '-o-'

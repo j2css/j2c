@@ -28,9 +28,10 @@ function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
 function supportedDecl(property, value) {
-  styleAttr[property] = styleAttr[deCamelCase(property)] = '';
-  styleAttr[property] = styleAttr[deCamelCase(property)] = value;
-  return !!(styleAttr[property] || styleAttr[deCamelCase(property)])
+  property = convert(property);
+  styleAttr[property] = '';
+  styleAttr[property] = value;
+  return !!styleAttr[property]
 }
 function supportedMedia(condition) {
   styleElement.textContent = '@media (' + condition +'){}';
