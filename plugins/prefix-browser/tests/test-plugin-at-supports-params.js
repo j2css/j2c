@@ -8,6 +8,7 @@ var mocks = require('../test-utils/mocks')
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
 var hasCleanState = exposed.hasCleanState
+var initBrowser = exposed.initBrowser
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -27,10 +28,13 @@ o.spec('plugin @supports parameters', function() {
 
   o('works with a blank fixer object', function() {
     mocks(global)
+    initBrowser()
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.atrule('@supports', 'supports', '(foo:bar)', true)
 
@@ -42,9 +46,10 @@ o.spec('plugin @supports parameters', function() {
         OFoo: 'bar'
       }
     })
-    var plugin = createPrefixPlugin()
+    initBrowser()
+
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = createPrefixPlugin().$filter(sink)
 
     methods.atrule('@supports', 'supports', '(foo: foo)', true)
 
@@ -62,9 +67,10 @@ o.spec('plugin @supports parameters', function() {
         color: '-o-initial'
       }
     })
-    var plugin = createPrefixPlugin()
+    initBrowser()
+
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = createPrefixPlugin().$filter(sink)
 
     methods.atrule('@supports', 'supports',
       '(foo: foo) and ' +

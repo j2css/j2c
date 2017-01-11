@@ -28,9 +28,11 @@ o.spec('plugin.rule', function() {
   o('it leaves unrelated selector as is', function() {
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.rule('.foo:active #baz[foo]')
 
@@ -46,9 +48,11 @@ o.spec('plugin.rule', function() {
     fixers.hasSelectors = true
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.rule('.foo:active #baz[foo]')
     methods.rule('::placeholder .foo:any-link::selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']')

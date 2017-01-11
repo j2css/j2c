@@ -8,6 +8,7 @@ var mocks = require('../test-utils/mocks')
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
 var hasCleanState = exposed.hasCleanState
+var initBrowser = exposed.initBrowser
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -26,11 +27,14 @@ o.spec('plugin.decl for properties whose values are properties', function() {
 
   o('it leaves unknowned properties as is', function() {
     mocks(global, {properties: {'-o-foo': null, 'foo': null}})
+    initBrowser()
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -50,11 +54,15 @@ o.spec('plugin.decl for properties whose values are properties', function() {
   })
   o('adds prefixes when necessary', function() {
     mocks(global, {properties: {'-o-foo': 'bar'}})
+    initBrowser()
+
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -74,11 +82,15 @@ o.spec('plugin.decl for properties whose values are properties', function() {
   })
   o('doesn\'t prefix when both prefix an unprefixed are supported', function() {
     mocks(global, {properties: {'-o-foo': 'bar', 'foo': 'bar'}})
+    initBrowser()
+
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -98,9 +110,11 @@ o.spec('plugin.decl for properties whose values are properties', function() {
   })
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     o(fixers.properties).deepEquals({})
 

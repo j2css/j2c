@@ -10,6 +10,7 @@ var mocks = require('../test-utils/mocks')
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
 var hasCleanState = exposed.hasCleanState
+var initBrowser = exposed.initBrowser
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -33,11 +34,15 @@ o.spec('plugin misc tests', function() {
 
   o('handles raw declarations and bad values gracefully', function() {
     mocks(global, {properties: {'-o-foo': 'bar'}})
+    initBrowser()
+
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     o(fixers.properties).deepEquals({})
 

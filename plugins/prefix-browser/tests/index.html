@@ -2,8 +2,9 @@
 <title>j2c prefix plugin live test</title>
 <script src='../../../dist/j2c.global.js'></script>
 <script src='../dist/j2c-plugin-prefix-browser.global.js'></script>
-<textarea id="source"></textarea>
-<textarea id="prefixed"></textarea>
+<h1>j2c-plugin-prefix-browser in action in your browser</h1>
+<pre id="source"></pre>
+<pre id="prefixed"></pre>
 <script>
 var src = {
   '@global': {
@@ -74,16 +75,15 @@ var sink = {$sink: {
 }}
 
 var rawstyler = j2c(sink) 
-var prefixer = j2c(j2cPrefixPluginBrowser, sink)
-document.getElementById('source').value = '// raw (this isn\'t live)\n' + rawstyler.sheet(src)
-document.getElementById('prefixed').value = '//prefixed\n' + prefixer.sheet(src)
+var prefixer = j2c(j2cPrefixPluginBrowser.prefixPlugin(), sink)
+document.getElementById('source').textContent = '// output without the plugin\n' + rawstyler.sheet(src)
+document.getElementById('prefixed').textContent = '//prefixed\n' + prefixer.sheet(src)
 </script>
 <style>
-textarea {
+pre {
     float:left;
     width:49%;
     height:50em;
     font-family: monospace;
-    overflow:;
 }
 </style>

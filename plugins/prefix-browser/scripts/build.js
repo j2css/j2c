@@ -34,7 +34,7 @@ var fs = require('fs'),
   ]
 
 var parsed = rollup.rollup({
-  entry: 'src/plugin.js'
+  entry: 'src/main.js'
 })
 
 

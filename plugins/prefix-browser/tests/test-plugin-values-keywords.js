@@ -8,6 +8,7 @@ var mocks = require('../test-utils/mocks')
 var blankFixers = exposed.blankFixers
 var createPrefixPlugin = exposed.createPrefixPlugin
 var hasCleanState = exposed.hasCleanState
+var initBrowser = exposed.initBrowser
 
 var referenceFixers = Object.keys(blankFixers())
 
@@ -39,11 +40,15 @@ o.spec('plugin.decl for keywords', function() {
 
   o('leaves unknown values as is (hasKeywords set to false)', function() {
     mocks(global)
+    initBrowser()
+
     fixers.prefix = '-o-'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.decl('display', 'inline')
     methods.decl('color', 'red')
@@ -55,13 +60,17 @@ o.spec('plugin.decl for keywords', function() {
   })
   o('leaves unknown values as is (hasKeywords set to true)', function() {
     mocks(global)
+    initBrowser()
+
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.decl('display', 'inline')
     methods.decl('color', 'red')
@@ -73,13 +82,17 @@ o.spec('plugin.decl for keywords', function() {
   })
   o('leaves prefixable values as is when they don\'t need a prefix', function() {
     mocks(global)
+    initBrowser()
+
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.decl('display', 'grid')
 
@@ -89,14 +102,18 @@ o.spec('plugin.decl for keywords', function() {
   })
   o('adds prefixes', function() {
     mocks(global)
+    initBrowser()
+
     fixers.prefix = '-o-'
     fixers.hasKeywords = true
     fixers.keywords = prefixedKeywords
     fixers.initial = '-o-initial'
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.decl('display', 'box')
     methods.decl('display', 'inline-box')

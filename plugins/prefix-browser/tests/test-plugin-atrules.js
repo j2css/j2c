@@ -25,9 +25,11 @@ o.spec('plugin.atrules', function() {
   })
 
   o('works with a blank fixer object', function() {
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.atrule('@keyframes', 'keyframes', 'foo', true)
 
@@ -37,9 +39,11 @@ o.spec('plugin.atrules', function() {
     fixers.prefix = '-o-'
     fixers.hasAtrules = true
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.atrule('@keyframes', 'keyframes', 'foo', true)
 
@@ -50,9 +54,11 @@ o.spec('plugin.atrules', function() {
     fixers.prefix = '-o-'
     fixers.hasAtrules = true
 
-    var plugin = createPrefixPlugin().setFixers(fixers)
+    var j2c = {}
+    var plugin = createPrefixPlugin(j2c)
+    j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin().$filter(sink)
+    var methods = plugin.$filter(sink)
 
     methods.atrule('@foo', 'foo', 'bar', true)
 
