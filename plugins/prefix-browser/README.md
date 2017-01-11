@@ -25,25 +25,17 @@ Many thanks to [Lea Verou](https://github.com/LeaVerou/) for [PrefixFree](http:/
   - [Properties](#properties)
   - [Values](#values)
     - [Keywords](#keywords)
-      - [All properties:](#all-properties)
-      - [`cursor`](#cursor)
-      - [`display`](#display)
-      - [`position`](#position)
-      - [`width`, `column-width`, `height`, `max-height`, `max-width`, `min-height`, `min-width`](#width-column-width-height-max-height-max-width-min-height-min-width)
     - [Functions](#functions)
     - [Values that are property names](#values-that-are-property-names)
   - [Flexbox](#flexbox)
     - [Flexbox 2009 (`-moz-box` and `-webkit-box`)](#flexbox-2009--moz-box-and--webkit-box)
-      - [Properties](#properties-1)
-      - [Values](#values-1)
     - [Flexbox 2012 (`-ms-flexbox`)](#flexbox-2012--ms-flexbox)
-      - [Properties](#properties-2)
-      - [Values](#values-2)
     - [Final spec, prefixed (`-webkit-flex`)](#final-spec-prefixed--webkit-flex)
   - [Selectors](#selectors)
   - [At rules](#at-rules)
 - [What about the server side?](#what-about-the-server-side)
 - [And what about speed?](#and-what-about-speed)
+- [License: MIT](license-mit)
 
 ----
 
@@ -230,3 +222,5 @@ That scheme would only work when the server knows the user agent. The plugin doe
 ## And what about speed?
 
 The plugin is designed to be as fast as possible. Most of the feature detection is performed upfront to enable the fastest operation possible while applying prefixes. Allocations and branches are kept to a bare minimum after initialization (the prefixes are applied once and then cached). No objects beside strings are created while prefixing (with one exception when `flex-flow` has to be translated to the 2009 equivalent, the value is `.split(' ')` into an array.).
+
+## License: MIT
