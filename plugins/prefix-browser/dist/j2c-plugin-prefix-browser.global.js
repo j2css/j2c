@@ -1,4 +1,4 @@
-var j2cPrefixPluginBrowser = (function () {
+(function (exports) {
 'use strict';
 
 // Derived from Lea Verou's PrefixFree
@@ -548,7 +548,7 @@ function finalizeFixers(fixers) {
   };
 }
 
-function createPrefixPlugin() {
+function prefixPlugin() {
   var fixers = blankFixers();
   if (typeof getComputedStyle === 'function') browserDetector(fixers);
   finalizeFixers(fixers);
@@ -613,8 +613,6 @@ function createPrefixPlugin() {
   return prefixPlugin
 }
 
-var plugin = createPrefixPlugin();
+exports.prefixPlugin = prefixPlugin;
 
-return plugin;
-
-}());
+}((this.j2cPrefixPluginBrowser = this.j2cPrefixPluginBrowser || {})));

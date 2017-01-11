@@ -1,7 +1,7 @@
 import {blankFixers, browserDetector, finalizeFixers} from './fixers.js'
 
 
-export function createPrefixPlugin() {
+export function prefixPlugin() {
   var fixers = blankFixers()
   if (typeof getComputedStyle === 'function') browserDetector(fixers)
   finalizeFixers(fixers)
@@ -65,5 +65,3 @@ export function createPrefixPlugin() {
   }
   return prefixPlugin
 }
-
-export var plugin = createPrefixPlugin()

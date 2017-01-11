@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 // Derived from Lea Verou's PrefixFree
 
 var allStyles;
@@ -547,7 +549,7 @@ function finalizeFixers(fixers) {
   };
 }
 
-function createPrefixPlugin() {
+function prefixPlugin() {
   var fixers = blankFixers();
   if (typeof getComputedStyle === 'function') browserDetector(fixers);
   finalizeFixers(fixers);
@@ -612,6 +614,4 @@ function createPrefixPlugin() {
   return prefixPlugin
 }
 
-var plugin = createPrefixPlugin();
-
-module.exports = plugin;
+exports.prefixPlugin = prefixPlugin;

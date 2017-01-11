@@ -3,7 +3,7 @@
 // ones, for testing.
 
 export {blankFixers, finalizeFixers} from '../src/fixers.js'
-export {createPrefixPlugin} from '../src/plugin.js'
+export {prefixPlugin as createPrefixPlugin} from '../src/plugin.js'
 export {
   init, finalize, cleanupDetectorUtils, hasCleanState,
   camelCase, deCamelCase,

@@ -2,7 +2,8 @@
   "name": "j2c-plugin-prefix-browser",
   "version": "1.0.1",
   "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
-  "main": "index.js",
+  "main": "dist/j2c-plugin-prefix-browser.commonjs.js",
+  "jsnext:main": "src/plugin.js",
   "scripts": {
     "all": "yarn run go lint && yarn run build && yarn run go cover",
     "build": "rm -f dist/*.js dist/*.gz && node scripts/build.js",

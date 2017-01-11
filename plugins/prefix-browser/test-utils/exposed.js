@@ -557,7 +557,7 @@ function finalizeFixers(fixers) {
   };
 }
 
-function createPrefixPlugin() {
+function prefixPlugin() {
   var fixers = blankFixers();
   if (typeof getComputedStyle === 'function') browserDetector(fixers);
   finalizeFixers(fixers);
@@ -622,15 +622,13 @@ function createPrefixPlugin() {
   return prefixPlugin
 }
 
-var plugin = createPrefixPlugin();
-
 // Once built as 'exposed.js' by '../scripts/build.js', this script
 // exposes every relevant function from the plugin, including private
 // ones, for testing.
 
 exports.blankFixers = blankFixers;
 exports.finalizeFixers = finalizeFixers;
-exports.createPrefixPlugin = createPrefixPlugin;
+exports.createPrefixPlugin = prefixPlugin;
 exports.init = init;
 exports.finalize = finalize;
 exports.cleanupDetectorUtils = cleanupDetectorUtils;
