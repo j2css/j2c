@@ -66,7 +66,7 @@ export var flex2012Props = {
   // flex => -ms-flex
   'flex-basis': '-ms-preferred-size',
   // flex-direction => -ms-flex-direction
-  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
+  // flex-flow => -ms-flex-flow
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
   // flex-wrap => -ms-flex-wrap
@@ -111,7 +111,6 @@ export function detectKeywords(fixers) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
-    fixers.flexbox2012 = true
     for (var k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k]
       fixers.keywords[k] = flex2012Values

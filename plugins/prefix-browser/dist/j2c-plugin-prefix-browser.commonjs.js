@@ -197,7 +197,7 @@ var flex2012Props = {
   // flex => -ms-flex
   'flex-basis': '-ms-preferred-size',
   // flex-direction => -ms-flex-direction
-  // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
+  // flex-flow => -ms-flex-flow
   'flex-grow': '-ms-flex-positive',
   'flex-shrink': '-ms-flex-negative',
   // flex-wrap => -ms-flex-wrap
@@ -242,7 +242,6 @@ function detectKeywords(fixers) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox;
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox'];
-    fixers.flexbox2012 = true;
     for (var k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k];
       fixers.keywords[k] = flex2012Values;
@@ -319,6 +318,11 @@ function detectSelectors(fixers) {
     ':read-only': ':read-only',
     ':read-write': ':read-write',
     '::selection': '::selection',
+
+    ':fullscreen': ':fullscreen', //TODO sort out what changed between specs
+    ':full-screen': ':fullscreen',
+    '::backdrop': '::backdrop',
+
     //sigh
     ':placeholder': '::placeholder',
     '::placeholder': '::placeholder',
@@ -353,7 +357,6 @@ function blankFixers() {
     fixSelector: null,
     fixValue: null,
     flexbox2009: false,
-    flexbox2012: false,
     functions: [],
     initial: null,
     keywords: {},
@@ -581,7 +584,7 @@ function createPrefixPlugin() {
               return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
             }
             value = value + '';
-            if (property === 'flex-flow' && (fixers.flexbox2009 || fixers.flexbox2012)) {
+            if (property === 'flex-flow' && fixers.flexbox2009) {
               value.split(' ').forEach(function(v){
                 // recurse! The lack of `next.` is intentional.
                 if (v.indexOf('wrap') > -1) decl('flex-wrap', v);

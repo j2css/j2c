@@ -38,7 +38,7 @@ export function createPrefixPlugin() {
               return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
             }
             value = value + ''
-            if (property === 'flex-flow' && (fixers.flexbox2009 || fixers.flexbox2012)) {
+            if (property === 'flex-flow' && fixers.flexbox2009) {
               value.split(' ').forEach(function(v){
                 // recurse! The lack of `next.` is intentional.
                 if (v.indexOf('wrap') > -1) decl('flex-wrap', v)

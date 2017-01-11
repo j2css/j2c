@@ -22,7 +22,6 @@ export function blankFixers() {
     fixSelector: null,
     fixValue: null,
     flexbox2009: false,
-    flexbox2012: false,
     functions: [],
     initial: null,
     keywords: {},
