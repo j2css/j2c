@@ -14,6 +14,11 @@ export function detectSelectors(fixers) {
     ':read-only': ':read-only',
     ':read-write': ':read-write',
     '::selection': '::selection',
+
+    ':fullscreen': ':fullscreen', //TODO sort out what changed between specs
+    ':full-screen': ':fullscreen',
+    '::backdrop': '::backdrop',
+
     //sigh
     ':placeholder': '::placeholder',
     '::placeholder': '::placeholder',
