@@ -189,6 +189,3 @@ export default function j2c() {
   _use(emptyArray.slice.call(arguments))
   return _instance
 }
-
-var _j2c = j2c()
-'sheet|inline|names|at|global|kv|suffix'.split('|').map(function(m){j2c[m] = _j2c[m]})

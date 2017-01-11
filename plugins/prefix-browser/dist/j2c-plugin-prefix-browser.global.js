@@ -578,13 +578,17 @@ function createPrefixPlugin() {
             );
           },
           decl: function decl(property, value) {
-            if (property === 'flex-flow' && (fixers.flexbox2009 || fixers.flexbox2012) && typeof value === 'string') {
+            if (!property || !(typeof value === 'string' || typeof value === 'number')){
+              return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
+            }
+            value = value + '';
+            if (property === 'flex-flow' && (fixers.flexbox2009 || fixers.flexbox2012)) {
               value.split(' ').forEach(function(v){
                 // recurse! The lack of `next.` is intentional.
                 if (v.indexOf('wrap') > -1) decl('flex-wrap', v);
                 else if(v !== '') decl('flex-direction', v);
               });
-            } else if (property === 'flex-direction' && fixers.flexbox2009 && typeof value === 'string') {
+            } else if (property === 'flex-direction' && fixers.flexbox2009) {
               next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
               next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
             } else {
