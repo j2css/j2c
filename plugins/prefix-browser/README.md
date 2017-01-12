@@ -10,7 +10,7 @@ See below for a detailed feature set.
 
 Unlike Autoprefixer and the inline-style-prefixer, it relies on feature detection rather than browser sniffing. It weights ~3KB minified and gzipped.
 
-You can watch it at work [in your browser](https://cdn.rawgit.com/j2css/j2c/86db0ee4f2ea0e76eebac0b389c068463e3b1cd4/plugins/prefix-browser/tests/index.html).
+You can watch it at work [in your browser](https://cdn.rawgit.com/j2css/j2c/23612e7d41cc6c004a8ca67e338869fbc719faac/plugins/prefix-browser/tests/index.html).
 
 The plugin is well tested (385 assertions, many of which are `deepEquals` on nested objects) and has 100% branch coverage (which doesn't mean it is bug free, off course).
 
