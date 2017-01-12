@@ -1,6 +1,6 @@
 # j2c-plugin-prefix-browser
 
-This j2c plugin does client side vendor prefix insertion (and some polyfilling) for
+This j2c plugin does client side vendor prefix insertion (and some polyfilling) for:
 
 - properties and values (including flexbox).
 - selectors,
@@ -184,7 +184,7 @@ The plugin translates the final flexbox spec to its older versions as much as po
 - **`flex`** => **`-ms-flexbox`**
 - **`inline-flex`** => **`-ms-inline-flexbox`**
 - `column` => `column`
-- `column-reverse` => `column-reverse
+- `column-reverse` => `column-reverse`
 - `row` => `row`
 - `row-reverse` => `row-reverse`
 - **`flex-end`** => **`end`**
