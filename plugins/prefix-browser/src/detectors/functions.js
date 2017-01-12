@@ -7,7 +7,7 @@ export function detectFunctions(fixers) {
   if (fixers.prefix === '') return
   var functions = {
     'linear-gradient': {
-      property: 'backgroundImage',
+      property: 'background-image',
       params: 'red, teal'
     },
     'calc': {
@@ -15,7 +15,7 @@ export function detectFunctions(fixers) {
       params: '1px + 5%'
     },
     'element': {
-      property: 'backgroundImage',
+      property: 'background-image',
       params: '#foo'
     },
     'cross-fade': {

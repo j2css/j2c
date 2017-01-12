@@ -8,7 +8,7 @@ var upToDate = require('../test-utils/misc').upToDate
 var init = exposed.init
 var hasCleanState = exposed.hasCleanState
 var finalize = exposed.finalize
-var supportedProperty = exposed.supportedProperty
+function supportedProperty (p) {return exposed.supportedProperty(p)}
 var blankFixers = exposed.blankFixers
 
 var referenceFixers = Object.keys(blankFixers())

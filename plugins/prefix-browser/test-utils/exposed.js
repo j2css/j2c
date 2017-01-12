@@ -8,13 +8,19 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var allStyles;
 var styleAttr;
 var styleElement;
-var convert;
+var supportedDecl;
 
 function init() {
   allStyles = getComputedStyle(document.documentElement, null);
   styleAttr = document.createElement('div').style;
   styleElement = document.documentElement.appendChild(document.createElement('style'));
-  convert = ('zIndex' in styleAttr) ? function(p){return p} : deCamelCase;
+  supportedDecl = _supportedDecl;
+  exports.supportedProperty = _supportedProperty;
+  if ('zIndex' in styleAttr && !('z-index' in styleAttr)) {
+    // Some browsers like it dash-cased, some camelCased, most like both.
+    supportedDecl = function(property, value) {return _supportedDecl(camelCase(property), value)};
+    exports.supportedProperty = function(property) {return _supportedProperty(camelCase(property))};
+  }
 }
 function finalize() {
   if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement);
@@ -37,8 +43,7 @@ function camelCase(str) {
 function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
-function supportedDecl(property, value) {
-  property = convert(property);
+function _supportedDecl(property, value) {
   styleAttr[property] = '';
   styleAttr[property] = value;
   return !!styleAttr[property]
@@ -50,9 +55,8 @@ function supportedMedia(condition) {
   // Opera 11/12, and Safari 6. TY SauceLabs.
   return !/^@media(?:\s+not)?\s+all/.test(styleElement.sheet.cssRules[0].cssText)
 }
-function supportedProperty(property) {
-  // Some browsers like it dash-cased, some camelCased, most like both.
-  return convert(property) in styleAttr
+function _supportedProperty(property) {
+  return property in styleAttr
 }
 function supportedRule(selector) {
   styleElement.textContent = selector + '{}';
@@ -107,7 +111,7 @@ function detectFunctions(fixers) {
   if (fixers.prefix === '') return
   var functions = {
     'linear-gradient': {
-      property: 'backgroundImage',
+      property: 'background-image',
       params: 'red, teal'
     },
     'calc': {
@@ -115,7 +119,7 @@ function detectFunctions(fixers) {
       params: '1px + 5%'
     },
     'element': {
-      property: 'backgroundImage',
+      property: 'background-image',
       params: '#foo'
     },
     'cross-fade': {
@@ -453,8 +457,8 @@ function finalizeFixers(fixers) {
   fixers.fixProperty = fixers.fixProperty || function(prop) {
     var prefixed;
     return fixers.properties[prop] = (
-      supportedProperty(prop) ||
-      !supportedProperty(prefixed = prefix + prop)
+      exports.supportedProperty(prop) ||
+      !exports.supportedProperty(prefixed = prefix + prop)
     ) ? prop : prefixed
   };
 
@@ -638,7 +642,6 @@ exports.cleanupDetectorUtils = cleanupDetectorUtils;
 exports.hasCleanState = hasCleanState;
 exports.camelCase = camelCase;
 exports.deCamelCase = deCamelCase;
-exports.supportedProperty = supportedProperty;
 exports.detectAtrules = detectAtrules;
 exports.detectFunctions = detectFunctions;
 exports.detectKeywords = detectKeywords;
