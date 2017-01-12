@@ -86,7 +86,7 @@ module.exports = function (global, options) {
               }
             }
           })
-          Object.defineProperty(proxy, deCamelCase(prop), {
+          if (prop != 'zIndex') Object.defineProperty(proxy, deCamelCase(prop), {
             configurable: true,
             enumerable: true,
             get: function() {return style[prop] == null ? null: style[prop]},
