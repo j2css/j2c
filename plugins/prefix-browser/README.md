@@ -8,7 +8,7 @@ This j2c plugin does client side vendor prefix insertion (and some polyfilling) 
 
 See below for a detailed feature set.
 
-Unlike Autoprefixer and the Inline Style Prefixer, it relies on feature detection rather than browser sniffing. It weights ~3KB minified and gzipped.
+Unlike Autoprefixer and the inline-style-prefixer, it relies on feature detection rather than browser sniffing. It weights ~3KB minified and gzipped.
 
 You can watch it at work [in your browser](https://cdn.rawgit.com/j2css/j2c/86db0ee4f2ea0e76eebac0b389c068463e3b1cd4/plugins/prefix-browser/tests/index.html).
 
@@ -30,6 +30,7 @@ The plugin is well tested (385 assertions, many of which are `deepEquals` on nes
     - [Final spec, prefixed (`-webkit-flex`)](#final-spec-prefixed--webkit-flex)
   - [Selectors](#selectors)
   - [At rules](#at-rules)
+    - [At rules parameters (resolution and @supports)](#at-rules-parameters-resolution-and-supports)
 - [What about the server side?](#what-about-the-server-side)
 - [And what about speed?](#and-what-about-speed)
 - [Thanks](#thanks)
