@@ -12,13 +12,13 @@ export default function j2c() {
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
   var $sink = {
-    init: function(){buf=[], err=0},
+    init: function(){buf=[], err=[]},
     done: function (raw) {
-      if (err) throw new Error('j2c error, see below\n' + buf.join(''))
+      if (err.length != 0) throw new Error('j2c error(s): ' + JSON.stringify(err,null,2) + 'in context:\n' + buf.join(''))
       return raw ? buf : buf.join('')
     },
     err: function(msg) {
-      err = 1
+      err.push(msg)
       buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
     },
     atrule: function (rule, kind, param, takesBlock) {
