@@ -1,6 +1,6 @@
 {
   "name": "j2c-plugin-prefix-browser",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Vendor prefix handling for j2c in the browser, built on top of Lea Verou's PrefixFree",
   "main": "dist/j2c-plugin-prefix-browser.commonjs.js",
   "jsnext:main": "src/plugin.js",
@@ -13,14 +13,20 @@
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish"
   },
   "keywords": [
-    "prefixfree",
-    "prefix",
-    "css",
-    "j2c",
-    "css-in-js"
+    "CSS",
+    "css-in-js",
+    "prefix"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/j2css/j2c.git"
+  },
   "author": "Pierre-Yves Gérardy",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/j2css/j2c/issues"
+  },
+  "homepage": "http://j2c.py.gy",
   "dependencies": {},
   "devDependencies": {
     "acorn": "^2.7.0",
