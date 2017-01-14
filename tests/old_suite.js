@@ -1,7 +1,5 @@
 /*eslint-env node*/
-var ospec = require('ospec')
-var o = ospec.new('j2c')
-ospec('j2c', o.run)
+var o = require('../test-utils/ospec-instance')
 
 // used to normalize styles for reliable comparison.
 var minifySelectors = require('postcss-minify-selectors'),
@@ -29,7 +27,7 @@ function randInt() {
 }
 
 [
-  '../dist/j2c.commonjs.min',
+  // '../dist/j2c.commonjs.min',
   '../dist/j2c.commonjs'
   // ,
   // '../dist/inline/j2c.commonjs',
@@ -223,24 +221,24 @@ function randInt() {
 
         o('String value', function() {
           checkinline(
-            'foo:bar',
+            'foo:bar;',
             'foo:bar;'
           )
         })
 
         o('Array of Strings values', function() {
           checkinline(
-            ['foo:bar', 'foo:baz'],
-            'foo:bar;foo:baz'
+            ['foo:bar;', 'foo:baz;'],
+            'foo:bar;foo:baz;'
           )
         })
 
         o('Array of mixed values at the root', function() {
           checkinline(
-            ['foo:bar', {
+            ['foo:bar;', {
               foo: 'baz'
             }],
-            'foo:bar;foo:baz'
+            'foo:bar;foo:baz;'
           )
         })
 
@@ -279,7 +277,7 @@ function randInt() {
 
         o('CSS _Hack', function() {
           checkinline(
-            ['_foo:bar', {
+            ['_foo:bar;', {
               _baz: 'qux'
             }],
             '_foo:bar;-baz:qux;'
@@ -521,6 +519,10 @@ function randInt() {
             }),
             'p{foo:bar}'
           )
+        })
+
+        o('raw', function() {
+          o(J2c().sheet('p{color:red}')).equals('p{color:red}')
         })
 
         o('convert underscores', function() {
@@ -911,7 +913,7 @@ function randInt() {
         o('Array of String literals', function() {
           check(
             J2c().sheet({
-              p: ['foo:bar', 'foo:baz']
+              p: ['foo:bar;', 'foo:baz;']
             }),
             'p{foo:bar;foo:baz}'
           )
@@ -1699,20 +1701,6 @@ function randInt() {
             }),
             '.bit.bat {foo:6}'
           )
-        })
-      })
-
-      o.spec('Foolproofing: ', function() {
-        o('property-like sub-selector', function() {
-          var err
-          try {
-            J2c().sheet('color:red')
-          } catch (e) {
-            err = e
-          }
-          o(err).notEquals(void 8)
-          o(err.message.indexOf('/* +++ ERROR +++ No selector */')).notEquals(-1)
-          o(err.message.indexOf('color:red')).notEquals(-1)
         })
       })
     })

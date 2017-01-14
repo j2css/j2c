@@ -117,10 +117,10 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
 
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
-    if (!prefix.length) emit.err('No selector')
-    emit.rule(prefix || ' ')
 
-    declarations(state, emit, '', tree, local)
+    if (prefix.length) emit.rule(prefix)
+
+    emit.raw(tree)
 
   }
 }

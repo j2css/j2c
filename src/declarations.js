@@ -67,7 +67,8 @@ export function declarations(state, emit, prefix, o, local) {
       }).join(',')
     }
 
-    emit.decl(k, o)
+    if(k) emit.decl(k, o)
+    else emit.raw(o)
 
   }
 }

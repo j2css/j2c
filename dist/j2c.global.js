@@ -159,7 +159,8 @@ function declarations(state, emit, prefix, o, local) {
       }).join(',');
     }
 
-    emit.decl(k, o);
+    if(k) emit.decl(k, o);
+    else emit.raw(o);
 
   }
 }
@@ -403,10 +404,10 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
 
   case STRING:
     // CSS hacks or ouptut of `j2c.inline`.
-    if (!prefix.length) emit.err('No selector');
-    emit.rule(prefix || ' ');
 
-    declarations(state, emit, '', tree, local);
+    if (prefix.length) emit.rule(prefix);
+
+    emit.raw(tree);
 
   }
 }
@@ -475,7 +476,7 @@ function j2c() {
   var buf, err;
 
   // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
-  var $sink = {
+  var $sink = [{
     init: function(){buf=[], err=[];},
     done: function (raw) {
       if (err.length != 0) throw new Error('j2c error(s): ' + JSON.stringify(err,null,2) + 'in context:\n' + buf.join(''))
@@ -485,6 +486,7 @@ function j2c() {
       err.push(msg);
       buf.push('/* +++ ERROR +++ ' + msg + ' */\n');
     },
+    raw: function(str) {buf.push(str);},
     atrule: function (rule, kind, param, takesBlock) {
       buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline);
     },
@@ -493,8 +495,8 @@ function j2c() {
     rule: function (selector) {buf.push(selector, ' {', _instance.endline);},
     // close rule
     _rule: function () {buf.push('}', _instance.endline);},
-    decl: function (prop, value) {buf.push(prop, prop && ':', value, ';', _instance.endline);}
-  };
+    decl: function (prop, value) {buf.push(prop, ':', value, ';', _instance.endline);}
+  }];
 
   // holds the `$filter` and `$at` handlers
   var $filters = [closeSelectors];
@@ -608,7 +610,7 @@ function j2c() {
     // build the stream processors if needed
     if (!_streams.length) {
       // append the $sink as the ultimate filter
-      $filters.push(function(_, inline) {return inline ? {init:$sink.init, decl:$sink.decl, done:$sink.done, err: $sink.err} : $sink});
+      $filters.push(function(_, inline) {return inline ? $sink[1] || {init:$sink[0].init, decl:$sink[0].decl, done:$sink[0].done, err: $sink[0].err, raw: $sink[0].raw} : $sink[0]});
       for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
         for (var j = $filters.length; j--;) {
           _streams[i] = freeze(
