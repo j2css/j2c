@@ -2,9 +2,6 @@ var postcss = require('postcss')
 
 var own = {}.hasOwnProperty
 
-function unknownBlock(type){
-  throw new Error('j2c-plugin-postcss doesn\'t know how to handle PostCSS nodes of type "' + type + '".')
-}
 
 module.exports = function(plugin) {
   return function(){
@@ -15,22 +12,26 @@ module.exports = function(plugin) {
 
     return {$filter: function(next) {
 
+      function unknownBlock(type){
+        /* istanbul ignore next */
+        next.err('j2c-plugin-postcss doesn\'t know how to handle PostCSS nodes of type "' + type + '".')
+      }
 			// combines successive `j2c-postcss-plugin`-based plugins for efficiency.
       if (own.call(next,'$postcss')) return next.$postcss(plugin)
 
-      var plugins = [plugin]
+      var plugins = plugin ? [plugin] : []
       var parent, root, done, inRule
 
 			// `handlers` and `block` turn the PostCSS tree into
 			// j2c streams after processing.
       var handlers = {
         atrule: function (node) {
+          var kind = node.name.replace(/^-[a-zA-Z_]\w+-/, '')
           if (node.nodes) {
             var params = ''
             if (node.params) {
               params = node.params
             }
-            var kind = node.name.replace(/^-[a-zA-Z_]\w+-/, '')
             next.atrule('@'+node.name, kind, params, node.raws ? node.raws.j2cBlock || true : true)
             block(node.nodes)
             next._atrule()
