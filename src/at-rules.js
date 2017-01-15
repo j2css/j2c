@@ -82,7 +82,7 @@ export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
   } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
-      emit.atrule(k[1], k[2], k[3], 1)
+      emit.atrule(k[1], k[2], k[3], 'decl')
 
       declarations(state, emit, '', v, local)
 
@@ -100,14 +100,15 @@ export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
       )
     }
 
-
-    emit.atrule(k[1], k[2], k[3], 1)
-
     if ('page' == k[2]) {
+
+      emit.atrule(k[1], k[2], k[3], 'decl')
 
       declarations(state, emit, '', v, local)
 
     } else {
+
+      emit.atrule(k[1], k[2], k[3], 'rule')
 
       rules(
         state, emit,

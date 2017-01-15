@@ -1947,7 +1947,7 @@ function randInt() {
           )
         })
 
-        o('an invalid $plugin', function() {
+        o('an invalid plugin $name', function() {
           var _J2c = J2c({
             $invalid: 'foo'
           })
@@ -2162,6 +2162,7 @@ function randInt() {
 
       o.spec('$filter plugins', function() {
         o('a sheet filter', function() {
+          var tested = {}
           function filter(J2c) {
             o(J2c instanceof Object).equals(true)('value should have been a Object')
             o(J2c.sheet instanceof Function).equals(true)('value should have been a Function')
@@ -2198,6 +2199,8 @@ function randInt() {
                     return txt
                   },
                   atrule: function(name, kind, arg, hasBlock) {
+                    if (kind === 'import' && (tested.atImport = true)) o(!!hasBlock).equals(false)
+                    if (kind === 'keyframes' && (tested.atKeyframes = true)) o(hasBlock).equals('rule')
                     next.atrule(name + 'o', kind, 'a' + arg, hasBlock)
                   },
                   _atrule: function(name, arg) {
@@ -2234,6 +2237,9 @@ function randInt() {
             'h1, p {pfoo:vbar}' +
             '@keyframeso afoo{h1, from{pfoo:vbaz}}'
           )
+          o(tested.atImport).equals(true)
+          o(tested.atKeyframes).equals(true)
+
         })
 
         o('a declaration filter', function() {
