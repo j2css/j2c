@@ -38,17 +38,20 @@ var fs = require('fs'),
       name: 'amd',
       minify: {save:true}
     }
-  ]
-
-var parsed = rollup.rollup({
-  entry: 'src/main.js'
-})
+  ],
+  commonRollupOptions = {
+    sourceMap: true,
+    banner: ''
+  },
+  parsed = rollup.rollup({
+    entry: 'src/main.js'
+  })
 
 
 outputs.forEach(function (output) {
   parsed.then(function(bundle){
-    var result = bundle.generate(output.rollupOptions)
-    fs.writeFileSync('dist/j2c.' + output.name + '.js', result.code)
+    var result = bundle.generate(Object.assign({}, output.rollupOptions, commonRollupOptions))
+    fs.writeFileSync('dist/j2c.' + output.name + '.js', result.code+'\n//'+result.map.toUrl())
     if (output.minify) {
       var minified = uglify.minify(result.code, {
         fromString: true,
