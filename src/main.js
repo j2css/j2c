@@ -50,7 +50,7 @@ export default function j2c() {
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
       Math.floor(Math.random() * 0x100000000).toString(36),
-    $plugins: [],
+    plugins: [],
     sheet: function(tree) {
       var emit = _createOrRetrieveStream(0)
       emit.init()
@@ -110,9 +110,7 @@ export default function j2c() {
     // Works well to turn the  result of `a.indexOf(x)`
     // into a value that reflects the presence of `x` in
     // `a`.
-    if (~_instance.$plugins.indexOf(plugin)) return
-
-    _instance.$plugins.push(plugin)
+    _instance.plugins.push(plugin)
 
     if (type.call(plugin) === FUNCTION) plugin = plugin(_instance)
 
@@ -127,8 +125,6 @@ export default function j2c() {
     })(plugin.$at || emptyArray)
 
     defaults(_instance.names, plugin.$names || emptyObject)
-
-    _use(plugin.$plugins || emptyArray)
 
     $sink = plugin.$sink || $sink
 
@@ -188,5 +184,6 @@ export default function j2c() {
   }
 
   _use(emptyArray.slice.call(arguments))
+  freeze(_instance)
   return _instance
 }

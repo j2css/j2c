@@ -1994,12 +1994,6 @@ function randInt() {
 
           o(_J2c.sheet).notEquals('foo')
         })
-
-        o('Plugin deduplication', function() {
-          var p = {}
-          var _J2c = J2c(p, p)
-          o(_J2c.$plugins.length).equals(1)
-        })
       })
 
       o.spec('names plugins for J2c.inline()', function() {
@@ -2309,29 +2303,6 @@ function randInt() {
           o(acc.length).equals(2)
           o(acc[0]).equals(1)
           o(acc[1]).equals(2)
-        })
-
-        o('filter dedupe', function() {
-          var acc = []
-
-          function filter(x) {
-            return {
-              $filter: function(next) {
-                return {
-                  rule: function(selector) {
-                    acc.push(x)
-                    next.rule(selector)
-                  }
-                }
-              }
-            }
-          }
-          var f = filter(1)
-          J2c(f, f).sheet({
-            '.foo': 'bar:baz;'
-          })
-          o(acc.length).equals(1)
-          o(acc[0]).equals(1)
         })
 
         o('filter default', function() {
