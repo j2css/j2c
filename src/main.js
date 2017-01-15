@@ -21,7 +21,7 @@ export default function j2c() {
       err.push(msg)
       buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
     },
-    raw: function(str) {buf.push(str)},
+    raw: function(str) {buf.push(str, _instance.endline)},
     atrule: function (rule, kind, param, takesBlock) {
       buf.push(rule, param && ' ', param, takesBlock ? ' {' : ';', _instance.endline)
     },

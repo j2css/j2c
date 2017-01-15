@@ -522,7 +522,7 @@ function randInt() {
         })
 
         o('raw', function() {
-          o(J2c().sheet('p{color:red}')).equals('p{color:red}')
+          o(J2c().sheet('p{color:red}')).equals('p{color:red}\n')
         })
 
         o('convert underscores', function() {
