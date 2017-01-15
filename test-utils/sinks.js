@@ -1,6 +1,12 @@
-module.exports.simple = function() {
-  var buffer = []
+module.exports.simple = {$sink: function() {
+  var buffer
   return [{
+    init: function() {
+      buffer = []
+    },
+    done: function() {
+      return buffer
+    },
     atrule : function(rule, kind, params, hasblock) {
       buffer.push(['atrule', rule, kind, params, hasblock])
     },
@@ -20,8 +26,8 @@ module.exports.simple = function() {
       buffer.push(['err', message])
     },
     raw: function(str) {
-      buffer.push('raw', str)
+      buffer.push(['raw', str])
     },
     buffer: buffer
   }]
-}
+}}

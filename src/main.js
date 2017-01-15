@@ -126,7 +126,7 @@ export default function j2c() {
 
     defaults(_instance.names, plugin.$names || emptyObject)
 
-    $sink = plugin.$sink || $sink
+    $sink = plugin.$sink ? plugin.$sink() : $sink
 
     defaults(_instance, plugin)
   })

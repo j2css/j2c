@@ -44,7 +44,7 @@ o.spec('sinks', function() {
         acc[method] = o.spy()
         return acc
       }, {})
-      var j2c = J2c({$sink:[sink]})
+      var j2c = J2c({$sink:function(){return [sink]}})
       j2c.sheet([
         {'@media foo': {
           'p': {
