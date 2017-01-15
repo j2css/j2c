@@ -19,7 +19,7 @@ module.exports = function(plugin) {
       if (own.call(next,'$postcss')) return next.$postcss(plugin)
 
       var plugins = [plugin]
-      var parent, root, done
+      var parent, root, done, inRule
 
 			// `handlers` and `block` turn the PostCSS tree into
 			// j2c streams after processing.
@@ -30,22 +30,28 @@ module.exports = function(plugin) {
             if (node.params) {
               params = node.params
             }
-            next.a('@'+node.name, params, true)
+            var kind = node.name.replace(/^-[a-zA-Z_]\w+-/, '')
+            next.atrule('@'+node.name, kind, params, node.raws ? node.raws.j2cBlock || true : true)
             block(node.nodes)
-            next.A('@'+node.name, params)
+            next._atrule()
           } else {
-            next.a('@'+node.name, node.params)
+            next.atrule('@'+node.name, kind, node.params)
           }
         },
         comment: function(){},
         decl: function (node) {
-          if (own.call(node, 'raws') && own.call(node.raws, 'j2c')) next.d('', node.raws.j2c)
-          else next.d(node.prop, node.value)
+          if (own.call(node, 'raws') && own.call(node.raws, 'j2cRaw')) next.raw(node.raws.j2cRaw)
+          else if (own.call(node, 'raws') && own.call(node.raws, 'j2cErr')) next.err(node.raws.j2cErr)
+          else next.decl(node.prop, node.value)
         },
         rule: function (node) {
-          next.s(node.selector)
-          block(node.nodes)
-          next.S(node.selector)
+          if (own.call(node, 'raws') && own.call(node.raws, 'j2cRaw')) next.raw(node.raws.j2cRaw)
+          else if (own.call(node, 'raws') && own.call(node.raws, 'j2cErr')) next.err(node.raws.j2cErr)
+          else {
+            next.rule(node.selector)
+            block(node.nodes)
+            next._rule()
+          }
         }
       }
 
@@ -67,7 +73,8 @@ module.exports = function(plugin) {
           parent = postcss.root()
           root = parent
           done = false
-          next.i()
+          inRule = false
+          next.init()
         },
         done: function() {
           if (!done) {
@@ -81,32 +88,47 @@ module.exports = function(plugin) {
 						// process and convert back to j2c streams
             block(processor.process(result, options).root.nodes)
           }
-          return next.x.apply(next, arguments)
+          return next.done()
         },
-        atrule: function(rule, params, takesBlock) {
-          var node = {name: rule.slice(1)}
+        // Use custom properties to pass raw declarations through the plugins unaltered
+        err: function(msg) {
+          if (inRule) parent.push(postcss.decl({prop: 'j2c-err', value: 'j2c-err', raws: {j2cErr: msg}}))
+          else parent.push(postcss.rule({selector: 'j2c-err', raws:{j2cErr: msg}, nodes: [
+            postcss.decl({prop: 'color', value: 'red'})
+          ]}))
+        },
+        raw: function(txt) {
+          if (inRule) parent.push(postcss.decl({prop: 'j2c-raw', value: 'j2c-raw', raws: {j2cRaw: txt}}))
+          else parent.push(postcss.rule({selector: 'j2c-raw', raws: {j2cRaw: txt}, nodes: [
+            postcss.decl({prop: 'color', value: 'red'})
+          ]}))
+        },
+        atrule: function(rule, kind, params, takesBlock) {
+          var node = {name: rule.slice(1), raws: {j2cBlock: takesBlock}}
           if (params !== '') node.params = params
           node = postcss.atRule(node)
           parent.push(node)
           if (takesBlock) {
+            if (takesBlock == 'decl') inRule = true
             node.nodes = []
             parent = node
           }
         },
         _atrule: function () {
+          inRule = false
           parent = parent.parent
         },
         decl: function (prop, value) {
-          if (prop !== '') parent.push(postcss.decl({prop: prop, value: value}))
-					// Use a custom property to pass raw declarations through the plugins unaltered
-          else parent.push(postcss.decl({prop: 'j2c-raw', value: 'j2c-raw', raws:{j2c: value}}))
+          parent.push(postcss.decl({prop: prop, value: value}))
         },
         rule: function (selector) {
+          inRule = true
           var rule = postcss.rule({selector: selector})
           parent.push(rule)
           parent = rule
         },
         _rule: function () {
+          inRule = false
           parent = parent.parent
         }
       }

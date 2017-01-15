@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "eslint": "^3.12.0",
-    "j2c": "^1.0.0-3",
+    "j2c": "^1.0.0-4",
     "mithril": "git+https://git@github.com/lhorie/mithril.js.git#rewrite",
     "autoprefixer": "6.3.6"
   }
