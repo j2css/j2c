@@ -8,16 +8,10 @@ var cwd = process.cwd()
 var env = process.env
 var isWin = /^win/.test(process.platform)
 
-function runCmd(cmd, args = [], options = {}) {
-  options = Object.assign({}, options, {cwd: path.join(cwd, options.path), env, shell: isWin})
+function runCmd(cmd, args = [], options = {}, result = {output: '', status: null, stderr: '', stdout: ''}) {
+  options = Object.assign({}, options, {cwd: options.cwd || path.join(cwd, options.path), env, shell: isWin})
   return new Promise(function(fulfil, reject) {
     const proc = childProcess.spawn(cmd, args, options)
-    const result = {
-      output: '',
-      status: null,
-      stderr: '',
-      stdout: ''
-    }
     const interval = setInterval(function(){
       if(result.output !== '') {
         console.log(result.output)
@@ -43,18 +37,20 @@ function runCmd(cmd, args = [], options = {}) {
   })
 }
 
-
-
-
 Promise.all(fs.readdirSync('plugins').map(function(dir){
-  return runCmd('yarn', [], {path: 'plugins/'+dir})
+  return runCmd('yarn', [], {path: 'plugins/'+dir}).then(
+    result => runCmd('yarn', ['build'],  {path: 'plugins/'+dir}, result).catch(_=>{output:"nothing to build\n"})
+  )
 })).then(
   function ok(results) {
-    results.forEach(res => console.log(res.output))
-    process.exit(results[0] ? results[0].status : 0)
+    results.forEach(res => console.log(res && res.output))
+    // process.exit(results[0] ? results[0].status : 0)
   },
   function caught(res){
-    console.log(res.output)
+    console.error("error",res.output)
     process.exit(res.status)
   }
-)
+).catch(function(e){
+  console.error(e && e.stack)
+  process.exit(1)
+})

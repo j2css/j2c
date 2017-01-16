@@ -8,7 +8,8 @@
   },
   "scripts": {
     "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "build": "true"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "postcss": "^5.2.10"
   },
   "devDependencies": {
-    "autoprefixer": "6.6.1"
+    "autoprefixer": "6.6.1",
+    "cash-true": "0.0.2"
   }
 }
