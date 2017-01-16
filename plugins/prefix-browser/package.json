@@ -29,17 +29,7 @@
   "homepage": "http://j2c.py.gy",
   "dependencies": {},
   "devDependencies": {
-    "acorn": "^2.7.0",
-    "babylon": "^6.4.2",
-    "compose-regexp": "^0.1.8",
-    "eslint": "^2.3.0",
-    "esprima": "^2.7.1",
     "in-publish": "^2.0.0",
-    "lodash.property": "^4.1.2",
-    "nodegit": "^0.8.0",
-    "recast": "^0.11.2",
-    "rimraf": "^2.5.0",
-    "rollup": "^0.41.1",
-    "uglify-js": "^2.6.2"
+    "rimraf": "^2.5.0"
   }
 }

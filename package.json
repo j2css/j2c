@@ -6,14 +6,15 @@
   "scripts": {
     "preversion": "yarn run all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
+    "install-plugins": "node scripts/install-plugins",
     "all": "yarn run build && yarn run lint && yarn run cover",
     "dev": "yarn run build && yarn run test",
     "build": "rm -f dist/*.js && node scripts/build.js",
     "lint": "eslint --fix .",
     "test": "ospec",
     "cover": "istanbul cover --print both node_modules/.bin/ospec && yarn run check-coverage",
-    "check-coverage": "istanbul check-coverage --branches -2",
-    "travis": "yarn run build && istanbul cover --print both node_modules/.bin/ospec && (codecov || true) && yarn run  check-coverage"
+    "check-coverage": "istanbul check-coverage --branches -9",
+    "travis": "yarn install-plugins && yarn run build && istanbul cover --print both node_modules/.bin/ospec && (codecov || true) && yarn run  check-coverage"
   },
   "repository": {
     "type": "git",

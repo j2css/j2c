@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - '4.0'
-  - '5.0'
-  - '6.0'
-script: yarn run travis
+  - node
+cache: yarn
+script: "yarn install-plugins && yarn run travis"
