@@ -2,7 +2,7 @@ import {blankFixers, browserDetector, finalizeFixers} from './fixers.js'
 
 var commonFixers
 
-export function initBrowser() {
+export function initBrowser() { // exported for the test suite.
   commonFixers = blankFixers()
   if (typeof getComputedStyle === 'function') browserDetector(commonFixers)
   finalizeFixers(commonFixers)
@@ -22,7 +22,7 @@ export function prefixPlugin(j2c) {
     return prefixPlugin
   }
   return {
-    $filter: function(next) {
+    filter: function(next) {
       return {
         atrule: function(rule, kind, params, hasBlock) {
           next.atrule(

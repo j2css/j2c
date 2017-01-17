@@ -32,7 +32,7 @@ o.spec('plugin.rule', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.rule('.foo:active #baz[foo]')
 
@@ -52,7 +52,7 @@ o.spec('plugin.rule', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.rule('.foo:active #baz[foo]')
     methods.rule('::placeholder .foo:any-link::selection:selection #baz[qux=":any-link"]/*::selection*/[quux=\'::selection\']')

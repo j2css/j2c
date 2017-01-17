@@ -555,7 +555,7 @@ function finalizeFixers(fixers) {
 
 var commonFixers;
 
-function initBrowser() {
+function initBrowser() { // exported for the test suite.
   commonFixers = blankFixers();
   if (typeof getComputedStyle === 'function') browserDetector(commonFixers);
   finalizeFixers(commonFixers);
@@ -575,7 +575,7 @@ function prefixPlugin(j2c) {
     return prefixPlugin
   };
   return {
-    $filter: function(next) {
+    filter: function(next) {
       return {
         atrule: function(rule, kind, params, hasBlock) {
           next.atrule(

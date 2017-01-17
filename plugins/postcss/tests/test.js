@@ -61,8 +61,8 @@ color:redish;\n\
   })
 
   o('forward errors', function() {
-    var sink = $sink.$sink()[0]
-    var plgn = j2cPostcss()().$filter(sink)
+    var sink = $sink.sink()[0]
+    var plgn = j2cPostcss()().filter(sink)
     plgn.init()
     plgn.err('foo')
     plgn.rule('p')

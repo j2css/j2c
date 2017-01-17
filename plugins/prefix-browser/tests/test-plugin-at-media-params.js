@@ -29,7 +29,7 @@ o.spec('plugin @media parameters', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@media', 'media', 'screen', true)
 
@@ -44,7 +44,7 @@ o.spec('plugin @media parameters', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@media', 'media', 'screen', true)
     methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true)
@@ -64,7 +64,7 @@ o.spec('plugin @media parameters', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true)
 
@@ -83,7 +83,7 @@ o.spec('plugin @media parameters', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.5dppx)', true)
 
@@ -102,7 +102,7 @@ o.spec('plugin @media parameters', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@media', 'media', '(resolution:2dppx) and (min-resolution:1dppx) and (max-resolution:2.51dppx)', true)
 

@@ -29,7 +29,7 @@ o.spec('plugin.atrules', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@keyframes', 'keyframes', 'foo', true)
 
@@ -43,7 +43,7 @@ o.spec('plugin.atrules', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@keyframes', 'keyframes', 'foo', true)
 
@@ -58,7 +58,7 @@ o.spec('plugin.atrules', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.atrule('@foo', 'foo', 'bar', true)
 

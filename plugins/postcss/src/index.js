@@ -10,7 +10,7 @@ module.exports = function(plugin) {
 		// more plugins can be added through $postcss
     var processor
 
-    return {$filter: function(next) {
+    return {filter: function(next) {
 
       function unknownBlock(type){
         /* istanbul ignore next */

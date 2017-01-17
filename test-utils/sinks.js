@@ -1,4 +1,29 @@
-module.exports.simple = {$sink: function() {
+
+// This simple backend pushes the arguments in arrays in a buffer and return it as is.
+// So, for example,
+//     j2c.sheet({'@global': {
+//       '@keyframes foo': {
+//         'from, to': {width: 0}
+//       },
+//       '.bar' :{
+//         animation: 'baz 1sec',
+//       }
+//     }})
+//
+// becomes
+//
+//     [
+//       ['atrule', '@keyframes', 'keyframes', 'foo', 'rule'],
+//         ['rule', 'from, to'],
+//           ['decl', 'width', 0],
+//         ['_rule'],
+//       ['_atrule'],
+//       ['rule', '.bar'],
+//         ['decl', 'animation', 'baz 1sec'],
+//       ['_rule']
+//     ]
+
+module.exports.simple = {sink: function() {
   var buffer
   return [{
     init: function() {

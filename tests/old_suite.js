@@ -1,4 +1,7 @@
 /*eslint-env node*/
+
+// No new tests should be added here.
+
 var o = require('../test-utils/ospec-instance')
 
 // used to normalize styles for reliable comparison.
@@ -1776,7 +1779,7 @@ function randInt() {
         // This happens in this test because it vists most if not all of the code paths
         // where this may be relevant, especially in `src/sheet.js`.
         var J2c_2 = J2c({
-          $filter: function(next) {
+          filter: function(next) {
             return {
               done: next.done,
               init: function() {
@@ -1947,9 +1950,9 @@ function randInt() {
           )
         })
 
-        o('an invalid plugin $name', function() {
+        o('an invalid plugin name', function() {
           var _J2c = J2c({
-            $invalid: 'foo'
+            invalid: 'foo'
           })
           check(
             _J2c.sheet({
@@ -1959,23 +1962,7 @@ function randInt() {
             }),
             'p{color:red;}'
           )
-          o(_J2c.hasOwnProperty('$invalid')).equals(false)
-        })
-
-        o('a plugin that sets a property on the instance', function() {
-          var _J2c = J2c({
-            testProp: 'foo'
-          })
-          check(
-            _J2c.sheet({
-              p: {
-                color: 'red'
-              }
-            }),
-            'p{color:red;}'
-          )
-          o(_J2c.hasOwnProperty('testProp')).equals(true)
-          o(_J2c.testProp).equals('foo')
+          o(_J2c.hasOwnProperty('invalid')).equals(false)
         })
 
         o('a plugin that sets a property on the instance that already exists', function() {
@@ -2000,7 +1987,7 @@ function randInt() {
         o('namespaced animation', function() {
           check(
             J2c({
-              $names: {
+              names: {
                 foo: 'theFoo'
               }
             }).inline({
@@ -2013,7 +2000,7 @@ function randInt() {
         o('namespaced animation-name', function() {
           check(
             J2c({
-              $names: {
+              names: {
                 foo: 'theFoo'
               }
             }).inline({
@@ -2025,7 +2012,7 @@ function randInt() {
 
         o('namespaced and non-namespaced animation-name', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               foo: 'theFoo'
             }
           })
@@ -2040,7 +2027,7 @@ function randInt() {
 
         o('two namespaced animations', function() {
           var result = J2c({
-            $names: {
+            names: {
               foo: 'theFoo',
               bar: 'theBar'
             }
@@ -2057,7 +2044,7 @@ function randInt() {
       o.spec('names plugins for J2c.sheet()', function() {
         o('namespaced class', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               foo: 'FOOO'
             }
           })
@@ -2074,7 +2061,7 @@ function randInt() {
 
         o('namespaced class wrapping a global block', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               foo: 'FOOO'
             }
           })
@@ -2095,7 +2082,7 @@ function randInt() {
 
         o('namespaced @keyframes', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               bit: 'BOT'
             }
           })
@@ -2109,7 +2096,7 @@ function randInt() {
 
         o('namespaced animation', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               bit: 'BOT'
             }
           })
@@ -2125,7 +2112,7 @@ function randInt() {
 
         o('namespaced animation-name', function() {
           var _J2c = J2c({
-            $names: {
+            names: {
               bit: 'BOT'
             }
           })
@@ -2138,23 +2125,9 @@ function randInt() {
           o(names.bit).equals('BOT')
           check(css, 'p{animation-name:BOT;}')
         })
-
-        o("don't overwrite an existing name", function() {
-          var _J2c = J2c({
-            $names: {
-              bit: 'BOT'
-            }
-          }, {
-            names: {
-              bit: 'BUT'
-            }
-          })
-          var names = _J2c.names
-          o(names.bit).equals('BOT')
-        })
       })
 
-      o.spec('$filter plugins', function() {
+      o.spec('filter plugins', function() {
         o('a sheet filter', function() {
           var tested = {}
           function filter(J2c) {
@@ -2162,7 +2135,7 @@ function randInt() {
             o(J2c.sheet instanceof Function).equals(true)('value should have been a Function')
 
             return {
-              $filter: function(next, inline) {
+              filter: function(next, inline) {
                 o(next instanceof Object).equals(true)('value should have been a Object')
                 o(next.init instanceof Function).equals(true)('value should have been a Function')
                 o(next.done instanceof Function).equals(true)('value should have been a Function')
@@ -2242,7 +2215,7 @@ function randInt() {
             o(J2c.inline instanceof Function).equals(true)('value should have been a Function')
 
             return {
-              $filter: function(next, inline) {
+              filter: function(next, inline) {
                 o(next instanceof Object).equals(true)('value should have been a Object')
                 o(next.init instanceof Function).equals(true)('value should have been a Function')
                 o(next.done instanceof Function).equals(true)('value should have been a Function')
@@ -2287,7 +2260,7 @@ function randInt() {
 
           function filter(x) {
             return {
-              $filter: function(next) {
+              filter: function(next) {
                 return {
                   rule: function() {
                     acc.push(x)
@@ -2309,7 +2282,7 @@ function randInt() {
           var acc = []
           check(
             J2c({
-              $filter: function(next) {
+              filter: function(next) {
                 return {
                   rule: function(selector) {
                     acc.push(selector)
@@ -2327,14 +2300,14 @@ function randInt() {
         })
       })
 
-      o.spec('$at plugins', function() {
-        o('one $at plugin', function() {
+      o.spec('atrule plugins', function() {
+        o('one atrule plugin', function() {
           function plugin(name) {
             return {
-              $at: function(walker, emit, match, v, prefix, local, inAtRule) {
+              atrule: function(walker, emit, match, v, prefix, local, inAtRule) {
                 o(match instanceof Array).equals(true)('value should have been a Array')
                 o(walker instanceof Object).equals(true)('value should have been a Object')
-                o(walker.hasOwnProperty('$atHandlers')).equals(true)
+                o(walker.hasOwnProperty('atruleHandlers')).equals(true)
                 o(walker.hasOwnProperty('atrule')).equals(true)
                 o(walker.hasOwnProperty('rule')).equals(true)
                 o(walker.hasOwnProperty('decl')).equals(true)
@@ -2381,10 +2354,10 @@ function randInt() {
           o(err.message.indexOf('/* +++ ERROR +++ Unsupported at-rule: @baz */')).notEquals(-1)
         })
 
-        o('two $at plugins', function() {
+        o('two atrule plugins', function() {
           function plugin(name) {
             return {
-              $at: function(walker, emit, match, v) {
+              atrule: function(walker, emit, match, v) {
                 if (match[2] !== name) return false
                 emit.atrule(match[1], match[2], v)
                 return true
@@ -2415,9 +2388,9 @@ function randInt() {
 
         })
 
-        o('$at plugin has precedence over default at-rules', function() {
+        o('atrule plugin has precedence over default at-rules', function() {
           var plugin = {
-            $at: function(walker, emit, match, v) {
+            atrule: function(walker, emit, match, v) {
               if (match[2] !== 'import') return false
               emit.atrule('@intercepted', 'intercepted', v)
               return true
@@ -2432,9 +2405,9 @@ function randInt() {
           )
         })
 
-        o('$at plugin that verifies malformed rules are properly passed unparsed', function() {
+        o('atrule plugin that verifies malformed rules are properly passed unparsed', function() {
           var plugin = {
-            $at: function(walker, emit, match, v) {
+            atrule: function(walker, emit, match, v) {
 
               o(match[0]).equals('@; hey')
               o(match[1]).equals('@')
@@ -2470,7 +2443,7 @@ function randInt() {
 // - verify that all at-rules behave properly in filters
 //   (wrt selectors and definitions)
 //
-// - test `inAtRule` from $at plugins (is it set appropriately?)
+// - test `inAtRule` from atrule plugins (is it set appropriately?)
 //
 // - verify that custom at rules take precedence over default ones
 //

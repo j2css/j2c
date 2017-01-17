@@ -38,7 +38,7 @@ o.spec('plugin.decl for properties', function() {
     j2c.setPrefixDb(fixers)
     j2c.setPrefixDb(fixers) // set it a second time to exercise the cache branch.
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('foo', 'bar')
 
@@ -55,7 +55,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -82,7 +82,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -112,7 +112,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({
       'box-orient': '-o-box-orient',
@@ -147,7 +147,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({
       'box-orient': '-o-box-orient',
@@ -185,7 +185,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({
       'box-orient': '-o-box-orient',
@@ -222,7 +222,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({
       'box-orient': '-o-box-orient',
@@ -249,7 +249,7 @@ o.spec('plugin.decl for properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 

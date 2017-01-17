@@ -34,7 +34,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -62,7 +62,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -90,7 +90,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 
@@ -114,7 +114,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
 

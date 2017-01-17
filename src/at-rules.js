@@ -29,9 +29,9 @@ import {declarations} from './declarations'
 export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
 
   // First iterate over user-provided at-rules and return if one of them corresponds to the current one
-  for (var i = 0; i < state.$atHandlers.length; i++) {
+  for (var i = 0; i < state.atruleHandlers.length; i++) {
 
-    if (state.$atHandlers[i](state, emit, k, v, prefix, local, nestingDepth)) return
+    if (state.atruleHandlers[i](state, emit, k, v, prefix, local, nestingDepth)) return
 
   }
 

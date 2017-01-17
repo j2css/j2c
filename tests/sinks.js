@@ -15,7 +15,7 @@ o.spec('sinks', function() {
     var j2c, sheetSink, inlineSink
     o.beforeEach(function(){
       // get the Sinks out
-      j2c = new J2c({$filter: function(next) {
+      j2c = new J2c({filter: function(next) {
         if ('rule' in next) sheetSink = next
         else inlineSink = next
         return {}
@@ -35,7 +35,7 @@ o.spec('sinks', function() {
     })
     // Do we want more individual tests for the default sink?
   })
-  o.spec('$sink plugins', function() {
+  o.spec('sink plugins', function() {
     o('sheet sinks work', function() {
       var methods = [
         'init', 'done', 'err', 'raw', 'decl', 'rule', '_rule', 'atrule', '_atrule'
@@ -44,7 +44,7 @@ o.spec('sinks', function() {
         acc[method] = o.spy()
         return acc
       }, {})
-      var j2c = J2c({$sink:function(){return [sink]}})
+      var j2c = J2c({sink:function(){return [sink]}})
       j2c.sheet([
         {'@media foo': {
           'p': {

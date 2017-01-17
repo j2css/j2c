@@ -41,7 +41,7 @@ var src = {
 }
 var buf, err, indent
 
-// the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
+// the bottom of the 'codegen' stream. Mirrors the `filter` plugin API.
 var sink = {$sink: {
   init: function(){buf=[], err=0, indent = ''},
   done: function (raw) {

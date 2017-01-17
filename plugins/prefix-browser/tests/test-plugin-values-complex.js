@@ -36,7 +36,7 @@ o.spec('plugin.decl for complex values', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('transition', 'bar 1s, foo 2s step(calc(3 * var(--foo)), foo)')
 

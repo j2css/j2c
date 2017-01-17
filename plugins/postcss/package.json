@@ -7,8 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "lint": "eslint --fix src/*.js test/test.js scripts/*.js",
-    "test": "node test/test.js",
+    "all": "yarn go lint && yarn go cover",
+    "dev": "yarn run test",
+    "go": "cd ../.. && yarn run",
+    "test": "yarn go test",
     "build": "true"
   },
   "repository": {

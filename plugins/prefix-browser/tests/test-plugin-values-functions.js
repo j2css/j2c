@@ -36,7 +36,7 @@ o.spec('plugin.decl for values that have functions', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('foo', 'color(red a(0))')
 
@@ -53,7 +53,7 @@ o.spec('plugin.decl for values that have functions', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('foo', 'cross-fade(linear-gradient(89deg red, green),repeating-linear-gradient(-20deg rgb( calc(2 * var(--foo)), 0, 0), green))')
     methods.decl('foo', 'linear-gradient(100deg red, green)')
@@ -74,7 +74,7 @@ o.spec('plugin.decl for values that have functions', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('foo', 'cross-fade(linear-gradient(89deg red, green),repeating-linear-gradient(-20deg rgb( calc(2 * var(--foo)), 0, 0), green))')
     methods.decl('foo', 'linear-gradient(100deg red, green)')

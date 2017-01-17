@@ -41,14 +41,14 @@ o.spec('plugin.decl for keywords', function() {
   o('leaves unknown values as is (hasKeywords set to false)', function() {
     mocks(global)
     initBrowser()
-
+ 
     fixers.prefix = '-o-'
 
     var j2c = {}
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('display', 'inline')
     methods.decl('color', 'red')
@@ -70,7 +70,7 @@ o.spec('plugin.decl for keywords', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('display', 'inline')
     methods.decl('color', 'red')
@@ -92,7 +92,7 @@ o.spec('plugin.decl for keywords', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('display', 'grid')
 
@@ -113,7 +113,7 @@ o.spec('plugin.decl for keywords', function() {
     var plugin = createPrefixPlugin(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
-    var methods = plugin.$filter(sink)
+    var methods = plugin.filter(sink)
 
     methods.decl('display', 'box')
     methods.decl('display', 'inline-box')

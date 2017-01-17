@@ -1,4 +1,4 @@
-import {defaults, emptyArray, emptyObject, flatIter, freeze, type, FUNCTION} from './helpers'
+import {defaults, emptyArray, flatIter, freeze, type, ARRAY, FUNCTION, OBJECT, STRING} from './helpers'
 import {closeSelectors, rules} from './rules'
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
@@ -10,8 +10,8 @@ export default function j2c() {
   // the buffer that accumulates the output. Initialized in `$sink.i()`
   var buf, err
 
-  // the bottom of the 'codegen' stream. Mirrors the `$filter` plugin API.
-  var $sink = [{
+  // the bottom of the 'codegen' stream. Mirrors the `_filter` plugin API.
+  var _backend = [{
     init: function(){buf=[], err=[]},
     done: function (raw) {
       if (err.length != 0) throw new Error('j2c error(s): ' + JSON.stringify(err,null,2) + 'in context:\n' + buf.join(''))
@@ -33,9 +33,9 @@ export default function j2c() {
     decl: function (prop, value) {buf.push(prop, ':', value, ';', _instance.endline)}
   }]
 
-  // holds the `$filter` and `$at` handlers
-  var $filters = [closeSelectors]
-  var $atHandlers = []
+  // holds the `_filter` and `atrule` handlers
+  var _filters = [closeSelectors]
+  var _atruleHandlers = []
 
   // the public API (see the main docs)
   var _instance = {
@@ -52,30 +52,28 @@ export default function j2c() {
       Math.floor(Math.random() * 0x100000000).toString(36),
     plugins: [],
     sheet: function(tree) {
-      var emit = _createOrRetrieveStream(0)
-      emit.init()
+      _backend[0].init()
       rules(
         _walkers[0],
-        emit,
+        _backend[0],
         '', // prefix
         tree,
         1,  // local, by default
         0   // nesting depth
       )
 
-      return emit.done()
+      return _backend[0].done()
     },
     inline: function (tree, options) {
-      var emit = _createOrRetrieveStream(1)
-      emit.init()
+      _backend[1].init()
       declarations(
         _walkers[1],
-        emit,
+        _backend[1],
         '', // prefix
         tree,
         !(options && options.global)   // local, by default
       )
-      return emit.done()
+      return _backend[1].done()
     }
   }
 
@@ -87,7 +85,7 @@ export default function j2c() {
       localizeReplacer: _localizeReplacer, // second argument to String.prototype.replace
       localize: _localize,                 // mangles local names
       names: _instance.names,              // local => mangled mapping
-      $atHandlers: $atHandlers,            // extra at-rules
+      atruleHandlers: _atruleHandlers,            // extra at-rules
       // The core walker methods, to be provided to plugins
       atrule: atRules,
       decl: declarations,
@@ -101,60 +99,6 @@ export default function j2c() {
       decl: declarations
     }
   ]
-
-
-  // inner helpers
-
-  var _use = flatIter(function(plugin) {
-    // `~n` is falsy for `n === -1` and truthy otherwise.
-    // Works well to turn the  result of `a.indexOf(x)`
-    // into a value that reflects the presence of `x` in
-    // `a`.
-    _instance.plugins.push(plugin)
-
-    if (type.call(plugin) === FUNCTION) plugin = plugin(_instance)
-
-    if (!plugin) return
-
-    flatIter(function(filter) {
-      $filters.push(filter)
-    })(plugin.$filter || emptyArray)
-
-    flatIter(function(handler) {
-      $atHandlers.push(handler)
-    })(plugin.$at || emptyArray)
-
-    defaults(_instance.names, plugin.$names || emptyObject)
-
-    $sink = plugin.$sink ? plugin.$sink() : $sink
-
-    defaults(_instance, plugin)
-  })
-
-
-  var _streams = []
-  /**
-   * returns the codegen streams, creating them if necessary
-   * @param
-   */
-  function _createOrRetrieveStream(inline) {
-    // build the stream processors if needed
-    if (!_streams.length) {
-      // append the $sink as the ultimate filter
-      $filters.push(function(_, inline) {return inline ? $sink[1] || {init:$sink[0].init, decl:$sink[0].decl, done:$sink[0].done, err: $sink[0].err, raw: $sink[0].raw} : $sink[0]})
-      for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
-        for (var j = $filters.length; j--;) {
-          _streams[i] = freeze(
-            defaults(
-              $filters[j](_streams[i], !!i),
-              _streams[i]
-            )
-          )
-        }
-      }
-    }
-    return _streams[inline]
-  }
 
   /**
    * Returns a localized version of a given name.
@@ -183,7 +127,52 @@ export default function j2c() {
     return ignore || global || dot + _localize(name)
   }
 
+  var _use = flatIter(function(plugin) {
+    // `~n` is falsy for `n === -1` and truthy otherwise.
+    // Works well to turn the  result of `a.indexOf(x)`
+    // into a value that reflects the presence of `x` in
+    // `a`.
+    _instance.plugins.push(plugin)
+
+    if (type.call(plugin) === FUNCTION) plugin = plugin(_instance)
+
+    if (!plugin) return
+
+    if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
+
+    if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
+
+    if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
+
+    if (type.call(plugin.names) === OBJECT) _instance.names = plugin.names
+
+    if (type.call(plugin.suffix) === STRING) _instance.suffix = plugin.suffix
+
+    if (type.call(plugin.plugins) === ARRAY) _use(plugin.plugins)
+
+  })
   _use(emptyArray.slice.call(arguments))
+
+  _backend[1] = _backend[1] || {
+    init: _backend[0].init,
+    done: _backend[0].done,
+    raw: _backend[0].raw,
+    err: _backend[0].err,
+    decl: _backend[0].decl
+  }
+
+  // finalize the backend by merging in the filters
+  for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
+    for (var j = _filters.length; j--;) {
+      _backend[i] = freeze(
+        defaults(
+          _filters[j](_backend[i], !!i),
+          _backend[i]
+        )
+      )
+    }
+  }
+
   freeze(_instance)
   return _instance
 }
