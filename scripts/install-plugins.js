@@ -39,7 +39,7 @@ function runCmd(cmd, args = [], options = {}, result = {output: '', status: null
 
 Promise.all(fs.readdirSync('plugins').map(function(dir){
   return runCmd('yarn', [], {path: 'plugins/'+dir}).then(
-    result => runCmd('yarn', ['build'],  {path: 'plugins/'+dir}, result).catch(_=>{output:"nothing to build\n"})
+    result => runCmd('yarn', ['run build'],  {path: 'plugins/'+dir}, result).catch(()=>({output:'nothing to build\n'}))
   )
 })).then(
   function ok(results) {
@@ -47,7 +47,7 @@ Promise.all(fs.readdirSync('plugins').map(function(dir){
     // process.exit(results[0] ? results[0].status : 0)
   },
   function caught(res){
-    console.error("error",res.output)
+    console.error('error',res.output)
     process.exit(res.status)
   }
 ).catch(function(e){
