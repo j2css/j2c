@@ -35,11 +35,11 @@ o.spec('plugin misc tests', function() {
   o('handles raw declarations and bad values gracefully', function() {
     mocks(global, {properties: {'-o-foo': 'bar'}})
     initBrowser()
-    
+
     fixers.prefix = '-o-'
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)

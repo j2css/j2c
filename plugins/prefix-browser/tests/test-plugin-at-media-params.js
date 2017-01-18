@@ -26,7 +26,7 @@ o.spec('plugin @media parameters', function() {
 
   o('works with a blank fixer object', function() {
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -41,7 +41,7 @@ o.spec('plugin @media parameters', function() {
     fixers.prefix = '-dummy-'
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -61,7 +61,7 @@ o.spec('plugin @media parameters', function() {
     fixers.prefix = '-dummy-'
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -80,7 +80,7 @@ o.spec('plugin @media parameters', function() {
 
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -99,7 +99,7 @@ o.spec('plugin @media parameters', function() {
 
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)

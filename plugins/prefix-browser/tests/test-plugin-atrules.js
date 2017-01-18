@@ -26,7 +26,7 @@ o.spec('plugin.atrules', function() {
 
   o('works with a blank fixer object', function() {
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -40,7 +40,7 @@ o.spec('plugin.atrules', function() {
     fixers.hasAtrules = true
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -55,7 +55,7 @@ o.spec('plugin.atrules', function() {
     fixers.hasAtrules = true
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)

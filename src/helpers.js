@@ -1,8 +1,8 @@
 var
-  emptyArray = [],
   emptyObject = {},
   type = emptyObject.toString,
-  ARRAY =  type.call(emptyArray),
+  ARRAY =  type.call([]),
+  NUMBER = type.call(0),
   OBJECT = type.call(emptyObject),
   STRING = type.call(''),
   FUNCTION = type.call(type),
@@ -90,10 +90,17 @@ function flatIter (f) {
   }
 }
 
+var chars = ''
+function randChars(n) {
+  while(chars.length < n) chars += Math.floor(Math.random() * 0x100000000).toString(36)
+  var res = '_' + chars.slice(0, n)
+  chars = chars.slice(n)
+  return res
+}
+
 export {
-  ARRAY, FUNCTION, OBJECT, STRING,
+  ARRAY, FUNCTION, NUMBER, OBJECT, STRING,
   ampersand, cartesian, defaults,
-  emptyArray, emptyObject,
   flatIter, freeze, own,
-  splitSelector, type
+  randChars, splitSelector, type
 }

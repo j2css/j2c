@@ -1,16 +1,15 @@
-import {defaults, emptyArray, flatIter, freeze, type, ARRAY, FUNCTION, OBJECT, STRING} from './helpers'
+import {defaults, flatIter, freeze, randChars, type, ARRAY, FUNCTION, NUMBER, OBJECT, STRING} from './helpers'
 import {closeSelectors, rules} from './rules'
 import {declarations} from './declarations'
 import {atRules} from './at-rules'
 import {at, global, kv} from './extras'
 
-
-export default function j2c() {
-
-  // the buffer that accumulates the output. Initialized in `$sink.i()`
+export default function J2c(options) {
+  options = options || {}
+  // the buffer that accumulates the output. Initialized in `$sink.init()`
   var buf, err
 
-  // the bottom of the 'codegen' stream. Mirrors the `_filter` plugin API.
+  // the default sink.
   var _backend = [{
     init: function(){buf=[], err=[]},
     done: function (raw) {
@@ -44,12 +43,7 @@ export default function j2c() {
     kv: kv,
     names: {},
     endline: '\n',
-    suffix: '__j2c-' +
-      // 128 bits of randomness
-      Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
-      Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
-      Math.floor(Math.random() * 0x100000000).toString(36) + '-' +
-      Math.floor(Math.random() * 0x100000000).toString(36),
+    suffix: randChars(7),
     plugins: [],
     sheet: function(tree) {
       _backend[0].init()
@@ -127,31 +121,22 @@ export default function j2c() {
     return ignore || global || dot + _localize(name)
   }
 
-  var _use = flatIter(function(plugin) {
-    // `~n` is falsy for `n === -1` and truthy otherwise.
-    // Works well to turn the  result of `a.indexOf(x)`
-    // into a value that reflects the presence of `x` in
-    // `a`.
-    _instance.plugins.push(plugin)
+  // handler options
+  if (type.call(options.plugins) === ARRAY) {
+    flatIter(function(plugin) {
+      _instance.plugins.push(plugin)
+      if (type.call(plugin) === FUNCTION) plugin = plugin(_instance)
+      if (!plugin) return
 
-    if (type.call(plugin) === FUNCTION) plugin = plugin(_instance)
-
-    if (!plugin) return
-
-    if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
-
-    if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
-
-    if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
-
-    if (type.call(plugin.names) === OBJECT) _instance.names = plugin.names
-
-    if (type.call(plugin.suffix) === STRING) _instance.suffix = plugin.suffix
-
-    if (type.call(plugin.plugins) === ARRAY) _use(plugin.plugins)
-
-  })
-  _use(emptyArray.slice.call(arguments))
+      if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
+      if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
+      if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
+    })(options.plugins)
+  }
+  if (type.call(options.names) === OBJECT) _instance.names = options.names
+  if (type.call(options.suffix) === STRING) _instance.suffix = options.suffix
+  if (type.call(options.suffix) === NUMBER) _instance.suffix = randChars(options.suffix)
+  if (type.call(options.endline) === STRING) _instance.endline = options.endine
 
   _backend[1] = _backend[1] || {
     init: _backend[0].init,

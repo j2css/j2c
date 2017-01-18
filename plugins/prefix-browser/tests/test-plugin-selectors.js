@@ -29,7 +29,7 @@ o.spec('plugin.rule', function() {
     fixers.prefix = '-o-'
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
@@ -49,7 +49,7 @@ o.spec('plugin.rule', function() {
     fixers.prefix = '-o-'
 
     var j2c = {}
-    var plugin = createPrefixPlugin(j2c)
+    var plugin = createPrefixPlugin()(j2c)
     j2c.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)

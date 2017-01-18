@@ -2187,7 +2187,7 @@ function randInt() {
             }
           }
           check(
-            J2c(filter).sheet({
+            J2c({plugins: [filter]}).sheet({
               '@global': {
                 '@import': 'foo',
                 p: {
@@ -2248,7 +2248,7 @@ function randInt() {
             }
           }
           check(
-            J2c(filter).inline({
+            J2c({plugins: [filter]}).inline({
               foo: 'bar'
             }),
             'pfoo:vbar;'
@@ -2270,7 +2270,7 @@ function randInt() {
               }
             }
           }
-          J2c(filter(1), filter(2)).sheet({
+          J2c({plugins: [filter(1), filter(2)]}).sheet({
             '.foo': 'bar:baz;'
           })
           o(acc.length).equals(2)
@@ -2281,7 +2281,7 @@ function randInt() {
         o('filter default', function() {
           var acc = []
           check(
-            J2c({
+            J2c({plugins: [{
               filter: function(next) {
                 return {
                   rule: function(selector) {
@@ -2290,7 +2290,7 @@ function randInt() {
                   }
                 }
               }
-            }).sheet({
+            }]}).sheet({
               'p': 'bar:baz;'
             }),
             'pre{bar:baz}'
@@ -2332,7 +2332,7 @@ function randInt() {
               }
             }
           }
-          var _j2c = J2c(plugin('foo'))
+          var _j2c = J2c({plugins: [plugin('foo')]})
           check(
             _j2c.sheet({
               '@foo': 'param'
@@ -2364,7 +2364,7 @@ function randInt() {
               }
             }
           }
-          var _j2c = J2c(plugin('foo'), plugin('bar'))
+          var _j2c = J2c({plugins: [plugin('foo'), plugin('bar')]})
           check(
             _j2c.sheet({
               '@foo': 'param',
@@ -2398,7 +2398,7 @@ function randInt() {
           }
 
           check(
-            J2c(plugin).sheet({
+            J2c({plugins: [plugin]}).sheet({
               '@import': 'foo'
             }),
             '@intercepted foo;'
@@ -2419,7 +2419,7 @@ function randInt() {
           }
 
           check(
-            J2c(plugin).sheet({
+            J2c({plugins: [plugin]}).sheet({
               '@; hey': 'foo'
             }),
             ''

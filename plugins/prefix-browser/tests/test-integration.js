@@ -33,8 +33,8 @@ o.spec('plugin-prefix-browser integration', function() {
 
     fixers.prefix = '-o-'
     fixers.properties = {animation: '-o-animation'}
- 
-    var j2c = J2c(prefixPlugin, sink)
+
+    var j2c = J2c({plugins: [prefixPlugin(), sink]})
 
     j2c.setPrefixDb(fixers)
 
@@ -43,13 +43,13 @@ o.spec('plugin-prefix-browser integration', function() {
         'from, to': {width: 0}
       },
       '.bar' :{
-        animation: 'baz 1sec',
+        animation: 'baz 1sec'
       }
     }})
     o(css).deepEquals([
       ['atrule', '@keyframes', 'keyframes', 'foo', 'rule'],
         ['rule', 'from, to'],
-          ['decl', 'width', "0"],
+          ['decl', 'width', '0'],
         ['_rule'],
       ['_atrule'],
       ['rule', '.bar'],

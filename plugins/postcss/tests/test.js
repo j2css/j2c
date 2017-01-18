@@ -20,13 +20,13 @@ var plugin = j2cPostcss(postcss.plugin('plugin', function () {
 
 o.spec('main', function() {
   o('modify inline styles', function(){
-    o(j2c(plugin, $sink)
+    o(j2c({plugins: [plugin, $sink]})
         .inline({color:'red'})
       ).deepEquals([['decl', 'color', 'redish']])
   })
 
   o('modify a full sheet', function(){
-    o(j2c(plugin)
+    o(j2c({plugins: [plugin]})
           .sheet({
             '@namespace': 'foo',
             '@media bar':{p:{color:'red'}}
@@ -42,7 +42,7 @@ color:redish;\n\
   })
 
   o('leave raw text as is', function(){
-    o(j2c(plugin, $sink)
+    o(j2c({plugins: [plugin, $sink]})
       .sheet([
         'a{color:green}',
         {
@@ -78,7 +78,7 @@ color:redish;\n\
 
 
   o('use autoprefixer to remove prefixes', function(){
-    o(j2c(j2cPostcss(autoprefixer({ add: false, browsers: [] }))).sheet({'@global':{
+    o(j2c({plugins: [j2cPostcss(autoprefixer({ add: false, browsers: [] }))]}).sheet({'@global':{
       '@-webkit-keyframes foo': {from:{color:'red'}, to:{color:'pink'}},
       '@keyframes bar': {from:{color:'red'}, to:{color:'pink'}}
     }})).equals('\
@@ -102,7 +102,7 @@ color:pink;\n\
         }
       }))
     }
-    j2c(makePlugin('before'), plugin, makePlugin('after')).sheet({})
+    j2c({plugins: [makePlugin('before'), plugin, makePlugin('after')]}).sheet({})
     o(plugins.before).equals(plugins.after)
     o(plugins.before[0].postcssPlugin).equals('before')
     o(plugins.before[2].postcssPlugin).equals('after')
