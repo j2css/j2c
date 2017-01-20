@@ -2,13 +2,13 @@
 
 ## v1.0.0 (WIP)
 
+### Breaking changes
+- The exported object is a factory, users have to create instances
+  manually as `var j2c = new J2c(options)`.
 - Local scope is now per instance rather than per sheet.
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.
   - `j2c.names` holds the local -> global mappings for use in the (v)DOM.
-- Added a namespace mechanism to scope the styles per component wihtout having to
-  use BEM-like classes or having to create a distinct `j2c` instance for each
-  component.
 - Removed the partial auto-prefix insertion from the core. There's now a
   fully fledged prefix plugin for the browser, and Autoprefixer can be
   used on the server by using the PostCSS adapter.
@@ -28,10 +28,17 @@
 
   So: `j2c.sheet({'@adopt .foo': ['.bar']})` where foo is a local class that
   adopts the behavior of the global `.bar`.
-- Consecutive, identical selectors are deduped in the output. Using mixins
-  won't cause duplicate selectors anymore.
+
+### Additions
+- Added a namespace mechanism to scope the styles per component wihtout having to
+  use BEM-like classes or having to create a distinct `j2c` instance for each
+  component.
 - Prefixed at-rules are treated like their unprefixed counterparts.
 - Added `@local` as a counterpart to `@global`.
+- Consecutive, identical selectors are deduped in the output. Using mixins
+  won't cause duplicate selectors anymore.
+
+### Fixes
 - `& > &` with a selector list as parent will perform their cartesian product
   like SASS and LESS do.
 - Robust parsing of selectors. Comas, ampersands and class-like parts
@@ -54,8 +61,10 @@
   ```
 
   Likewise, `':not(p, a, ul, li)'` (a CSS4 addition) will not be split.
-- Added an extension mechanism.
-- 2.4Kb mingzipped (+ ~700 bytes).
+
+### Size
+
+2.4Kb mingzipped (+ ~700 bytes).
 
 ## v0.11.1 (2016-03-8) and v0.11.2 (2016-03-17)
 
