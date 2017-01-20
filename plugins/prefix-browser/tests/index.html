@@ -39,43 +39,48 @@ var src = {
     }
   }
 }
-var buf, err, indent
 
 // the bottom of the 'codegen' stream. Mirrors the `filter` plugin API.
-var sink = {$sink: {
-  init: function(){buf=[], err=0, indent = ''},
-  done: function (raw) {
-    if (err) throw new Error('j2c error, see below\n' + buf.join(''))
-    return raw ? buf : buf.join('')
-  },
-  err: function(msg) {
-    err = 1
-    buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
-  },
-  atrule: function (rule, kind, param, takesBlock) {
-    buf.push(indent, rule, param && ' ', param, takesBlock ? ' {' : ';', '\n')
-    if (takesBlock) indent = indent + '    '
-  },
-  // close atrule
-  _atrule: function () {
-    indent = indent.slice(4)
-    buf.push(indent, '}', '\n')
-  },
-  rule: function (selector) {
-    buf.push(indent, selector, ' {', '\n')
-    indent = indent + '    '
-  },
+var sink = {sink: function(){
+  var buf, err, indent
+  return [{
+    init: function(){buf=[], err=0, indent = ''},
+    done: function (raw) {
+      if (err) throw new Error('j2c error, see below\n' + buf.join(''))
+      return raw ? buf : buf.join('')
+    },
+    err: function(msg) {
+      err = 1
+      buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
+    },
+    raw: function(txt) {
+      buf.push(txt, '\n')
+    },
+    atrule: function(rule, kind, param, takesBlock) {
+      buf.push(indent, rule, param && ' ', param, takesBlock ? ' {' : ';', '\n')
+      if (takesBlock) indent = indent + '    '
+    },
+    // close atrule
+    _atrule: function() {
+      indent = indent.slice(4)
+      buf.push(indent, '}', '\n')
+    },
+    rule: function(selector) {
+      buf.push(indent, selector, ' {', '\n')
+      indent = indent + '    '
+    },
 
-  // close rule
-  _rule: function () {
-    indent = indent.slice(4)
-    buf.push(indent, '}', '\n')
-  },
-  decl: function (prop, value) {buf.push(indent, prop, prop && ': ', value, ';', '\n')}
+    // close rule
+    _rule: function() {
+      indent = indent.slice(4)
+      buf.push(indent, '}', '\n')
+    },
+    decl: function (prop, value) {buf.push(indent, prop, prop && ': ', value, ';', '\n')}
+  }]
 }}
 
-var rawstyler = j2c(sink) 
-var prefixer = j2c(j2cPrefixPluginBrowser.prefixPlugin(), sink)
+var rawstyler = j2c({plugins: [sink]})
+var prefixer = j2c({plugins: [j2cPrefixPluginBrowser.prefixPlugin(), sink]})
 document.getElementById('source').textContent = '// output without the plugin\n' + rawstyler.sheet(src)
 document.getElementById('prefixed').textContent = '//prefixed\n' + prefixer.sheet(src)
 </script>
