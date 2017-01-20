@@ -51,6 +51,8 @@ export function declarations(state, emit, prefix, o, local) {
     // at the top level.
     // `o` is then treated as a `property:value` pair, or a
     // semi-colon-separated list thereof.
+    if (!prefix) return emit.raw(o)
+
     // Otherwise, `prefix` is the property name, and
     // `o` is the value.
 
@@ -67,8 +69,6 @@ export function declarations(state, emit, prefix, o, local) {
       }).join(',')
     }
 
-    if(k) emit.decl(k, o)
-    else emit.raw(o)
-
+    emit.decl(k, o)
   }
 }
