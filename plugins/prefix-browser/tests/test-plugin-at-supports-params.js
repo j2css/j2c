@@ -30,9 +30,8 @@ o.spec('plugin @supports parameters', function() {
     mocks(global)
     initBrowser()
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -49,7 +48,7 @@ o.spec('plugin @supports parameters', function() {
     initBrowser()
 
     var sink = makeSink()
-    var methods = createPrefixPlugin()().filter(sink)
+    var methods = createPrefixPlugin().filter(sink)
 
     methods.atrule('@supports', 'supports', '(foo: foo)', true)
 
@@ -70,7 +69,7 @@ o.spec('plugin @supports parameters', function() {
     initBrowser()
 
     var sink = makeSink()
-    var methods = createPrefixPlugin()().filter(sink)
+    var methods = createPrefixPlugin().filter(sink)
 
     methods.atrule('@supports', 'supports',
       '(foo: foo) and ' +

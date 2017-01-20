@@ -6,15 +6,20 @@
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.
   - `j2c.names` holds the local -> global mappings for use in the (v)DOM.
-- Removed the partial auto-prefix insertion from the core.
+- Added a namespace mechanism to scope the styles per component wihtout having to
+  use BEM-like classes or having to create a distinct `j2c` instance for each
+  component.
+- Removed the partial auto-prefix insertion from the core. There's now a
+  fully fledged prefix plugin for the browser, and Autoprefixer can be
+  used on the server by using the PostCSS adapter.
 - Revamped the plugin system.
   - Removed `$postprocess` plugins that were taking and returning the full
     buffer.
-  - Introduced `$filter` system that can patch values on the fly on their
+  - Introduced `filter` system that can patch values on the fly on their
     way between the compiler and the buffer.
-  - Introduced `$sink` plugin that allow to subvert the sheet building
+  - Introduced `sink` plugin that allow to subvert the sheet building
     process to implement systems like Radium or Descartes.
-  - Introduced `$at` filters that can handle at-rules beside the ones that
+  - Introduced `at` filters that can handle at-rules beside the ones that
     j2c supports out of the box.
 - Revamped the poorly named `@extend` into `@adopt`, based on @tivac's
   Modular CSS `composes`. The semantics are too distant from either `@extend`
@@ -26,7 +31,6 @@
 - Consecutive, identical selectors are deduped in the output. Using mixins
   won't cause duplicate selectors anymore.
 - Prefixed at-rules are treated like their unprefixed counterparts.
-- Added the `at()`, `global()` and `kv()` helpers.
 - Added `@local` as a counterpart to `@global`.
 - `& > &` with a selector list as parent will perform their cartesian product
   like SASS and LESS do.
@@ -51,7 +55,7 @@
 
   Likewise, `':not(p, a, ul, li)'` (a CSS4 addition) will not be split.
 - Added an extension mechanism.
-- 2.2Kb mingzipped (+ ~500 bytes).
+- 2.4Kb mingzipped (+ ~700 bytes).
 
 ## v0.11.1 (2016-03-8) and v0.11.2 (2016-03-17)
 

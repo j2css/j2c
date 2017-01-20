@@ -25,9 +25,8 @@ o.spec('plugin @media parameters', function() {
   })
 
   o('works with a blank fixer object', function() {
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -40,9 +39,8 @@ o.spec('plugin @media parameters', function() {
     fixers.hasDppx = false
     fixers.prefix = '-dummy-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -60,9 +58,8 @@ o.spec('plugin @media parameters', function() {
     fixers.hasDppx = true
     fixers.prefix = '-dummy-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -79,9 +76,8 @@ o.spec('plugin @media parameters', function() {
     fixers.properties['max-resolution'] = '-webkit-max-device-pixel-ratio'
 
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -98,9 +94,8 @@ o.spec('plugin @media parameters', function() {
     fixers.properties['max-resolution'] = '-o-max-device-pixel-ratio'
 
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

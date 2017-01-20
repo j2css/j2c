@@ -32,9 +32,8 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.functions = ['linear-gradient', 'repeating-linear-gradient', 'calc', 'element', 'cross-fade']
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -49,9 +48,8 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.functions = ['linear-gradient', 'repeating-linear-gradient', 'calc', 'element', 'cross-fade']
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -70,9 +68,8 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.functions = ['calc', 'element', 'cross-fade']
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

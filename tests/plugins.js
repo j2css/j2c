@@ -90,32 +90,11 @@ o.spec('Options and plugins', function(){
   })
 
   o('a plugin that mutates `j2c`', function(){
-    function plugin(j2c) {
-      j2c.method = function(){return 5}
-    }
+    var plugin = {set: function(){return {method: function(){return 5}}}}
+
     var j2c = new J2c({plugins: [plugin]})
 
     o(typeof j2c.method).equals('function')
     o(j2c.method()).equals(5)
-  })
-
-  o('absorb another instance (integration)', function() {
-    var j2c1 = new J2c({plugins: [sink]})
-    var j2c2 = new J2c(j2c1)
-
-    o(j2c1.suffix).equals(j2c2.suffix)
-    o(j2c1.names).equals(j2c2.names)
-    o(
-      j2c1.sheet({'.foo': {color: 'red'}})
-    ).deepEquals(
-      j2c2.sheet({'.foo': {color: 'red'}})
-    )
-    o(
-      j2c1.sheet({'.foo': {color: 'red'}})
-    ).deepEquals([
-      ['rule', '.foo'+j2c1.suffix],
-        ['decl', 'color', 'red'],
-      ['_rule']
-    ])
   })
 })

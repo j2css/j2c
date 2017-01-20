@@ -44,9 +44,8 @@ o.spec('plugin.decl for keywords', function() {
 
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -66,9 +65,8 @@ o.spec('plugin.decl for keywords', function() {
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -88,9 +86,8 @@ o.spec('plugin.decl for keywords', function() {
     fixers.hasKeywords = true
     fixers.keywords = unPrefixedKeywords
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -109,9 +106,8 @@ o.spec('plugin.decl for keywords', function() {
     fixers.keywords = prefixedKeywords
     fixers.initial = '-o-initial'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

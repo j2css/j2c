@@ -33,10 +33,9 @@ o.spec('plugin.decl for properties', function() {
 
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
-    j2c.setPrefixDb(fixers) // set it a second time to exercise the cache branch.
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
+    plugin.set().setPrefixDb(fixers) // set it a second time to exercise the cache branch.
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -51,9 +50,8 @@ o.spec('plugin.decl for properties', function() {
 
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -78,9 +76,8 @@ o.spec('plugin.decl for properties', function() {
 
     fixers.prefix = '-o-'
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -108,9 +105,8 @@ o.spec('plugin.decl for properties', function() {
     fixers.properties['box-direction'] = '-o-box-direction'
     fixers.flexbox2009 = true
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -143,9 +139,8 @@ o.spec('plugin.decl for properties', function() {
     fixers.hasKeywords = true
     fixers.flexbox2009 = true
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -181,9 +176,8 @@ o.spec('plugin.decl for properties', function() {
     fixers.hasKeywords = true
     fixers.flexbox2009 = true
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -218,9 +212,8 @@ o.spec('plugin.decl for properties', function() {
     fixers.hasKeywords = true
     fixers.flexbox2009 = true
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -245,9 +238,8 @@ o.spec('plugin.decl for properties', function() {
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}
 
-    var j2c = {}
-    var plugin = createPrefixPlugin()(j2c)
-    j2c.setPrefixDb(fixers)
+    var plugin = createPrefixPlugin()
+    plugin.set().setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

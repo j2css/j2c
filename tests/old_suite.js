@@ -438,55 +438,6 @@ function randInt() {
             'foo:bar;'
           )
         })
-
-
-        // /////////////////////////////////
-        // /**/  suite('J2c().prefix: ')  /**/
-        // /////////////////////////////////
-
-
-        // o('1 x 1', function() {
-        //   var prod = J2c().prefix('foo', ['o'])
-        //   o(prod[0]).equals('-o-foo')
-        //   o(prod[1]).equals('foo')
-        // })
-
-        // o('2 x 1', function() {
-        //   var prod = J2c().prefix('foo', ['o', 'p'])
-        //   o(prod[0]).equals('-o-foo')
-        //   o(prod[1]).equals('-p-foo')
-        //   o(prod[2]).equals('foo')
-        // })
-      })
-      o.spec('localizing and config', function(){
-        var j2c
-        o.beforeEach(function() {
-          j2c = J2c()
-        })
-        o('works without a config object', function() {
-          var css = j2c.inline({animationName:'foo'})
-
-          o(css).equals('animation-name:foo'+j2c.suffix+';\n')
-          o(j2c.names.foo).equals('foo'+j2c.suffix)
-        })
-        o('works with an empty config object', function() {
-          var css = j2c.inline({animationName:'foo'}, {})
-
-          o(css).equals('animation-name:foo'+j2c.suffix+';\n')
-          o(j2c.names.foo).equals('foo'+j2c.suffix)
-        })
-        o('works with an global:false config', function() {
-          var css = j2c.inline({animationName:'foo'}, {global: false})
-
-          o(css).equals('animation-name:foo'+j2c.suffix+';\n')
-          o(j2c.names.foo).equals('foo'+j2c.suffix)
-        })
-        o('works with an global:true config', function() {
-          var css = j2c.inline({animationName:'foo'}, {global: true})
-
-          o(css).equals('animation-name:foo;\n')
-          o(j2c.names.foo).equals(void 8)
-        })
       })
     })
 
@@ -964,26 +915,6 @@ function randInt() {
             'p{bar:baz;bar:qux;bar:quux}'
           )
         })
-
-
-
-        //   ///////////////////////////////////////////
-        //  /**/  suite("Sheet auto prefixes: ");  /**/
-        // ///////////////////////////////////////////
-
-        // o("String literal", function() {
-        //     check(
-        //         J2c().sheet({" p": "foo:bar"}, {vendors: ["o", "p"]}),
-        //         "p{-o-foo:bar;-p-foo:bar;foo:bar}"
-        //     );
-        // });
-
-        // o("Array of Strings", function() {
-        //     check(
-        //         J2c().sheet({" p": ["foo:bar", "_baz:qux"]}, {vendors: ["o", "p"]}),
-        //         "p{-o-foo:bar;-p-foo:bar;foo:bar;-o-_baz:qux;-p-_baz:qux;_baz:qux}"
-        //     );
-        // });
       })
 
       o.spec('At-rules: ', function() {
@@ -1839,85 +1770,6 @@ function randInt() {
       })
     })
 
-    o.spec('Extras: ', function() {
-      var j2c
-
-      o.beforeEach(function(){
-        // ensure that we are not sensitive to additions to Object.prototype.
-        Object.prototype.BADBAD = 5
-        j2c = new J2c()
-      })
-      o.afterEach(function() {
-        delete Object.prototype.BADBAD
-      })
-
-      o('j2c.kv()', function() {
-        o(j2c.kv instanceof Function).equals(true)('value should have been a Function')
-        var res = j2c.kv('k', 'v')
-        o(res.hasOwnProperty('k')).equals(true)
-        o(res.k).equals('v')
-      })
-
-      o('j2c.global()', function() {
-        o(j2c.global instanceof Function).equals(true)('value should have been a Function')
-        o(j2c.global('foo')).equals(':global(foo)')
-      })
-
-      o('j2c.at(), basics', function() {
-        o(j2c.at instanceof Function).equals(true)('value should have been a Function')
-      })
-
-      o('j2c.at(), as an object key', function() {
-        o(j2c.at('foo', 'bar') + '').equals('@foo bar')
-      })
-
-      o('j2c.at(), as an object key, curried', function() {
-        o(j2c.at('foo')('bar') + '').equals('@foo bar')
-        o(j2c.at('foo')()('bar') + '').equals('@foo bar')
-        o(j2c.at('foo')('bar')() + '').equals('@foo bar')
-      })
-
-      o('j2c.at(), as an object generator', function() {
-        var atFoo = j2c.at('foo', 'bar', {
-          baz: 'qux'
-        })
-        o(atFoo.hasOwnProperty('@foo bar')).equals(true)
-        o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
-        o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
-        o(atFoo['@foo bar'].baz).equals('qux')
-      })
-
-      o('j2c.at(), as an object generator, curried 1', function() {
-        var atFoo = j2c.at('foo')('bar', {
-          baz: 'qux'
-        })
-        o(atFoo.hasOwnProperty('@foo bar')).equals(true)
-        o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
-        o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
-        o(atFoo['@foo bar'].baz).equals('qux')
-      })
-
-      o('j2c.at(), as an object generator, curried 2', function() {
-        var atFoo = j2c.at('foo', 'bar')({
-          baz: 'qux'
-        })
-        o(atFoo.hasOwnProperty('@foo bar')).equals(true)
-        o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
-        o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
-        o(atFoo['@foo bar'].baz).equals('qux')
-      })
-
-      o('J2c.at(), as an object generator, curried 3', function() {
-        var atFoo = j2c.at('foo')('bar')({
-          baz: 'qux'
-        })
-        o(atFoo.hasOwnProperty('@foo bar')).equals(true)
-        o(atFoo['@foo bar'] instanceof Object).equals(true)('value should have been a Object')
-        o(atFoo['@foo bar'].hasOwnProperty('baz')).equals(true)
-        o(atFoo['@foo bar'].baz).equals('qux')
-      })
-    })
-
     o.spec('Plugins: ', function() {
       o.beforeEach(function(){
         // ensure that we are not sensitive to additions to Object.prototype.
@@ -1983,209 +1835,61 @@ function randInt() {
         })
       })
 
-      o.spec('names plugins for J2c.inline()', function() {
-        o('namespaced animation', function() {
-          check(
-            J2c({
-              names: {
-                foo: 'theFoo'
-              }
-            }).inline({
-              animation: 'foo 1sec'
-            }),
-            'animation:theFoo 1sec;'
-          )
-        })
-
-        o('namespaced animation-name', function() {
-          check(
-            J2c({
-              names: {
-                foo: 'theFoo'
-              }
-            }).inline({
-              animation_name: 'foo'
-            }),
-            'animation-name:theFoo;'
-          )
-        })
-
-        o('namespaced and non-namespaced animation-name', function() {
-          var _J2c = J2c({
-            names: {
-              foo: 'theFoo'
-            }
-          })
-          var result = _J2c.inline({
-            animation_name: 'foo, bar'
-          })
-          check(
-            result,
-            'animation-name:theFoo, ' + _J2c.names.bar + ';'
-          )
-        })
-
-        o('two namespaced animations', function() {
-          var result = J2c({
-            names: {
-              foo: 'theFoo',
-              bar: 'theBar'
-            }
-          }).inline({
-            animation: 'foo 1sec, bar 2sec'
-          })
-          check(
-            result,
-            'animation:theFoo 1sec, theBar 2sec;'
-          )
-        })
-      })
-
-      o.spec('names plugins for J2c.sheet()', function() {
-        o('namespaced class', function() {
-          var _J2c = J2c({
-            names: {
-              foo: 'FOOO'
-            }
-          })
-          var names = _J2c.names
-          var css = _J2c.sheet({
-            '.foo': {
-              foo: 'bar',
-              baz: 'qux'
-            }
-          })
-          check('' + css, '.FOOO{foo:bar;baz:qux;}')
-          o(names.foo).equals('FOOO')
-        })
-
-        o('namespaced class wrapping a global block', function() {
-          var _J2c = J2c({
-            names: {
-              foo: 'FOOO'
-            }
-          })
-          var names = _J2c.names
-          var css = _J2c.sheet({
-            '.foo': {
-              '@global': {
-                '.foo': {
-                  foo: 'bar',
-                  baz: 'qux'
-                }
-              }
-            }
-          })
-          check('' + css, '.FOOO.foo{foo:bar;baz:qux;}')
-          o(names.foo).equals('FOOO')
-        })
-
-        o('namespaced @keyframes', function() {
-          var _J2c = J2c({
-            names: {
-              bit: 'BOT'
-            }
-          })
-          var names = _J2c.names
-          var css = _J2c.sheet({
-            '@keyframes bit': {}
-          })
-          o(names.bit).equals('BOT')
-          o(css.indexOf('@keyframes BOT {')).notEquals(-1)
-        })
-
-        o('namespaced animation', function() {
-          var _J2c = J2c({
-            names: {
-              bit: 'BOT'
-            }
-          })
-          var names = _J2c.names
-          var css = _J2c.sheet({
-            p: {
-              animation: 'bit 1sec'
-            }
-          })
-          o(names.bit).equals('BOT')
-          check(css, 'p{animation:BOT 1sec;}')
-        })
-
-        o('namespaced animation-name', function() {
-          var _J2c = J2c({
-            names: {
-              bit: 'BOT'
-            }
-          })
-          var names = _J2c.names
-          var css = _J2c.sheet({
-            p: {
-              animation_name: 'bit'
-            }
-          })
-          o(names.bit).equals('BOT')
-          check(css, 'p{animation-name:BOT;}')
-        })
-      })
-
       o.spec('filter plugins', function() {
         o('a sheet filter', function() {
           var tested = {}
-          function filter(J2c) {
-            o(J2c instanceof Object).equals(true)('value should have been a Object')
-            o(J2c.sheet instanceof Function).equals(true)('value should have been a Function')
+          var filter = {
+            filter: function(next, inline) {
+              o(next instanceof Object).equals(true)('value should have been a Object')
+              o(next.init instanceof Function).equals(true)('value should have been a Function')
+              o(next.done instanceof Function).equals(true)('value should have been a Function')
+              o(next.decl instanceof Function).equals(true)('value should have been a Function')
+              o(next.err instanceof Function).equals(true)('value should have been a Function')
+              if (!inline) {
+                o(next.rule instanceof Function).equals(true)('value should have been a Function')
+                o(next._rule instanceof Function).equals(true)('value should have been a Function')
+                o(next.atrule instanceof Function).equals(true)('value should have been a Function')
+                o(next._atrule instanceof Function).equals(true)('value should have been a Function')
+              }
 
-            return {
-              filter: function(next, inline) {
-                o(next instanceof Object).equals(true)('value should have been a Object')
-                o(next.init instanceof Function).equals(true)('value should have been a Function')
-                o(next.done instanceof Function).equals(true)('value should have been a Function')
-                o(next.decl instanceof Function).equals(true)('value should have been a Function')
-                o(next.err instanceof Function).equals(true)('value should have been a Function')
-                if (!inline) {
-                  o(next.rule instanceof Function).equals(true)('value should have been a Function')
-                  o(next._rule instanceof Function).equals(true)('value should have been a Function')
-                  o(next.atrule instanceof Function).equals(true)('value should have been a Function')
-                  o(next._atrule instanceof Function).equals(true)('value should have been a Function')
-                }
+              return {
+                init: function() {
+                  next.init()
+                  o(!!inline).equals(false)
+                },
+                done: function() {
+                  var buf = next.done(1)
 
-                return {
-                  init: function() {
-                    next.init()
-                    o(!!inline).equals(false)
-                  },
-                  done: function() {
-                    var buf = next.done(1)
+                  o(buf instanceof Array).equals(true)('value should have been a Array')
 
-                    o(buf instanceof Array).equals(true)('value should have been a Array')
+                  o(buf.length).notEquals(0)
+                  var txt = next.done()
 
-                    o(buf.length).notEquals(0)
-                    var txt = next.done()
+                  o(typeof txt).equals('string')('value should have been a string')
 
-                    o(typeof txt).equals('string')('value should have been a string')
-
-                    return txt
-                  },
-                  atrule: function(name, kind, arg, hasBlock) {
-                    if (kind === 'import' && (tested.atImport = true)) o(!!hasBlock).equals(false)
-                    if (kind === 'keyframes' && (tested.atKeyframes = true)) o(hasBlock).equals('rule')
-                    next.atrule(name + 'o', kind, 'a' + arg, hasBlock)
-                  },
-                  _atrule: function(name, arg) {
-                    next._atrule(name + 'o', 'a' + arg)
-                  },
-                  decl: function(prop, value) {
-                    next.decl('p' + prop, 'v' + value)
-                  },
-                  rule: function(selector) {
-                    next.rule('h1, ' + selector)
-                  },
-                  _rule: function() {
-                    next._rule()
-                  }
+                  return txt
+                },
+                atrule: function(name, kind, arg, hasBlock) {
+                  if (kind === 'import' && (tested.atImport = true)) o(!!hasBlock).equals(false)
+                  if (kind === 'keyframes' && (tested.atKeyframes = true)) o(hasBlock).equals('rule')
+                  next.atrule(name + 'o', kind, 'a' + arg, hasBlock)
+                },
+                _atrule: function(name, arg) {
+                  next._atrule(name + 'o', 'a' + arg)
+                },
+                decl: function(prop, value) {
+                  next.decl('p' + prop, 'v' + value)
+                },
+                rule: function(selector) {
+                  next.rule('h1, ' + selector)
+                },
+                _rule: function() {
+                  next._rule()
                 }
               }
             }
           }
+
           check(
             J2c({plugins: [filter]}).sheet({
               '@global': {
@@ -2210,45 +1914,40 @@ function randInt() {
         })
 
         o('a declaration filter', function() {
-          function filter(J2c) {
-            o(J2c instanceof Object).equals(true)('value should have been a Object')
-            o(J2c.inline instanceof Function).equals(true)('value should have been a Function')
+          var plugin = {
+            filter: function(next, inline) {
+              o(next instanceof Object).equals(true)('value should have been a Object')
+              o(next.init instanceof Function).equals(true)('value should have been a Function')
+              o(next.done instanceof Function).equals(true)('value should have been a Function')
+              o(next.decl instanceof Function).equals(true)('value should have been a Function')
+              if (!inline) {
+                o(next.rule instanceof Function).equals(true)('value should have been a Function')
+                o(next._rule instanceof Function).equals(true)('value should have been a Function')
+                o(next.atrule instanceof Function).equals(true)('value should have been a Function')
+                o(next._atrule instanceof Function).equals(true)('value should have been a Function')
+              }
 
-            return {
-              filter: function(next, inline) {
-                o(next instanceof Object).equals(true)('value should have been a Object')
-                o(next.init instanceof Function).equals(true)('value should have been a Function')
-                o(next.done instanceof Function).equals(true)('value should have been a Function')
-                o(next.decl instanceof Function).equals(true)('value should have been a Function')
-                if (!inline) {
-                  o(next.rule instanceof Function).equals(true)('value should have been a Function')
-                  o(next._rule instanceof Function).equals(true)('value should have been a Function')
-                  o(next.atrule instanceof Function).equals(true)('value should have been a Function')
-                  o(next._atrule instanceof Function).equals(true)('value should have been a Function')
-                }
-
-                return {
-                  init: function() {
-                    next.init()
-                    o(!!inline).equals(true)
-                  },
-                  done: function() {
-                    var buf = next.done(true)
-                    o(buf instanceof Array).equals(true)('value should have been a Array')
-                    o(buf.length).notEquals(0)
-                    var txt = next.done()
-                    o(typeof txt).equals('string')('value should have been a string')
-                    return txt
-                  },
-                  decl: function(prop, value) {
-                    next.decl('p' + prop, 'v' + value)
-                  }
+              return {
+                init: function() {
+                  next.init()
+                  o(!!inline).equals(true)
+                },
+                done: function() {
+                  var buf = next.done(true)
+                  o(buf instanceof Array).equals(true)('value should have been a Array')
+                  o(buf.length).notEquals(0)
+                  var txt = next.done()
+                  o(typeof txt).equals('string')('value should have been a string')
+                  return txt
+                },
+                decl: function(prop, value) {
+                  next.decl('p' + prop, 'v' + value)
                 }
               }
             }
           }
           check(
-            J2c({plugins: [filter]}).inline({
+            J2c({plugins: [plugin]}).inline({
               foo: 'bar'
             }),
             'pfoo:vbar;'
@@ -2304,13 +2003,10 @@ function randInt() {
         o('one atrule plugin', function() {
           function plugin(name) {
             return {
-              atrule: function(walker, emit, match, v, prefix, local, inAtRule) {
+              atrule: function(walker, emit, match, v, prefix, local, depth) {
                 o(match instanceof Array).equals(true)('value should have been a Array')
                 o(walker instanceof Object).equals(true)('value should have been a Object')
                 o(walker.hasOwnProperty('atruleHandlers')).equals(true)
-                o(walker.hasOwnProperty('atrule')).equals(true)
-                o(walker.hasOwnProperty('rule')).equals(true)
-                o(walker.hasOwnProperty('decl')).equals(true)
                 o(walker.hasOwnProperty('localize')).equals(true)
                 o(walker.hasOwnProperty('localizeReplacer')).equals(true)
                 o(walker.hasOwnProperty('names')).equals(true)
@@ -2324,7 +2020,7 @@ function randInt() {
                   // `local` can be many things, the only things that matters is its truthiness
                 o(!!local).equals(true)
                   // `inAtRule` can be many things, the only things that matters is its truthiness
-                o(!!inAtRule).equals(false)
+                o(depth).equals(0)
 
                 if (match[2] !== name) return false
                 emit.atrule(match[1], match[2], v)
@@ -2445,9 +2141,4 @@ function randInt() {
 //
 // - test `inAtRule` from atrule plugins (is it set appropriately?)
 //
-// - verify that custom at rules take precedence over default ones
-//
 // - test @keyframes nested in selector scope
-//
-// - Attach new properties using `.use()`. Verify that old ones are not
-//   overwritten
