@@ -17,27 +17,22 @@ function invoke(fn, tree, state, backend) {
   return backend.done()
 }
 
-function makeState(prefix, atruleHandlers, suffix) {
+function makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropList) {
   var names = {}
-  /**
-   * Returns a localized version of a given name.
-   * Registers the pair in `instnace.name` if needed.
-   *
-   * @param {string} name - the name to localize
-   * @return {string} - the localized version
-   */
-  var localize = prefix
-    ? function (name) {
-      if (!names[name]) names[name] = prefix + name + suffix
-      return names[name].match(/^\S+/)
-    }
-    : function (name) {
-      if (!names[name]) names[name] = name + suffix
-      return names[name].match(/^\S+/)
-    }
-  return {
+  function localize(name) {
+    if (!names[name]) names[name] = prefix + name + suffix
+    return names[name].match(/^\S+/)
+  }
+  var state =  {
     atruleHandlers: atruleHandlers,
     names: names,
+    /**
+     * Returns a localized version of a given name.
+     * Registers the pair in `instnace.name` if needed.
+     *
+     * @param {string} name - the name to localize
+     * @return {string} - the localized version
+     */
     localize: localize,
     /**
      * Used as second argument for str.replace(localizeRegex, replacer)
@@ -54,6 +49,23 @@ function makeState(prefix, atruleHandlers, suffix) {
       return ignore || global || dot + localize(name)
     }
   }
+
+  var instance = {
+    ns: function(name) {
+      var prefix = '__'+name.replace(/\W+/g, '_') + '_'
+      if (!own.call(nsCache, prefix)) {
+        nsCache[prefix] = makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropList)
+      }
+      return nsCache[prefix]
+    },
+    names: names,
+    prefix: prefix,
+    suffix: suffix,
+    sheet: function(tree) {return invoke(rules, tree, state, backend[0])},
+    inline: function (tree) {return invoke(declarations, tree, state, backend[1])}
+  }
+  for (var i = setPropList.length; i--;) defaults(instance, setPropList[i])
+  return instance
 }
 
 export default function J2c(options) {
@@ -87,15 +99,12 @@ export default function J2c(options) {
   // holds the `_filter` and `atrule` handlers
   var _filters = [closeSelectors]
   var _atruleHandlers = []
-  var _defaults = []
+  var _setPropList = []
   var _suffix = randChars(7)
-  var ns = {}
+  var _nsCache = {}
 
   // the public API (see the main docs)
 
-
-  // The `state` (for the core functions)
-  var _state
 
   // handler options
   if (type.call(options.plugins) === ARRAY) {
@@ -105,7 +114,7 @@ export default function J2c(options) {
       if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
       if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
       if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
-      if (type.call(plugin.set) === FUNCTION) _defaults.push(plugin.set)
+      if (type.call(plugin.set) === FUNCTION) _setPropList.push(plugin.set())
     })(options.plugins)
   }
   if (type.call(options.suffix) === STRING) _suffix = options.suffix
@@ -119,30 +128,6 @@ export default function J2c(options) {
     decl: _backend[0].decl
   }
 
-  _state = makeState(0, _atruleHandlers, _suffix)
-
-  var _instance = {
-    names: _state.names,
-    ns: function(name) {
-      var prefix = '__'+name.replace(/\W+/g, '_') + '_'
-      if (!own.call(ns, name)){
-        var state = makeState(prefix, _atruleHandlers, _suffix)
-        ns[name] = defaults({
-          prefix: prefix,
-          names: state.names,
-          sheet: function(tree) {return invoke(rules, tree, state, _backend[0])},
-          inline: function (tree) {return invoke(declarations, tree, state, _backend[1])}
-        }, _instance)
-      }
-      return ns[name]
-
-    },
-    prefix: '',
-    suffix: _suffix,
-    sheet: function(tree) {return invoke(rules, tree, _state, _backend[0])},
-    inline: function (tree) {return invoke(declarations, tree, _state, _backend[1])}
-  }
-
   // finalize the backend by merging in the filters
   for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
     for (var j = _filters.length; j--;) {
@@ -154,9 +139,5 @@ export default function J2c(options) {
       )
     }
   }
-
-  for (i = _defaults.length; i--;) defaults(_instance, _defaults[i]())
-
-  freeze(_instance)
-  return _instance
+  return freeze(makeInstance('', _suffix, _atruleHandlers, _nsCache, _backend, _setPropList))
 }
