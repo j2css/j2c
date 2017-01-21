@@ -574,7 +574,7 @@ function prefixPlugin(){
   var fixers = commonFixers;
   var cache = [];
   return {
-    set: function() {return {
+    set: {
       setPrefixDb: function(f) {
         if (cache.indexOf(f) === -1) {
           finalizeFixers(f);
@@ -583,7 +583,7 @@ function prefixPlugin(){
         fixers = f;
         return prefixPlugin
       }
-    }},
+    },
     filter: function(next) {
       return {
         atrule: function(rule, kind, params, hasBlock) {

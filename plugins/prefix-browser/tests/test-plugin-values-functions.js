@@ -33,7 +33,7 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -49,7 +49,7 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -69,7 +69,7 @@ o.spec('plugin.decl for values that have functions', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

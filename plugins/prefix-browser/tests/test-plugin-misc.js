@@ -39,7 +39,7 @@ o.spec('plugin misc tests', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

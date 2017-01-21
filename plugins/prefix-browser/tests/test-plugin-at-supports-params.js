@@ -31,7 +31,7 @@ o.spec('plugin @supports parameters', function() {
     initBrowser()
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

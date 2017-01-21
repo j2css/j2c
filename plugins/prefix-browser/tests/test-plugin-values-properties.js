@@ -31,7 +31,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -58,7 +58,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -85,7 +85,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -108,7 +108,7 @@ o.spec('plugin.decl for properties whose values are properties', function() {
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

@@ -20,7 +20,7 @@ function invoke(fn, tree, state, backend) {
 function makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropList) {
   var names = {}
   function localize(name) {
-    if (!names[name]) names[name] = prefix + name + suffix
+    if (!own.call(names, name)) names[name] = prefix + name + suffix
     return names[name].match(/^\S+/)
   }
   var state =  {
@@ -109,12 +109,12 @@ export default function J2c(options) {
   // handler options
   if (type.call(options.plugins) === ARRAY) {
     flatIter(function(plugin) {
-      if (type.call(plugin) !== OBJECT) return
+      if (type.call(plugin) !== OBJECT) throw new Error('bad plugin, object expected, got '+ type.call(plugin))
 
       if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
       if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
       if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
-      if (type.call(plugin.set) === FUNCTION) _setPropList.push(plugin.set())
+      if (type.call(plugin.set) === OBJECT) _setPropList.push(plugin.set)
     })(options.plugins)
   }
   if (type.call(options.suffix) === STRING) _suffix = options.suffix

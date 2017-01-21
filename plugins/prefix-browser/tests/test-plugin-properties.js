@@ -34,8 +34,8 @@ o.spec('plugin.decl for properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
-    plugin.set().setPrefixDb(fixers) // set it a second time to exercise the cache branch.
+    plugin.set.setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers) // set it a second time to exercise the cache branch.
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -51,7 +51,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -77,7 +77,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.prefix = '-o-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -106,7 +106,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.flexbox2009 = true
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -140,7 +140,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.flexbox2009 = true
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -177,7 +177,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.flexbox2009 = true
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -213,7 +213,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.flexbox2009 = true
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -239,7 +239,7 @@ o.spec('plugin.decl for properties', function() {
     fixers.fixProperty = function() {return 'replaced'}
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 

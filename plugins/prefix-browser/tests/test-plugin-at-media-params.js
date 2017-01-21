@@ -26,7 +26,7 @@ o.spec('plugin @media parameters', function() {
 
   o('works with a blank fixer object', function() {
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -40,7 +40,7 @@ o.spec('plugin @media parameters', function() {
     fixers.prefix = '-dummy-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -59,7 +59,7 @@ o.spec('plugin @media parameters', function() {
     fixers.prefix = '-dummy-'
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -77,7 +77,7 @@ o.spec('plugin @media parameters', function() {
 
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
@@ -95,7 +95,7 @@ o.spec('plugin @media parameters', function() {
 
 
     var plugin = createPrefixPlugin()
-    plugin.set().setPrefixDb(fixers)
+    plugin.set.setPrefixDb(fixers)
     var sink = makeSink()
     var methods = plugin.filter(sink)
 
