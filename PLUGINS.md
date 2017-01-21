@@ -1,13 +1,10 @@
 # Notes for plugin authors
 
-A plugin can be an object, a function or an array of zero or more plugins (nested arrays are thus supported).
+A plugin can be an object with one or more of the following fields: `atrule`, `filter` `set` and `sink` or an array of zero or more plugins (nested arrays are thus supported).
 
-The plugins can only be registered when a j2c instance is created using `var j2c = new J2c({plugins: [plugin]})
+The plugins can only be registered when a j2c instance is created using `var j2c = new J2c({plugins: [plugin1, ...]})
 
-If a plugin is a function, it receives the `j2c` instance that's being built (and it can modify it). It may return an object, to be treated as an object plugin.
-
-An object plugin is a JS object with one or more of the following fields: `atrule`, `filter` and `sink`.
-
+,
 ## Overview of the types of plugins
 
 `j2c` is at heart a simple compiler made of a frontend and a backend. 
@@ -16,9 +13,11 @@ An object plugin is a JS object with one or more of the following fields: `atrul
 
 - A backend is made of a sink and optional filters. Filters intercept and modify the values sent to the sink. The default backend is made of a sink that fills a buffer with strings and `join()`s them on completion. 
 
-`j2c` plugin can either tap into the frontend (by implementing custom at-rules), and replace the sink and/or augment it with filters.
+`j2c` plugin can either tap into the frontend (by implementing custom at-rules), and replace the sink, augment it with filters and/or set additional properties and methods on the instance.
 
-We'll process backwards and start by describing the sink API, since its understanding is a prerequisite to write filters and may be useful for custom at-rules too.
+## `set` plugins: set additional properties and methods on the instance.
+
+A `set` plugin is an object with a `set` property whose value is an object. The keys and values of that last object will be copied onto the instance that is being built using a `_.defaults()` semantics, meaning that native `j2c` methods can't be overwritten. If there are more than one `set` plugin, they are processed from the last to the first one, so the properties of the last plugin will prevail on those of the previous ones.
 
 ## `sink` plugins: replace the very end of the backend
 
@@ -115,7 +114,9 @@ export const prettySink = {sink: function(){
 
 ## `filter` plugins: augment a backend.
 
-a filter plugin receive the next backend as an arguement and return a new one, augmented with some capabilites. The filter methods must call the methods of the backend it recieved as an arguement. The methods are optional. When a method is missing `j2c` automatically defers to the next one.
+Be sure to read the `sink` section first. Understanding the `sink` API is necessary to write `filter` plugins.
+
+A filter plugin receive the next backend as an arguement and return a new one, augmented with some capabilites. The filter methods must call the methods of the backend it recieved as an arguement. The methods are optional. When a method is missing `j2c` automatically defers to the next one.
 
 It is made of an object with a `filter` property whose value is a function that takes two parameters: `next` and `inline`. `next` is the next part of the backend (a `sink`, possibly augmented by previous filters). `inline` is truthy for `j2c.inlne()` filters and falsy for `j2c.sheet()` filters. The plugin function is called twice when the `j2c` instance is created, once for `inline` and once for `sheet`. The fields of its return value should not be mutated once the wrapper function has returned.
 
@@ -149,7 +150,7 @@ The main drawback is that it allows one to call the `next` functions in an incor
 
 ## `atrule` plugins.
 
-**WIP (TODO document the `declarations()` and `rules()` functions)**
+**WIP (TODO document the `declarations()` and `rules()` and `state.localizeReplacer` functions)**
 
 `atrule` plugins allow one to handle custom at-rules that take precedence over the default ones.
 
