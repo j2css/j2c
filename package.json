@@ -3,6 +3,7 @@
   "version": "1.0.0-4",
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
+  "module": "src/main.js",
   "scripts": {
     "preversion": "yarn run all",
     "prepublish": "(in-publish && git push --follow-tags) || not-in-publish",
