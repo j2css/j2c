@@ -59,7 +59,7 @@ export function declarations(state, emit, prefix, o, local) {
     // restore the dashes
     k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize)
 
-    if (local && (k == 'animation-name' || k == 'animation' || k == 'list-style')) {
+    if (local && (k == 'animation-name' || k == 'animation')) {
       // no need to tokenize here a plain `.split(',')` has all bases covered.
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
