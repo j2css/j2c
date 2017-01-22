@@ -54,6 +54,12 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         // selector or nested sub-selectors
         inDeclaration = 0
 
+        if (k === '') {
+          emit._rule()
+          emit.err("Invalid selector ''")
+          continue
+        }
+
         rules(
           state, emit,
           // build the selector `prefix` for the next iteration.
@@ -116,7 +122,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
     break
 
   case STRING:
-    // CSS hacks or ouptut of `j2c.inline`.
+    // CSS hacks or ouptut of `j2c.inline`. Even raw rulesets if in top position.
 
     if (prefix.length) emit.rule(prefix)
 
@@ -137,17 +143,17 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
 export function closeSelectors(next, inline) {
   var lastSelector
   return inline ? next : {
-    init: function(){lastSelector = 0; next.init()},
-    done: function (raw) {
-      if (lastSelector) {next._rule(); lastSelector = 0}
-      return next.done(raw)
+    init: function(){lastSelector = ''; next.init()},
+    done: function () {
+      if (lastSelector) {next._rule(); lastSelector = ''}
+      return next.done()
     },
     atrule: function (rule, kind, param, takesBlock) {
-      if (lastSelector) {next._rule(); lastSelector = 0}
+      if (lastSelector) {next._rule(); lastSelector = ''}
       next.atrule(rule, kind, param, takesBlock)
     },
     _atrule: function (rule) {
-      if (lastSelector) {next._rule(); lastSelector = 0}
+      if (lastSelector) {next._rule(); lastSelector = ''}
       next._atrule(rule)
     },
     rule: function (selector) {
@@ -156,6 +162,9 @@ export function closeSelectors(next, inline) {
         next.rule(selector)
         lastSelector = selector
       }
+    },
+    _rule: function(){
+      if (lastSelector) {next._rule(); lastSelector = ''}
     }
   }
 }

@@ -1,7 +1,7 @@
 var o = require('../test-utils/ospec-instance')
 
 var J2c = require('../dist/j2c.commonjs')
-// var sink = require('../test-utils/sinks').simple
+var sink = require('../test-utils/sinks').simple
 
 o.spec('@adopt: ', function() {
   var j2c
@@ -184,12 +184,20 @@ o.spec('@adopt: ', function() {
     o(j2c.names.hasOwnProperty('foo')).equals(false)
   })
   o('defining a local after @adopting doesn\'t erase the adopted name', function() {
+    j2c = J2c({plugins:[sink]})
     o(j2c.sheet({
       '@adopt foo': 'bar'
-    })).equals('')
+    })).deepEquals([])
     o(j2c.names.hasOwnProperty('foo')).equals(true)
     o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
-    j2c.sheet({'.foo': {color: 'red'}})
+
+    var css = j2c.sheet({'.foo': {color: 'red'}})
+
     o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
+    o(css).deepEquals([
+      ['rule', '.foo'+j2c.suffix],
+        ['decl', 'color', 'red'],
+      ['_rule']
+    ])
   })
 })
