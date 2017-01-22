@@ -57,7 +57,7 @@ const J2c = require("j2c")
 
 // anyways...
 
-const j2c = new J2c(prefixPlugin)
+const j2c = new J2c(prefixPlugin())
 
 
 j2c.sheet({
@@ -87,7 +87,7 @@ Here's what supported, please file an issue if you see something missing.
 
 ### Properties
 
-Properties that are supported with a prefix but unsupported without one will be prefixed.
+Properties that need a prefix will get one. Properties supported both with and without won't.
 
 ### Values
 
