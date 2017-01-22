@@ -18,6 +18,8 @@ var src = {
     },
     '@supports (display:flex)':{
        ':read-write ::placeholder': {
+          userSelect: 'none',
+          appearance: 'none',
           display: 'flex',
           flex: '1 1',
           flexFlow: 'column-reverse wrap'
