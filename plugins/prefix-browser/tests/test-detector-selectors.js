@@ -171,4 +171,44 @@ o.spec('detectSelectors', function() {
     o(fixers.selectorList).deepEquals(['::placeholder'])
     o(fixers.selectorMap).deepEquals({'::placeholder': '::-o-input-placeholder'})
   })
+  o('both ::placeholder and :-o-placeholder', function() {
+    mocks(global, {rules: [':-o-placeholder{}', '::placeholder{}']})
+    init()
+    fixers.prefix = '-o-'
+    detectSelectors(fixers)
+    finalize()
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
+  })
+  o('both ::placeholder and ::-o-placeholder', function() {
+    mocks(global, {rules: ['::-o-placeholder{}', '::placeholder{}']})
+    init()
+    fixers.prefix = '-o-'
+    detectSelectors(fixers)
+    finalize()
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
+  })
+  o('both ::placeholder and :-o-input-placeholder', function() {
+    mocks(global, {rules: [':-o-input-placeholder{}', '::placeholder{}']})
+    init()
+    fixers.prefix = '-o-'
+    detectSelectors(fixers)
+    finalize()
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
+  })
+  o('both ::placeholder and ::-o-input-placeholder', function() {
+    mocks(global, {rules: ['::-o-input-placeholder{}', '::placeholder{}']})
+    init()
+    fixers.prefix = '-o-'
+    detectSelectors(fixers)
+    finalize()
+
+    o(fixers.selectorList).deepEquals([])
+    o(fixers.selectorMap).deepEquals({})
+  })
 })
