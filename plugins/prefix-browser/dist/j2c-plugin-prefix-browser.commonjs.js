@@ -338,7 +338,7 @@ function detectSelectors(fixers) {
   // builds an array of selectors that need a prefix.
   for (selector in selectors) {
     prefixed = prefixSelector(selector);
-    if(!supportedRule(selector) && supportedRule(prefixed)) {
+    if(!supportedRule(selectors[selector]) && supportedRule(prefixed)) {
       fixers.hasSelectors = true;
       fixers.selectorList.push(selectors[selector]);
       fixers.selectorMap[selectors[selector]] = prefixed;
