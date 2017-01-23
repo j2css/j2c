@@ -11,9 +11,9 @@ var deCamelCase = exposed.deCamelCase
 var hasCleanState = exposed.hasCleanState
 var init = exposed.init
 
-o.spec('utils', function() {
+o.spec('core', function() {
   o('build up to date', function() {
-    o(upToDate(__dirname, '../src/detectors/utils.js')).equals(true)
+    o(upToDate(__dirname, '../src/detectors/core.js')).equals(true)
   })
   o.spec('camel case conversion', function() {
     o('camelCase', function() {

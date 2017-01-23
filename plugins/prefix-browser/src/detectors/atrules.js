@@ -2,7 +2,7 @@
 
 // TODO: http://caniuse.com/#feat=css-media-resolution
 
-import {supportedMedia, supportedRule} from './utils.js'
+import {supportedMedia, supportedRule} from './core.js'
 
 export function detectAtrules(fixers) {
   if (fixers.prefix === '') return

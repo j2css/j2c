@@ -2,7 +2,7 @@
 
 // TODO: http://caniuse.com/#feat=css-writing-mode
 
-import {supportedDecl} from './utils.js'
+import {supportedDecl} from './core.js'
 
 // db of prop/value pairs whose values may need treatment.
 

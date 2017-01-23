@@ -8,6 +8,7 @@ var upToDate = require('../test-utils/misc').upToDate
 var init = exposed.init
 var hasCleanState = exposed.hasCleanState
 var finalize = exposed.finalize
+// needed because the reference is updated by the init() function.
 function supportedProperty (p) {return exposed.supportedProperty(p)}
 var blankFixers = exposed.blankFixers
 
@@ -27,7 +28,7 @@ o.spec('supportedProperty', function() {
   })
 
   o('build up to date', function() {
-    o(upToDate(__dirname, '../src/detectors/utils.js')).equals(true)
+    o(upToDate(__dirname, '../src/detectors/core.js')).equals(true)
   })
 
   o('works without options', function(){

@@ -1,4 +1,4 @@
-import {init, finalize, supportedProperty}   from './detectors/utils.js'
+import {init, finalize, supportedProperty}   from './detectors/core.js'
 import {detectAtrules}    from './detectors/atrules.js'
 import {detectFunctions}  from './detectors/functions.js'
 import {detectKeywords}   from './detectors/keywords.js'

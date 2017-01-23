@@ -1,6 +1,6 @@
 // Derived from Lea Verou's PrefixFree
 
-import {supportedRule} from './utils.js'
+import {supportedRule} from './core.js'
 
 export function detectSelectors(fixers) {
   var selector, prefixed

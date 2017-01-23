@@ -8,7 +8,7 @@ export {
   init, finalize, cleanupDetectorUtils, hasCleanState,
   camelCase, deCamelCase,
   supportedProperty
-} from '../src/detectors/utils.js'
+} from '../src/detectors/core.js'
 export {detectAtrules}    from '../src/detectors/atrules.js'
 export {detectFunctions}  from '../src/detectors/functions.js'
 export {

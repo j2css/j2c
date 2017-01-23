@@ -1,6 +1,6 @@
 // Derived from Lea Verou's PrefixFree
 
-import {supportedDecl} from './utils.js'
+import {supportedDecl} from './core.js'
 
 export function detectFunctions(fixers) {
   // Values that might need prefixing

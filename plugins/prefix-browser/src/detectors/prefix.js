@@ -3,7 +3,7 @@
 import {
   allStyles,
   camelCase, deCamelCase
-} from './utils.js'
+} from './core.js'
 
 export function detectPrefix(fixers) {
   var prefixCounters = {}
