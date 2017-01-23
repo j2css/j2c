@@ -40,12 +40,10 @@ function _supportedDecl(property, value) {
   styleAttr[property] = value
   return !!styleAttr[property]
 }
-function supportedMedia(condition) {
-  styleElement.textContent = '@media (' + condition +'){}'
-  // Opera 11 treats unknown conditions as 'all', the rest as 'not all'.
-  // So far tested in modern browsers (01/01/2017), and desktop IE9, FF4,
-  // Opera 11/12, and Safari 6. TY SauceLabs.
-  return !/^@media(?:\s+not)?\s+all/.test(styleElement.sheet.cssRules[0].cssText)
+function supportedMedia(property, value) {
+  styleElement.textContent = '@media (' + property + ':' + value +'){}'
+  // The !!~indexOf trick. False for -1, true otherwise.
+  return !!~styleElement.sheet.cssRules[0].cssText.indexOf(value)
 }
 function _supportedProperty(property) {
   return property in styleAttr

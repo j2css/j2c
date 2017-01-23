@@ -23,17 +23,17 @@ export function detectAtrules(fixers) {
   }
 
   // Standard
-  fixers.hasDppx = supportedMedia('resolution:1dppx')
+  fixers.hasDppx = supportedMedia('resolution', '1dppx')
   // Webkit
-  fixers.hasPixelRatio = supportedMedia(fixers.prefix + 'device-pixel-ratio:1')
+  fixers.hasPixelRatio = supportedMedia(fixers.prefix + 'device-pixel-ratio', '1')
   // Opera
-  fixers.hasPixelRatioFraction = supportedMedia(fixers.prefix + 'device-pixel-ratio:1/1')
+  fixers.hasPixelRatioFraction = supportedMedia(fixers.prefix + 'device-pixel-ratio', '1/1')
 
   if (fixers.hasPixelRatio || fixers.hasPixelRatioFraction) {
     fixers.properties['resolution'] = fixers.prefix + 'device-pixel-ratio'
     fixers.properties['min-resolution'] = fixers.prefix + 'min-device-pixel-ratio'
     fixers.properties['max-resolution'] = fixers.prefix + 'max-device-pixel-ratio'
-    if (supportedMedia('min-' + fixers.prefix + 'device-pixel-ratio:1')) {
+    if (supportedMedia('min-' + fixers.prefix + 'device-pixel-ratio', '1')) {
       // Mozilla/Firefox tunred a vendor prefix into a vendor infix
       fixers.properties['min-resolution'] = 'min-' + fixers.prefix + 'device-pixel-ratio'
       fixers.properties['max-resolution'] = 'max-' + fixers.prefix + 'device-pixel-ratio'

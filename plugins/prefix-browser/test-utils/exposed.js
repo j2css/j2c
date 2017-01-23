@@ -48,12 +48,10 @@ function _supportedDecl(property, value) {
   styleAttr[property] = value;
   return !!styleAttr[property]
 }
-function supportedMedia(condition) {
-  styleElement.textContent = '@media (' + condition +'){}';
-  // Opera 11 treats unknown conditions as 'all', the rest as 'not all'.
-  // So far tested in modern browsers (01/01/2017), and desktop IE9, FF4,
-  // Opera 11/12, and Safari 6. TY SauceLabs.
-  return !/^@media(?:\s+not)?\s+all/.test(styleElement.sheet.cssRules[0].cssText)
+function supportedMedia(property, value) {
+  styleElement.textContent = '@media (' + property + ':' + value +'){}';
+  // The !!~indexOf trick. False for -1, true otherwise.
+  return !!~styleElement.sheet.cssRules[0].cssText.indexOf(value)
 }
 function _supportedProperty(property) {
   return property in styleAttr
@@ -86,17 +84,17 @@ function detectAtrules(fixers) {
   }
 
   // Standard
-  fixers.hasDppx = supportedMedia('resolution:1dppx');
+  fixers.hasDppx = supportedMedia('resolution', '1dppx');
   // Webkit
-  fixers.hasPixelRatio = supportedMedia(fixers.prefix + 'device-pixel-ratio:1');
+  fixers.hasPixelRatio = supportedMedia(fixers.prefix + 'device-pixel-ratio', '1');
   // Opera
-  fixers.hasPixelRatioFraction = supportedMedia(fixers.prefix + 'device-pixel-ratio:1/1');
+  fixers.hasPixelRatioFraction = supportedMedia(fixers.prefix + 'device-pixel-ratio', '1/1');
 
   if (fixers.hasPixelRatio || fixers.hasPixelRatioFraction) {
     fixers.properties['resolution'] = fixers.prefix + 'device-pixel-ratio';
     fixers.properties['min-resolution'] = fixers.prefix + 'min-device-pixel-ratio';
     fixers.properties['max-resolution'] = fixers.prefix + 'max-device-pixel-ratio';
-    if (supportedMedia('min-' + fixers.prefix + 'device-pixel-ratio:1')) {
+    if (supportedMedia('min-' + fixers.prefix + 'device-pixel-ratio', '1')) {
       // Mozilla/Firefox tunred a vendor prefix into a vendor infix
       fixers.properties['min-resolution'] = 'min-' + fixers.prefix + 'device-pixel-ratio';
       fixers.properties['max-resolution'] = 'max-' + fixers.prefix + 'device-pixel-ratio';
