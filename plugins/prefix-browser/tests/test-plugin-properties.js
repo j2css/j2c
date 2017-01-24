@@ -235,6 +235,36 @@ o.spec('plugin.decl for properties', function() {
       'flex-wrap': '-o-box-lines'
     })
   })
+  o('with flexbox 2009, non-flexbox properties work as well', function() {
+    mocks(global)
+    initBrowser()
+
+    fixers.prefix = '-o-'
+    fixers.properties['foo'] = '-o-foo'
+    fixers.hasKeywords = true
+    fixers.flexbox2009 = true
+
+    var plugin = createPrefixPlugin()
+    plugin.set.setPrefixDb(fixers)
+    var sink = makeSink()
+    var methods = plugin.filter(sink)
+
+    o(fixers.properties).deepEquals({
+      'foo': '-o-foo'
+    })
+
+    methods.decl('foo', '5')
+    methods.decl('bar', '6')
+    o(sink.buffer).deepEquals([
+        ['decl', '-o-foo', '5'],
+        ['decl', 'bar', '6']
+    ])
+
+    o(fixers.properties).deepEquals({
+      'foo': '-o-foo',
+      'bar': 'bar'
+    })
+  })
   o('the properties fixer can be specified manually', function(){
     fixers.fixProperty = function() {return 'replaced'}
 

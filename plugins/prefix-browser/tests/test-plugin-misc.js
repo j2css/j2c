@@ -44,17 +44,21 @@ o.spec('plugin misc tests', function() {
     var methods = plugin.filter(sink)
 
     o(fixers.properties).deepEquals({})
-
     methods.decl('foo', 5)
+    methods.decl('bar', null)
+    methods.decl('-baz', global)
+    methods.decl(null, global)
     methods.decl('', 'qux')
 
     o(sink.buffer).deepEquals([
         ['decl', '-o-foo', '5'],
+        ['decl', 'bar', null],
+        ['decl', '-baz', global],
+        ['decl', null, global],
         ['decl', '', 'qux']
     ])
-
     o(fixers.properties).deepEquals({
-      'foo': '-o-foo', '': ''
+      'foo': '-o-foo', 'bar': 'bar', '': ''
     })
   })
 })

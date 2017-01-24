@@ -38,19 +38,24 @@ export function prefixPlugin(){
           )
         },
         decl: function decl(property, value) {
-          if (!property || !(typeof value === 'string' || typeof value === 'number')){
+          if (typeof property !== 'string' || property.charAt(0) === '-') return next.decl(property, value)
+
+          if (!(typeof value === 'string' || typeof value === 'number')){
             return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
           }
+
           value = value + ''
-          if (property === 'flex-flow' && fixers.flexbox2009) {
-            value.split(' ').forEach(function(v){
-              // recurse! The lack of `next.` is intentional.
-              if (v.indexOf('wrap') > -1) decl('flex-wrap', v)
-              else if(v !== '') decl('flex-direction', v)
-            })
-          } else if (property === 'flex-direction' && fixers.flexbox2009) {
-            next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
-            next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
+          if (fixers.flexbox2009 && (property === 'flex-flow' || property === 'flex-direction')) {
+            if (property === 'flex-flow') {
+              value.split(' ').forEach(function(v){
+                // recurse! The lack of `next.` is intentional.
+                if (v.indexOf('wrap') > -1) decl('flex-wrap', v)
+                else if(v !== '') decl('flex-direction', v)
+              })
+            } else { // (property === 'flex-direction')
+              next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
+              next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
+            }
           } else {
             next.decl(
               fixers.properties[property] || fixers.fixProperty(property),
