@@ -4,7 +4,6 @@ A plugin can be an object with one or more of the following fields: `atrule`, `f
 
 The plugins can only be registered when a j2c instance is created using `var j2c = new J2c({plugins: [plugin1, ...]})
 
-,
 ## Overview of the types of plugins
 
 `j2c` is at heart a simple compiler made of a frontend and a backend. 
