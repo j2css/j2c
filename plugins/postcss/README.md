@@ -9,9 +9,10 @@ Don't use this on the client side unless you want to bundle PostCSS itself with 
 ```JS
 var j2c = require('j2c')
 var j2cPostcss = require('j2c-plugin-postcss')
-var autoprefixer = j2cPostcss(require('autoprefixer'))
+var autoprefixer = j2cPostcss(require('autoprefixer') /*, otherPostCSSPluginsHere */)
 
-j2c().use(autoprefixer).sheet({
+var j2c = new J2c(autoprefixer)
+var css = j2c.sheet({
     /* Your nice sheet here */
 })
 ```
