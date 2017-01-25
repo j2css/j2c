@@ -94,3 +94,112 @@ pre {
     font-family: monospace;
 }
 </style>
+<div id="props"></div>
+<div id="others"></div>
+<script>
+function detectOthers(){
+  var allStyles = getComputedStyle(document.documentElement, null);
+  var styleElement = document.documentElement.appendChild(document.createElement('style'))
+  var styleAttr = document.createElement("div").style;
+
+  function supportedRule(selector) {
+    styleElement.textContent = selector + '{}'
+    return !!styleElement.sheet.cssRules.length
+  }
+  function supportedDecl(property, value) {
+    styleAttr[property] = ''
+    styleAttr[property] = value
+    return !!styleAttr[property]
+  }
+
+  var res = {atrules: {}, functions: {}, keywords: {}, selectors: {}}
+  var atrules = {
+    'keyframes': 'name',
+    'viewport': null,
+    'document': 'regexp(".")'
+  }
+
+  // build a map of {'@ruleX': '@-prefix-ruleX'}
+  for(var atrule in atrules)  {
+    res.atrules['@'+atrule] = []
+    ;[ "", "-ms-", "-webkit-" ].forEach(function(prefix) {
+        if (supportedRule('@' + prefix + atrule + ' ' + (atrules[atrule] || ''))) res.atrules['@'+atrule].push(prefix || "bare");
+    })
+  }
+
+  var functions = {
+    'linear-gradient': {
+      property: 'background-image',
+      params: 'red, teal'
+    },
+    'calc': {
+      property: 'width',
+      params: '1px + 5%'
+    },
+    'element': {
+      property: 'background-image',
+      params: '#foo'
+    },
+    'cross-fade': {
+      property: 'backgroundImage',
+      params: 'url(a.png), url(b.png), 50%'
+    }
+  }
+
+  // build an array of prefixable functions
+  for (var func in functions) {
+    res.functions[func+'()'] = []
+    var test = functions[func]
+    var property = test.property
+    var value = func + '(' + test.params + ')'
+    ;[ "", "-ms-", "-webkit-" ].forEach(function(prefix) {
+        if (supportedDecl(property, prefix + value)) res.functions[func+'()'].push(prefix || "bare");
+    })
+  }
+
+  var selectors = {
+    ':any-link': null,
+    '::backdrop': null,
+    ':fullscreen': null, //TODO sort out what changed between specs
+    ':full-screen': ':fullscreen',
+    //sigh
+    '::placeholder': null,
+    ':placeholder': '::placeholder',
+    '::input-placeholder': '::placeholder',
+    ':input-placeholder': '::placeholder',
+    ':read-only': null,
+    ':read-write': null,
+    '::selection': null
+  }
+
+  // builds an array of selectors that need a prefix.
+  for (selector in selectors) {
+    if (selectors[selector] === null){
+      res.selectors[selector] = []
+      if (supportedRule(selector)) res.selectors[selector].push('bare')
+    };
+    ['-ms-', '-webkit-'].forEach(function(prefix){
+      if (supportedRule(selector.replace(/::?/, function(c){return c + prefix}))) res.selectors[selectors[selector]||selector].push(prefix)
+    })
+  }
+
+  var kws = {
+    'cursor': [ 'grab', 'grabbing', 'zoom-in', 'zoom-out'],
+    'display': ['box', 'inline-box', 'flexbox', 'inline-flexbox', 'flex', 'inline-flex', 'grid', 'inline-grid'],
+    'position': [ 'sticky' ],
+    'width': ['contain-floats', 'fill-available', 'fit-content', 'max-content', 'min-content']
+  }
+
+
+  for (var prop in kws ) {
+    kws[prop].forEach(function(kw){
+      res.keywords[kw] = [];
+      ;[ "", "-ms-", "-webkit-" ].forEach(function(prefix) {
+        if (supportedDecl(prop, prefix + kw)) res.keywords[kw].push(prefix || "bare");
+      })
+    })
+  }
+  return res
+}
+others.textContent = JSON.stringify(detectOthers())
+</script>
