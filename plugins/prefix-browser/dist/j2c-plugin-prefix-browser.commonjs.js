@@ -319,29 +319,27 @@ function detectSelectors(fixers) {
 
   if (fixers.prefix === '') return
   var selectors = {
-    ':any-link': ':any-link',
-    ':read-only': ':read-only',
-    ':read-write': ':read-write',
-    '::selection': '::selection',
-
-    ':fullscreen': ':fullscreen', //TODO sort out what changed between specs
+    ':any-link': null,
+    '::backdrop': null,
+    ':fullscreen': null, //TODO sort out what changed between specs
     ':full-screen': ':fullscreen',
-    '::backdrop': '::backdrop',
-
     //sigh
+    '::placeholder': null,
     ':placeholder': '::placeholder',
-    '::placeholder': '::placeholder',
+    '::input-placeholder': '::placeholder',
     ':input-placeholder': '::placeholder',
-    '::input-placeholder': '::placeholder'
+    ':read-only': null,
+    ':read-write': null,
+    '::selection': null
   };
 
   // builds an array of selectors that need a prefix.
   for (selector in selectors) {
     prefixed = prefixSelector(selector);
-    if(!supportedRule(selectors[selector]) && supportedRule(prefixed)) {
+    if(!supportedRule(selectors[selector] || selector) && supportedRule(prefixed)) {
       fixers.hasSelectors = true;
-      fixers.selectorList.push(selectors[selector]);
-      fixers.selectorMap[selectors[selector]] = prefixed;
+      fixers.selectorList.push(selectors[selector] || selector);
+      fixers.selectorMap[selectors[selector] || selector] = prefixed;
     }
   }
 }
@@ -590,10 +588,11 @@ function prefixPlugin(){
           );
         },
         decl: function decl(property, value) {
+          if (typeof property !== 'string' || property.charAt(0) === '-') return next.decl(property, value)
+
           if (!(typeof value === 'string' || typeof value === 'number')){
             return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
           }
-          if (property.charAt(0) === '-') return next.decl(property, value)
 
           value = value + '';
           if (fixers.flexbox2009 && (property === 'flex-flow' || property === 'flex-direction')) {
@@ -603,7 +602,7 @@ function prefixPlugin(){
                 if (v.indexOf('wrap') > -1) decl('flex-wrap', v);
                 else if(v !== '') decl('flex-direction', v);
               });
-            } else if (property === 'flex-direction') {
+            } else { // (property === 'flex-direction')
               next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
               next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
             }
