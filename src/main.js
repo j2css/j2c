@@ -77,7 +77,7 @@ export default function J2c(options) {
   var _backend = [{
     init: function () {buf=[], err=[]},
     done: function (raw) {
-      if (err.length != 0) throw new Error('j2c error(s): ' + JSON.stringify(err,null,2) + 'in context:\n' + buf.join(''))
+      if (err.length != 0) throw new Error('j2c error(s): ' + JSON.stringify(err,null,2) + ' in context:\n' + buf.join(''))
       return raw ? buf : buf.join('')
     },
     err: function (msg) {
