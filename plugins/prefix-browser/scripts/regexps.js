@@ -9,19 +9,19 @@ global.__proto__ = require('compose-regexp')
 // The end result is verbose, but repeated, identically every time and thus it
 // compresses well, ultimately.
 
-var doubleQuotedString = sequence(
-  '"',
-  greedy('*',
-    /\\[\S\s]|[^"]/
-  ),
-  '"'
-)
-var singleQuotedString = sequence(
+var string1 = sequence(
   "'",
   greedy('*',
     /\\[\S\s]|[^']/
   ),
   "'"
+)
+var string2 = sequence(
+  '"',
+  greedy('*',
+    /\\[\S\s]|[^"]/
+  ),
+  '"'
 )
 var comment = sequence(
   '/*',
@@ -31,7 +31,7 @@ var comment = sequence(
 
 var selectorMatcher = JSON.stringify(
   either(
-    doubleQuotedString, singleQuotedString, comment,
+    string2, string1, comment,
     sequence(capture('SPLIT HERE'), /\b/)
   ).source
 )
@@ -42,79 +42,39 @@ console.log('selectorMatcher = new RegExp(' + selectorMatcher + ')')
 // while ignoring strings and comments
 // Obtained by nesting the following base pattern five times:
 
-// greedy('*',
-//   either(
-//     doubleQuotedString, singleQuotedString, comment,
-//     sequence(
-//       '(',
-//       /* nest HERE*/
-//       ')'
-//     ),
-//     /[^\)]/
-//   )
-// )
+
+function nest(next) {
+  return greedy('*',
+    either(
+      string1, string2, comment,
+      sequence( '(', next, ')' ),
+      /[^\)]/
+    )
+  )
+}
 
 var atSupportsParamsMatcher = flags('g', sequence(
   /\(\s*([-\w]+)\s*:\s*/,
   capture(
-    greedy('*',
-      either(
-        doubleQuotedString, singleQuotedString, comment,
-        sequence(
-          '(',
-          greedy('*',
-            either(
-              doubleQuotedString, singleQuotedString, comment,
-              sequence(
-                '(',
-                greedy('*',
-                  either(
-                    doubleQuotedString, singleQuotedString, comment,
-                    sequence(
-                      '(',
-                      greedy('*',
-                        either(
-                          doubleQuotedString, singleQuotedString, comment,
-                          sequence(
-                            '(',
-                            greedy('*',
-                              either(
-                                doubleQuotedString, singleQuotedString, comment,
-                                sequence(
-                                  '(',
-                                  /[^\)]*/,
-                                  ')'
-                                ),
-                                /[^\)]/
-                              )
-                            ),
-                            ')'
-                          ),
-                          /[^\)]/
-                        )
-                      ),
-                      ')'
-                    ),
-                    /[^\)]/
-                  )
-                ),
-                ')'
-              ),
-              /[^\)]/
-            )
-          ),
-          ')'
-        ),
-        /[^\)]/
+    nest(nest(nest(nest(nest(nest(
+      greedy('*',
+        either(string1, string2, comment, /[^\)]/)
       )
-    )
+    ))))))
   )
 ))
+
 
 // So we get
 // /\(\s*([-\w]+)\s*:\s*((?:(?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:(?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:(?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:(?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:(?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\([^\)]*\)|[^\)]))*\)|[^\)]))*\)|[^\)]))*\)|[^\)]))*\)|[^\)]))*)/g
 // which becomes
 // /\(\s*([-\w]+)\s*:\s*((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\((?:"(?:\\[\S\s]|[^"])*"|'(?:\\[\S\s]|[^'])*'|\/\*[\S\s]*?\*\/|\([^\)]*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g
-// after replaceing `(?:(?:` with `(?:` and `]))*` with `])*`.
+// after replacing `(?:(?:` with `(?:` and `]))*` with `])*`.
+atSupportsParamsMatcher = new RegExp(
+  atSupportsParamsMatcher.source
+    .replace(/\(\?:\(\?:/g,'(?:')
+    .replace(/\]\)\)/g, '])'),
+  'g'
+)
 console.log()
 console.log('var atSupportsParamsMatcher = ', atSupportsParamsMatcher)
