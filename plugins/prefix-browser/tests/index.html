@@ -2,54 +2,260 @@
 <title>j2c prefix plugin live test</title>
 <script src='../../../dist/j2c.global.js'></script>
 <script src='../dist/j2c-plugin-prefix-browser.global.js'></script>
-<h1>j2c-plugin-prefix-browser in action in your browser</h1>
-<pre id="source"></pre>
-<pre id="prefixed"></pre>
 <script>
-var src = {
-  '@global': {
-    '@keyframes rotate': {
-      'from': {
-        transform: 'rotate(15deg)'
-      },
-      'to': {
-        transform: 'rotate(375deg)'
+/* TextareaDecorator.js
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Builds and maintains a styled output layer under a textarea input layer
+ */
+
+function TextareaDecorator( textarea, parser ){
+  /* INIT */
+  var api = this;
+
+  // construct editor DOM
+  var parent = document.createElement("div");
+
+
+  var output = document.createElement("pre");
+  parent.appendChild(output);
+
+
+  var label = document.createElement("label");
+  parent.appendChild(label);
+  // replace the textarea with RTA DOM and reattach on label
+  textarea.parentNode.replaceChild( parent, textarea );
+  label.appendChild(textarea);
+
+  var cursorContainer = document.createElement("div");
+  cursorContainer.className = "cursorContainer";
+  cursorContainer.appendChild(document.createTextNode(""))
+  var cursor = cursorContainer.appendChild(document.createElement("div"));
+  cursor.className = "cursor";
+
+  label.appendChild(cursorContainer)
+
+  // transfer the CSS styles to our editor
+  parent.className = 'ldt ' + textarea.className;
+  textarea.className = '';
+  // turn off built-in spellchecking in firefox
+  textarea.spellcheck = false;
+  // turn off word wrap
+  textarea.wrap = "off";
+
+  // coloring algorithm
+  var color = function( input, output, parser ){
+    var oldTokens = output.childNodes;
+    var newTokens = parser.tokenize(input);
+    var firstDiff, lastDiffNew, lastDiffOld;
+    // find the first difference
+    for( firstDiff = 0; firstDiff < newTokens.length && firstDiff < oldTokens.length; firstDiff++ )
+      if( newTokens[firstDiff] !== oldTokens[firstDiff].textContent ) break;
+    // trim the length of output nodes to the size of the input
+    while( newTokens.length < oldTokens.length )
+      output.removeChild(oldTokens[firstDiff]);
+    // find the last difference
+    for( lastDiffNew = newTokens.length-1, lastDiffOld = oldTokens.length-1; firstDiff < lastDiffOld; lastDiffNew--, lastDiffOld-- )
+      if( newTokens[lastDiffNew] !== oldTokens[lastDiffOld].textContent ) break;
+    // update modified spans
+    for( ; firstDiff <= lastDiffOld; firstDiff++ ){
+      oldTokens[firstDiff].className = parser.identify(newTokens[firstDiff]);
+      oldTokens[firstDiff].textContent = oldTokens[firstDiff].innerText = newTokens[firstDiff];
+    }
+    // add in modified spans
+    for( var insertionPt = oldTokens[firstDiff] || null; firstDiff <= lastDiffNew; firstDiff++ ){
+      var span = document.createElement("span");
+      span.className = parser.identify(newTokens[firstDiff]);
+      span.textContent = span.innerText = newTokens[firstDiff];
+      output.insertBefore( span, insertionPt );
+    }
+  };
+
+  api.input = textarea;
+  api.output = output;
+  api.update = function(){
+    var input = textarea.value;
+    if( input ){
+      color( input, output, parser );
+      // determine the best size for the textarea
+      var lines = input.split('\n');
+      // find the number of columns
+      var maxlen = 0, curlen;
+      for( var i = 0; i < lines.length; i++ ){
+        // calculate the width of each tab
+        var tabLength = 0, offset = -1;
+        while( (offset = lines[i].indexOf( '\t', offset+1 )) > -1 ){
+          tabLength += 7 - (tabLength + offset) % 8;
+        }
+        var curlen = lines[i].length + tabLength;
+        // store the greatest line length thus far
+        maxlen = maxlen > curlen ? maxlen : curlen;
       }
+      textarea.cols = maxlen + 1;
+      textarea.rows = lines.length + 1;
+    } else {
+      // clear the display
+      output.innerHTML = '';
+      // reset textarea rows/cols
+      textarea.cols = textarea.rows = 1;
+    }
+    setTimeout(api.cursor())
+  };
+  api.cursor = function() {
+    cursorContainer.replaceChild(document.createTextNode(textarea.value.slice(0, textarea.selectionStart)), cursorContainer.childNodes[0])
+    cursor.className = ''
+    setTimeout(function(){cursor.className = 'cursor'})
+  }
+
+  // detect all changes to the textarea,
+  // including keyboard input, cut/copy/paste, drag & drop, etc
+  if( textarea.addEventListener ){
+    // standards browsers: oninput event
+    textarea.addEventListener("focus", function(){
+      setTimeout(api.cursor)
+    })
+    textarea.addEventListener("click", function(){
+      setTimeout(api.cursor)
+    })
+    textarea.addEventListener("keydown", function(){
+      setTimeout(api.cursor)
+    })
+    textarea.addEventListener( "input", api.update, false );
+  } else {
+    // MSIE: detect changes to the 'value' property
+    textarea.attachEvent( "onpropertychange",
+      function(e){
+        if( e.propertyName.toLowerCase() === 'value' ){
+          api.update();
+        }
+      }
+    );
+  }
+  // initial highlighting
+  api.update();
+
+  return api;
+};
+
+/* Parser.js
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Generates a tokenizer from regular expressions for TextareaDecorator
+ */
+
+function Parser( rules, i ){
+  /* INIT */
+  var api = this;
+
+  // variables used internally
+    i = i ? 'i' : '';
+  var parseRE = null;
+  var ruleSrc = [];
+  var ruleMap = {};
+
+  api.add = function( rules ){
+    for( var rule in rules ){
+      var s = rules[rule].source;
+      ruleSrc.push( s );
+      ruleMap[rule] = new RegExp('^('+s+')$', i );
+    }
+    parseRE = new RegExp( ruleSrc.join('|'), 'g'+i );
+  };
+  api.tokenize = function(input){
+    return input.match(parseRE);
+  };
+  api.identify = function(token){
+    for( var rule in ruleMap ){
+      if( ruleMap[rule].test(token) ){
+        return rule;
+      }
+    }
+  };
+
+  api.add( rules );
+
+  return api;
+};
+</script>
+<h1>j2c-plugin-prefix-browser in action in your browser</h1>
+<textarea id='codeArea' class='ldt'>
+// The code runs live, feel free to edit it!
+j2c.sheet({'@global':{
+ '.download': {
+    backgroundImage: 'linear-gradient(5deg, red, rgba(125,0,0,.3))',
+    color: 'white',
+    textDecoration: 'initial',
+    textShadow: '.08em .08em .2em rgba(calc(2 * 2),0,0,.6)',
+    borderRadius: '50%',
+    boxShadow: '.1em .2em .4em -.2em black',
+    boxSizing: 'border-box',
+    transform: 'rotate(15deg)',
+    animation: 'rotate',
+    cursor: 'zoom-in'
+  },
+  '@keyframes rotate': {
+    'from': {
+      transform: 'rotate(15deg)'
     },
-    '@supports (display:flex)':{
-       ':read-write ::placeholder': {
-          userSelect: 'none',
-          appearance: 'none',
-          display: 'flex',
-          flex: '1 1',
-          flexFlow: 'column-reverse wrap'
-      },
+    'to': {
+      transform: 'rotate(375deg)'
+    }
+  },
+  '@supports (display:flex)':{
+     ':read-write ::placeholder': {
+        userSelect: 'none',
+        appearance: 'none',
+        display: 'flex',
+        flex: '1 1',
+        flexFlow: 'column-reverse wrap'
     },
-    '@media (min-resolution:2dppx)' : {
-     '.download': {
-        backgroundImage: 'linear-gradient(90deg, red, rgba(calc(10 * 2),0,0,.3))',
-        color: 'white',
-        textDecoration: 'initial',
-        textShadow: '.08em .08em .2em rgba(0,0,0,.6)',
-        borderRadius: '50%',
-        boxShadow: '.1em .2em .4em -.2em black',
-        boxSizing: 'border-box',
-        transform: 'rotate(15deg)',
-        animation: 'rotate',
-        cursor: 'zoom-in'
-      }        
+  },
+  '@media (min-resolution:2dppx)' : {
+    'header': {
+      backgroundImage: 'url(hires.jpg)'
     }
   }
-}
+}})</textarea>
+<textarea id="sheetArea"></textarea>
+<script>
+
+
+var JsParser = new Parser(
+  { whitespace: /\s+/,
+    string: /'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"/,
+    comment: /\/\/[^\r\n]*/,
+    other: /\S/
+  }
+);
+var CssParser = new Parser(
+  { atrule: /@[-\w]+/,
+    whitespace: /\s+/,
+    comment: /\/\*[\s\S]*?\*\//,
+    sigil: /[\{\}\[\]\(\):,;]+/,
+    other: /\S/
+  }
+);
+
+var editor = new TextareaDecorator(
+  document.getElementById('codeArea'),
+  JsParser
+);
+
+var display = new TextareaDecorator(
+  document.getElementById('sheetArea'),
+  CssParser
+);
+
+
 
 // the bottom of the 'codegen' stream. Mirrors the `filter` plugin API.
 var sink = {sink: function(){
   var buf, err, indent
   return [{
     init: function(){buf=[], err=0, indent = ''},
-    done: function (raw) {
-      if (err) throw new Error('j2c error, see below\n' + buf.join(''))
-      return raw ? buf : buf.join('')
+    done: function () {
+      display.input.value = buf.join('').replace(/\r?\n$/, '')
+      display.update()
     },
     err: function(msg) {
       err = 1
@@ -81,16 +287,145 @@ var sink = {sink: function(){
   }]
 }}
 
-var rawstyler = j2c({plugins: [sink]})
-var prefixer = j2c({plugins: [j2cPrefixPluginBrowser.prefixPlugin(), sink]})
-document.getElementById('source').textContent = '// output without the plugin\n' + rawstyler.sheet(src)
-document.getElementById('prefixed').textContent = '//prefixed\n' + prefixer.sheet(src)
+var prefixer = new J2c({plugins: [j2cPrefixPluginBrowser.prefixPlugin(), sink]})
+
+function runcode(code, previous) {
+    var res;
+    try{
+        res = new Function(
+          'j2c', 'sheet',
+          'alert', 'window', 'document', 'undefined',
+          "'use strict';" +  code
+        ).call(null, prefixer);
+    } catch (e) {
+        display.input.value = e.toString() + '\r\n' + e.stack
+        display.update()
+    }
+}
+
+editor.input.addEventListener( "input", function(){
+  runcode(editor.input.value)
+})
+runcode(editor.input.value)
+editor.input.focus()
 </script>
 <style>
-pre {
-    float:left;
-    width:49%;
-    height:50em;
-    font-family: monospace;
+/* TextareaDecorator.css
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Provides styles for rendering a textarea on top of a pre with scrollbars
+ */
+
+/* settings you can play with */
+
+.ldt, .ldt label {
+  padding: 4px;
+}
+
+.ldt, .ldt pre, .ldt textarea {
+  font-size: 16px !important;
+  /* resize algorithm depends on a monospaced font */
+  font-family: monospace !important;
+  /*color: black;*/
+}
+
+.ldt textarea {
+  /* fallback for browsers without rgba */
+  color: transparent !important;
+  /* make sure the alpha is low enough so it doesn't block the output layer */
+  /*color: rgba(0,0,0,.2) !important;*/
+}
+
+/* settings you shouldn't play with unless you have a good reason */
+
+.ldt {
+  overflow: auto;
+  position: relative;
+}
+
+.ldt pre {
+  -moz-padding-start: 1px;
+  margin: 0;
+  overflow: initial;
+  user-select: none;
+}
+
+.ldt label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: inline;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  cursor: text;
+}
+
+.ldt textarea {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: 0;
+  outline: none;
+  resize: none;
+  min-width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  /* IE doesn't support rgba texarea, so use vendor specific alpha filter */
+  filter: alpha(opacity = 20);
+}
+
+.ldt {
+  width: 49%;
+  float: left;
+  border: 1px solid black;
+}
+/* styles applied to comment tokens */
+.ldt span.comment, .ldt span.sigil {
+  color: #777;
+}
+
+.ldt span.string, .ldt span.selector {
+  color: #a64;
+}
+
+.ldt span.atrule {
+  color: #582;
+}
+
+.ldt .cursorContainer {
+  z-index:-1;
+  color: transparent;
+  white-space: pre;
+  position: absolute;
+  padding: 4px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: inline;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.ldt .cursorContainer > .cursor {
+  display: inline;
+}
+
+@keyframes blink {
+  0%, 42%, 100% {border-left-color: black;}
+  50%, 92% {border-color: transparent;}
+}
+
+.ldt textarea:focus + .cursorContainer > .cursor:before {
+  animation: blink 1.2s infinite;
+  position: absolute;
+  border-left:solid 1px transparent;
+  margin-right:-1px;
+  content: "g";
+  width:0;
+  overflow:hidden;
 }
 </style>
