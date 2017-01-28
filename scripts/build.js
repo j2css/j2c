@@ -11,7 +11,7 @@ var fs = require('fs'),
     {
       rollupOptions:{
         format: 'iife',
-        moduleName: 'j2c'
+        moduleName: 'J2c'
       },
       name: 'global',
       minify: {saveGzip:true}
