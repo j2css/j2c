@@ -99,7 +99,7 @@ function TextareaDecorator( textarea, parser ){
       // reset textarea rows/cols
       textarea.cols = textarea.rows = 1;
     }
-    setTimeout(api.cursor())
+    setTimeout(api.cursor);
   };
   api.cursor = function() {
     cursorContainer.replaceChild(document.createTextNode(textarea.value.slice(0, textarea.selectionStart)), cursorContainer.childNodes[0])
