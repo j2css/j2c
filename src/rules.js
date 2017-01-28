@@ -46,7 +46,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         inDeclaration = 0
 
         atRules(state, emit,
-          /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*(.*?)\s*$/.exec(k) || [k,'@','',''],
+          /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*([\s\S]*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, nestingDepth
         )
 
