@@ -103,7 +103,7 @@ function TextareaDecorator( textarea, parser ){
   };
   api.cursor = function() {
     cursorContainer.replaceChild(document.createTextNode(textarea.value.slice(0, textarea.selectionStart)), cursorContainer.childNodes[0])
-    cursor.className = ''
+    cursor.className = '' // reset the blink timer on cursor move.
     setTimeout(function(){cursor.className = 'cursor'})
   }
 
@@ -378,7 +378,10 @@ editor.input.focus()
 }
 
 .ldt {
-  width: 49%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  width: 50%;
   float: left;
   border: 1px solid black;
 }
