@@ -90,7 +90,7 @@
   color: #777;
 }
 
-.ldt span.string, .ldt span.selector {
+.ldt span.string, .ldt span.number, .ldt span.selector {
   color: #a64;
 }
 
@@ -357,17 +357,23 @@ j2c.sheet({'@global':{
 
 
 var JsParser = new Parser(
-  { whitespace: /\s+/,
+  {
     string: /'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"/,
+    identifier: /[a-zA-Z_][\w]*/,
+    number: /-?(?:\d*\.)?\d+/,
     comment: /\/\/[^\r\n]*/,
+    whitespace: /\s+/,
     other: /\S/
   }
 );
 var CssParser = new Parser(
-  { atrule: /@[-\w]+/,
+  {
+    atrule: /@[-\w]+/,
+    string: /'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"/,
+    number: /-?(?:\d*\.)?\d+(?:[a-zA-Z]+|%)?/,
+    sigil: /[\{\}\[\]\(\):,;\*\+\-\/]+/,
     whitespace: /\s+/,
     comment: /\/\*[\s\S]*?\*\//,
-    sigil: /[\{\}\[\]\(\):,;]+/,
     other: /\S/
   }
 );
