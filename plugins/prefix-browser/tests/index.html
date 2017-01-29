@@ -27,6 +27,16 @@
   /*color: rgba(0,0,0,.2) !important;*/
 }
 
+.ldt textarea::selection {
+  background-color: rgba(127, 178, 239, 0.2);
+  border-radius: 3px;
+}
+
+.ldt textarea::-moz-selection {
+  background-color: rgba(80, 100, 240, 0.15);
+  border-radius: 3px;
+}
+
 /* settings you shouldn't play with unless you have a good reason */
 
 .ldt {
@@ -38,6 +48,7 @@
   -moz-padding-start: 1px;
   margin: 0;
   overflow: initial;
+  -moz-user-select: none;
   user-select: none;
 }
 
@@ -64,8 +75,6 @@
   min-width: 100%;
   min-height: 100%;
   overflow: hidden;
-  /* IE doesn't support rgba texarea, so use vendor specific alpha filter */
-  filter: alpha(opacity = 20);
 }
 
 .ldt {
@@ -109,8 +118,8 @@
 }
 
 @keyframes blink {
-  0%, 42%, 100% {border-left-color: black;}
-  50%, 92% {border-color: transparent;}
+  0%, 30%, 100% {border-left-color: black;}
+  50%, 80% {border-color: transparent;}
 }
 
 .ldt textarea:focus + .cursorContainer > .cursor:before {
@@ -305,7 +314,7 @@ function Parser( rules, i ){
 };
 </script>
 <h1>j2c-plugin-prefix-browser in action in your browser</h1>
-<textarea id='codeArea' class='ldt'>
+<textarea id='codeArea'>
 // The code runs live, feel free to edit it!
 j2c.sheet({'@global':{
  '.download': {
@@ -343,7 +352,7 @@ j2c.sheet({'@global':{
     }
   }
 }})</textarea>
-<textarea id="sheetArea" disabled></textarea>
+<textarea id="sheetArea"></textarea>
 <script>
 
 
