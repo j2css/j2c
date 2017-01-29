@@ -13,11 +13,11 @@
   padding: 4px;
 }
 
-.ldt, .ldt pre, .ldt textarea {
+.ldt, .ldt pre, .ldt textarea, .ldt .cursorContainer {
   font-size: 16px !important;
   /* resize algorithm depends on a monospaced font */
   font-family: monospace !important;
-  /*color: black;*/
+  line-height: 18px; /*`px` needed for ie9 compat `em`s cause misalignement between layers*/
 }
 
 .ldt textarea {
@@ -90,21 +90,21 @@
 }
 
 .ldt .cursorContainer {
-  z-index:-1;
   color: transparent;
-  white-space: pre;
-  position: absolute;
-  padding: 4px;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: inline;
-  box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  left: 0;
+  padding: 4px;
+  position: absolute;
+  top: 0;
+  white-space: pre;
+  width: 100%;
+  z-index:-1;
 }
-.ldt .cursorContainer > .cursor {
+.ldt .cursorContainer .cursor {
   display: inline;
 }
 
@@ -114,7 +114,7 @@
 }
 
 .ldt textarea:focus + .cursorContainer > .cursor:before {
-  animation: blink 1.2s infinite;
+  animation: blink 1s infinite;
   position: absolute;
   border-left:solid 1px transparent;
   margin-right:-1px;
@@ -134,6 +134,8 @@
 
 function TextareaDecorator( textarea, parser ){
   /* INIT */
+  var previousValue = ''
+
   var api = this;
 
   // construct editor DOM
@@ -198,7 +200,8 @@ function TextareaDecorator( textarea, parser ){
   api.output = output;
   api.update = function(){
     var input = textarea.value;
-    if( input ){
+
+    if( input && input !== previousValue){
       color( input, output, parser );
       // determine the best size for the textarea
       var lines = input.split('\n');
@@ -216,15 +219,16 @@ function TextareaDecorator( textarea, parser ){
       }
       textarea.cols = maxlen + 1;
       textarea.rows = lines.length + 1;
-    } else {
+    } else if (input !== previousValue) {
       // clear the display
       output.innerHTML = '';
       // reset textarea rows/cols
       textarea.cols = textarea.rows = 1;
     }
+    previousValue = input
     setTimeout(api.cursor);
   };
-  api.cursor = function() {
+  api.cursor = function(){
     cursorContainer.replaceChild(document.createTextNode(textarea.value.slice(0, textarea.selectionStart)), cursorContainer.childNodes[0])
     cursor.className = '' // reset the blink timer on cursor move.
     setTimeout(function(){cursor.className = 'cursor'})
@@ -241,9 +245,9 @@ function TextareaDecorator( textarea, parser ){
       setTimeout(api.cursor)
     })
     textarea.addEventListener("keydown", function(){
-      setTimeout(api.cursor)
+      setTimeout(api.update)
     })
-    textarea.addEventListener( "input", api.update, false );
+    textarea.addEventListener("input", api.update, false );
   } else {
     // MSIE: detect changes to the 'value' property
     textarea.attachEvent( "onpropertychange",
@@ -426,9 +430,17 @@ function runcode(code, previous) {
     }
 }
 
-editor.input.addEventListener( "input", function(){
-  runcode(editor.input.value)
+var lastCode = ''
+
+editor.input.addEventListener("input", function() {
+  if (lastCode !== editor.input.value) runcode(editor.input.value)
+  lastCode = editor.input.value
 })
+editor.input.addEventListener("keyup", function() {
+  if (lastCode !== editor.input.value) runcode(editor.input.value)
+  lastCode = editor.input.value
+})
+
 runcode(editor.input.value)
 editor.input.focus()
 </script>
