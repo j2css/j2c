@@ -1,0 +1,1237 @@
+<!doctype html>
+<title>J2C — JavaScript to CSS Compiler</title>
+
+<!--[if lte IE 8]>
+<script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
+<![endif]-->
+<meta name=viewport content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<style>
+/* TextareaDecorator.css
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Provides styles for rendering a textarea on top of a pre with scrollbars
+ */
+
+/* settings you can play with */
+
+.ldt, .ldt label, .ldt .cursorContainer {
+  padding: 8px;
+}
+
+.ldt, .ldt pre, .ldt textarea, .ldt .cursorContainer {
+  /* resize algorithm depends on a monospaced font */
+  font-family: monospace !important;
+  font-size: 16px !important;
+  line-height: 18px; /*`px` needed for ie9 compat `em`s cause misalignement between layers*/
+}
+
+.ldt textarea {
+  /* the input layer is fully transparent */
+  color: transparent !important;
+}
+
+.ldt textarea::selection {
+  background-color: rgba(127, 178, 239, 0.2);
+  border-radius: 3px;
+}
+
+.ldt textarea::-moz-selection {
+  background-color: rgba(127, 178, 239, 0.2);
+  border-radius: 3px;
+}
+
+/* settings you shouldn't play with unless you have a good reason */
+
+.ldt {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.ldt pre {
+  -moz-padding-start: 1px;
+  margin: 0;
+  overflow: initial;
+}
+
+.ldt label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: inline;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  cursor: text;
+}
+
+.ldt textarea {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: 0;
+  outline: none;
+  resize: none;
+  min-width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.ldt {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.ldt .cursorContainer {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: block;
+  left: 0;
+  top: 0;
+  z-index:-1;
+
+  color: transparent !important;
+  /* avoid duplicate selections */
+  -moz-user-select: none;
+  user-select: none;
+  white-space: pre;
+}
+.ldt .cursorContainer .cursor {
+  display: inline;
+}
+
+@keyframes blink {
+  0%, 30%, 100% {border-left-color: black;}
+  50%, 80% {border-color: transparent;}
+}
+
+.ldt textarea:focus + .cursorContainer > .cursor:before {
+  animation: blink 1s infinite;
+  position: absolute;
+  border-left:solid 1px transparent;
+  margin-right:-1px;
+  content: "g";
+  width:0;
+  overflow:hidden;
+}
+
+/* styles applied to comment tokens */
+.ldt span.comment, .ldt span.sigil {
+  color: #777;
+}
+
+.ldt span.string, .ldt span.number {
+  color: #a64;
+}
+
+.ldt span.atrule {
+  color: #582;
+}
+</style>
+<script>
+/* TextareaDecorator.js
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Builds and maintains a styled output layer under a textarea input layer
+ */
+
+function TextareaDecorator( textarea, parser ){
+  /* INIT */
+  var previousValue = ''
+
+  var api = this;
+
+  // construct editor DOM
+  var parent = document.createElement("div");
+
+
+  var output = document.createElement("pre");
+  parent.appendChild(output);
+
+
+  var label = document.createElement("label");
+  parent.appendChild(label);
+  // replace the textarea with RTA DOM and reattach on label
+  textarea.parentNode.replaceChild( parent, textarea );
+  label.appendChild(textarea);
+
+  var cursorContainer = document.createElement("div");
+  cursorContainer.className = "cursorContainer";
+  cursorContainer.appendChild(document.createTextNode(""))
+  var cursor = cursorContainer.appendChild(document.createElement("div"));
+  cursor.className = "cursor";
+
+  label.appendChild(cursorContainer)
+
+  // transfer the CSS styles to our editor
+  parent.className = 'ldt ' + textarea.className;
+  textarea.className = '';
+  // turn off built-in spellchecking in firefox
+  textarea.spellcheck = false;
+  // turn off word wrap
+  textarea.wrap = "off";
+
+  // coloring algorithm
+  var color = function( input, output, parser ){
+    var oldTokens = output.childNodes;
+    var newTokens = parser.tokenize(input);
+    var firstDiff, lastDiffNew, lastDiffOld;
+    // find the first difference
+    for( firstDiff = 0; firstDiff < newTokens.length && firstDiff < oldTokens.length; firstDiff++ )
+      if( newTokens[firstDiff] !== oldTokens[firstDiff].textContent ) break;
+    // trim the length of output nodes to the size of the input
+    while( newTokens.length < oldTokens.length )
+      output.removeChild(oldTokens[firstDiff]);
+    // find the last difference
+    for( lastDiffNew = newTokens.length-1, lastDiffOld = oldTokens.length-1; firstDiff < lastDiffOld; lastDiffNew--, lastDiffOld-- )
+      if( newTokens[lastDiffNew] !== oldTokens[lastDiffOld].textContent ) break;
+    // update modified spans
+    for( ; firstDiff <= lastDiffOld; firstDiff++ ){
+      oldTokens[firstDiff].className = parser.identify(newTokens[firstDiff]);
+      oldTokens[firstDiff].textContent = oldTokens[firstDiff].innerText = newTokens[firstDiff];
+    }
+    // add in modified spans
+    for( var insertionPt = oldTokens[firstDiff] || null; firstDiff <= lastDiffNew; firstDiff++ ){
+      var span = document.createElement("span");
+      span.className = parser.identify(newTokens[firstDiff]);
+      span.textContent = span.innerText = newTokens[firstDiff];
+      output.insertBefore( span, insertionPt );
+    }
+  };
+
+  api.input = textarea;
+  api.output = output;
+  api.update = function(){
+    var input = textarea.value;
+
+    if( input && input !== previousValue){
+      color( input, output, parser );
+      // determine the best size for the textarea
+      var lines = input.split('\n');
+      // find the number of columns
+      var maxlen = 0, curlen;
+      for( var i = 0; i < lines.length; i++ ){
+        // calculate the width of each tab
+        var tabLength = 0, offset = -1;
+        while( (offset = lines[i].indexOf( '\t', offset+1 )) > -1 ){
+          tabLength += 7 - (tabLength + offset) % 8;
+        }
+        var curlen = lines[i].length + tabLength;
+        // store the greatest line length thus far
+        maxlen = maxlen > curlen ? maxlen : curlen;
+      }
+      textarea.cols = maxlen + 1;
+      textarea.rows = lines.length;
+      // allows one to have a final line feed without scroll bars.
+      setTimeout(function(){
+        var lineHeight = Number(getComputedStyle(output).lineHeight.replace(/[a-zA-Z]+/, ''))
+        output.style.height = (lines.length) * lineHeight +'px'
+      })
+    } else if (input !== previousValue) {
+      // clear the display
+      output.innerHTML = '';
+      // reset textarea rows/cols
+      textarea.cols = textarea.rows = 1;
+    }
+    previousValue = input
+    setTimeout(api.cursor);
+  };
+  api.cursor = function(){
+    cursorContainer.replaceChild(document.createTextNode(textarea.value.slice(0, textarea.selectionStart)), cursorContainer.childNodes[0])
+    cursor.className = '' // reset the blink timer on cursor move.
+    setTimeout(function(){
+      // Activate the cursor only when there's no selection
+      if (textarea.selectionStart === textarea.selectionEnd) cursor.className = 'cursor'
+    })
+  }
+
+  // detect all changes to the textarea,
+  // including keyboard input, cut/copy/paste, drag & drop, etc
+  if( textarea.addEventListener ){
+    // standards browsers: oninput event
+    textarea.addEventListener("focus", function(){
+      setTimeout(api.cursor)
+    })
+    textarea.addEventListener("click", function(){
+      setTimeout(api.cursor)
+    })
+    textarea.addEventListener("keydown", function(){
+      setTimeout(api.update)
+    })
+    textarea.addEventListener("input", api.update, false );
+  } else {
+    // MSIE: detect changes to the 'value' property
+    textarea.attachEvent( "onpropertychange",
+      function(e){
+        if( e.propertyName.toLowerCase() === 'value' ){
+          api.update();
+        }
+      }
+    );
+  }
+  // initial highlighting
+  api.update();
+
+  return api;
+};
+
+/* Parser.js
+ * written by Colin Kuebler 2012
+ * Part of LDT, dual licensed under GPLv3 and MIT
+ * Generates a tokenizer from regular expressions for TextareaDecorator
+ */
+
+function Parser( rules, i ){
+  /* INIT */
+  var api = this;
+
+  // variables used internally
+    i = i ? 'i' : '';
+  var parseRE = null;
+  var ruleSrc = [];
+  var ruleMap = {};
+
+  api.add = function( rules ){
+    for( var rule in rules ){
+      var s = rules[rule].source;
+      ruleSrc.push( s );
+      ruleMap[rule] = new RegExp('^('+s+')$', i );
+    }
+    parseRE = new RegExp( ruleSrc.join('|'), 'g'+i );
+  };
+  api.tokenize = function(input){
+    return input.match(parseRE);
+  };
+  api.identify = function(token){
+    for( var rule in ruleMap ){
+      if( ruleMap[rule].test(token) ){
+        return rule;
+      }
+    }
+  };
+
+  api.add( rules );
+
+  return api;
+};
+</script>
+<script>
+var J2c=function(){"use strict";function e(e,n){for(var r in n)m.call(n,r)&&(!r.indexOf("$")||r in e||(e[r]=n[r]));return e}function n(e,n){var r,t,l=[];for(t in n)if(m.call(n,t))for(r in e)m.call(e,r)&&l.push(e[r]+n[t]);return l}function r(e){for(var n,r=[],t=[],l=0;n=A.exec(e);)switch(n[0]){case"(":l++;break;case")":l--;break;case",":if(l)break;r.push(n.index)}for(n=r.length;n--;)t.unshift(e.slice(r[n]+1)),e=e.slice(0,r[n]);return t.unshift(e),t}function t(e,r){for(var t,l,a=[],i=[];l=Z.exec(e);)"&"==l[0]&&a.push(l.index);for(l=a.length;l--;)i.unshift(e.slice(a[l]+1)),e=e.slice(0,a[l]);for(i.unshift(e),1===i.length&&i.unshift(""),t=[i[0]],l=1;l<i.length;l++)t=n(t,n(r,[i[l]]));return t.join(",")}function l(e){return function n(r){if(_.call(r)===d)for(var t=0;t<r.length;t++)n(r[t]);else e(r)}}function a(e){for(;x.length<e;)x+=Math.floor(4294967296*Math.random()).toString(36);var n="_"+x.slice(0,e);return x=x.slice(e),n}function i(e){return"-"+e.toLowerCase()}function u(e,n,r,t,l){var a,c,o;if(null!=t)switch(_.call(t=t.valueOf())){case d:for(a=0;a<t.length;a++)u(e,n,r,t[a],l);break;case z:r=r&&r+"-";for(a in t)if(m.call(t,a))if(c=t[a],/\$/.test(a))for(o in a=a.split("$"))m.call(a,o)&&u(e,n,r+a[o],c,l);else u(e,n,r+a,c,l);break;default:if(!r)return n.raw(t);a=r.replace(/_/g,"-").replace(/[A-Z]/g,i),!l||"animation-name"!=a&&"animation"!=a||(t=t.split(",").map(function(n){return n.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/,e.localizeReplacer)}).join(",")),n.decl(a,t)}}function c(e,n,r,t,a,i,c){for(var s=0;s<e.atruleHandlers.length;s++)if(e.atruleHandlers[s](e,n,r,t,a,i,c))return;if(!r[3]&&/^global$/.test(r[2]))o(e,n,a,t,0,c);else if(!r[3]&&/^local$/.test(r[2]))o(e,n,a,t,1,c);else if(r[3]&&/^adopt$/.test(r[2])){if(!i||c)return n.err("@adopt global or nested: "+r[0]);if(!/^\.?[_A-Za-z][-\w]*$/.test(r[3]))return n.err("bad adopter "+JSON.stringify(r[3])+" in "+r[0]);s=[],l(function(e,t){null!=e&&/^\.?[_A-Za-z][-\w]*(?:\s+\.?[_A-Za-z][-\w]*)*$/.test(t=e+"")?s.push(t.replace(/\./g,"")):n.err("bad adoptee "+JSON.stringify(e)+" in "+r[0])})(t),s.length&&(e.localize(r[3]=r[3].replace(/\./g,"")),e.names[r[3]]+=" "+s.join(" "))}else!r[3]&&/^(?:namespace|import|charset)$/.test(r[2])?l(function(e){n.atrule(r[1],r[2],e)})(t):!r[3]&&/^(?:font-face|viewport)$/.test(r[2])?l(function(t){n.atrule(r[1],r[2],r[3],"decl"),u(e,n,"",t,i),n._atrule()})(t):r[3]&&/^(?:media|supports|page|keyframes)$/.test(r[2])?(i&&"keyframes"==r[2]&&(r[3]=r[3].replace(/(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/,e.localizeReplacer)),"page"==r[2]?(n.atrule(r[1],r[2],r[3],"decl"),u(e,n,"",t,i)):(n.atrule(r[1],r[2],r[3],"rule"),o(e,n,"keyframes"==r[2]?"":a,t,i,c+1)),n._atrule()):n.err("Unsupported at-rule: "+r[0])}function o(e,n,l,a,i,s){var f,p,h,g;switch(_.call(a)){case z:for(f in a)if(m.call(a,f))if(p=a[f],l.length>0&&/^[-\w$]+$/.test(f))if(h||(h=1,n.rule(l)),/\$/.test(f))for(g in f=f.split("$"))m.call(f,g)&&u(e,n,f[g],p,i);else u(e,n,f,p,i);else if(/^@/.test(f))h=0,c(e,n,/^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*([\s\S]*?)\s*$/.exec(f)||[f,"@","",""],p,l,i,s);else{if(h=0,""===f){n._rule(),n.err("Invalid selector ''");continue}o(e,n,l.length>0&&(/,/.test(l)||/,/.test(f))?(g=r(l),r(i?f.replace(/("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,e.localizeReplacer):f).map(function(e){return/&/.test(e)?t(e,g):g.map(function(n){return n+e}).join(",")}).join(",")):/&/.test(f)?t(i?f.replace(/("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,e.localizeReplacer):f,[l]):l+(i?f.replace(/("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,e.localizeReplacer):f),p,i,s+1)}break;case d:for(f=0;f<a.length;f++)o(e,n,l,a[f],i,s);break;case v:l.length&&n.rule(l),n.raw(a)}}function s(e,n){var r;return n?e:{init:function(){r="",e.init()},done:function(){return r&&(e._rule(),r=""),e.done()},atrule:function(n,t,l,a){r&&(e._rule(),r=""),e.atrule(n,t,l,a)},_atrule:function(n){r&&(e._rule(),r=""),e._atrule(n)},rule:function(n){n!==r&&(r&&e._rule(),e.rule(n),r=n)},_rule:function(){r&&(e._rule(),r="")}}}function f(e,n,r,t){t.init();try{e(r,t,"",n,1,0)}catch(e){t.err(e instanceof Error?e.stack:""+e)}return t.done()}function p(n,r,t,l,a,i){function c(e){return m.call(s,e)||(s[e]=n+e+r),s[e].match(/^\S+/)}for(var s={},h={atruleHandlers:t,names:s,localize:c,localizeReplacer:function(e,n,r,t,l){return n||r||t+c(l)}},g={ns:function(e){var n="__"+e.replace(/\W+/g,"_")+"_";return m.call(l,n)||(l[n]=p(n,r,t,l,a,i)),l[n]},names:s,prefix:n,suffix:r,sheet:function(e){return f(o,e,h,a[0])},inline:function(e){return f(u,e,h,a[1])}},_=i.length;_--;)e(g,i[_]);return g}function h(n){n=n||{};var r,t,i=[{init:function(){r=[],t=[]},done:function(e){if(0!=t.length)throw new Error("j2c error(s): "+JSON.stringify(t,null,2)+" in context:\n"+r.join(""));return e?r:r.join("")},err:function(e){t.push(e),r.push("/* +++ ERROR +++ "+e+" */\n")},raw:function(e){r.push(e,"\n")},atrule:function(e,n,t,l){r.push(e,t&&" ",t,l?" {\n":";\n")},_atrule:function(){r.push("}\n")},rule:function(e){r.push(e," {\n")},_rule:function(){r.push("}\n")},decl:function(e,n){r.push(e,":",n,";\n")}}],u=[s],c=[],o=[],f=a(7),h={};_.call(n.plugins)===d&&l(function(e){if(_.call(e)!==z)throw new Error("bad plugin, object expected, got "+_.call(e));_.call(e.filter)===b&&u.push(e.filter),_.call(e.atrule)===b&&c.push(e.atrule),_.call(e.sink)===b&&(i=e.sink()),_.call(e.set)===z&&o.push(e.set)})(n.plugins),_.call(n.suffix)===v&&(f=n.suffix),_.call(n.suffix)===w&&(f=a(n.suffix)),i[1]=i[1]||{init:i[0].init,done:i[0].done,raw:i[0].raw,err:i[0].err,decl:i[0].decl};for(var g=0;g<2;g++)for(var m=u.length;m--;)i[g]=$(e(u[m](i[g],!!g),i[g]));return $(p("",f,c,h,i,o))}var g={},_=g.toString,d=_.call([]),w=_.call(0),z=_.call(g),v=_.call(""),b=_.call(_),m=g.hasOwnProperty,$=Object.freeze||function(e){return e},A=/[(),]|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\//g,Z=/&|"(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\//g,x="";return h}();
+
+/*
+Copyright © 2015-2017 Pierre-Yves Gérardy
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the “Software”),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+*/
+</script>
+
+<script>
+var style = (document.head || document.getElementsByTagName('head')[0]).appendChild(document.createElement('style'));
+
+
+
+var mainSink = {sink: function(){
+
+}}
+var j2c = new J2c()
+
+// PocketGrid as a mixin
+
+var border_box = {
+    "&, &:before, &:after":{
+        box_sizing:"border-box"
+    }
+}
+
+var pocketgrid = {
+    group: [
+        "*zoom: 1",
+        border_box,
+        {
+            ":before,:after": {
+                display: "table",
+                content: '""',
+                line_height: 0
+            },
+            ":after": {clear:"both"},
+            "list-style-type":"none",
+            margin$padding:0
+        }
+    ],
+    block: [
+        border_box,
+        {
+            float: "left",
+            width: "100%"
+        }
+    ]
+}
+
+pocketgrid.nested = [
+    pocketgrid.group,
+    {
+        clear: "none",
+        float: "left",
+        margin: "0 !important"
+    }
+]
+
+/*!
+PocketGrid 1.1.0 Copyright (c) 2013 Arnaud Leray
+j2c port Copyright (c) 2015 Pierre-Yves Gérardy
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+</script>
+
+<script>
+
+// Styles for the static part of the pages
+
+var isFF = false && (typeof InstallTrigger !== 'undefined'),
+    isIElt10 = (document.all && !window.atob);
+
+if (isIElt10){ // lte 8, really.
+    document.createElement('header');
+    document.createElement('footer');
+}
+
+//fake text outline using shadows.
+function outline(w, bl, co){ // width, blur, color
+    w = w / 1000;
+    bl = bl / 1000;
+
+    var FFcorrection = 5/4;
+    
+    var top = isFF ? w *FFcorrection : w, // In FF, the pseudo-outline is slightly thinner on top.
+        dg = (""+w / 1.3).slice(0,4), // diagonal, divide by ~sqrt(2) (it looks better with 1.3)
+        topdg = isFF ? dg * FFcorrection : dg;
+    // This one is ugly :-/
+    return [
+        // IE only supports up to 4 text shadows. We put the
+        // diagonal ones first because it looks nicer.
+        ""  + topdg + "em "  + dg + "em " + bl + "em " + co,
+        "-" + dg + "em "  + dg + "em " + bl + "em " + co,
+        ""  + topdg + "em -" + topdg + "em " + bl + "em " + co,
+        "-" + dg + "em -" + topdg + "em " + bl + "em " + co,
+        "" + top + "em 0 "    + bl + "em " + co,
+        "0 "  + w   + "em " + bl + "em " + co,
+        "-" + w + "em 0 " + bl + "em " + co,
+        "0 -" + top + "em " + bl + "em " + co,
+    ].join() + ";"
+}
+// 
+var logo = {
+    // Since we use shadows to fake the outline, use a fallback color for 
+    // CSS2 browsers.
+    // IE9 supports CSS3 colors, but not text shadows, hence the last item.
+    color: ["#9cf", "rgba(255,255,255,1)", isIElt10 && "#9cf"],
+    two_color: ["#24f", "rgba(255,255,255,1)", isIElt10 && "#24f"],
+    subtitle_color: "#357",
+    bg_color: "#def",
+    mainbg: {color: '#def'},//"linear-gradient(45deg, #fff, #def)",
+    bg: {color: '#def'},//"linear-gradient(225deg, #fff, #def)",
+    bg2: {color: '#def'},//"linear-gradient(225deg, #fff 50%, #def 100%)",
+    JCOutline: outline(20, 10, "#800"),
+    _2Outline: outline(20/0.643, 10/0.643, "#c00"),
+    h2Outline: outline(40, 20, "#7ad"),
+    h6Outline: outline(45, 15, "#357"),
+    JCOutlineHover: outline(30, 15, "#400"),
+    _2OutlineHover: outline(30/0.643, 15/0.643, "#800")
+}
+
+var pagestyle = j2c.sheet({"@global": {
+    "@font-face":[
+        {
+            font: {
+                family: "'Dosis'",
+                style: "normal",
+                weight: 500
+            },
+            src: "local('Dosis Medium'), local('Dosis-Medium'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAARkAAAAFkdQT1PYSudjAAAEfAAAAGxHU1VCABUACgAABOgAAAAMT1MvMoqCeA4AAAI0AAAAYGNtYXAAYwCZAAAClAAAADxnYXNwAAMABwAABFgAAAAMZ2x5Zn9PVS0AAADsAAAAuGhlYWT428GxAAABzAAAADZoaGVhB5cCyQAAAhAAAAAkaG10eAV7AIQAAAIEAAAADGxvY2EAMwBcAAABxAAAAAhtYXhwAiwESAAAAaQAAAAgbmFtZRrTNq0AAALQAAABaHBvc3T/3QAaAAAEOAAAACAAAQBA//oB7wLbACIAADcRNDYzMhYVFAYjIicmIyIVERQzMj4CNzYzMhYVFAYjIiZAd2BidhQWKAIGfIWIJzQZCAMDJxYUd2Jfd9QBLXBqY0sbEx1zjv7TjhYqHhkdFBtMZWoAAAAAAQAU//oBwwLbABsAADc0NjMyFRQWMzI1ESMiJjU0MzMyFhURFAYjIiYUFRUqRT6Egg4PHbAPF3VgYnixFxIdNUKOAbsWESUQDv4XcWllAAAAAAEAAAADAGwABwAAAAAAAgABAAIAIAAAAgAD2AAAAAAAAAAAADMAXAABAAAAAQGJXP+4El8PPPUAHwPoAAAAAMqKZMYAAAAAy40Xb/95/xMEGAP7AAAACAACAAAAAAAAAWEAMAITAEACBwAUAAEAAAQD/xMAAAQ5/3n/eQQYAAEAAAAAAAAAAAAAAAAAAAADAAMByQH0AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQYDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAQAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2gLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgBDAEr//wAAAEMASv///77/uAABAAAAAAAAAAAABwBaAAMAAQQJAAEACgAAAAMAAQQJAAIADAAKAAMAAQQJAAMAegAWAAMAAQQJAAQAGACQAAMAAQQJAAUAGgCoAAMAAQQJAAYAGADCAAMAAQQJAA4ANADaAEQAbwBzAGkAcwBNAGUAZABpAHUAbQBFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtADoAIAAyADAAMQAxAEQAbwBzAGkAcwAgAE0AZQBkAGkAdQBtAFYAZQByAHMAaQBvAG4AIAAxAC4AMAAwADcARABvAHMAaQBzAC0ATQBlAGQAaQB1AG0AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoAHgAsAAFsYXRuAAgABAAAAAD//wABAAAAAWtlcm4ACAAAAAEAAAABAAQAAgAAAAEACAACACIABAAAACoAKgADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAEAAgABAAEAAgABAAIAAQAAAAoACgAKAAA=) format('truetype')"
+        },
+        {
+            font: {
+                family: "'Dosis'",
+                style: "normal",
+                weight: 700
+            },
+            src: "local('Dosis Bold'), local('Dosis-Bold'), url(data:font/truetype;base64,AAEAAAAOAIAAAwBgR0RFRgAPAAIAAAQEAAAAFEdQT1MAFQAKAAAEGAAAAAxHU1VCABUACgAABCQAAAAMT1MvMotKegUAAAHsAAAAYGNtYXAADACFAAACTAAAADRnYXNwAAMABwAAA/gAAAAMZ2x5ZrZShLMAAADsAAAAdGhlYWT5EsGpAAABiAAAADZoaGVhB80C9AAAAcgAAAAkaG10eAN/AEAAAAHAAAAACGxvY2EAOgAAAAABgAAAAAZtYXhwAisERAAAAWAAAAAgbmFtZRjfNNwAAAKAAAABWHBvc3T/3QAaAAAD2AAAACAAAQAbAAAB4QLbACkAADc1NDY3NzY2NTQmIyIGFRQGIyI1NDYzMhYVFA4DFRUhMhYUBiMhIiYbQi9gL0IvLicyJR87gFdbhUFeXUEBFhAZGRD+nBMmKWEsViNFI04nIzYsLBMdRlJmb1w8aUk+PhwYIS4jGAABAAAAAgBoAAcAAAAAAAIAAQACACAAAAIAA9gAAAAAAAAAAAA6AAAAAQAAAAEBiaWBLdpfDzz1AB8D6AAAAADKimTQAAAAAMuNF2T/fP8TBEsD9AABAAgAAgAAAAAAAAGEACUB+wAbAAEAAAQD/xMAAARk/3z/egRLAAEAAAAAAAAAAAAAAAAAAAACAAMB3wK8AAUAAAK8AooAAACMArwCigAAAd0AMgD6CAACAQgDAgICBgADoAAAv1AAIHsAAAAAAAAAAFBZUlMAIAAA+wIEA/8TAAAEAwDtIAAAkwAAAAAB2wLbAAAAIAACAAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAAAy//8AAAAy////zwABAAAAAAAAAAcAWgADAAEECQABAAoAAAADAAEECQACAAgACgADAAEECQADAHYAEgADAAEECQAEABQAiAADAAEECQAFABoAnAADAAEECQAGABQAtgADAAEECQAOADQAygBEAG8AcwBpAHMAQgBvAGwAZABFAGQAZwBhAHIAVABvAGwAZQBuAHQAaQBuAG8ALABQAGEAYgBsAG8ASQBtAHAAYQBsAGwAYQByAGkALABJAGcAaQBuAG8ATQBhAHIAaQBuAGkAOgAgAEQAbwBzAGkAcwAgAEIAbwBsAGQAOgAgADIAMAAxADEARABvAHMAaQBzACAAQgBvAGwAZABWAGUAcgBzAGkAbwBuACAAMQAuADAAMAA2AEQAbwBzAGkAcwAtAEIAbwBsAGQAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAAMAAAAAAAD/2gAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAAv//AAMAAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAKAAoAAAABAAAACgAKAAoAAA==) format('truetype')"
+        }
+    ],
+    " html": {
+        overflow_x: "hidden",
+        height:"100%"
+    },
+    " body":{
+        margin$padding: 0,
+        font_family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+        height:"100%",
+        "& code, & pre":{
+            font_family: "monospace !important"
+        },
+        "& hr":{
+            border:0,
+            height:0,//"1px",
+            background_color:"#ddd"
+        },
+    },
+    " header": [
+        {
+            background_color: logo.bg_color,
+            display: "block",
+            overflow: "hidden",
+            padding:0,
+            z_index:"-2",
+
+
+            "@media (min-width:48.001em)": {
+                border_bottom: "1px dotted "+ "#dd5"
+            },
+
+            " .container":[
+                pocketgrid.group,
+                {
+                    margin: "0 auto",
+                    max_width:"48em",
+                    padding:0,
+                    position:"relative"
+                }
+            ],
+
+            " h2, h6": [
+                pocketgrid.block,
+                {
+                    font_family: "sans-serif",
+                    text_align: "center",
+                    z_index:6,
+                    "@media (min-width:48.001em)": {
+                        width:"60%"
+                    }
+                }
+            ],
+
+            " h2":{
+                color: "#fff",
+                font_size: "2.4em",
+                text_shadow: logo.h2Outline,
+                "@media (min-width:48.001em)": {
+                    font_size: "3em",
+                    margin: {
+                        top: "0.78em",
+                        bottom: "0.62em"
+                    }
+                }
+            },
+
+            " h6": {
+                background_color:"#fff",
+                color: "#fff",
+                font_size: "1.6em",
+                margin:0,
+                padding_top:"0.5em",
+                text_shadow: logo.h6Outline,
+                "@media (min-width:48.001em)": {
+                    background_color: "transparent",
+                    padding_top:0
+                }
+            },
+            " .logo": [
+                pocketgrid.block,
+                {
+                    position: "relative",
+                    "@media (min-width:48.001em)": {
+                        width:"40%"
+                    }
+                }
+            ],
+            " h1": [
+                {
+                    background: logo.bg2,
+                    color: logo.color,
+                    font:{
+                        family: "Dosis, sans-serif",
+                        size: "6em",
+                        weight: 500
+                    },
+                    line_height: 0.8,
+                    height:"0.84em",
+                    margin: ["0", {top:'-0.08em'}],
+                    padding_left:"0.025em",
+                    postion: "relative",
+                    text_shadow: logo.JCOutline,
+                    width: "1.15em",
+                    z_index:3,
+                    _o$_ms$_moz$_webkit$: {
+                        user_select: "none"
+                    },
+
+                    " .Jay, .Cee, .two": {
+                        transition: "all 0.15s"
+                    },
+
+                    ":hover": {
+                        " .Jay, .Cee": {text_shadow: logo.JCOutlineHover},
+                        " .two": {text_shadow: logo._2OutlineHover}
+                    },
+
+
+                    " .Jay": {
+                        display:"inline-block",
+                        position:"relative",
+                        ":after": {
+                            content:'"J"',
+                            margin_left:"-0.025em",
+                            padding_left:"0.025em"
+                        },
+                        ":before":{
+                            background:logo.bg,
+                            bottom:"-0.2em",
+                            width:"0.6em",
+                            right:"-120.5%",
+                            content:'" "',
+                  }
+                    },
+                    " .two":{
+                        color: logo.two_color,
+                        font: {
+                            size: "0.643em",
+                            weight: 700
+                        },
+                        margin_left: "-0.273em",
+                        padding_top: "0.33em",
+                        position: "absolute",
+                        text_shadow: logo._2Outline,
+                        z_index: 4
+                    },
+
+                    " .Cee": {
+                        color: logo.color,
+                        display:"inline-block",
+                        margin_left: "-0.015em",
+                        position: "relative",
+                        width:"0.6em",
+                        ":after": [
+                            {
+                                content:'"C"',
+                                width:"0.6em"//"0.538em"
+                            }
+                        ],
+                    }
+                }
+            ],
+            " h1 .Jay, h1 .Cee": {
+                ":after": [{
+                    background_color:  logo.bg_color,
+                    display: "block",
+                    height: "0.49em",
+                    line_height: 1,
+                    overflow: "hidden",
+                    position: "absolute",
+                    bottom:"42%"
+                },{"background":logo.bg}],
+                ":before": {
+                    background_color:  logo.bg_color,
+                    bottom:"-0.2em",
+                    display: "block",
+                    height: "0.57em",
+                    line_height: 1,
+                    overflow: "hidden",
+                    position: "absolute",
+                    z_index:0
+                }
+            }
+        },
+        {"background":logo.mainbg}
+        // ,
+        // pocketgrid.block
+    ],
+    " .main":[
+        {
+            margin: "0 auto",
+            max_width:"48em",
+            position:"relative",
+            line_height:"1.5em",
+            padding:[0, {left$right:"1em"}],
+            "> *":{
+                font_size:"1.1em",
+            },
+            " h3":{
+                border:{top$bottom:"6px solid #ccc"},
+                font_weight:400,
+                padding:{top$bottom:"12px"}
+            },
+            " h4:before":{content:'"> "'},
+            " #playground>*:after": {
+              content: "",
+              display: "table",
+              clear: "both"
+            },
+            " .wrapperNode":{
+            },
+            " .ldt.codeNode, .ldt.styleNode": {
+              // backgroundColor:"#ddd",
+              border: [
+                {radius: "6px"}
+              ],
+              margin: {top$bottom: "1.1em"}
+            },
+            " .ldt.codeNode": {
+              " pre": {
+                background:{
+                  image: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="42" viewBox="0 0 50 42"><text style="fill:white;stroke:rgb(180,180,200);font-family:-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol" x="2" y="40" font-size="35">JS</text></svg>\')',
+                  position:"top right",
+                  repeat:"no-repeat"
+                }
+              },
+              " .cursorContainer": {
+                backgroundColor:"#dde"              
+              }
+            },
+            " .ldt.styleNode": {
+              " pre": {
+                background:{
+                  image: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="42" viewBox="0 0 80 42"><text style="fill:white;stroke:rgb(180,180,200);font-family:-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol" x="2" y="40" font-size="35">CSS</text></svg>\')',
+                  position:"top right",
+                  repeat:"no-repeat"
+                }
+              },
+              " .cursorContainer": {
+                backgroundColor:"#edd"              
+              }
+            }
+        }
+    ],
+    " footer":{
+        background: logo.mainbg,
+        border_top: "1px dotted "+ "#dd5",
+        color: "#446",
+        font_family: "'Anonymous Pro', sans-serif !important",
+        margin_top: "4em",
+        padding: {bottom$top: "1em"},
+        text: {
+          align: "center",
+          // shadow: logo.h6Outline
+        },
+        "& a":{
+          color: "#668"
+        }
+    },
+    ".ghribbon":{
+        background_color:"#a00",//logo.subtitle_color,
+        font: {
+            family: "sans-serif",
+            weight: 400
+        },
+        left: "-6.9em",
+        line_height: "0.7em",
+        position:"absolute",
+        top: "2.2em",
+        transition: "all 0.5s",
+        width:"20em",
+        _o$_ms$_moz$_webkit$: {
+            box_shadow: "0 0 10px rgba(0,0,0,0.6)",
+            transform: "rotate(-45deg) scaleX(0.85)",
+            user_select: "none"
+        },
+        ":hover": {
+            box_shadow: "0 0 8px rgba(0,0,0,0.6)"
+        },
+        " a": {
+            border:"solid 1px rgba(255,255,255,0.65)",
+            color:"#f8f8f8",
+            display:"block",
+            font_size: "90%",
+            line_height: "0.8em",
+            margin:"2px auto",
+            padding:"8px 50px",
+            position:"relative",
+            text: {
+                align:"center",
+                decoration: "none",
+                shadow: "0 0 3px rgba(0, 0, 0, 1)"
+            },
+            transition: "all 0.3s",
+            width:"15em",
+            ":hover,:hover::before": {
+                border:"solid 1px #fff",
+                color:"#fff",
+                text: {
+                    shadow: "0 0 5px rgba(255,255,255,0.3)"
+                }
+            },
+            "::before": {
+                height$width: "100%",
+
+                border: "dashed 1px  rgba(255,255,255,0.45)",
+                content: "' '",
+                margin: {top: "-9px", left: "-6em"},
+                position: "absolute",
+            },
+            "::after": {
+                content:"' '",
+                display:"block",
+                height: "7em",
+                left:0,
+                position: "absolute",
+                top: "-4em",
+                width: "100%",
+            }
+        },
+        "@media (min-width:64em)":{
+            position:"fixed"
+        }
+    },
+}})
+
+var css = pagestyle;
+
+style.type = 'text/css';
+if (style.styleSheet){
+  style.styleSheet.cssText = css;
+} else {
+  style.appendChild(document.createTextNode(css));
+}
+
+</script>
+<header>
+    <div class="container">
+            <h1 class="hollow"><span class="Jay">J</span><span class="two">2</span><span class="Cee">C</span></h1>
+    </div>
+</header>
+<div class="main">
+<p><code>j2c</code> is a CSS-in-JS library. It provides a sizable subset of SASS in a tiny package.</p>
+<p>Mixins, nested rules, composablity are available out of the box.</p>
+<p>Classe names and animations are localized by default, PostCSS style.</p>
+
+<p>Here's a short sample of what it can do. Check the <a href="https://github.com/j2css/j2c">github repo</a> for the full documentation.</p>
+
+<noscript id="rawdocs"><pre>
+----
+
+### Inline styles
+
+`j2c.inline()` creates inline styles.
+
+Underscores are converted to dashes so that property names can be left unquoted.
+
+Arrays ensures that properties are ordered properly. Order can't be guaranteed for objects.
+
+You can play with the code samples live.
+
+```JavaScript
+j2c.inline({
+  backgroundColor:"red",
+  border: [
+    "1px solid grey",
+    {leftWidth: "3px"}
+  ]
+})
+```
+
+```CSS
+border: 1px solid grey;
+border-left-width: 3px;
+background-color: red;
+```
+
+You can also use arrays to insert mixins.
+
+----
+
+### Building a style sheet
+
+`j2c.sheet()` creates a style sheet.
+
+Nested selectors and at-rules are supported.
+
+Arrays can also be used where needed for mixins (not shown here).
+
+```JavaScript
+j2c.sheet({"@global": {
+  ".foo": {
+    color: "red",
+    "@media  (min-width:48.01em)": {
+      color: "green"
+    },
+    "& .bar,& .baz": {
+      textDecoration: "underline"
+    }
+  }
+}})
+```
+
+```CSS
+.foo {
+    color: red;
+}
+
+.foo .bar,.foo .baz {
+    text-decoration: underline;
+}
+
+@media  (min-width:48.01em) {
+    .foo {
+        color: green;
+    }
+}
+```
+
+The `@global` pseudo at-rule prevents `j2c.sheet` from localizing class names.
+
+----
+
+### Scoped definitions:
+
+CSS class names live in a global namespace. Developers and designers have
+to be careful not to step on one another's feet, and meaningful, unique names are not
+easy to find.
+
+A potential solution is to use inline styles, but adding them all over the place in
+templates can be bulky, and they are less powerful than style sheets (no `@media` queries,
+no `:before` or `:hover` pseudo-elements, ...)
+
+`j2c` solves this problem by generating unique class names automatically.
+
+In the next example, `.foo` is converted to a unique yet recognizable one under the hood.
+
+```JavaScript
+j2c.sheet({
+  ".highlight": {
+    color: "red"
+  }
+})
+
+// In another component
+j2c.ns('other').sheet({
+  ".highlight": {
+    color:"blue"
+  }
+})
+```
+
+
+See? No name clash :-)
+
+You can put `sheet` in a `style` element, and use `sheet.foo` as a class
+for your component/directive/whatever. `sheet.foo` will read something along
+`"foo_j2c_XXXX_N"`. Where the `XXXX_N` combo is globally unique.
+They are respectively a 128 bit random number and a counter.
+
+If you play with the live examples, you'll see the counter increment
+every time the sheet is updated.
+
+`j2c` can be included several times in the same page, and can also be used on the server
+to generate isomorphic componenents (but you'll have to overwrite the styles on hydration).
+
+[Find the full documentation on GitHub](https://github.com/j2css/j2c). Vendor prefixes,
+animations, CSS hacks and the mysterious dollar property combiner are also covered there.
+
+You may also want to check the source of this page for a medium-sized stlye sheet 
+written with `j2c` (mostly the logo and the GitHub ribbon).
+
+----
+
+### FAQ
+
+
+#### There's another project called "j2c"
+
+There are at least three other programming-related things called "j2c": 
+- a [Java
+to C++ compiler](https://code.google.com/a/eclipselabs.org/p/j2c/), 
+- the
+[J2EE connector architecture](https://en.wikipedia.org/wiki/Java_EE_Connector_Architecture) and
+- the [JPEG 2000 codestream](http://fileformats.archiveteam.org/wiki/JPEG_2000_codestream).
+
+I believe that they are sufficiently different in scope for the naming collision
+not to be relevant.
+
+
+#### That's all, folks...
+
+...for now.
+
+If I were hip, this is where I'd intimate you to follow me on Twitter, but I don't
+post anything there :-)
+
+</pre></noscript>
+<div id="playground">Loading the docs...</div>
+<script src="marked.js"></script>
+<script>
+var unescape = (function() {
+  /*
+  unescape is borrowed from Underscore.js
+
+  Copyright (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative
+  Reporters & Editors
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the "Software"), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+  */
+  var map = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#x60;': '`'
+  };
+  var list = ['&amp;','&lt;','&gt;','&quot;','&#x27;','&#x60;']
+  var escaper = function(match) {
+    return map[match];
+  };
+
+  var source = '(?:' + list.join('|') + ')';
+  var testRegexp = RegExp(source);
+  var replaceRegexp = RegExp(source, 'g');
+  return function(string) {
+    string = string == null ? '' : '' + string;
+    return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+  };
+})();
+
+function sanitize(source) {
+  return source.replace(/(\W)(while|for|eval|function|.=>.)(\W)/g, "$1($2)$3")
+}
+
+playground.innerHTML = marked(rawdocs.firstChild.data.slice(5, rawdocs.firstChild.data.length-6));
+//md_renderer.render(md_parser.parse(rawdocs.firstChild.data.slice(5, rawdocs.firstChild.data.length-6)));
+</script>
+<script>
+var JsParser = new Parser(
+  {
+    string: /'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"/,
+    identifier: /[a-zA-Z_][\w]*/,
+    number: /-?(?:\d*\.)?\d+/,
+    comment: /\/\/[^\r\n]*/,
+    whitespace: /\s+/,
+    other: /\S/
+  }
+);
+var CssParser = new Parser(
+  {
+    atrule: /@[-\w]+/,
+    string: /'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"/,
+    number: /-?(?:\d*\.)?\d+(?:[a-zA-Z]+|%)?/,
+    comment: /\/\*[\s\S]*?\*\//,
+    sigil: /[\{\}\[\]\(\):,;\*\+\-\/]+/,
+    whitespace: /\s+/,
+    other: /\S/
+  }
+);
+
+
+var currentTarget = null
+var demoSink = {
+  set: {
+    setTarget: function(target){
+      currentTarget = target
+    }
+  },
+  sink: function(){
+    var buf, err, indent
+    return [{
+      init: function(){buf=[], err=0, indent = ''},
+      done: function () {
+        if (currentTarget.input.value) currentTarget.input.value += "/* ... */\n"
+        currentTarget.input.value += buf.join('')
+        currentTarget.update()
+      },
+      err: function(msg) {
+        err = 1
+        buf.push('/* +++ ERROR +++ ' + msg + ' */\n')
+      },
+      raw: function(txt) {
+        buf.push(txt, '\n')
+      },
+      atrule: function(rule, kind, param, takesBlock) {
+        buf.push(indent, rule, param && ' ', param, takesBlock ? ' {' : ';', '\n')
+        if (takesBlock) indent = indent + '    '
+      },
+      // close atrule
+      _atrule: function() {
+        indent = indent.slice(4)
+        buf.push(indent, '}', '\n')
+      },
+      rule: function(selector) {
+        buf.push(indent, selector, ' {', '\n')
+        indent = indent + '    '
+      },
+
+      // close rule
+      _rule: function() {
+        indent = indent.slice(4)
+        buf.push(indent, '}', '\n')
+      },
+      decl: function (prop, value) {buf.push(indent, prop, prop && ': ', value, ';', '\n')}
+    }]
+  }
+}
+
+var demoJ2c = new J2c({plugins: [demoSink]})
+
+
+function runcode(code, target) {
+  target.input.value = ''
+  demoJ2c.setTarget(target)
+  var res;
+  try{
+      res = new Function(
+        'j2c', 'undefined',
+        "'use strict';" +  code
+      ).call(null, demoJ2c);
+  } catch (e) {
+      target.input.value = e.toString() + '\r\n' + e.stack
+  }
+  target.input.value = target.input.value.replace(/\r?\n$/, '')
+  target.update()
+}
+
+
+// editor.input.focus()
+
+setTimeout(function(){
+    [].slice.call(playground.children).forEach(function(elt){
+        if (elt.tagName !== "PRE") return;
+        if (elt.children[0] && elt.children[0].tagName === "CODE" && elt.children[0].className === "lang-CSS") {
+            elt.parentElement.removeChild(elt);
+        }
+        if (elt.children[0] && elt.children[0].tagName === "CODE" && elt.children[0].className === "lang-JavaScript") {
+            var codeText = unescape(elt.children[0].innerHTML).replace(/\r?\n$/, '');
+
+            var wrapperNode = document.createElement("div");
+            var codeNode = wrapperNode.appendChild(document.createElement("textarea"))
+            var styleNode = wrapperNode.appendChild(document.createElement("textarea"))
+            wrapperNode.className = "wrapperNode";
+            codeNode.className = "codeNode";
+            codeNode.value = codeText;
+            styleNode.className = "styleNode";
+
+            var editor = new TextareaDecorator(
+              codeNode,
+              JsParser
+            );
+
+            var display = new TextareaDecorator(
+              styleNode,
+              CssParser
+            );
+
+            var lastCode = ''
+
+            editor.input.addEventListener("input", function() {
+              if (lastCode !== editor.input.value) runcode(editor.input.value, display)
+              lastCode = editor.input.value
+            })
+            // for IE9
+            editor.input.addEventListener("keyup", function() {
+              if (lastCode !== editor.input.value) runcode(editor.input.value, display)
+              lastCode = editor.input.value
+            })
+
+            elt.parentElement.replaceChild(wrapperNode, elt);
+            runcode(editor.input.value, display)
+        }
+    })
+
+})
+</script>
+
+</div>
+<footer> Copyright &copy; 2015 <a href="mailto:j2c@py.gy">Pierre-Yves Gérardy</a></footer>
+
+<link property="stylesheet" rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600&text=Fork%20menGitHub'>
+<a href="https://your-url" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#800; color:#def; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-63587650-1', 'auto');
+ga('send', 'pageview');
+
+;(function(){
+var focused = false;
+function onFocus(){
+  if (!focused) {
+    setTimeout(function () {
+      _gaq.push([
+        '_trackEvent', 
+        'Control', 
+        'Bounce Rate', 
+        ''
+      ])
+    }, 30000)
+  }
+  focused = true;
+};
+
+if (/*@cc_on!@*/false) { // check for Internet Explorer
+  document.onfocusin = onFocus;
+} else {
+  window.onfocus = onFocus;
+}
+})();
+
+</script>
