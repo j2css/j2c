@@ -40,7 +40,7 @@
     "in-publish": "^2.0.0",
     "istanbul": "^0.4.2",
     "jsdom": "^9.8.3",
-    "ospec": "^1.2.1",
+    "ospec": "^1.2.3",
     "perfectionist": "^2.1.2",
     "postcss": "^5.0.14",
     "postcss-minify-params": "^1.0.4",
