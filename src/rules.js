@@ -22,7 +22,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
     for (k in tree) if (own.call(tree, k)) {
       v = tree[k]
 
-      if (prefix.length > 0 && /^[-\w$]+$/.test(k)) {
+      if (prefix.length > 0 && /^\*?[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1
 

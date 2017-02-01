@@ -9,6 +9,11 @@
   - `j2c.sheet()` and `j2c.inline()` return plain strings rather than
     `String` objects.
   - `j2c.names` holds the local -> global mappings for use in the (v)DOM.
+- syntax changes for properties and nested sub-properties.
+  tl;dr: `{foo_bat: {baz: 5}}` must now be written `{fooBar: {Baz: 5}}`
+  - underscores are not converted to dashes anymore (use CamelCase)
+  - sub-properties must start with an upper case letter
+  - the `*` hack is supported for old IE.
 - Removed the partial auto-prefix insertion from the core. There's now a
   fully fledged prefix plugin for the browser, and Autoprefixer can be
   used on the server by using the PostCSS adapter.

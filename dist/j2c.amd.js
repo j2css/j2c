@@ -129,7 +129,7 @@ function declarations(state, emit, prefix, o, local) {
   case OBJECT:
     // prefix is falsy iif it is the empty string, which means we're at the root
     // of the declarations list.
-    prefix = (prefix && prefix + '-');
+
     for (k in o) if (own.call(o, k)){
       v = o[k];
       if (/\$/.test(k)) {
@@ -156,7 +156,7 @@ function declarations(state, emit, prefix, o, local) {
     // `o` is the value.
 
     // restore the dashes
-    k = prefix.replace(/_/g, '-').replace(/[A-Z]/g, decamelize);
+    k = prefix.replace(/[A-Z]/g, decamelize);
 
     if (local && (k == 'animation-name' || k == 'animation')) {
       // no need to tokenize here a plain `.split(',')` has all bases covered.
@@ -317,7 +317,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
     for (k in tree) if (own.call(tree, k)) {
       v = tree[k];
 
-      if (prefix.length > 0 && /^[-\w$]+$/.test(k)) {
+      if (prefix.length > 0 && /^\*?[-\w$]+$/.test(k)) {
         if (!inDeclaration) {
           inDeclaration = 1;
 

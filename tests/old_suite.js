@@ -95,7 +95,7 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar: 'baz'
+                Bar: 'baz'
               }
             },
             'foo-bar: baz;'
@@ -116,8 +116,8 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar: 'baz',
-                qux: 'baz'
+                Bar: 'baz',
+                Qux: 'baz'
               }
             },
             'foo-bar:baz; foo-qux:baz;'
@@ -128,11 +128,11 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar: {
-                  qux: 'quux'
+                Bar: {
+                  Qux: 'quux'
                 },
-                baz: {
-                  qix: 'qiix'
+                Baz: {
+                  Qix: 'qiix'
                 }
               }
             },
@@ -140,17 +140,17 @@ function randInt() {
           )
         })
 
-        o('$ operator in sub-property and sub-sub-property', function() {
+        o('two sub-properties with two sub-sub-property', function() {
           checkinline(
             {
               foo: {
-                bar: {
-                  qux: 'fred',
-                  quux: 'frod'
+                Bar: {
+                  Qux: 'fred',
+                  Quux: 'frod'
                 },
-                baz: {
-                  qix: 'frad',
-                  qiix: 'frud'
+                Baz: {
+                  Qix: 'frad',
+                  Qiix: 'frud'
                 }
               }
             },
@@ -171,7 +171,7 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar$qux: 'baz'
+                Bar$Qux: 'baz'
               }
             },
             'foo-bar:baz; foo-qux:baz;'
@@ -182,8 +182,8 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar$baz: {
-                  qux: 'quux'
+                Bar$Baz: {
+                  Qux: 'quux'
                 }
               }
             },
@@ -195,8 +195,8 @@ function randInt() {
           checkinline(
             {
               foo: {
-                bar$baz: {
-                  qux$quux: 'fred'
+                Bar$Baz: {
+                  Qux$Quux: 'fred'
                 }
               }
             },
@@ -204,12 +204,12 @@ function randInt() {
           )
         })
 
-        o('convert underscores', function() {
+        o('don\'t convert underscores', function() {
           checkinline(
             {
               'f_o_o': 'bar'
             },
-            'f-o-o:bar;'
+            'f_o_o:bar;'
           )
         })
 
@@ -249,7 +249,7 @@ function randInt() {
           checkinline(
             {
               foo: ['bar', {
-                baz: 'qux'
+                Baz: 'qux'
               }]
             },
             'foo:bar;foo-baz:qux'
@@ -259,7 +259,7 @@ function randInt() {
         o('Prefixes by hand', function() {
           checkinline(
             {
-              _o$_p$: {
+              '-o-$-p-$': {
                 foo: 'bar'
               }
             },
@@ -281,9 +281,10 @@ function randInt() {
         o('CSS _Hack', function() {
           checkinline(
             ['_foo:bar;', {
-              _baz: 'qux'
+              _baz: 'qux',
+              '*star':'hack'
             }],
-            '_foo:bar;-baz:qux;'
+            '_foo:bar;_baz:qux;*star:hack;'
           )
         })
 
@@ -479,14 +480,14 @@ function randInt() {
           o(J2c().sheet('p{color:red}')).equals('p{color:red}\n')
         })
 
-        o('convert underscores', function() {
+        o('don\'t convert underscores', function() {
           check(
             J2c().sheet({
               p: {
                 foo_foo: 'bar'
               }
             }),
-            'p{foo-foo:bar}'
+            'p{foo_foo:bar}'
           )
         })
 
@@ -517,7 +518,7 @@ function randInt() {
             J2c().sheet({
               p: {
                 foo: {
-                  bar: 'baz'
+                  Bar: 'baz'
                 }
               }
             }),
@@ -562,13 +563,13 @@ function randInt() {
           check(
             J2c().sheet({
               p: {
-                _o$_ms$_moz$_webkit$: {
+                '-o-$-ms-$': {
                   foo: 'bar'
                 }
               }
             }),
 
-            'p {-o-foo:bar;-ms-foo:bar;-moz-foo:bar;-webkit-foo:bar;foo:bar}'
+            'p {-o-foo:bar;-ms-foo:bar;foo:bar}'
           )
         })
 
@@ -890,9 +891,9 @@ function randInt() {
             J2c().sheet({
               p: {
                 foo: [{
-                  bar: 'baz'
+                  Bar: 'baz'
                 }, {
-                  bar: 'qux'
+                  Bar: 'qux'
                 }]
               }
             }),
@@ -1380,7 +1381,7 @@ function randInt() {
           var names = _j2c.names
           var css = _j2c.sheet({
             p: {
-              animation_name: 'bit'
+              animationName: 'bit'
             }
           })
           o(names.bit).equals('bit' + _j2c.suffix)
@@ -1391,7 +1392,7 @@ function randInt() {
           var names = _j2c.names
           var css = _j2c.sheet({
             p: {
-              animation_name: 'bit, bat'
+              animationName: 'bit, bat'
             }
           })
           o(names.bit).equals('bit' + _j2c.suffix)
@@ -1403,7 +1404,7 @@ function randInt() {
           var names = _j2c.names
           var css = _j2c.sheet({
             p: {
-              animation_name: 'bit, global(bat)'
+              animationName: 'bit, global(bat)'
             }
           })
           o(names.bit).equals('bit' + _j2c.suffix)
@@ -1415,7 +1416,7 @@ function randInt() {
           var names = _j2c.names
           var css = _j2c.sheet({
             p: {
-              animation_name: 'var(--foo)'
+              animationName: 'var(--foo)'
             }
           })
           o(names.hasOwnProperty('var')).equals(false)
