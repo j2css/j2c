@@ -528,7 +528,7 @@ function finalizeFixers(fixers) {
   // @media (resolution:...) {
   // -------------------------
 
-  var resolutionMatcher = /((?:min-|max-)?resolution)\s*:\s*((?:\d*.)?\d+)dppx/g;
+  var resolutionMatcher = /((?:min-|max-)?resolution)\s*:\s*((?:\d*\.)?\d+)dppx/g;
   var resolutionReplacer = (
     fixers.hasPixelRatio ? function(_, prop, param){return fixers.properties[prop] + ':' + param} :
     fixers.hasPixelRatioFraction ? function(_, prop, param){return fixers.properties[prop] + ':' + Math.round(param*10) + '/10'} :
