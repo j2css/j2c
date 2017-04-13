@@ -13,10 +13,10 @@ export function at (rule, params, block) {
     arguments.length < 3
   ) {
     // inner curry!
-    var _at = at.bind.apply(at, [null].concat([].slice.call(arguments,0)))
+    var _at = at.bind.apply(at, Array.prototype.concat.apply([this], arguments))
     // So that it can be used as a key in an ES6 object literal.
     _at.toString = function(){return '@' + rule + ' ' + params}
     return _at
   }
-  else return kv('@' + rule +' ' + params, block)
+  return kv('@' + rule +' ' + params, block)
 }
