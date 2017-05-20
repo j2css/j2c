@@ -53,6 +53,7 @@ o.spec('detectPrefix', function() {
       finalize()
 
       o(fixers.prefix).equals('')
+      o(fixers.prefixes).deepEquals([])
     })
     o('properties with a single prefix ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
       mocks(global, {
@@ -67,6 +68,7 @@ o.spec('detectPrefix', function() {
       finalize()
 
       o(fixers.prefix).equals('-moz-')
+      o(fixers.prefixes).deepEquals(['-moz-'])
     })
     o('properties with two prefixes, majority prefix first ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
       mocks(global, {
@@ -83,6 +85,7 @@ o.spec('detectPrefix', function() {
       finalize()
 
       o(fixers.prefix).equals('-moz-')
+      o(fixers.prefixes).deepEquals(['-moz-', '-o-'])
     })
     o('properties with two prefixes, majority prefix last ('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
       mocks(global, {
@@ -99,6 +102,7 @@ o.spec('detectPrefix', function() {
       finalize()
 
       o(fixers.prefix).equals('-moz-')
+      o(fixers.prefixes).deepEquals(['-moz-', '-o-'])
     })
   })
 })

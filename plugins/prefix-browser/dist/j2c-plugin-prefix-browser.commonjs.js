@@ -222,7 +222,7 @@ var flex2012Values = {
 };
 
 function detectKeywords(fixers) {
-  if (fixers.prefix === '') return
+  if (fixers.prefixes.length === 0) return
 
   // build a map of {propertyI: {keywordJ: previxedKeywordJ, ...}, ...}
   for (var i = 0; i < keywords.length; i++) {
@@ -299,13 +299,12 @@ function detectPrefix(fixers) {
     }
   }
 
-  var highest = 0;
-  for(var prefix in prefixCounters) {
-    if(highest < prefixCounters[prefix]) {
-      highest = prefixCounters[prefix];
-      fixers.prefix = '-' + prefix + '-';
-    }
-  }
+  var prefixes = [];
+  for (var p in prefixCounters) prefixes.push(p);
+  prefixes.sort(function(a,b) {return prefixCounters[b] - prefixCounters[a]});
+
+  fixers.prefixes = prefixes.map(function(p){return '-' + p + '-'});
+  fixers.prefix = fixers.prefixes[0] || '';
   fixers.Prefix = camelCase(fixers.prefix);
 }
 
@@ -365,6 +364,7 @@ function blankFixers() {
     keywords: {},
     placeholder: null,
     prefix: '',
+    prefixes: [],
     Prefix: '',
     properties: {},
     selectorList: [],

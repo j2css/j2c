@@ -86,7 +86,7 @@ export var flex2012Values = {
 }
 
 export function detectKeywords(fixers) {
-  if (fixers.prefix === '') return
+  if (fixers.prefixes.length === 0) return
 
   // build a map of {propertyI: {keywordJ: previxedKeywordJ, ...}, ...}
   for (var i = 0; i < keywords.length; i++) {

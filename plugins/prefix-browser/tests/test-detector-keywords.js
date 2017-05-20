@@ -122,6 +122,7 @@ o.spec('detectKeywords', function() {
     mocks(global)
     init()
     fixers.prefix = '-o-'
+    fixers.prefixes = ['-o-']
     detectKeywords(fixers)
     finalize()
 
@@ -134,6 +135,7 @@ o.spec('detectKeywords', function() {
       mocks(global, {properties: unprefixed[flexType]})
       init()
       fixers.prefix = '-o-'
+      fixers.prefixes = ['-o-']
       detectKeywords(fixers)
       finalize()
 
@@ -144,6 +146,7 @@ o.spec('detectKeywords', function() {
       mocks(global, {properties: prefixed[flexType]})
       init()
       fixers.prefix = '-o-'
+      fixers.prefixes = ['-o-']
       detectKeywords(fixers)
       finalize()
       o(fixers.keywords).deepEquals(result[flexType])
@@ -154,6 +157,7 @@ o.spec('detectKeywords', function() {
       mocks(global, {properties: both[flexType]})
       init()
       fixers.prefix = '-o-'
+      fixers.prefixes = ['-o-']
       detectKeywords(fixers)
       finalize()
 

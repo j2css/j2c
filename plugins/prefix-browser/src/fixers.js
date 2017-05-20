@@ -27,6 +27,7 @@ export function blankFixers() {
     keywords: {},
     placeholder: null,
     prefix: '',
+    prefixes: [],
     Prefix: '',
     properties: {},
     selectorList: [],
