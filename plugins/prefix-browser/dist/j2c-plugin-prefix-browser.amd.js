@@ -176,7 +176,7 @@ var flex2009Props = {
   'box-direction' : 'box-direction', // we prepopulate the cache for the above case.
   'box-orient': 'box-orient',
   // !!flex-flow => flex-direction and/or flex-wrap, covered in `plugin.js`
-  // ?flex-grow =>
+  'flex-grow': 'box-flex', // https://compat.spec.whatwg.org/#propdef--webkit-box-flex
   // ?flex-shrink =>
   'flex-wrap': 'box-lines',
   'justify-content': 'box-pack',
