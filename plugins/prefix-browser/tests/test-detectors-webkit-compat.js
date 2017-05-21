@@ -14,7 +14,7 @@ var blankFixers = exposed.blankFixers
 var referenceFixers = Object.keys(blankFixers())
 
 
-o.spec('detectFunctions', function() {
+o.spec('Webkit prefies for Web compat', function() {
   var fixers
   o.beforeEach(function() {
     o(hasCleanState()).equals(true)('detector utils state isn\'t clean')

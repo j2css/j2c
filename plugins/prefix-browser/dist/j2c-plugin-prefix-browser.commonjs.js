@@ -626,6 +626,8 @@ function prefixPlugin(){
               next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
               next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
             }
+          } else if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
+            next.decl('-webkit-background-clip', value);
           } else {
             next.decl(
               fixers.properties[property] || fixers.fixProperty(property),

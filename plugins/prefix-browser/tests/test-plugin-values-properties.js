@@ -124,4 +124,29 @@ o.spec('plugin.decl for properties whose values are properties', function() {
 
     o(fixers.properties).deepEquals({})
   })
+  o('selectively prefix background-clip when the value is `text`', function(){
+    mocks(global, {properties: {}})
+    initBrowser()
+
+    fixers.prefix = ''
+
+    fixers.WkBCTxt = true
+    var plugin = createPrefixPlugin()
+    plugin.set.setPrefixDb(fixers)
+    var sink = makeSink()
+    var methods = plugin.filter(sink)
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('background-clip', 'text')
+    methods.decl('background-clip', 'border-box')
+
+    o(sink.buffer).deepEquals([
+      ['decl', '-webkit-background-clip', 'text'],
+      ['decl', 'background-clip', 'border-box']
+    ])
+
+    o(fixers.properties).deepEquals({'background-clip': 'background-clip'})
+
+  })
 })
