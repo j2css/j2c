@@ -571,7 +571,7 @@ function finalizeFixers(fixers) {
 
 var commonFixers;
 
-function initBrowser() { // exported for the test suite.
+function initBrowser() { // exported for the test suite
   commonFixers = blankFixers();
   if (typeof getComputedStyle === 'function') browserDetector(commonFixers);
   finalizeFixers(commonFixers);

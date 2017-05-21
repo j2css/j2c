@@ -2,7 +2,7 @@ import {blankFixers, browserDetector, finalizeFixers} from './fixers.js'
 
 var commonFixers
 
-export function initBrowser() { // exported for the test suite.
+export function initBrowser() { // exported for the test suite
   commonFixers = blankFixers()
   if (typeof getComputedStyle === 'function') browserDetector(commonFixers)
   finalizeFixers(commonFixers)
