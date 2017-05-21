@@ -318,16 +318,18 @@ function Parser( rules, i ){
 // The code runs live, feel free to edit it!
 j2c.sheet({'@global':{
  '.download': {
+    animation: 'rotate',
+    backgroundClip: 'text',
     backgroundImage: 'linear-gradient(5deg, red, rgba(125,0,0,.3))',
-    color: 'white',
-    textDecoration: 'initial',
-    textShadow: '.08em .08em .2em rgba(calc(2 * 2),0,0,.6)',
     borderRadius: '50%',
     boxShadow: '.1em .2em .4em -.2em black',
     boxSizing: 'border-box',
-    transform: 'rotate(15deg)',
-    animation: 'rotate',
-    cursor: 'zoom-in'
+    color: 'white',
+    cursor: 'zoom-in',
+    display: 'grid',
+    textDecoration: 'initial',
+    textShadow: '.08em .08em .2em rgba(calc(2 * 2),0,0,.6)',
+    transform: 'rotate(15deg)'
   },
   '@keyframes rotate': {
     'from': {
@@ -339,18 +341,21 @@ j2c.sheet({'@global':{
   },
   '@supports (display:flex)':{
      ':read-write ::placeholder': {
-        userSelect: 'none',
         appearance: 'none',
+        backgroundClip: 'border-box',
         display: 'flex',
         flex: '1 1',
-        flexFlow: 'column-reverse wrap'
+        flexFlow: 'column-reverse wrap',
+        textFillColor: 'transparent',
+        userSelect: 'none'
     },
   },
   '@media (min-resolution:2dppx)' : {
     'header': {
       backgroundImage: 'url(hires.jpg)'
     }
-  }
+  },
+  '@viewport': {}
 }})</textarea>
 <textarea id="sheetArea"></textarea>
 <script>
