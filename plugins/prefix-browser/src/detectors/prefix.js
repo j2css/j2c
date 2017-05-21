@@ -2,6 +2,7 @@
 
 import {
   allStyles,
+  supportedRule,
   camelCase, deCamelCase
 } from './core.js'
 
@@ -38,5 +39,8 @@ export function detectPrefix(fixers) {
 
   fixers.prefixes = prefixes.map(function(p){return '-' + p + '-'})
   fixers.prefix = fixers.prefixes[0] || ''
+  // Edge supports both `webkit` and `ms` prefixes, but `ms` isn't detected with the method above.
+  // the selector comes from http://browserstrangeness.com/css_hacks.html
+  if (supportedRule('_:-ms-lang(x), _:-webkit-full-screen')) fixers.prefixes.push('-ms-')
   fixers.Prefix = camelCase(fixers.prefix)
 }

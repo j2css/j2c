@@ -69,10 +69,12 @@ function detectAtrules(fixers) {
   // build a map of {'@ruleX': '@-prefix-ruleX'}
   for(var atrule in atrules) {
     var test = atrule + ' ' + (atrules[atrule] || '');
-    if (!supportedRule('@' + test) && supportedRule('@' + fixers.prefix + test)) {
+    for (var i = fixers.prefixes.length; i--;) {
+      if (!supportedRule('@' + test) && supportedRule('@' + fixers.prefixes[i] + test)) {
 
-      fixers.hasAtrules = true;
-      fixers.atrules['@' + atrule] = '@' + fixers.prefix + atrule;
+        fixers.hasAtrules = true;
+        fixers.atrules['@' + atrule] = '@' + fixers.prefixes[i] + atrule;
+      }
     }
   }
 
@@ -229,13 +231,14 @@ function detectKeywords(fixers) {
     var map = {}, property = keywords[i].props[0];
     // eslint-disable-next-line
     for (var j = 0, keyword; keyword = keywords[i].values[j]; j++) {
-
-      if (
-        !supportedDecl(property, keyword) &&
-        supportedDecl(property, fixers.prefix + keyword)
-      ) {
-        fixers.hasKeywords = true;
-        map[keyword] = fixers.prefix + keyword;
+      for (var k = fixers.prefixes.length; k--;) {
+        if (
+          !supportedDecl(property, keyword) &&
+          supportedDecl(property, fixers.prefixes[k] + keyword)
+        ) {
+          fixers.hasKeywords = true;
+          map[keyword] = fixers.prefixes[k] + keyword;
+        }
       }
     }
     // eslint-disable-next-line
@@ -247,11 +250,16 @@ function detectKeywords(fixers) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox;
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox'];
-    for (var k in flex2012Props) {
+    for (k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k];
       fixers.keywords[k] = flex2012Values;
     }
-  } else if (fixers.keywords.display && fixers.keywords.display.box && !supportedDecl('display', 'flex')) {
+  } else if (
+    fixers.keywords.display &&
+    fixers.keywords.display.box &&
+    !supportedDecl('display', 'flex') &&
+    !supportedDecl('display', fixers.prefix + 'flex')
+  ) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box;
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box'];
@@ -305,6 +313,9 @@ function detectPrefix(fixers) {
 
   fixers.prefixes = prefixes.map(function(p){return '-' + p + '-'});
   fixers.prefix = fixers.prefixes[0] || '';
+  // Edge supports both `webkit` and `ms` prefixes, but `ms` isn't detected with the method above.
+  // the selector comes from http://browserstrangeness.com/css_hacks.html
+  if (supportedRule('_:-ms-lang(x), _:-webkit-full-screen')) fixers.prefixes.push('-ms-');
   fixers.Prefix = camelCase(fixers.prefix);
 }
 

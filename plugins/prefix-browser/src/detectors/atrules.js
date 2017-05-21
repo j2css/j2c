@@ -15,10 +15,12 @@ export function detectAtrules(fixers) {
   // build a map of {'@ruleX': '@-prefix-ruleX'}
   for(var atrule in atrules) {
     var test = atrule + ' ' + (atrules[atrule] || '')
-    if (!supportedRule('@' + test) && supportedRule('@' + fixers.prefix + test)) {
+    for (var i = fixers.prefixes.length; i--;) {
+      if (!supportedRule('@' + test) && supportedRule('@' + fixers.prefixes[i] + test)) {
 
-      fixers.hasAtrules = true
-      fixers.atrules['@' + atrule] = '@' + fixers.prefix + atrule
+        fixers.hasAtrules = true
+        fixers.atrules['@' + atrule] = '@' + fixers.prefixes[i] + atrule
+      }
     }
   }
 

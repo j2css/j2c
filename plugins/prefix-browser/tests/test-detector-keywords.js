@@ -165,4 +165,14 @@ o.spec('detectKeywords', function() {
       o(fixers.initial).equals(null)
     })
   })
+  o('works for secondary prefixes', function(){
+    mocks(global, {properties: {display: ['flex', '-ms-grid', '-o-inline-grid']}})
+    init()
+    fixers.prefix = '-o-'
+    fixers.prefixes = ['-o-', '-ms-']
+    detectKeywords(fixers)
+    finalize()
+    o(fixers.keywords.display).deepEquals({grid: '-ms-grid', 'inline-grid': '-o-inline-grid'})
+    o(fixers.initial).equals(null)
+  })
 })

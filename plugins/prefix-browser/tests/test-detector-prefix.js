@@ -104,5 +104,21 @@ o.spec('detectPrefix', function() {
       o(fixers.prefix).equals('-moz-')
       o(fixers.prefixes).deepEquals(['-moz-', '-o-'])
     })
+    o('edge hack detection('+ (computedStyleAsArray ? 'computed style as array' : 'computed style as object') +')', function() {
+      mocks(global, {
+        computedStyleAsArray: computedStyleAsArray,
+        properties: {
+          WebkitColor: 'red',
+          width: '0'
+        },
+        rules: ['_:-ms-lang(x), _:-webkit-full-screen{}']
+      })
+      init()
+      detectPrefix(fixers)
+      finalize()
+
+      o(fixers.prefix).equals('-webkit-')
+      o(fixers.prefixes).deepEquals(['-webkit-', '-ms-'])
+    })
   })
 })

@@ -44,6 +44,7 @@ o.spec('detectAtrules', function() {
     mocks(global)
     init()
     fixers.prefix = '-o-'
+    fixers.prefixes = ['-o-']
     detectAtrules(fixers)
     finalize()
 
@@ -59,6 +60,7 @@ o.spec('detectAtrules', function() {
     })
     init()
     fixers.prefix = '-o-'
+    fixers.prefixes = ['-o-']
     detectAtrules(fixers)
     finalize()
 
@@ -66,6 +68,22 @@ o.spec('detectAtrules', function() {
     o(fixers.hasPixelRatio).equals(false)
     o(fixers.hasPixelRatioFraction).equals(false)
     o(fixers.atrules).deepEquals({'@keyframes':'@-o-keyframes', '@viewport': '@-o-viewport', '@document': '@-o-document'})
+    o('min-resolution' in fixers.properties).equals(false)
+  })
+  o('works with two prefixes manually imposed and prefixed @keyframes, @viewport and @document', function(){
+    mocks(global, {
+      rules: ['@-o-keyframes name{}', '@-ms-viewport {}', '@-o-document regexp("."){}']
+    })
+    init()
+    fixers.prefix = '-o-'
+    fixers.prefixes = ['-o-', '-ms-']
+    detectAtrules(fixers)
+    finalize()
+
+    o(fixers.hasDppx).equals(false)
+    o(fixers.hasPixelRatio).equals(false)
+    o(fixers.hasPixelRatioFraction).equals(false)
+    o(fixers.atrules).deepEquals({'@keyframes':'@-o-keyframes', '@viewport': '@-ms-viewport', '@document': '@-o-document'})
     o('min-resolution' in fixers.properties).equals(false)
   })
   o('favours unprefixed rules', function(){

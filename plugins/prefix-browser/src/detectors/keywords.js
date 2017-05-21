@@ -93,13 +93,14 @@ export function detectKeywords(fixers) {
     var map = {}, property = keywords[i].props[0]
     // eslint-disable-next-line
     for (var j = 0, keyword; keyword = keywords[i].values[j]; j++) {
-
-      if (
-        !supportedDecl(property, keyword) &&
-        supportedDecl(property, fixers.prefix + keyword)
-      ) {
-        fixers.hasKeywords = true
-        map[keyword] = fixers.prefix + keyword
+      for (var k = fixers.prefixes.length; k--;) {
+        if (
+          !supportedDecl(property, keyword) &&
+          supportedDecl(property, fixers.prefixes[k] + keyword)
+        ) {
+          fixers.hasKeywords = true
+          map[keyword] = fixers.prefixes[k] + keyword
+        }
       }
     }
     // eslint-disable-next-line
@@ -111,11 +112,16 @@ export function detectKeywords(fixers) {
     // old IE
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
-    for (var k in flex2012Props) {
+    for (k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k]
       fixers.keywords[k] = flex2012Values
     }
-  } else if (fixers.keywords.display && fixers.keywords.display.box && !supportedDecl('display', 'flex')) {
+  } else if (
+    fixers.keywords.display &&
+    fixers.keywords.display.box &&
+    !supportedDecl('display', 'flex') &&
+    !supportedDecl('display', fixers.prefix + 'flex')
+  ) {
     // old flexbox spec
     fixers.keywords.display.flex = fixers.keywords.display.box
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-box']
