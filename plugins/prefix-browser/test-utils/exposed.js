@@ -361,6 +361,13 @@ function detectSelectors(fixers) {
   }
 }
 
+function detectWebkitCompat(fixers) {
+  if (!supportedDecl('background-clip', 'text') && supportedDecl('-webkit-background-clip', 'text')) fixers.WkBCTxt = true
+  ;['background-clip', 'text-fill-color', 'text-stroke-color', 'text-stroke-width', 'text-stroke'].forEach(function(prop){
+    if(!exports.supportedProperty(prop) && exports.supportedProperty('-webkit-' + prop)) fixers.properties[prop] = '-webkit-' + prop;
+  });
+}
+
 function blankFixers() {
   return {
     atrules: {},
@@ -391,7 +398,8 @@ function blankFixers() {
       'transition': 1,
       'transition-property': 1,
       'will-change': 1
-    }
+    },
+    WkBCTxt: false // -webkit-background-clip: text
   }
 }
 
@@ -404,6 +412,7 @@ function browserDetector(fixers) {
   detectAtrules(fixers);
   detectKeywords(fixers);
   detectFunctions(fixers);
+  detectWebkitCompat(fixers);
   finalize();
 }
 
@@ -665,3 +674,4 @@ exports.flex2012Props = flex2012Props;
 exports.flex2012Values = flex2012Values;
 exports.detectPrefix = detectPrefix;
 exports.detectSelectors = detectSelectors;
+exports.detectWebkitCompat = detectWebkitCompat;

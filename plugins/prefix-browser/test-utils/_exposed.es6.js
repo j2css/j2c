@@ -18,3 +18,4 @@ export {
 } from '../src/detectors/keywords.js'
 export {detectPrefix}     from '../src/detectors/prefix.js'
 export {detectSelectors}  from '../src/detectors/selectors.js'
+export {detectWebkitCompat} from '../src/detectors/webkit-compat.js'

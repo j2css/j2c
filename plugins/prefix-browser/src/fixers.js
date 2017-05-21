@@ -4,7 +4,7 @@ import {detectFunctions}  from './detectors/functions.js'
 import {detectKeywords}   from './detectors/keywords.js'
 import {detectPrefix}     from './detectors/prefix.js'
 import {detectSelectors}  from './detectors/selectors.js'
-
+import {detectWebkitCompat} from './detectors/webkit-compat'
 
 export function blankFixers() {
   return {
@@ -36,7 +36,8 @@ export function blankFixers() {
       'transition': 1,
       'transition-property': 1,
       'will-change': 1
-    }
+    },
+    WkBCTxt: false // -webkit-background-clip: text
   }
 }
 
@@ -49,6 +50,7 @@ export function browserDetector(fixers) {
   detectAtrules(fixers)
   detectKeywords(fixers)
   detectFunctions(fixers)
+  detectWebkitCompat(fixers)
   finalize()
 }
 
