@@ -79,7 +79,7 @@ export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
     })(v)
 
 
-  } else if (!k[3] && /^(?:font-face|viewport)$/.test(k[2])) {
+  } else if (/^(?:font-face|page|viewport)$/.test(k[2])) {
     flatIter(function(v) {
 
       emit.atrule(k[1], k[2], k[3], 'decl')
@@ -90,7 +90,7 @@ export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
 
     })(v)
 
-  } else if (k[3] && /^(?:media|supports|page|keyframes)$/.test(k[2])) {
+  } else if (k[3] && /^(?:media|supports|keyframes)$/.test(k[2])) {
 
     if (local && 'keyframes' == k[2]) {
       k[3] = k[3].replace(
@@ -100,23 +100,13 @@ export function atRules(state, emit, k, v, prefix, local, nestingDepth) {
       )
     }
 
-    if ('page' == k[2]) {
+    emit.atrule(k[1], k[2], k[3], 'rule')
 
-      emit.atrule(k[1], k[2], k[3], 'decl')
-
-      declarations(state, emit, '', v, local)
-
-    } else {
-
-      emit.atrule(k[1], k[2], k[3], 'rule')
-
-      rules(
-        state, emit,
-        'keyframes' == k[2] ? '' : prefix,
-        v, local, nestingDepth + 1
-      )
-
-    }
+    rules(
+      state, emit,
+      'keyframes' == k[2] ? '' : prefix,
+      v, local, nestingDepth + 1
+    )
 
     emit._atrule()
 
