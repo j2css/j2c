@@ -327,7 +327,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
 
         }
 
-      } else if (/^@/.test(k)) {
+      } else if (k.charAt(0) === '@') {
         // Handle At-rules
         inDeclaration = 0;
 
