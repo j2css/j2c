@@ -1,6 +1,9 @@
 import {defaults, flatIter, freeze, randChars, own, type, ARRAY, FUNCTION, NUMBER, OBJECT, STRING} from './helpers'
 import {closeSelectors, rules} from './rules'
 import {declarations} from './declarations'
+import {modulesAtRules, standardAtRules, unsupportedAtRule} from './at-rules'
+
+var baselineAtRules = modulesAtRules(standardAtRules(unsupportedAtRule))
 
 function invoke(fn, tree, state, backend) {
   backend.init()
@@ -17,14 +20,14 @@ function invoke(fn, tree, state, backend) {
   return backend.done()
 }
 
-function makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropList) {
+function makeInstance(prefix, suffix, atrules, nsCache, backend, setPropList) {
   var names = {}
   function localize(name) {
     if (!own.call(names, name)) names[name] = prefix + name + suffix
     return names[name].match(/^\S+/)
   }
   var state =  {
-    atruleHandlers: atruleHandlers,
+    atrules: atrules,
     names: names,
     /**
      * Returns a localized version of a given name.
@@ -54,7 +57,7 @@ function makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropL
     ns: function(name) {
       var prefix = '__'+name.replace(/\W+/g, '_') + '_'
       if (!own.call(nsCache, prefix)) {
-        nsCache[prefix] = makeInstance(prefix, suffix, atruleHandlers, nsCache, backend, setPropList)
+        nsCache[prefix] = makeInstance(prefix, suffix, atrules, nsCache, backend, setPropList)
       }
       return nsCache[prefix]
     },
@@ -98,11 +101,11 @@ export default function J2c(options) {
 
   // holds the `_filter` and `atrule` handlers
   var _filters = [closeSelectors]
-  var _atruleHandlers = []
+  var _atrulePlugins = []
   var _setPropList = []
   var _suffix = randChars(7)
   var _nsCache = {}
-
+  var _atrules = baselineAtRules
   // the public API (see the main docs)
 
 
@@ -112,13 +115,15 @@ export default function J2c(options) {
       if (type.call(plugin) !== OBJECT) throw new Error('bad plugin, object expected, got '+ type.call(plugin))
 
       if (type.call(plugin.filter) === FUNCTION) _filters.push(plugin.filter)
-      if (type.call(plugin.atrule) === FUNCTION) _atruleHandlers.push(plugin.atrule)
+      if (type.call(plugin.atrule) === FUNCTION) _atrulePlugins.push(plugin.atrule)
       if (type.call(plugin.sink) === FUNCTION) _backend = plugin.sink()
       if (type.call(plugin.set) === OBJECT) _setPropList.push(plugin.set)
     })(options.plugins)
   }
   if (type.call(options.suffix) === STRING) _suffix = options.suffix
   if (type.call(options.suffix) === NUMBER) _suffix = randChars(options.suffix)
+
+  for (var i = _atrulePlugins.length; i--;) _atrules = _atrulePlugins[i](_atrules)
 
   _backend[1] = _backend[1] || {
     init: _backend[0].init,
@@ -129,7 +134,7 @@ export default function J2c(options) {
   }
 
   // finalize the backend by merging in the filters
-  for(var i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
+  for(i = 0; i < 2; i++){ // 0 for j2c.sheet, 1 for j2c.inline
     for (var j = _filters.length; j--;) {
       _backend[i] = freeze(
         defaults(
@@ -139,5 +144,5 @@ export default function J2c(options) {
       )
     }
   }
-  return freeze(makeInstance('', _suffix, _atruleHandlers, _nsCache, _backend, _setPropList))
+  return freeze(makeInstance('', _suffix, _atrules, _nsCache, _backend, _setPropList))
 }

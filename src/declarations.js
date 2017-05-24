@@ -33,7 +33,7 @@ export function declarations(state, emit, prefix, o, local) {
 
     for (k in o) if (own.call(o, k)){
       v = o[k]
-      if (/\$/.test(k)) {
+      if (k.indexOf('$') !== -1) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
           declarations(state, emit, prefix + k[kk], v, local)

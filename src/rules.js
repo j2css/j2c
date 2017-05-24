@@ -1,6 +1,5 @@
 import {type, ARRAY, OBJECT, STRING, ampersand, own, splitSelector} from './helpers'
 import {declarations} from './declarations'
-import {atRules} from './at-rules'
 
 /**
  * Add rulesets and other CSS tree to the sheet.
@@ -29,7 +28,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
           emit.rule(prefix)
 
         }
-        if (/\$/.test(k)) {
+        if (k.indexOf('$') !== -1) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
             declarations(state, emit, k[kk], v, local)
@@ -45,7 +44,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         // Handle At-rules
         inDeclaration = 0
 
-        atRules(state, emit,
+        state.atrules(state, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*([\s\S]*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, nestingDepth
         )

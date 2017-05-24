@@ -158,7 +158,119 @@ o.spec('Options and plugins', function(){
     o(res[1][1].indexOf('Error')).notEquals(-1)
     o(res[1][1].indexOf('foo')).notEquals(-1)
     o(res[2]).deepEquals(['_rule'])
+  })
 
+  o.spec('atrule plugins', function() {
+    o('one atrule plugin', function() {
+      var plugin = {
+        atrule: function(next) {
+          o(typeof next).equals('function')
+          return function(walker, emit, match, v, prefix, local, depth) {
+            o(match instanceof Array).equals(true)('value should have been a Array')
+            o(walker instanceof Object).equals(true)('value should have been a Object')
+            o(walker.hasOwnProperty('atrules')).equals(true)
+            o(walker.hasOwnProperty('localize')).equals(true)
+            o(walker.hasOwnProperty('localizeReplacer')).equals(true)
+            o(walker.hasOwnProperty('names')).equals(true)
 
+            o(emit instanceof Object).equals(true)('value should have been a Object')
+            o(emit.hasOwnProperty('atrule')).equals(true)
+
+            o(typeof prefix).equals('string')('value should have been a string')
+              // `local` can be many things, the only things that matters is its truthiness
+            o(!!local).equals(true)
+              // `inAtRule` can be many things, the only things that matters is its truthiness
+            o(depth).equals(0)
+
+            if (match[2] === 'foo') emit.atrule(match[1], match[2], v, false)
+            else next(walker, emit, match, v, prefix, local, depth)
+          }
+        }
+      }
+
+      var _j2c = J2c({plugins: [plugin, sink]})
+      o(_j2c.sheet({'@foo': 'param'})).deepEquals([
+        ['atrule', '@foo', 'foo', 'param', false]
+      ])
+
+      o(_j2c.sheet({
+        '@foo': 'param2',
+        '@bar': 'param',
+        '@baz': 'param'
+      })).deepEquals([
+        ['atrule', '@foo', 'foo', 'param2', false],
+        ['err', 'Unsupported at-rule: @bar'],
+        ['err', 'Unsupported at-rule: @baz']
+      ])
+
+    })
+
+    o('two atrule plugins', function() {
+      function plugin(name) {
+        return {
+          atrule: function(next) {
+            o(typeof next).equals('function')
+            return function(walker, emit, match, v, prefix, local, depth) {
+              if (match[2] === name) return emit.atrule(match[1], match[2], v, false)
+              else next(walker, emit, match, v, prefix, local, depth)
+            }
+          }
+        }
+      }
+      var _j2c = J2c({plugins: [plugin('foo'), plugin('bar'), sink]})
+      o(_j2c.sheet({
+        '@foo': 'param',
+        '@bar': 'param'
+      })).deepEquals([
+        ['atrule', '@foo', 'foo', 'param', false],
+        ['atrule', '@bar', 'bar', 'param', false]
+      ])
+      o(_j2c.sheet({
+        '@foo': 'param2',
+        '@bar': 'param3',
+        '@baz': 'param'
+      })).deepEquals([
+        ['atrule', '@foo', 'foo', 'param2', false],
+        ['atrule', '@bar', 'bar', 'param3', false],
+        ['err', 'Unsupported at-rule: @baz']
+      ])
+    })
+
+    o('atrule plugin has precedence over default at-rules', function() {
+      var plugin = {
+        atrule: function(next) {
+          o(typeof next).equals('function')
+          return function(walker, emit, match, v, prefix, local, depth) {
+            if (match[2] === 'import') emit.atrule('@intercepted', 'intercepted', v, false)
+            else next(walker, emit, match, v, prefix, local, depth)
+          }
+        }
+      }
+
+      o(J2c({plugins: [plugin, sink]}).sheet({'@import': 'foo'})).deepEquals([
+        ['atrule', '@intercepted', 'intercepted', 'foo', false]
+      ])
+    })
+
+    o('atrule plugin that verifies malformed rules are properly passed unparsed', function() {
+      var plugin = {
+        atrule: function (next) {
+          o(typeof next).equals('function')
+          return function(walker, emit, match, v) {
+
+            o(match[0]).equals('@; hey')
+            o(match[1]).equals('@')
+            o(match[2]).equals('')
+            o(match[3]).equals('')
+            o(v).equals('foo')
+            // no need to call next
+          }
+        }
+      }
+
+      o(J2c({plugins: [plugin, sink]}).sheet({
+        '@; hey': 'foo'
+      })).deepEquals([])
+    })
   })
 })
