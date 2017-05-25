@@ -107,8 +107,8 @@ function decamelize(match) {
 /**
  * Handles the property:value; pairs.
  *
- * @param {object} state - holds the localizer- and walker-related methods
- *                         and state
+ * @param {object} frontend - holds the localizer- and walker-related methods
+ *                            and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
@@ -116,7 +116,7 @@ function decamelize(match) {
  * @param {boolean} local - are we in @local or in @global scope.
  */
 
-function declarations(state, emit, prefix, o, local) {
+function declarations(frontend, emit, prefix, o, local) {
   var k, v, kk;
   if (o==null) return
 
@@ -124,7 +124,7 @@ function declarations(state, emit, prefix, o, local) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
 
-      declarations(state, emit, prefix, o[k], local);
+      declarations(frontend, emit, prefix, o[k], local);
 
     break
   case OBJECT:
@@ -136,12 +136,12 @@ function declarations(state, emit, prefix, o, local) {
       if (k.indexOf('$') !== -1) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(state, emit, prefix + k[kk], v, local);
+          declarations(frontend, emit, prefix + k[kk], v, local);
 
         }
       } else {
 
-        declarations(state, emit, prefix + k, v, local);
+        declarations(frontend, emit, prefix + k, v, local);
 
       }
     }
@@ -164,7 +164,7 @@ function declarations(state, emit, prefix, o, local) {
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, state.localizeReplacer)
+        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
 
       }).join(',');
     }
@@ -176,15 +176,15 @@ function declarations(state, emit, prefix, o, local) {
 /**
  * Add rulesets and other CSS tree to the sheet.
  *
- * @param {object} state - holds the localizer- and walker-related methods
- *                         and state
+ * @param {object} frontend - holds the localizer- and walker-related methods
+ *                            and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {array|string|object} tree - a source object or sub-object.
  * @param {string} nestingDepth - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
-function rules(state, emit, prefix, tree, local, nestingDepth) {
+function rules(frontend, emit, prefix, tree, local, nestingDepth) {
   var k, v, inDeclaration, kk;
 
   switch (type.call(tree)) {
@@ -203,12 +203,12 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
         if (k.indexOf('$') !== -1) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-            declarations(state, emit, k[kk], v, local);
+            declarations(frontend, emit, k[kk], v, local);
 
           }
         } else {
 
-          declarations(state, emit, k, v, local);
+          declarations(frontend, emit, k, v, local);
 
         }
 
@@ -216,7 +216,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
         // Handle At-rules
         inDeclaration = 0;
 
-        state.atrules(state, emit,
+        frontend.atrules(frontend, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*([\s\S]*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, nestingDepth
         );
@@ -232,34 +232,34 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
         }
 
         rules(
-          state, emit,
+          frontend, emit,
           // build the selector `prefix` for the next iteration.
           // ugly and full of redundant bits but so far the fastest/shortest.gz
-          /*0 if*/(prefix.length > 0 && (/,/.test(prefix) || /,/.test(k))) ?
+          /*0 if*/(prefix.length > 0 && (prefix.indexOf(',') + k.indexOf(',') !== -2)) ?
 
             /*0 then*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
                 k.replace(
                   /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                  state.localizeReplacer
+                  frontend.localizeReplacer
                 ) :
 
                 k
             ).map(function (k) {
-              return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
+              return (k.indexOf('&') !== -1) ? ampersand(k, kk) : kk.map(function(kk) {
                 return kk + k
               }).join(',')
             }).join(',')) :
 
-            /*0 else*/ /*1 if*/ /&/.test(k) ?
+            /*0 else*/ /*1 if*/ (k.indexOf('&') !== -1) ?
 
               /*1 then*/ ampersand(
                 local ?
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.localizeReplacer
+                    frontend.localizeReplacer
                   ) :
 
                   k,
@@ -271,7 +271,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.localizeReplacer
+                    frontend.localizeReplacer
                   ) :
 
                   k
@@ -287,7 +287,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
   case ARRAY:
     for (k = 0; k < tree.length; k++){
 
-      rules(state, emit, prefix, tree[k], local, nestingDepth);
+      rules(frontend, emit, prefix, tree[k], local, nestingDepth);
 
     }
     break
@@ -306,7 +306,7 @@ function rules(state, emit, prefix, tree, local, nestingDepth) {
 // actually the last step of the compiler. It inserts
 // closing braces to close normal (non at-) rules (those
 // that start with a selector). Doing it earlier is
-// impossible without passing state around in unrelated code
+// impossible without passing frontend around in unrelated code
 // or ending up with duplicated selectors when the source tree
 // contains arrays.
 // There's no `_rule` handler, because the core compiler never
@@ -341,9 +341,9 @@ function closeSelectors(next, inline) {
 }
 
 /**
- * Handles a single at-rules
+ * Handle at-rules
  *
- * @param {object} state - holds the localizer- and walker-related methods
+ * @param {object} frontend - holds the localizer- and walker-related methods
  *                         and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {array} k - The parsed at-rule, including the parameters,
@@ -366,18 +366,18 @@ function closeSelectors(next, inline) {
 
 
 function modulesAtRules(next) {
-  return function (state, emit, k, v, prefix, local, nestingDepth) {
-    if (!k[3] && k[2] === 'global') {
+  return function (frontend, emit, k, v, prefix, local, nestingDepth) {
+    if (k[2] === 'global' && !k[3]) {
 
-      rules(state, emit, prefix, v, 0, nestingDepth);
-
-
-    } else if (!k[3] && k[2] === 'local') {
-
-      rules(state, emit, prefix, v, 1, nestingDepth);
+      rules(frontend, emit, prefix, v, 0, nestingDepth);
 
 
-    } else if (k[3] && k[2] === 'adopt') {
+    } else if (k[2] === 'local' && !k[3]) {
+
+      rules(frontend, emit, prefix, v, 1, nestingDepth);
+
+
+    } else if (k[2] === 'adopt' && k[3]) {
 
       if (!local || nestingDepth) return emit.err('@adopt global or nested: ' + k[0])
 
@@ -394,27 +394,27 @@ function modulesAtRules(next) {
 
       // we may end up with duplicate classes but AFAIK it has no consequences on specificity.
       if (classes.length) {
-        state.localize(k[3] = k[3].replace(/\./g, ''));
-        state.names[k[3]] += (' ' + classes.join(' '));
+        frontend.localize(k[3] = k[3].replace(/\./g, ''));
+        frontend.names[k[3]] += (' ' + classes.join(' '));
       }
 
     } else {
-      if (local && k[3] && k[2] === 'keyframes') {
+      if (local && k[2] === 'keyframes' && k[3]) {
 
         k[3] = k[3].replace(
           // generated by script/regexps.js
           /(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*)/,
-          state.localizeReplacer
+          frontend.localizeReplacer
         );
 
       }
-      next(state, emit, k, v, prefix, local, nestingDepth);
+      next(frontend, emit, k, v, prefix, local, nestingDepth);
     }
   }
 }
 function standardAtRules(next) {
-  return function(state, emit, k, v, prefix, local, nestingDepth) {
-    if (!k[3] && (k[2] === 'namespace' || k[2] === 'import' || k[2] === 'charset')) {
+  return function(frontend, emit, k, v, prefix, local, nestingDepth) {
+    if ((k[2] === 'namespace' || k[2] === 'import' || k[2] === 'charset') && !k[3]) {
       flatIter(function(v) {
 
         emit.atrule(k[1], k[2], v);
@@ -427,18 +427,18 @@ function standardAtRules(next) {
 
         emit.atrule(k[1], k[2], k[3], 'decl');
 
-        declarations(state, emit, '', v, local);
+        declarations(frontend, emit, '', v, local);
 
         emit._atrule();
 
       })(v);
 
-    } else if (k[3] && (k[2] === 'keyframes' || k[2] === 'media' || k[2] === 'supports')) {
+    } else if ((k[2] === 'keyframes' || k[2] === 'media' || k[2] === 'supports') && k[3]) {
 
       emit.atrule(k[1], k[2], k[3], 'rule');
 
       rules(
-        state, emit,
+        frontend, emit,
         'keyframes' == k[2] ? '' : prefix,
         v, local, nestingDepth + 1
       );
@@ -447,13 +447,13 @@ function standardAtRules(next) {
 
     } else {
 
-      next(state, emit, k, v, prefix, local, nestingDepth);
+      next(frontend, emit, k, v, prefix, local, nestingDepth);
 
     }
   }
 }
 
-function unsupportedAtRule(state, emit, k){
+function unsupportedAtRule(frontend, emit, k){
   emit.err('Unsupported at-rule: ' + k[0]);
 }
 

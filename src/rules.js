@@ -4,15 +4,15 @@ import {declarations} from './declarations'
 /**
  * Add rulesets and other CSS tree to the sheet.
  *
- * @param {object} state - holds the localizer- and walker-related methods
- *                         and state
+ * @param {object} frontend - holds the localizer- and walker-related methods
+ *                            and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current selector or a prefix in case of nested rules
  * @param {array|string|object} tree - a source object or sub-object.
  * @param {string} nestingDepth - are we nested in an at-rule?
  * @param {boolean} local - are we in @local or in @global scope?
  */
-export function rules(state, emit, prefix, tree, local, nestingDepth) {
+export function rules(frontend, emit, prefix, tree, local, nestingDepth) {
   var k, v, inDeclaration, kk
 
   switch (type.call(tree)) {
@@ -31,12 +31,12 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         if (k.indexOf('$') !== -1) {
           for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-            declarations(state, emit, k[kk], v, local)
+            declarations(frontend, emit, k[kk], v, local)
 
           }
         } else {
 
-          declarations(state, emit, k, v, local)
+          declarations(frontend, emit, k, v, local)
 
         }
 
@@ -44,7 +44,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         // Handle At-rules
         inDeclaration = 0
 
-        state.atrules(state, emit,
+        frontend.atrules(frontend, emit,
           /^(.(?:-[\w]+-)?([_A-Za-z][-\w]*))\b\s*([\s\S]*?)\s*$/.exec(k) || [k,'@','',''],
           v, prefix, local, nestingDepth
         )
@@ -60,34 +60,34 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
         }
 
         rules(
-          state, emit,
+          frontend, emit,
           // build the selector `prefix` for the next iteration.
           // ugly and full of redundant bits but so far the fastest/shortest.gz
-          /*0 if*/(prefix.length > 0 && (/,/.test(prefix) || /,/.test(k))) ?
+          /*0 if*/(prefix.length > 0 && (prefix.indexOf(',') + k.indexOf(',') !== -2)) ?
 
             /*0 then*/ (kk = splitSelector(prefix), splitSelector(
               local ?
 
                 k.replace(
                   /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                  state.localizeReplacer
+                  frontend.localizeReplacer
                 ) :
 
                 k
             ).map(function (k) {
-              return /&/.test(k) ? ampersand(k, kk) : kk.map(function(kk) {
+              return (k.indexOf('&') !== -1) ? ampersand(k, kk) : kk.map(function(kk) {
                 return kk + k
               }).join(',')
             }).join(',')) :
 
-            /*0 else*/ /*1 if*/ /&/.test(k) ?
+            /*0 else*/ /*1 if*/ (k.indexOf('&') !== -1) ?
 
               /*1 then*/ ampersand(
                 local ?
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.localizeReplacer
+                    frontend.localizeReplacer
                   ) :
 
                   k,
@@ -99,7 +99,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
 
                   k.replace(
                     /("(?:\\.|[^"\n])*"|'(?:\\.|[^'\n])*'|\/\*[\s\S]*?\*\/)|:global\(\s*(\.-?[_A-Za-z][-\w]*)\s*\)|(\.)(-?[_A-Za-z][-\w]*)/g,
-                    state.localizeReplacer
+                    frontend.localizeReplacer
                   ) :
 
                   k
@@ -115,7 +115,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
   case ARRAY:
     for (k = 0; k < tree.length; k++){
 
-      rules(state, emit, prefix, tree[k], local, nestingDepth)
+      rules(frontend, emit, prefix, tree[k], local, nestingDepth)
 
     }
     break
@@ -134,7 +134,7 @@ export function rules(state, emit, prefix, tree, local, nestingDepth) {
 // actually the last step of the compiler. It inserts
 // closing braces to close normal (non at-) rules (those
 // that start with a selector). Doing it earlier is
-// impossible without passing state around in unrelated code
+// impossible without passing frontend around in unrelated code
 // or ending up with duplicated selectors when the source tree
 // contains arrays.
 // There's no `_rule` handler, because the core compiler never

@@ -7,8 +7,8 @@ function decamelize(match) {
 /**
  * Handles the property:value; pairs.
  *
- * @param {object} state - holds the localizer- and walker-related methods
- *                         and state
+ * @param {object} frontend - holds the localizer- and walker-related methods
+ *                            and state
  * @param {object} emit - the contextual emitters to the final buffer
  * @param {string} prefix - the current property or a prefix in case of nested
  *                          sub-properties.
@@ -16,7 +16,7 @@ function decamelize(match) {
  * @param {boolean} local - are we in @local or in @global scope.
  */
 
-export function declarations(state, emit, prefix, o, local) {
+export function declarations(frontend, emit, prefix, o, local) {
   var k, v, kk
   if (o==null) return
 
@@ -24,7 +24,7 @@ export function declarations(state, emit, prefix, o, local) {
   case ARRAY:
     for (k = 0; k < o.length; k++)
 
-      declarations(state, emit, prefix, o[k], local)
+      declarations(frontend, emit, prefix, o[k], local)
 
     break
   case OBJECT:
@@ -36,12 +36,12 @@ export function declarations(state, emit, prefix, o, local) {
       if (k.indexOf('$') !== -1) {
         for (kk in (k = k.split('$'))) if (own.call(k, kk)) {
 
-          declarations(state, emit, prefix + k[kk], v, local)
+          declarations(frontend, emit, prefix + k[kk], v, local)
 
         }
       } else {
 
-        declarations(state, emit, prefix + k, v, local)
+        declarations(frontend, emit, prefix + k, v, local)
 
       }
     }
@@ -64,7 +64,7 @@ export function declarations(state, emit, prefix, o, local) {
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, state.localizeReplacer)
+        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
 
       }).join(',')
     }
