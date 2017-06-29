@@ -3,6 +3,7 @@
   "version": "0.11.3",
   "description": "A tiny CSS in JS solution.",
   "main": "dist/j2c.commonjs.js",
+  "module": "dist/j2c.es6.js",
   "scripts": {
     "all": "npm run build && npm run eslint && npm run nyan",
     "preversion": "npm run -s all",
