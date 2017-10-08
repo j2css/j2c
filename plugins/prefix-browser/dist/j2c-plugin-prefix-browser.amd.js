@@ -453,6 +453,41 @@ function makeLexer (before, targets, after) {
     )
 }
 
+// declarations
+// ------------
+function fixDecl(fixers, emit, property, value) {
+  if (typeof property !== 'string' || property.charAt(0) === '-') return emit(property, value)
+
+  if (!(typeof value === 'string' || typeof value === 'number')){
+    return emit(fixers.properties[property] || fixers.fixProperty(property), value)
+  }
+
+  value = value + '';
+  if (fixers.flexbox2009) {
+      // TODO: flex only takes one value in the 2009 spec
+    if (property === 'flex-flow') {
+      value.split(' ').forEach(function(v){
+        // recurse! The lack of `next.` is intentional.
+        if (v.indexOf('wrap') > -1) fixDecl(fixers, emit, 'flex-wrap', v);
+        else if(v !== '') fixDecl(fixers, emit, 'flex-direction', v);
+      });
+      return
+    } else if (property === 'flex-direction') {
+      emit(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
+      emit(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
+      return
+    }
+  }
+  if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
+    emit('-webkit-background-clip', value);
+  } else {
+    emit(
+      fixers.properties[property] || fixers.fixProperty(property),
+      fixers.fixValue(value, property)
+    );
+  }
+}
+
 
 function finalizeFixers(fixers) {
   var prefix = fixers.prefix;
@@ -535,7 +570,6 @@ function finalizeFixers(fixers) {
     return res
   };
 
-
   // @media (resolution:...) {
   // -------------------------
 
@@ -558,10 +592,16 @@ function finalizeFixers(fixers) {
   // @supports ... {
   // ---------------
 
+  var supportsProp, supportsValue;
+  var atSupportsParamsFixer = function (property, value) {
+    supportsProp = property;
+    supportsValue = value;
+  };
   // regexp built by scripts/regexps.js
   var atSupportsParamsMatcher =  /\(\s*([-\w]+)\s*:\s*((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g;
   function atSupportsParamsReplacer(match, prop, value) {
-    return '(' + (fixers.properties[prop] || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop)
+    fixDecl(fixers, atSupportsParamsFixer, prop, value);
+    return '(' + supportsProp + ':' + supportsValue
   }
   fixers.fixAtSupportsParams = function(params) {
     return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
@@ -605,33 +645,8 @@ function prefixPlugin(){
             hasBlock
           );
         },
-        decl: function decl(property, value) {
-          if (typeof property !== 'string' || property.charAt(0) === '-') return next.decl(property, value)
-
-          if (!(typeof value === 'string' || typeof value === 'number')){
-            return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
-          }
-
-          value = value + '';
-          if (fixers.flexbox2009 && (property === 'flex-flow' || property === 'flex-direction')) {
-            if (property === 'flex-flow') {
-              value.split(' ').forEach(function(v){
-                // recurse! The lack of `next.` is intentional.
-                if (v.indexOf('wrap') > -1) decl('flex-wrap', v);
-                else if(v !== '') decl('flex-direction', v);
-              });
-            } else { // (property === 'flex-direction')
-              next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis');
-              next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal');
-            }
-          } else if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
-            next.decl('-webkit-background-clip', value);
-          } else {
-            next.decl(
-              fixers.properties[property] || fixers.fixProperty(property),
-              fixers.fixValue(value, property)
-            );
-          }
+        decl: function(property, value) {
+          fixDecl(fixers, next.decl, property, value);
         },
         rule: function(selector) {
           next.rule(

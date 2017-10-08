@@ -1,4 +1,4 @@
-import {blankFixers, browserDetector, finalizeFixers} from './fixers.js'
+import {blankFixers, browserDetector, finalizeFixers, fixDecl} from './fixers.js'
 
 var commonFixers
 
@@ -37,33 +37,8 @@ export function prefixPlugin(){
             hasBlock
           )
         },
-        decl: function decl(property, value) {
-          if (typeof property !== 'string' || property.charAt(0) === '-') return next.decl(property, value)
-
-          if (!(typeof value === 'string' || typeof value === 'number')){
-            return next.decl(fixers.properties[property] || fixers.fixProperty(property), value)
-          }
-
-          value = value + ''
-          if (fixers.flexbox2009 && (property === 'flex-flow' || property === 'flex-direction')) {
-            if (property === 'flex-flow') {
-              value.split(' ').forEach(function(v){
-                // recurse! The lack of `next.` is intentional.
-                if (v.indexOf('wrap') > -1) decl('flex-wrap', v)
-                else if(v !== '') decl('flex-direction', v)
-              })
-            } else { // (property === 'flex-direction')
-              next.decl(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
-              next.decl(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
-            }
-          } else if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
-            next.decl('-webkit-background-clip', value)
-          } else {
-            next.decl(
-              fixers.properties[property] || fixers.fixProperty(property),
-              fixers.fixValue(value, property)
-            )
-          }
+        decl: function(property, value) {
+          fixDecl(fixers, next.decl, property, value)
         },
         rule: function(selector) {
           next.rule(

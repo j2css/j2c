@@ -100,6 +100,41 @@ function makeLexer (before, targets, after) {
     )
 }
 
+// declarations
+// ------------
+export function fixDecl(fixers, emit, property, value) {
+  if (typeof property !== 'string' || property.charAt(0) === '-') return emit(property, value)
+
+  if (!(typeof value === 'string' || typeof value === 'number')){
+    return emit(fixers.properties[property] || fixers.fixProperty(property), value)
+  }
+
+  value = value + ''
+  if (fixers.flexbox2009) {
+      // TODO: flex only takes one value in the 2009 spec
+    if (property === 'flex-flow') {
+      value.split(' ').forEach(function(v){
+        // recurse! The lack of `next.` is intentional.
+        if (v.indexOf('wrap') > -1) fixDecl(fixers, emit, 'flex-wrap', v)
+        else if(v !== '') fixDecl(fixers, emit, 'flex-direction', v)
+      })
+      return
+    } else if (property === 'flex-direction') {
+      emit(fixers.properties['box-orient'], value.indexOf('column') > -1 ? 'block-axis' : 'inline-axis')
+      emit(fixers.properties['box-direction'], value.indexOf('-reverse') > -1 ? 'reverse' : 'normal')
+      return
+    }
+  }
+  if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
+    emit('-webkit-background-clip', value)
+  } else {
+    emit(
+      fixers.properties[property] || fixers.fixProperty(property),
+      fixers.fixValue(value, property)
+    )
+  }
+}
+
 
 export function finalizeFixers(fixers) {
   var prefix = fixers.prefix
@@ -182,7 +217,6 @@ export function finalizeFixers(fixers) {
     return res
   }
 
-
   // @media (resolution:...) {
   // -------------------------
 
@@ -205,10 +239,16 @@ export function finalizeFixers(fixers) {
   // @supports ... {
   // ---------------
 
+  var supportsProp, supportsValue
+  var atSupportsParamsFixer = function (property, value) {
+    supportsProp = property
+    supportsValue = value
+  }
   // regexp built by scripts/regexps.js
   var atSupportsParamsMatcher =  /\(\s*([-\w]+)\s*:\s*((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|\((?:'(?:\\[\S\s]|[^'])*'|"(?:\\[\S\s]|[^"])*"|\/\*[\S\s]*?\*\/|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*\)|[^\)])*)/g
   function atSupportsParamsReplacer(match, prop, value) {
-    return '(' + (fixers.properties[prop] || fixers.fixProperty(prop)) + ':' + fixers.fixValue(value, prop)
+    fixDecl(fixers, atSupportsParamsFixer, prop, value)
+    return '(' + supportsProp + ':' + supportsValue
   }
   fixers.fixAtSupportsParams = function(params) {
     return params.replace(atSupportsParamsMatcher, atSupportsParamsReplacer)
