@@ -109,7 +109,7 @@ export function detectKeywords(fixers) {
     }
   }
   if (fixers.keywords.display && fixers.keywords.display.flexbox && !supportedDecl('display', 'flex')) {
-    // old IE
+    // IE 10, Flexbox 2012
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
     for (k in flex2012Props) {
@@ -130,6 +130,14 @@ export function detectKeywords(fixers) {
       fixers.properties[k] = fixers.prefix + flex2009Props[k]
       fixers.keywords[k] = flex2009Values
     }
+  } else if (
+    fixers.keywords.display &&
+    !fixers.keywords.display.box &&
+    !fixers.keywords.display.flex &&
+    !fixers.keywords.display.flexbox &&
+    !supportedDecl('display', 'flex')
+  ) {
+    fixers.jsFlex = true
   }
   if (
     !supportedDecl('color', 'initial') &&

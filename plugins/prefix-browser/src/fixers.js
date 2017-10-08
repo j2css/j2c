@@ -24,6 +24,7 @@ export function blankFixers() {
     flexbox2009: false,
     functions: [],
     initial: null,
+    jsFlex: false,
     keywords: {},
     placeholder: null,
     prefix: '',
@@ -110,6 +111,12 @@ export function fixDecl(fixers, emit, property, value) {
   }
 
   value = value + ''
+  if (fixers.jsFlex) {
+    if (property === 'display' && (value === 'flex' || value === 'inline-flex')) {
+      emit('-js-display', value)
+      return
+    }
+  }
   if (fixers.flexbox2009) {
       // TODO: flex only takes one value in the 2009 spec
     if (property === 'flex-flow') {

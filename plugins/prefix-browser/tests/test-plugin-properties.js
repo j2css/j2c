@@ -96,6 +96,34 @@ o.spec('plugin.decl for properties', function() {
       'baz': 'baz'
     })
   })
+  o('with jsFlex, display:flex becomes -js-display:flex', function() {
+    mocks(global)
+    initBrowser()
+
+    fixers.prefix = '-o-'
+    fixers.jsFlex = true
+
+    var plugin = createPrefixPlugin()
+    plugin.set.setPrefixDb(fixers)
+    var sink = makeSink()
+    var methods = plugin.filter(sink)
+
+
+    methods.decl('display', 'flex')
+    methods.decl('display', 'inline-flex')
+
+    o(fixers.properties).deepEquals({})
+
+    methods.decl('display', 'block')
+
+    o(sink.buffer).deepEquals([
+      ['decl', '-js-display', 'flex'],
+      ['decl', '-js-display', 'inline-flex'],
+      ['decl', 'display', 'block']
+    ])
+
+    o(fixers.properties).deepEquals({display: 'display'})
+  })
   o('with flexbox 2009, `flex-direction` becomes box-orient + box-direction', function() {
     mocks(global)
     initBrowser()

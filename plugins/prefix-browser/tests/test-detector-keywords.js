@@ -175,4 +175,13 @@ o.spec('detectKeywords', function() {
     o(fixers.keywords.display).deepEquals({grid: '-ms-grid', 'inline-grid': '-o-inline-grid'})
     o(fixers.initial).equals(null)
   })
+  o('detects a lack of flexbox support', function() {
+    mocks(global, {properties: {display: ['grid']}})
+    init()
+    fixers.prefix = '-ms-'
+    fixers.prefixes = ['-ms-']
+    detectKeywords(fixers)
+    finalize()
+    o(fixers.jsFlex).equals(true)
+  })
 })

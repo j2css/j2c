@@ -254,7 +254,7 @@ function detectKeywords(fixers) {
     }
   }
   if (fixers.keywords.display && fixers.keywords.display.flexbox && !supportedDecl('display', 'flex')) {
-    // old IE
+    // IE 10, Flexbox 2012
     fixers.keywords.display.flex = fixers.keywords.display.flexbox;
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox'];
     for (k in flex2012Props) {
@@ -275,6 +275,14 @@ function detectKeywords(fixers) {
       fixers.properties[k] = fixers.prefix + flex2009Props[k];
       fixers.keywords[k] = flex2009Values;
     }
+  } else if (
+    fixers.keywords.display &&
+    !fixers.keywords.display.box &&
+    !fixers.keywords.display.flex &&
+    !fixers.keywords.display.flexbox &&
+    !supportedDecl('display', 'flex')
+  ) {
+    fixers.jsFlex = true;
   }
   if (
     !supportedDecl('color', 'initial') &&
@@ -386,6 +394,7 @@ function blankFixers() {
     flexbox2009: false,
     functions: [],
     initial: null,
+    jsFlex: false,
     keywords: {},
     placeholder: null,
     prefix: '',
@@ -472,6 +481,12 @@ function fixDecl(fixers, emit, property, value) {
   }
 
   value = value + '';
+  if (fixers.jsFlex) {
+    if (property === 'display' && (value === 'flex' || value === 'inline-flex')) {
+      emit('-js-display', value);
+      return
+    }
+  }
   if (fixers.flexbox2009) {
       // TODO: flex only takes one value in the 2009 spec
     if (property === 'flex-flow') {
