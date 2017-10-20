@@ -1045,22 +1045,6 @@ function randInt() {
           )
         })
 
-        o('@keyframes', function() {
-          check(
-            J2c().sheet({
-              '@keyframes global(qux)': {
-                from: {
-                  foo: 'bar'
-                },
-                to: {
-                  foo: 'baz'
-                }
-              }
-            }),
-            '@keyframes qux{from{foo:bar}to{foo:baz}}'
-          )
-        })
-
         o('invalid @foo becomes @-error-unsupported-at-rule "@foo"', function() {
           var err
           try {
@@ -1076,7 +1060,7 @@ function randInt() {
           o(err.message.indexOf('"Unsupported at-rule: @foo"')).notEquals(-1)
         })
 
-        o('invalid @ becomes @-error-unsupported-at-rule "@"', function() {
+        o('invalid @ errors out', function() {
           var err
           try {
             J2c().sheet({
@@ -1305,7 +1289,7 @@ function randInt() {
           o(css.indexOf('@keyframes bit {')).notEquals(-1)
         })
 
-        o('a @keyframe nested in a @global at-rule', function() {
+        o('a @keyframes nested in a @global at-rule', function() {
           var names = _j2c.names
           var css = _j2c.sheet({
             '@global': {

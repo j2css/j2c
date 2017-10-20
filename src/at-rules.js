@@ -1,4 +1,4 @@
-import {flatIter} from './helpers'
+import {flatIter, randChars} from './helpers'
 import {rules} from './rules'
 import {declarations} from './declarations'
 
@@ -95,7 +95,19 @@ export function standardAtRules(next) {
 
       })(v)
 
-    } else if ((k[2] === 'keyframes' || k[2] === 'media' || k[2] === 'supports') && k[3]) {
+    } else if (( k[2] === 'media'|| k[2] === 'supports') && k[3] || k[2] === 'keyframes') {
+
+      if (k[2] === 'keyframes' && k[3] === '') {
+        if(prefix !== '') {
+          k[3] = '_' + randChars(8)
+          emit.rule(prefix)
+          emit.decl('animation-name', k[3])
+        } else {
+          emit.err('Unexpected anonymous @keyframes out of selector')
+          return
+        }
+      }
+
 
       emit.atrule(k[1], k[2], k[3], 'rule')
 

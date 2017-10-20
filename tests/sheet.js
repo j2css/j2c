@@ -27,4 +27,104 @@ o.spec('sheets (new suite, WIP)', function() {
       o(css).deepEquals([['err', "Invalid selector ''"]])
     })
   })
+  o.spec('at-rules', function() {
+    o('@keyframes', function() {
+      var css = j2c.sheet({
+        '@keyframes global(qux)': {
+          from: {
+            foo: 'bar'
+          },
+          to: {
+            foo: 'baz'
+          }
+        }
+      })
+      o(css).deepEquals([
+        ['atrule', '@keyframes', 'keyframes', 'qux', 'rule'],
+          ['rule', 'from'],
+            ['decl', 'foo', 'bar'],
+          ['_rule'],
+          ['rule', 'to'],
+            ['decl', 'foo', 'baz'],
+          ['_rule'],
+        ['_atrule']
+      ])
+    })
+  })
+  o('anonymous @keyframes alone in a block', function() {
+    var css = j2c.sheet({
+      'p': {
+        '@keyframes': {
+          from: {
+            foo: 'bar'
+          },
+          to: {
+            foo: 'baz'
+          }
+        }
+      }
+    })
+    var name = css[1][2]
+
+    o(css).deepEquals([
+      ['rule', 'p'],
+        ['decl', 'animation-name', name],
+      ['_rule'],
+      ['atrule', '@keyframes', 'keyframes', name, 'rule'],
+        ['rule', 'from'],
+          ['decl', 'foo', 'bar'],
+        ['_rule'],
+        ['rule', 'to'],
+          ['decl', 'foo', 'baz'],
+        ['_rule'],
+      ['_atrule']
+    ])
+  })
+  o('anonymous @keyframes after another declaration', function() {
+    var css = j2c.sheet({
+      'p': {
+        animationDuration: '1s',
+        '@keyframes': {
+          from: {
+            foo: 'bar'
+          },
+          to: {
+            foo: 'baz'
+          }
+        }
+      }
+    })
+    var name = css[2][2]
+
+    o(css).deepEquals([
+      ['rule', 'p'],
+        ['decl', 'animation-duration', '1s'],
+        ['decl', 'animation-name', name],
+      ['_rule'],
+      ['atrule', '@keyframes', 'keyframes', name, 'rule'],
+        ['rule', 'from'],
+          ['decl', 'foo', 'bar'],
+        ['_rule'],
+        ['rule', 'to'],
+          ['decl', 'foo', 'baz'],
+        ['_rule'],
+      ['_atrule']
+    ])
+  })
+  o('anonymous @keyframes at the root errors out', function() {
+    var css = j2c.sheet({
+      '@keyframes': {
+        from: {
+          foo: 'bar'
+        },
+        to: {
+          foo: 'baz'
+        }
+      }
+    })
+
+    o(css).deepEquals([
+      ['err', 'Unexpected anonymous @keyframes out of selector']
+    ])
+  })
 })
