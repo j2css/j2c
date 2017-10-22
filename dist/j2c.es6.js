@@ -157,11 +157,12 @@ function declarations(frontend, emit, prefix, o, local) {
     k = prefix.replace(/[A-Z]/g, decamelize);
 
     if (local && (k == 'animation-name' || k == 'animation')) {
-      // no need to tokenize here a plain `.split(',')` has all bases covered.
+      // No need to tokenize here. We split in comas not followed by a keyword
+      // legal in `step()` functions.
       // We may 'localize' a comment, but it's not a big deal.
-      o = o.split(',').map(function (o) {
+      o = o.split(/,(?!\s*(?:start|end)\b)/).map(function (o) {
 
-        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
+        return o.replace(/^\s*(?:(var\([^),]+(?:\)|$))|(?:var\([^,]+,\s*)??:?global\(\s*([_A-Za-z][-\w]*)\s*\)|(?:var\([^,]+,\s*)??()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
 
       }).join(',');
     }
@@ -477,7 +478,7 @@ function invoke(fn, tree, state, backend) {
     fn(
       state,
       backend,
-      '', // prefix
+      '', // selector/property prefix
       tree,
       1,  // local, by default
       0   // nesting depth, only for sheet
@@ -486,10 +487,18 @@ function invoke(fn, tree, state, backend) {
   return backend.done()
 }
 
-function makeInstance(prefix, suffix, atrules, nsCache, backend, setPropList) {
+function bakePrefix(name, length) {
+  return (
+    name
+      ? name.replace(/\W+/g, '_') + '__'
+      : randIdentifier(length) + '__'
+  )
+}
+
+function makeInstance(prefix, prefixLength, atrules, nsCache, backend, setPropList) {
   var names = {};
   function localize(name) {
-    if (!own.call(names, name)) names[name] = prefix + name + suffix;
+    if (!own.call(names, name)) names[name] = prefix + name;
     return names[name].match(/^\S+/)
   }
   var state =  {
@@ -521,15 +530,14 @@ function makeInstance(prefix, suffix, atrules, nsCache, backend, setPropList) {
 
   var instance = {
     ns: function(name) {
-      var prefix = '__'+name.replace(/\W+/g, '_') + '_';
+      var prefix = bakePrefix(name, prefixLength);
       if (!own.call(nsCache, prefix)) {
-        nsCache[prefix] = makeInstance(prefix, suffix, atrules, nsCache, backend, setPropList);
+        nsCache[prefix] = makeInstance(prefix, prefixLength, atrules, nsCache, backend, setPropList);
       }
       return nsCache[prefix]
     },
     names: names,
     prefix: prefix,
-    suffix: suffix,
     sheet: function(tree) {return invoke(rules, tree, state, backend[0])},
     inline: function (tree) {return invoke(declarations, tree, state, backend[1])}
   };
@@ -569,7 +577,7 @@ function J2c(options) {
   var _filters = [closeSelectors];
   var _atrulePlugins = [];
   var _setPropList = [];
-  var _suffix = randIdentifier(7);
+  var _prefixLength = 7, _prefix;
   var _nsCache = {};
   var _atrules = baselineAtRules;
   // the public API (see the main docs)
@@ -586,8 +594,8 @@ function J2c(options) {
       if (type.call(plugin.set) === OBJECT) _setPropList.push(plugin.set);
     })(options.plugins);
   }
-  if (type.call(options.suffix) === STRING) _suffix = options.suffix;
-  if (type.call(options.suffix) === NUMBER) _suffix = randIdentifier(options.suffix);
+  if (type.call(options.prefix) === NUMBER) _prefixLength = options.prefix;
+  _prefix = bakePrefix((type.call(options.prefix) === STRING) ? options.prefix: null, _prefixLength);
 
   for (var i = _atrulePlugins.length; i--;) _atrules = _atrulePlugins[i](_atrules);
 
@@ -610,7 +618,7 @@ function J2c(options) {
       );
     }
   }
-  return freeze(makeInstance('', _suffix, _atrules, _nsCache, _backend, _setPropList))
+  return freeze(makeInstance(_prefix, _prefixLength, _atrules, _nsCache, _backend, _setPropList))
 }
 
 export default J2c;

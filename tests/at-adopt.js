@@ -13,7 +13,7 @@ o.spec('@adopt: ', function() {
       '@adopt foo': 'bar'
     })).equals('')
     o(j2c.names.hasOwnProperty('foo')).equals(true)
-    o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
+    o(j2c.names.foo).equals(j2c.prefix + 'foo' + ' bar')
   })
 
   o('basic usage (with dots)', function() {
@@ -21,7 +21,7 @@ o.spec('@adopt: ', function() {
       '@adopt .foo': '.bar'
     })).equals('')
     o(j2c.names.hasOwnProperty('foo')).equals(true)
-    o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
+    o(j2c.names.foo).equals(j2c.prefix + 'foo' + ' bar')
   })
 
   o('array of adoptees', function() {
@@ -29,7 +29,7 @@ o.spec('@adopt: ', function() {
       '@adopt foo': ['.bar', 'baz']
     })).equals( '')
     o(j2c.names.hasOwnProperty('foo')).equals(true)
-    o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar baz')
+    o(j2c.names.foo).equals(j2c.prefix + 'foo' + ' bar baz')
   })
 
   o('bad target name', function() {
@@ -189,13 +189,13 @@ o.spec('@adopt: ', function() {
       '@adopt foo': 'bar'
     })).deepEquals([])
     o(j2c.names.hasOwnProperty('foo')).equals(true)
-    o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
+    o(j2c.names.foo).equals(j2c.prefix + 'foo' + ' bar')
 
     var css = j2c.sheet({'.foo': {color: 'red'}})
 
-    o(j2c.names.foo).equals('foo' + j2c.suffix + ' bar')
+    o(j2c.names.foo).equals(j2c.prefix + 'foo' + ' bar')
     o(css).deepEquals([
-      ['rule', '.foo'+j2c.suffix],
+      ['rule', '.' + j2c.prefix + 'foo'],
         ['decl', 'color', 'red'],
       ['_rule']
     ])

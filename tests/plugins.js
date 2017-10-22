@@ -4,10 +4,10 @@ var J2c = require('../dist/j2c.commonjs')
 var sink = require('../test-utils/sinks').simple
 
 o.spec('Options and plugins', function(){
-  o('string suffix', function(){
-    var j2c = new J2c({suffix: '_suf', plugins:[sink]})
+  o('string prefix', function(){
+    var j2c = new J2c({prefix: 'pref', plugins:[sink]})
 
-    o(j2c.suffix).equals('_suf')
+    o(j2c.prefix).equals('pref__')
 
     var css = j2c.sheet({
       '@keyframes foo': {
@@ -20,29 +20,27 @@ o.spec('Options and plugins', function(){
     })
 
     o(css).deepEquals([
-      ['atrule', '@keyframes', 'keyframes', 'foo_suf', 'rule'],
+      ['atrule', '@keyframes', 'keyframes', 'pref__foo', 'rule'],
         ['rule', 'from, to'],
           ['decl', 'width', 0],
         ['_rule'],
       ['_atrule'],
-      ['rule', '.bar_suf'],
-        ['decl', 'animation', 'baz_suf 1sec'],
-        ['decl', 'animation-name', 'qux_suf'],
+      ['rule', '.pref__bar'],
+        ['decl', 'animation', 'pref__baz 1sec'],
+        ['decl', 'animation-name', 'pref__qux'],
       ['_rule']
     ])
-    o(j2c.names).deepEquals({
-      foo: 'foo_suf',
-      bar: 'bar_suf',
-      baz: 'baz_suf',
-      qux: 'qux_suf'
-    })
+    o(j2c.names.foo).equals('pref__foo')
+    o(j2c.names.bar).equals('pref__bar')
+    o(j2c.names.baz).equals('pref__baz')
+    o(j2c.names.qux).equals('pref__qux')
   })
 
-  o('number suffix', function(){
-    var j2c = new J2c({suffix: 4, plugins:[sink]})
-    var suf = j2c.suffix
+  o('number prefix', function(){
+    var j2c = new J2c({prefix: 4, plugins:[sink]})
+    var pref = j2c.prefix
 
-    o(suf.length).equals(5)
+    o(pref.length).equals(7)
 
     var css = j2c.sheet({
       '@keyframes foo': {
@@ -55,21 +53,21 @@ o.spec('Options and plugins', function(){
     })
 
     o(css).deepEquals([
-      ['atrule', '@keyframes', 'keyframes', 'foo' + suf, 'rule'],
+      ['atrule', '@keyframes', 'keyframes', pref + 'foo', 'rule'],
         ['rule', 'from, to'],
           ['decl', 'width', 0],
         ['_rule'],
       ['_atrule'],
-      ['rule', '.bar' + suf],
-        ['decl', 'animation', 'baz' + suf + ' 1sec'],
-        ['decl', 'animation-name', 'qux' + suf],
+      ['rule', '.' + pref + 'bar'],
+        ['decl', 'animation', pref + 'baz 1sec'],
+        ['decl', 'animation-name', pref + 'qux'],
       ['_rule']
     ])
     o(j2c.names).deepEquals({
-      foo: 'foo' + suf,
-      bar: 'bar' + suf,
-      baz: 'baz' + suf,
-      qux: 'qux' + suf
+      foo: pref + 'foo',
+      bar: pref + 'bar',
+      baz: pref + 'baz',
+      qux: pref + 'qux'
     })
   })
 

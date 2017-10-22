@@ -144,7 +144,7 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(css).deepEquals([
         ['rule', '.' + names.bit],
           ['decl', 'foo', 5],
@@ -208,7 +208,7 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(css).deepEquals([
         ['rule', "/*'*/." + names.bit + "/*'*/"],
           ['decl', 'foo', 5],
@@ -227,8 +227,8 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
-      o(names.bat).equals('bat' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
+      o(names.bat).equals(j2c.prefix + 'bat')
       o(css).deepEquals([
         ['rule', '.' + names.bit],
           ['decl', 'foo', 5],
@@ -249,7 +249,7 @@ o.spec('sheets (new suite, WIP)', function() {
           bar: 6
         }
       })
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(names.bat).equals(undefined)
 
       o(css).deepEquals([
@@ -274,7 +274,7 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(names.bat).equals(undefined)
       o(css).deepEquals([
         ['rule', '.' + names.bit + '.bat'],
@@ -294,8 +294,8 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
-      o(names.bat).equals('bat' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
+      o(names.bat).equals(j2c.prefix + 'bat')
       o(css).deepEquals([
         ['rule', '.' + names.bit],
           ['decl', 'foo', 5],
@@ -312,7 +312,7 @@ o.spec('sheets (new suite, WIP)', function() {
         '@keyframes bit': {}
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(css).deepEquals([
         ['atrule', '@keyframes', 'keyframes', names.bit, 'rule'],
         ['_atrule']
@@ -375,7 +375,7 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(css).deepEquals([
         ['rule', 'p'],
           ['decl', 'animation', names.bit + ' 1sec'],
@@ -445,8 +445,8 @@ o.spec('sheets (new suite, WIP)', function() {
       o(names.hasOwnProperty('var')).equals(false)
       o(names.hasOwnProperty('foo')).equals(false)
       o(names.hasOwnProperty('sec')).equals(false)
-      o(names.bit).equals('bit' + j2c.suffix)
-      o(names.but).equals('but' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
+      o(names.but).equals(j2c.prefix + 'but')
       o(names.hasOwnProperty('bat')).equals(false)
       o(css).deepEquals([
         ['rule', 'p'],
@@ -459,7 +459,7 @@ o.spec('sheets (new suite, WIP)', function() {
       var names = j2c.names
       var css = j2c.sheet({
         p: {
-          animation: '1sec step(0, end), 2sec step(3, start)'
+          animation: '1sec step(4, end), 2sec step(3, start)'
         }
       })
       o(names.hasOwnProperty('ease')).equals(false)
@@ -480,7 +480,7 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(css).deepEquals([
         ['rule', 'p'],
           ['decl', 'animation-name', names.bit],
@@ -496,8 +496,8 @@ o.spec('sheets (new suite, WIP)', function() {
         }
       })
 
-      o(names.bit).equals('bit' + j2c.suffix)
-      o(names.bat).equals('bat' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
+      o(names.bat).equals(j2c.prefix + 'bat')
       o(css).deepEquals([
         ['rule', 'p'],
           ['decl', 'animation-name', names.bit + ',' + names.bat],
@@ -512,7 +512,7 @@ o.spec('sheets (new suite, WIP)', function() {
           animationName: 'bit, global(bat)'
         }
       })
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(names.bat).equals(undefined)
       o(css).deepEquals([
         ['rule', 'p'],
@@ -545,7 +545,7 @@ o.spec('sheets (new suite, WIP)', function() {
       })
       o(names.hasOwnProperty('var')).equals(false)
       o(names.hasOwnProperty('foo')).equals(false)
-      o(names.bar).equals('bar' + j2c.suffix)
+      o(names.bar).equals(j2c.prefix + 'bar')
       o(css).deepEquals([
         ['rule', 'p'],
           ['decl', 'animation-name', 'var(--foo,' + names.bar + ')'],
@@ -562,7 +562,7 @@ o.spec('sheets (new suite, WIP)', function() {
       })
       o(names.hasOwnProperty('var')).equals(false)
       o(names.hasOwnProperty('foo')).equals(false)
-      o(names.bar).equals('bar' + j2c.suffix)
+      o(names.bar).equals(j2c.prefix + 'bar')
       o(css).deepEquals([
         ['rule', 'p'],
           ['decl', 'animation-name', 'var(--foo,var(--bar,' + names.bar + '))'],
@@ -614,7 +614,7 @@ o.spec('sheets (new suite, WIP)', function() {
           }
         }
       })
-      o(names.bit).equals('bit' + j2c.suffix)
+      o(names.bit).equals(j2c.prefix + 'bit')
       o(names.bat).equals(undefined)
       o(css).deepEquals([
         ['rule', '.' + names.bit + '.bat'],
@@ -642,7 +642,7 @@ o.spec('sheets (new suite, WIP)', function() {
 
       o(names.hasOwnProperty('bit')).equals(false)
       o(names.hasOwnProperty('bat')).equals(false)
-      o(names.but).equals('but' + j2c.suffix)
+      o(names.but).equals(j2c.prefix + 'but')
       o(css).deepEquals([
         ['rule', '.bit.bat'],
           ['decl', 'foo', 6],

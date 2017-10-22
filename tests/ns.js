@@ -4,19 +4,37 @@ var J2c = require('../dist/j2c.commonjs')
 var sink = require('../test-utils/sinks').simple
 
 o.spec('namespaces', function (){
-  o('basic', function(){
+  o('named namespace', function(){
     var j2c = J2c({plugins: [sink]})
     var other = j2c.ns('other')
-    var j2cRes = j2c.inline({animationName: 'foo'})
     var otherRes = other.inline({animationName: 'foo'})
 
-    o(other.prefix).equals('__other_')
-    o(other.suffix).equals(j2c.suffix)
+    o(other.prefix).equals('other__')
 
-    o(j2c.names.foo).equals('foo'+j2c.suffix)
-    o(other.names.foo).equals('__other_foo'+j2c.suffix)
+    o(other.names.foo).equals('other__foo')
 
-    o(j2cRes).deepEquals([['decl', 'animation-name', j2c.names.foo]])
+    o(otherRes).deepEquals([['decl', 'animation-name', other.names.foo]])
+  })
+  o('anonymous namespace of default length', function(){
+    var j2c = J2c({plugins: [sink]})
+    var other = j2c.ns()
+    var otherRes = other.inline({animationName: 'foo'})
+
+    o(other.prefix.length).equals(10)
+
+    o(other.names.foo).equals(other.prefix + 'foo')
+
+    o(otherRes).deepEquals([['decl', 'animation-name', other.names.foo]])
+  })
+  o('anonymous namespace of custom length', function(){
+    var j2c = J2c({prefix: 3, plugins: [sink]})
+    var other = j2c.ns()
+    var otherRes = other.inline({animationName: 'foo'})
+
+    o(other.prefix.length).equals(6)
+
+    o(other.names.foo).equals(other.prefix + 'foo')
+
     o(otherRes).deepEquals([['decl', 'animation-name', other.names.foo]])
   })
   o('namespaced instances inherit plugin.set properties', function() {
