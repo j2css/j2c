@@ -64,7 +64,7 @@ export function declarations(frontend, emit, prefix, o, local) {
       // We may 'localize' a comment, but it's not a big deal.
       o = o.split(',').map(function (o) {
 
-        return o.replace(/^\s*(?:(var\([^)]+\))|:?global\(\s*([_A-Za-z][-\w]*)\s*\)|()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
+        return o.replace(/^\s*(?:(var\([^),]+(?:\)|$))|(?:var\([^,]+,\s*)??:?global\(\s*([_A-Za-z][-\w]*)\s*\)|(?:var\([^,]+,\s*)??()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
 
       }).join(',')
     }

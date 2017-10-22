@@ -438,7 +438,7 @@ o.spec('sheets (new suite, WIP)', function() {
       var names = j2c.names
       var css = j2c.sheet({
         p: {
-          animation: 'var(--foo) 1sec, bit 2sec, global(bat) 3sec'
+          animation: 'var(--foo, but) 1sec, bit 2sec, global(bat) 3sec'
         }
       })
 
@@ -446,10 +446,11 @@ o.spec('sheets (new suite, WIP)', function() {
       o(names.hasOwnProperty('foo')).equals(false)
       o(names.hasOwnProperty('sec')).equals(false)
       o(names.bit).equals('bit' + j2c.suffix)
+      o(names.but).equals('but' + j2c.suffix)
       o(names.hasOwnProperty('bat')).equals(false)
       o(css).deepEquals([
         ['rule', 'p'],
-          ['decl', 'animation', 'var(--foo) 1sec,' + names.bit + ' 2sec,bat 3sec'],
+          ['decl', 'animation', 'var(--foo,' + names.but + ') 1sec,' + names.bit + ' 2sec,bat 3sec'],
         ['_rule']
       ])
     })
@@ -534,6 +535,73 @@ o.spec('sheets (new suite, WIP)', function() {
       ])
     })
 
+    o('one animation-name with a CSS variable that has a local fallback', function() {
+      var names = j2c.names
+      var css = j2c.sheet({
+        p: {
+          animationName: 'var(--foo, bar)'
+        }
+      })
+      o(names.hasOwnProperty('var')).equals(false)
+      o(names.hasOwnProperty('foo')).equals(false)
+      o(names.bar).equals('bar' + j2c.suffix)
+      o(css).deepEquals([
+        ['rule', 'p'],
+          ['decl', 'animation-name', 'var(--foo,' + names.bar + ')'],
+        ['_rule']
+      ])
+    })
+
+    o('one animation-name with nested CSS variables that have a local fallback', function() {
+      var names = j2c.names
+      var css = j2c.sheet({
+        p: {
+          animationName: 'var(--foo, var(--bar, bar))'
+        }
+      })
+      o(names.hasOwnProperty('var')).equals(false)
+      o(names.hasOwnProperty('foo')).equals(false)
+      o(names.bar).equals('bar' + j2c.suffix)
+      o(css).deepEquals([
+        ['rule', 'p'],
+          ['decl', 'animation-name', 'var(--foo,var(--bar,' + names.bar + '))'],
+        ['_rule']
+      ])
+    })
+
+    o('one animation-name with a CSS variable that has a global fallback', function() {
+      var names = j2c.names
+      var css = j2c.sheet({
+        p: {
+          animationName: 'var(--foo, global(bar))'
+        }
+      })
+      o(names.hasOwnProperty('var')).equals(false)
+      o(names.hasOwnProperty('foo')).equals(false)
+      o(names.hasOwnProperty('bar')).equals(false)
+      o(css).deepEquals([
+        ['rule', 'p'],
+          ['decl', 'animation-name', 'var(--foo,bar)'],
+        ['_rule']
+      ])
+    })
+
+    o('one animation-name with nested CSS variables that have a global fallback', function() {
+      var names = j2c.names
+      var css = j2c.sheet({
+        p: {
+          animationName: 'var(--foo, var(--bar, global(bar)))'
+        }
+      })
+      o(names.hasOwnProperty('var')).equals(false)
+      o(names.hasOwnProperty('foo')).equals(false)
+      o(names.hasOwnProperty('bar')).equals(false)
+      o(css).deepEquals([
+        ['rule', 'p'],
+          ['decl', 'animation-name', 'var(--foo,var(--bar,bar))'],
+        ['_rule']
+      ])
+    })
     o('a nested @global at-rule', function() {
       var names = j2c.names
       var css = j2c.sheet({
