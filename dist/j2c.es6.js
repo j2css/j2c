@@ -90,7 +90,7 @@ function flatIter (f) {
 }
 
 var chars = '';
-function randChars(n) {
+function randIdentifier(n) {
   while(chars.length < n) chars += Math.floor(Math.random() * 0x100000000).toString(36);
   var res = '_' + chars.slice(0, n);
   chars = chars.slice(n);
@@ -299,34 +299,35 @@ function rules(frontend, emit, prefix, tree, local, nestingDepth) {
   }
 }
 
-// This is the first entry in the filters array, which is
-// actually the last step of the compiler. It inserts
-// closing braces to close normal (non at-) rules (those
-// that start with a selector). Doing it earlier is
-// impossible without passing frontend around in unrelated code
-// or ending up with duplicated selectors when the source tree
-// contains arrays.
-// There's no `_rule` handler, because the core compiler never
-// calls it.
+// Technically the outermost part of the backend, it is
+// conceptually part of the fronted that would otherwise
+// emit invalid CSS.  It inserts closing braces to close
+// normal (non at-) rules (those that start with a selector).
+// Doing it earlier is impossible without passing frontend
+// around in unrelated code or ending up with duplicated
+// selectors when the source tree contains arrays.
 function closeSelectors(next, inline) {
   var lastSelector;
   return inline ? next : {
-    init: function(){lastSelector = ''; next.init();},
+    init: function(){
+      lastSelector = '';
+      next.init();
+    },
     done: function () {
-      if (lastSelector) {next._rule(); lastSelector = '';}
+      if (lastSelector !== '') {next._rule(); lastSelector = '';}
       return next.done()
     },
     atrule: function (rule, kind, param, takesBlock) {
-      if (lastSelector) {next._rule(); lastSelector = '';}
+      if (lastSelector !== '') {next._rule(); lastSelector = '';}
       next.atrule(rule, kind, param, takesBlock);
     },
     _atrule: function (rule) {
-      if (lastSelector) {next._rule(); lastSelector = '';}
+      if (lastSelector !== '') {next._rule(); lastSelector = '';}
       next._atrule(rule);
     },
     rule: function (selector) {
       if (selector !== lastSelector){
-        if (lastSelector) next._rule();
+        if (lastSelector !== '') next._rule();
         next.rule(selector);
         lastSelector = selector;
       }
@@ -434,7 +435,9 @@ function standardAtRules(next) {
 
       if (k[2] === 'keyframes' && k[3] === '') {
         if(prefix !== '') {
-          k[3] = '_' + randChars(8);
+          k[3] = randIdentifier(8);
+          // this is necessary if the rule hasn't been opened yet
+          // it is ignored if the rule is already opened.
           emit.rule(prefix);
           emit.decl('animation-name', k[3]);
         } else {
@@ -566,7 +569,7 @@ function J2c(options) {
   var _filters = [closeSelectors];
   var _atrulePlugins = [];
   var _setPropList = [];
-  var _suffix = randChars(7);
+  var _suffix = randIdentifier(7);
   var _nsCache = {};
   var _atrules = baselineAtRules;
   // the public API (see the main docs)
@@ -584,7 +587,7 @@ function J2c(options) {
     })(options.plugins);
   }
   if (type.call(options.suffix) === STRING) _suffix = options.suffix;
-  if (type.call(options.suffix) === NUMBER) _suffix = randChars(options.suffix);
+  if (type.call(options.suffix) === NUMBER) _suffix = randIdentifier(options.suffix);
 
   for (var i = _atrulePlugins.length; i--;) _atrules = _atrulePlugins[i](_atrules);
 
