@@ -459,14 +459,15 @@ o.spec('sheets (new suite, WIP)', function() {
       var names = j2c.names
       var css = j2c.sheet({
         p: {
-          animation: '1sec ease'
+          animation: '1sec step(0, end), 2sec step(3, start)'
         }
       })
       o(names.hasOwnProperty('ease')).equals(false)
-      o(names.hasOwnProperty('sec')).equals(false)
+      o(names.hasOwnProperty('step')).equals(false)
+      o(names.hasOwnProperty('end')).equals(false)
       o(css).deepEquals([
         ['rule', 'p'],
-          ['decl', 'animation', '1sec ease'],
+          ['decl', 'animation', '1sec step(4, end), 2sec step(3, start)'],
         ['_rule']
       ])
     })

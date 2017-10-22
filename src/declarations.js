@@ -60,9 +60,10 @@ export function declarations(frontend, emit, prefix, o, local) {
     k = prefix.replace(/[A-Z]/g, decamelize)
 
     if (local && (k == 'animation-name' || k == 'animation')) {
-      // no need to tokenize here a plain `.split(',')` has all bases covered.
+      // No need to tokenize here. We split in comas not followed by a keyword
+      // legal in `step()` functions.
       // We may 'localize' a comment, but it's not a big deal.
-      o = o.split(',').map(function (o) {
+      o = o.split(/,(?!\s*(?:start|end)\b)/).map(function (o) {
 
         return o.replace(/^\s*(?:(var\([^),]+(?:\)|$))|(?:var\([^,]+,\s*)??:?global\(\s*([_A-Za-z][-\w]*)\s*\)|(?:var\([^,]+,\s*)??()(-?[_A-Za-z][-\w]*))/, frontend.localizeReplacer)
 
