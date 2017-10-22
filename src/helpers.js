@@ -91,7 +91,7 @@ function flatIter (f) {
 }
 
 var chars = ''
-function randChars(n) {
+function randIdentifier(n) {
   while(chars.length < n) chars += Math.floor(Math.random() * 0x100000000).toString(36)
   var res = '_' + chars.slice(0, n)
   chars = chars.slice(n)
@@ -102,5 +102,5 @@ export {
   ARRAY, FUNCTION, NUMBER, OBJECT, STRING,
   ampersand, cartesian, defaults,
   flatIter, freeze, own,
-  randChars, splitSelector, type
+  randIdentifier, splitSelector, type
 }

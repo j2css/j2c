@@ -1,4 +1,4 @@
-import {flatIter, randChars} from './helpers'
+import {flatIter, randIdentifier} from './helpers'
 import {rules} from './rules'
 import {declarations} from './declarations'
 
@@ -99,7 +99,9 @@ export function standardAtRules(next) {
 
       if (k[2] === 'keyframes' && k[3] === '') {
         if(prefix !== '') {
-          k[3] = '_' + randChars(8)
+          k[3] = randIdentifier(8)
+          // this is necessary if the rule hasn't been opened yet
+          // it is ignored if the rule is already opened.
           emit.rule(prefix)
           emit.decl('animation-name', k[3])
         } else {

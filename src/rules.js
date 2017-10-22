@@ -130,34 +130,35 @@ export function rules(frontend, emit, prefix, tree, local, nestingDepth) {
   }
 }
 
-// This is the first entry in the filters array, which is
-// actually the last step of the compiler. It inserts
-// closing braces to close normal (non at-) rules (those
-// that start with a selector). Doing it earlier is
-// impossible without passing frontend around in unrelated code
-// or ending up with duplicated selectors when the source tree
-// contains arrays.
-// There's no `_rule` handler, because the core compiler never
-// calls it.
+// Technically the outermost part of the backend, it is
+// conceptually part of the fronted that would otherwise
+// emit invalid CSS.  It inserts closing braces to close
+// normal (non at-) rules (those that start with a selector).
+// Doing it earlier is impossible without passing frontend
+// around in unrelated code or ending up with duplicated
+// selectors when the source tree contains arrays.
 export function closeSelectors(next, inline) {
   var lastSelector
   return inline ? next : {
-    init: function(){lastSelector = ''; next.init()},
+    init: function(){
+      lastSelector = ''
+      next.init()
+    },
     done: function () {
-      if (lastSelector) {next._rule(); lastSelector = ''}
+      if (lastSelector !== '') {next._rule(); lastSelector = ''}
       return next.done()
     },
     atrule: function (rule, kind, param, takesBlock) {
-      if (lastSelector) {next._rule(); lastSelector = ''}
+      if (lastSelector !== '') {next._rule(); lastSelector = ''}
       next.atrule(rule, kind, param, takesBlock)
     },
     _atrule: function (rule) {
-      if (lastSelector) {next._rule(); lastSelector = ''}
+      if (lastSelector !== '') {next._rule(); lastSelector = ''}
       next._atrule(rule)
     },
     rule: function (selector) {
       if (selector !== lastSelector){
-        if (lastSelector) next._rule()
+        if (lastSelector !== '') next._rule()
         next.rule(selector)
         lastSelector = selector
       }

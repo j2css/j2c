@@ -1,4 +1,4 @@
-import {defaults, flatIter, freeze, randChars, own, type, ARRAY, FUNCTION, NUMBER, OBJECT, STRING} from './helpers'
+import {defaults, flatIter, freeze, randIdentifier, own, type, ARRAY, FUNCTION, NUMBER, OBJECT, STRING} from './helpers'
 import {closeSelectors, rules} from './rules'
 import {declarations} from './declarations'
 import {modulesAtRules, standardAtRules, unsupportedAtRule} from './at-rules'
@@ -103,7 +103,7 @@ export default function J2c(options) {
   var _filters = [closeSelectors]
   var _atrulePlugins = []
   var _setPropList = []
-  var _suffix = randChars(7)
+  var _suffix = randIdentifier(7)
   var _nsCache = {}
   var _atrules = baselineAtRules
   // the public API (see the main docs)
@@ -121,7 +121,7 @@ export default function J2c(options) {
     })(options.plugins)
   }
   if (type.call(options.suffix) === STRING) _suffix = options.suffix
-  if (type.call(options.suffix) === NUMBER) _suffix = randChars(options.suffix)
+  if (type.call(options.suffix) === NUMBER) _suffix = randIdentifier(options.suffix)
 
   for (var i = _atrulePlugins.length; i--;) _atrules = _atrulePlugins[i](_atrules)
 

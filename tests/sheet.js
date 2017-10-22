@@ -66,6 +66,10 @@ o.spec('sheets (new suite, WIP)', function() {
     })
     var name = css[1][2]
 
+    o(typeof name).equals('string')
+    o(name.length).equals(9)
+    o(name.charAt(0)).equals('_')
+
     o(css).deepEquals([
       ['rule', 'p'],
         ['decl', 'animation-name', name],
