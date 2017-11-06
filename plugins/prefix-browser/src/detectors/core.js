@@ -2,7 +2,12 @@
 
 var allStyles, styleAttr, styleElement, supportedProperty, supportedDecl
 
-function init() {
+export {
+  allStyles, styleAttr,
+  supportedDecl, supportedProperty
+}
+
+export function init() {
   allStyles = getComputedStyle(document.documentElement, null)
   styleAttr = document.createElement('div').style
   styleElement = document.documentElement.appendChild(document.createElement('style'))
@@ -14,25 +19,25 @@ function init() {
     supportedProperty = function(property) {return _supportedProperty(camelCase(property))}
   }
 }
-function finalize() {
+export function finalize() {
   if (typeof document !== 'undefined') document.documentElement.removeChild(styleElement)
   // `styleAttr` is used at run time via `supportedProperty()`
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null
 }
-function cleanupDetectorUtils() {
+export function cleanupDetectorUtils() {
   finalize()
   styleAttr = null
 }
-function hasCleanState() {
+export function hasCleanState() {
   return allStyles == null && styleAttr == null && styleElement == null
 }
 // Helpers, in alphabetic order
 
-function camelCase(str) {
+export function camelCase(str) {
   return str.replace(/-([a-z])/g, function($0, $1) { return $1.toUpperCase() }).replace('-','')
 }
-function deCamelCase(str) {
+export function deCamelCase(str) {
   return str.replace(/[A-Z]/g, function($0) { return '-' + $0.toLowerCase() })
 }
 function _supportedDecl(property, value) {
@@ -40,7 +45,7 @@ function _supportedDecl(property, value) {
   styleAttr[property] = value
   return !!styleAttr[property]
 }
-function supportedMedia(property, value) {
+export function supportedMedia(property, value) {
   styleElement.textContent = '@media (' + property + ':' + value +'){}'
   // The !!~indexOf trick. False for -1, true otherwise.
   return !!~styleElement.sheet.cssRules[0].cssText.indexOf(value)
@@ -48,14 +53,8 @@ function supportedMedia(property, value) {
 function _supportedProperty(property) {
   return property in styleAttr
 }
-function supportedRule(selector) {
+export function supportedRule(selector) {
   styleElement.textContent = selector + '{}'
   return !!styleElement.sheet.cssRules.length
 }
 
-export {
-  allStyles, styleAttr,
-  init, finalize, cleanupDetectorUtils, hasCleanState,
-  camelCase, deCamelCase,
-  supportedDecl, supportedMedia, supportedProperty, supportedRule
-}

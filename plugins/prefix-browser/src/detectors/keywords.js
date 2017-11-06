@@ -112,6 +112,7 @@ export function detectKeywords(fixers) {
     // IE 10, Flexbox 2012
     fixers.keywords.display.flex = fixers.keywords.display.flexbox
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox']
+    fixers.flexbox2012 = true
     for (k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k]
       fixers.keywords[k] = flex2012Values

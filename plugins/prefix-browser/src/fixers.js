@@ -22,6 +22,7 @@ export function blankFixers() {
     fixSelector: null,
     fixValue: null,
     flexbox2009: false,
+    flexbox2012: false,
     functions: [],
     initial: null,
     jsFlex: false,
@@ -103,6 +104,10 @@ function makeLexer (before, targets, after) {
 
 // declarations
 // ------------
+// function trim(s) {
+//   return s.replace(/^\s*(.*?)\s*$/, '$1')
+// }
+
 export function fixDecl(fixers, emit, property, value) {
   if (typeof property !== 'string' || property.charAt(0) === '-') return emit(property, value)
 
@@ -116,11 +121,17 @@ export function fixDecl(fixers, emit, property, value) {
       emit('-js-display', value)
       return
     }
-  }
-  if (fixers.flexbox2009) {
+  } else if (fixers.flexbox2009) {
       // TODO: flex only takes one value in the 2009 spec
+    // if (property === 'flex') {
+    //   value = trim(value)
+    //   if (value === 'none' || value === 'initial') emit(property, '0')
+    //   else if (value === 'auto') emit(property, '1')
+    //   else emit(property, value.replace(/^(\d+)(?=\W|$).*/, '$1'))
+    //   return
+    // } else
     if (property === 'flex-flow') {
-      value.split(' ').forEach(function(v){
+      value.split(/\s+/).forEach(function(v){
         // recurse! The lack of `next.` is intentional.
         if (v.indexOf('wrap') > -1) fixDecl(fixers, emit, 'flex-wrap', v)
         else if(v !== '') fixDecl(fixers, emit, 'flex-direction', v)
@@ -132,6 +143,11 @@ export function fixDecl(fixers, emit, property, value) {
       return
     }
   }
+  // else if (fixers.flexbox2012) {
+  //   // if (property === 'flex' && value.indexOf('calc(') !== -1) {
+  //   //   var parsed =
+  //   // }
+  // }
   if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
     emit('-webkit-background-clip', value)
   } else {

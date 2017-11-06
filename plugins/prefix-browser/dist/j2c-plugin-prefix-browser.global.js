@@ -27,6 +27,8 @@ function finalize() {
   // `allStyles` and `styleElement` can be displosed of after initialization.
   allStyles = styleElement = null;
 }
+
+
 // Helpers, in alphabetic order
 
 function camelCase(str) {
@@ -249,6 +251,7 @@ function detectKeywords(fixers) {
     // IE 10, Flexbox 2012
     fixers.keywords.display.flex = fixers.keywords.display.flexbox;
     fixers.keywords.display['inline-flex'] = fixers.keywords.display['inline-flexbox'];
+    fixers.flexbox2012 = true;
     for (k in flex2012Props) {
       fixers.properties[k] = flex2012Props[k];
       fixers.keywords[k] = flex2012Values;
@@ -384,6 +387,7 @@ function blankFixers() {
     fixSelector: null,
     fixValue: null,
     flexbox2009: false,
+    flexbox2012: false,
     functions: [],
     initial: null,
     jsFlex: false,
@@ -465,6 +469,10 @@ function makeLexer (before, targets, after) {
 
 // declarations
 // ------------
+// function trim(s) {
+//   return s.replace(/^\s*(.*?)\s*$/, '$1')
+// }
+
 function fixDecl(fixers, emit, property, value) {
   if (typeof property !== 'string' || property.charAt(0) === '-') return emit(property, value)
 
@@ -478,11 +486,17 @@ function fixDecl(fixers, emit, property, value) {
       emit('-js-display', value);
       return
     }
-  }
-  if (fixers.flexbox2009) {
+  } else if (fixers.flexbox2009) {
       // TODO: flex only takes one value in the 2009 spec
+    // if (property === 'flex') {
+    //   value = trim(value)
+    //   if (value === 'none' || value === 'initial') emit(property, '0')
+    //   else if (value === 'auto') emit(property, '1')
+    //   else emit(property, value.replace(/^(\d+)(?=\W|$).*/, '$1'))
+    //   return
+    // } else
     if (property === 'flex-flow') {
-      value.split(' ').forEach(function(v){
+      value.split(/\s+/).forEach(function(v){
         // recurse! The lack of `next.` is intentional.
         if (v.indexOf('wrap') > -1) fixDecl(fixers, emit, 'flex-wrap', v);
         else if(v !== '') fixDecl(fixers, emit, 'flex-direction', v);
@@ -494,6 +508,11 @@ function fixDecl(fixers, emit, property, value) {
       return
     }
   }
+  // else if (fixers.flexbox2012) {
+  //   // if (property === 'flex' && value.indexOf('calc(') !== -1) {
+  //   //   var parsed =
+  //   // }
+  // }
   if(fixers.WkBCTxt && property === 'background-clip' && value === 'text') {
     emit('-webkit-background-clip', value);
   } else {
