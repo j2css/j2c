@@ -10,6 +10,7 @@ export function detectSelectors(fixers) {
 
   if (fixers.prefix === '') return
   var selectors = {
+    ':any': ':matches',
     ':any-link': null,
     '::backdrop': null,
     ':fullscreen': null, //TODO sort out what changed between specs

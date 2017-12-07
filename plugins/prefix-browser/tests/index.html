@@ -317,14 +317,13 @@ function Parser( rules, i ){
 <textarea id='codeArea'>
 // The code runs live, feel free to edit it!
 j2c.sheet({'@global':{
- '.download': {
+ '.download:matches(.foo)': {
     animation: 'rotate',
     backgroundClip: 'text',
     backgroundImage: 'linear-gradient(5deg, red, rgba(125,0,0,.3))',
     borderRadius: '50%',
     boxShadow: '.1em .2em .4em -.2em black',
     boxSizing: 'border-box',
-    color: 'white',
     cursor: 'zoom-in',
     display: 'grid',
     textDecoration: 'initial',
